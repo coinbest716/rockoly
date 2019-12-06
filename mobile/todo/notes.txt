@@ -1,0 +1,70 @@
+Boopathi 
+------------------------------------------------------------
+Common
+	- Disable button while loading - 
+	- Android button text font where caps but ios it normal - Completed
+		- Android: LOGIN
+		- IOS: Login
+No login 
+	- conversation keep on logging - Completed
+	- notification screen
+		- pl login to see the notification alignment is different
+	- Account tab
+		Add message below profile pic
+		Welcome to Rockoly. Please click login/register to get started
+Login screen
+	- email some type extra chart gets typing. 
+Login -> Change OR to or
+Forgot password
+	- spelling incorrect - forget password
+	- Update message - Please enter your email address associated with your account. we will send you a link to reset password
+	- change email icon - color
+	- show alert if invalid email 
+	- show toast if email sent and navigate back to login.
+	- email address -> convert to lowercase and remove empty spaces
+Switch to chef	
+	Alert title - Account switching
+	Alert message - Are you sure want to switch to chef/customer
+Chef profile - view screen
+	Profile pic and line next overlapping
+	MILES in caps
+	Business hours -> no spaces between text
+	Cuisine/dish type reduce font size
+	-> Check availability & Book Chef
+	Hide - badge and high in demand
+	Hide experience if not set or 0
+	Hide no of hired 0 	
+Chef list
+	chef item
+		- MILES in caps letter
+		- empty line between address and $60 hours
+Notification screen
+	- got hanged while clearing all notification
+Janani 
+----------------------------------------------------------
+Conversation list	
+	- Change header title to inbox
+	- only show active conversation
+	- closed conversation show in the archived conversation
+	- message -> show text one line only
+Booking history
+	- from/to date display as input select
+	- item 
+		show address single line.
+Booking item/details page
+	- increase the chat icon size
+	- location icon color is not in primary color
+	- show exact status and after doing any action show exact message instead of booking status updated.
+Booking flow 
+	- once successful booking show alert. we have sent a booking request to chef. you will receive notification once chef has confirmed.
+	- notification not receiving if chef accpeted 
+Booking request
+	- show only in progress and upcoming booking data
+	- disable unavailablity days - 
+Payment history
+	- remove * xxx message
+	- List item
+	- Display who paid them and amount
+	- Location single line
+	- Booking date
+	- Booking time

@@ -1,0 +1,19 @@
+ // const gqlRes = {
+    //   customerEmailId: 'hariharan@neosme.com',
+    //   customerId: '948f0e6f-5feb-46cd-ad2e-f05f3a72c5f2',
+    //   customerProfileExtendedId: '187ec091-caa4-46b6-a903-0db8c689f5f7',
+    // }
+
+    // const gqlRes2 = {
+    //   chefEmailId: 'kiruthika@neosme.com',
+    //   chefId: 'db4b6464-196b-47c9-ac8b-8c5d0b9d4da1',
+    //   chefProfileExtendedId: '4b7e6c0e-c178-4458-b0f7-8dd651a90344',
+    // }
+
+    // const gqlRes = {
+    //   customerEmailId: 'hariharan@neosme.com',
+    //   customerId: '948f0e6f-5feb-46cd-ad2e-f05f3a72c5f2',
+    //   customerProfileExtendedId: '187ec091-caa4-46b6-a903-0db8c689f5f7',
+    // }
+
+    vtalvin@yahoo.com / welcome123

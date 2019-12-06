@@ -1,0 +1,86 @@
+Testing Points
+Both chef and customer
+Login/Register
+    - Remove are u chef in login/register
+    - Register  
+      - Facebook login - if Facebook account does not have email address it will ask email address
+      - Checking email/mobile no is already exists or not
+Customer 
+  - Chef List 
+    - Single Chef item
+      - Displayed high level location
+    - List
+      - Search location screen
+      - Location screen
+      - Filter screen
+        - price
+        - Rating
+        - dish type
+        - cuisine type
+        - clear filters
+  - Chef Detail Screen
+      - Attachments license,certificates,others
+      - Gallery
+      - Ingredients
+  - Fav List 
+      - high level location
+  - Booking History
+      - All booking data in single screen
+      - able to filter by status
+   - Settings
+        - VerifyMobileNumber 
+          - Checking mob already exists or not
+        - Set Location - save the form and display already saved data
+          - Gps/auto Complete
+          - Updated some back-end changes
+        - Basic profile 
+          - Profile picture upload
+        - Payment methods
+          - Add test card/delete 
+        - switch to chef
+          - it will switch to chef application
+  - Booking flow
+    - Checking booking already is existing or not
+    - Added booking screen  
+      - displayed booking and chef details
+      - able to select card
+      - if card not added already -> able to go to add card page
+      - after card added it will navigate to continue booking
+Chef
+  - Booking Request
+     - with back-end data
+  - Payments screen - 
+     - with back-end data
+  - Chef Profile
+      - Ingredients 
+  - Settings
+      - VerifyMobileNumber 
+           - Checking mob already exists or not
+      - Set Location
+          - Gps/auto Complete
+          - Updated some back-end changes
+      - Profile Setup
+          - Added Ingredients
+          - Added to save new cuisine types, dish types
+          - New Attachments, certificates, others, Gallery
+      - Basic profile 
+         - profile pic upload
+      - Chef profile 
+          - Attachments license,certificates,others
+          - Gallery
+          - Ingredients
+          - Set unavailability by date
+          - Delete unavailability
+      - Payment methods
+          - Add bank account in stripe
+          - Displayed mock data list
+      - Booking History
+          - with back-end data
+      - Booking Detail Screen
+          - with back-end data
+      - switch to customer
+        - it will switch to chef application
+Notifications
+  - list Notifications 
+  - mark as read
+  - clear all

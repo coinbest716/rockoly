@@ -1,0 +1,44 @@
+https://connect.stripe.com/express/oauth/authorize?redirect_uri=https://connect.stripe.com/connect/default/oauth/test&client_id=ca_32D88BD1qLklliziD7gYQvctJIhWBSQ7&state=1
+
+
+"https://connect.stripe.com/connect/default/oauth/test?code=ac_G22TP2PmdO34pXTiLlN7qZ1kDkNfeT1i"
+https://connect.stripe.com/connect/default/oauth/test?code=ac_G22TP2PmdO34pXTiLlN7qZ1kDkNfeT1i"
+"https://connect.stripe.com/connect/default/oauth/test?code=ac_G23eQ80QV6Bss6iaqcopqtnecxHVRr9B"
+
+curl -X POST https://connect.stripe.com/oauth/token \
+-d client_secret=YOUR_SECRET_KEY \
+-d code=ac_G21CXmNB2BhySS1MML7aAkOGMSyz7S85 \
+-d grant_type=authorization_code
+
+{
+  url
+}
+sk_test_x980QiPeONfm7cfKVNQSFFNi00vOsQK71M
+
+curl -X POST https://connect.stripe.com/oauth/token \
+-d client_secret=sk_test_x980QiPeONfm7cfKVNQSFFNi00vOsQK71M \
+-d code=ac_G25eUeA6dsrijnHPT8AKIzXg5h7OyOAL \
+-d grant_type=authorization_code
+
+
+ac_G25eUeA6dsrijnHPT8AKIzXg5h7OyOAL
+
+{
+  "access_token": "sk_test_zNvISUu89a7hIVc9rKoTm3Ls00ODVMIOys",
+  "livemode": false,
+  "refresh_token": "rt_G25eSGdl3w6fLnCUorHHCqQmKXI6KhiDJhqaCdtGATxoEKFb",
+  "token_type": "bearer",
+  "stripe_publishable_key": "pk_test_rDqLss6nnDtUffemshz1WDgG003AjpLwoo",
+  "stripe_user_id": "acct_1FW1SkARG5rGzXIo",
+  "scope": "express"
+}
+
+{
+  "access_token": "sk_test_H3QqyKYq9sYySvuM1vvRaEwi00lZti03BA",
+  "livemode": false,
+  "refresh_token": "rt_G23eidRApDNYvysVA4Ey4R2XfQcMRgO3cx03VKPe0NUethXU",
+  "token_type": "bearer",
+  "stripe_publishable_key": "pk_test_2Ry9U2sHSM2Sy6wqHiFETkcF00VSfNWZNS",
+  "stripe_user_id": "acct_1FVzVoIrmb3hLj5h",
+  "scope": "express"
+}

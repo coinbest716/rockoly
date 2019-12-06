@@ -1,0 +1,57 @@
+COUSTUMER 
+---------
+
+Find chef
+  -> if not logged in 
+    -> show search location screen and then chef list screen
+    -> chef list
+      -> only verified profile
+      -> filter option
+      -> location 
+      -> price low to high
+      -> price high to low
+      -> rating
+      -> other filter option
+    -> chef list item details
+      -> show high level address
+      -> clicking on heart icon -> ask user to login/Register
+
+  -> if logged in
+
+    -> if location set don't show the search location screen, take user directly to the chef list(search location should the user saved location)
+
+    -> if location does set search location screen, ask confirm from user and save into location 
+     then take user to the chef list(search location should the user saved location)
+
+    -> chef list
+      -> only verified profile
+      -> filter option
+      -> location 
+      -> price low to high
+      -> price high to low
+      -> rating
+      -> other filter option
+    -> chef list item details 
+      -> show high level address
+      -> if user already favourite then show heart fill icon
+      -> click empty icon to favourite that chef
+      -> click fill icon to unfavourite that chef
+    ->chef details   
+      ->Need ask client for (Top Pro , High in demand)
+      ->Need to add backend data for hires
+      ->show high level address
+      ->Need to add (no data) text in rate and review while there is no data 
+      ->Need to add functionality for chat button
+    -> Coustumer Profile 
+       ->Need to ask client for Plus client 
+       -Need to added edit 
+
+CHEF 
+----
+
+   ->Profile Setup 
+     ->Need to change the css for business hours 
+     ->Need to add setAvailability 
+  -Profile View 
+     -> Need to added edit button and the detatils should be editable 
+     -> Need to added pic view for work gallery 

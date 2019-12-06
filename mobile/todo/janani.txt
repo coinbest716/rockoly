@@ -1,0 +1,102 @@
+Booking Flow
+  Chef
+      - Set
+         - Set Availability by selecting day/time
+              Save
+              -> For weeks 
+                  -> Day
+                  -> Start time
+                  -> End time
+              -> Confirm alert
+          View -> Show Exists Availability
+          Edit -> Edit Availability
+
+         - Set Non Availability
+            -> Shows Calender of Availability/Non Availability dates
+            -> For Date Range
+                -> Start time 
+                -> End Time 
+            -> Confirm alert
+
+      - Booking Request
+           - Shows Calender about booking Request
+           - fetch back end data and Group date wise
+           - display marked dates in marked dates field
+           - display all month
+           -> List
+              ->name
+              ->Profile pic
+              ->address
+              ->no of hours
+              ->status plus action btn
+
+      - Booking History
+
+          -> All 
+          -> Upcoming
+          -> Cancel
+          -> Completed
+          -> Rejected
+
+          If logged not in
+            -> Please login to view the booking details
+
+          List  ->
+            decending order
+
+          Booking item
+            -> For chef
+              -> show Customer profile pic, name
+              -> address
+              -> no of hours
+              -> amount
+              -> service needed on
+              -> status plus action btn
+
+          Booking details
+            -> For chef
+              -> above details plus
+              -> booked on 
+              -> payment status
+              -> status plus action btn
+
+
+          Action with notes for reject and cancel 
+          For other alert box
+
+
+   Customer
+      - if not logged in 
+        -> ask user to login/register
+        -> verify mob/email
+
+      - logged but not verifed mobile number/email
+
+      - Check Availability
+           - Calender Integration Shows chef Available/non Available dates
+             -> calendar components
+           - While click Available dates shows Available timing in card
+
+      - Booking Chef
+           -> Date
+           -> From Time
+           -> To Time
+           -> ChefPriceperPerhour
+           -> hours
+           -> Total Price
+
+      - Navigation work -> if card not already added
+
+      - payment Process
+
+           -> Card 
+                  - List -> customer  cards
+                  - Save a new Card
+                  - Card remove
+                  - Card edit 
+
+           -> Make Payment 
+                 -> Shows Card and process payment
+
+      - Booking History
+           -> Same as Chef based on Profile differ status

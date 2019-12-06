@@ -1,0 +1,44 @@
+Chef list
+  - displayed no of miles chef can travel
+Chef profile
+  - displayed no of miles chef can travel
+  - displayed minimum no of hours for booking
+Chef setup profile
+  - able to edit minimum no of hours for booking
+Check availability
+  - Validate select time should be greater than minimum no of booking
+
+Booking flow changes
+  - Added dish selection in book now screen
+    - able to add new dish
+  - Booking request
+    - accept modal displayed notes/dish selected by customer
+  - Booking details 
+    - displayed dish types
+  - After successful booking it will redirect to booking details screen
+    - clicking on back will navigate to home screen
+  - Booking cancellation
+    - booking can be cancelled 12hrs before service time.
+
+Chat
+  - Chat will be created whenever booking made between chef and customer
+  - Setting -> inbox -> will display list of conversation
+  - Clicking on conversation list will go to details screen
+  - On that able to chat with chef/customer
+
+UI Fixes
+  - Fixed Chef filter UI
+  - Fixed feedback screen UI
+  - Booking request -> displaying status (previously text where cutoff and came to new line)
+    - now status has been displayed in short form
+ - Booking details 
+    - button alignment fixed
+
+Chef - manage payments - maximum 3 bank accounts
+Customer - manage payments - maximum 5 cards
+
+Notification screen
+  Notification item
+  - clicking on Notification will navigate to booking details
+Push Notification
+  - clicking on Notification will navigate to booking details

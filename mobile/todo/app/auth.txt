@@ -1,0 +1,26 @@
+Both Chef and Customer
+====================================
+Intro screen
+  - role choose screen
+  - show slider for the first time
+  - get the db question/answer
+  - save res to db
+=====================================
+1.Register 
+ - Form validation
+ - Check mobile number not exists
+ - Check email not exists
+ - Google Login
+ - Facebook Login
+  - If Facebook does not have the email. get the email from user
+2.Login 
+  - Form validation
+  - Check whether user blocked or not
+  - keep me logged in
+3.Logout 
+  -> clear saved data and push notification token
+=======================================
+Push Notification
+Generate push notification token and save into db
+Generate push notification cerificate android/ios
+========================================

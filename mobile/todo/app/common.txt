@@ -1,0 +1,3 @@
+Notifications
+  - listing the notification
+  - clicking on the notification to navigate to booking details

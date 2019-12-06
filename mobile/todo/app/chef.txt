@@ -1,0 +1,42 @@
+=============================================
+Chef Tab
+Booking Request 
+  - Booking request for month and input to calendar
+    - get db list for month
+  - Booking request item
+    - accept
+    - reject
+    - cancel
+  - Booking details
+===============================================
+Payment 
+  - List payment received for completed booking
+    - clicking on item will go to booking details
+===============================================
+Profile
+  - View profile
+  - Header edit profile icon
+===============================================
+Settings
+    Display Profile basic info name,email
+    and verified details
+    Mobile verified
+    Email verified
+    Profile Approved
+  If profile not Approved - Submit for approval
+    Highlight setting input needed for submitting the profile
+    1.Fill basic profile details
+    2.Verify Mobile number
+    3.Set location
+    4.Setup profile
+  If profile Approved
+    - display above 4 options like normal items
+  Payment methods
+    - Add/edit/delete payment method to receive amount
+  Booking History
+===============================================
+
+
+
+
+

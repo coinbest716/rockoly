@@ -1,0 +1,56 @@
+New Booking flow with notes
+  - Customer able add note while request Booking
+  - Chef able add notes while accept Booking
+  - Booking details displayed both customer/chef notes
+  - Updated booking request/booking history/booking detail screen to display status of the booking
+
+Load More data on reaching list end
+  - Find Chef
+  - Fav chef
+  - Payment history for customer/chef
+  - Notifications
+
+Chef setup profile
+  Able to upload documents/Attachment based on type
+  Attachment limit -
+    GALLERY: 10
+    CERTIFICATION: 10
+    LICENSE: 5
+    OTHERS: 5
+
+Chef Manage Payments
+  - Added default option to select bank account
+  - Delete option will be hidden for default bank account
+
+Chef set location
+  - Added info message below input to describe each location input field
+
+Chef and customer
+- Unread notification count will be shown in Bell icon
+- Added network alert if no connection
+- Added Exit app alert before quiting application
+- Booking history
+  - Date filter
+  - Added new status filter
+
+Chef list screen
+  - Displayed applied filter option in chef list
+
+Subscription (live data reloading)
+  - Find Chef
+  - Fav List
+  - Payment history for customer/chef
+  - Booking request
+  - Booking history
+  - Customer profile
+  - Chef profile
+  - Chef Manage Payments
+  - Chef Availablity/Unavailablity
+  - Notifications
+
+Push Notifications
+  - Push notification will be received only if application is closed or minimized
+  - It will send for below actions
+    - While sending booking request
+    - While accept/reject/cancelling request
+    - While complete booking request

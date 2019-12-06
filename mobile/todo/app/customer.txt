@@ -1,0 +1,89 @@
+========================================
+Customer Tab
+Find chef
+  -> if not logged in 
+    -> show search location screen and then chef list screen
+    -> chef list
+      -> only verified profile
+      -> filter option
+      -> location 
+      -> price low to high
+      -> price high to low
+      -> rating
+      -> other filter option
+    -> chef list item details
+      -> show high level address
+      -> clicking on heart icon -> ask user to login/Register
+  -> if logged in
+    -> if location set don't show the search location screen, take user directly to the chef list(search location should the user saved location)
+    -> if location does set search location screen, ask confirm from user and save into location 
+     then take user to the chef list(search location should the user saved location)
+    -> chef list
+      -> only verified profile
+      -> filter option
+      -> location 
+      -> price low to high
+      -> price high to low
+      -> rating
+      -> other filter option
+    -> chef list item details 
+      -> show high level address
+      -> if user already favourite then show heart fill icon
+      -> click empty icon to favourite that chef
+      -> click fill icon to unfavourite that chef
+========================================
+Favourite chef
+    - list
+    - click to view profile
+    - unfollow
+========================================
+Booking History
+  -> All 
+  -> Upcoming
+  -> Cancel
+  -> Completed
+  -> Rejected
+  If logged not in
+    -> Please login to view the booking details
+  List  ->
+    decending order
+  Booking item
+    -> For chef
+      -> show Customer profile pic, name
+      -> address
+      -> no of hours
+      -> amount
+      -> service needed on
+      -> status plus action btn
+  Booking details
+    -> For chef
+      -> above details plus
+      -> booked on 
+      -> payment status
+      -> status plus action btn
+  Action with notes for reject and cancel 
+  For other alert box
+========================================
+Account
+  Display Profile basic info name,email
+  and verified details
+  Mobile verified
+  Email verified
+Profile details
+  -> Edit profile
+    -> profile pic
+    -> first,last name
+    -> gender
+    -> date of birth
+  -> change password
+  -> change mobile number
+    after verification
+  -> change search location  
+Payment details
+  -> Management payment methods
+  -> Payment History
+Others
+  -> View favourite
+  -> Notification
+  -> Logout
+========================================

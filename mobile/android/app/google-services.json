@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "51537762972",
+    "firebase_url": "https://rockoly-dev.firebaseio.com",
+    "project_id": "rockoly-dev",
+    "storage_bucket": "rockoly-dev.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:51537762972:android:42ae0f8c5bbeaa26d72b59",
+        "android_client_info": {
+          "package_name": "com.rockoly.chef"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "51537762972-bj2de00o6mkiu71vbf28jrf18216j9nj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.rockoly.chef",
+            "certificate_hash": "e8e2e4da9bc5ac5a09680e2d87db1474f68d8a0d"
+          }
+        },
+        {
+          "client_id": "51537762972-rom7hbia5edbtui2v577k4fvbgub8bet.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDp6BOdvSIWOBvE64Ya0H2HT0d2FpmkL3o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "51537762972-gcp4tvtebnmk7lhj7m57ckn1l3gjp2n5.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "51537762972-4kn9b1iu3jglch8llsjptqm9m0v2t0ot.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.rockoly.chef"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,107 @@
+Testing Points
+
+Both chef and customer
+  - Login
+    -  Email/password login
+    -  Google/facebook login
+    -  Fillup valid details and click login
+    -  if chef account click the toggle to on
+  - Register  
+    -  Email/Password Register
+    -  Google/facebook register
+    -  Fillup valid details and click on the Register
+    -  Don't put any existing email/mob number for now
+    -  if chef account click the toggle to on
+  - Logout
+  - If the user already logged in closing and opening application will be saved user data
+
+Customer 
+  - Chef List 
+      - chef search - not work
+      - Filters(Sort by date, Price(High to Low and Low to high)
+      - Follow Chef will only if you already not followed that user
+      - approved profile only
+      - with back-end data
+      
+  - Chef Detail Screen
+      - Back end data
+      - Mock Data (Top Pro, High in demand,150 hires and Rating and review(From: Singh G))
+  - Fav List 
+      - with back-end data
+      - Unfollow chef
+      
+  - Booking History
+      - with back-end data
+      - In progress on (Accept/reject/cancel/complete fun)
+         - Booking Detail Screen
+            - with back-end data
+            - Pending on (Accept/reject/cancel/complete fun)
+   - Settings
+        - Top section
+          - displayed name, email, mob
+        - VerifyMobileNumber 
+          - Entering new mob
+          - Changing the mob
+           - If not given mobile number display error
+        - Set Location - save the form and display already saved data
+          - Gps/auto Complete
+        - Basic profile 
+          - salutation
+          - firstname, lastname
+          - gender,
+          - date of birth
+        - Payment methods
+          - Add/edit/delete fun are mock and display card all our mock data
+        - switch to chef
+          - with same account able to switch to chef application
+        - change password
+        - logout
+
+Chef
+  - Booking Request
+      - Mock data
+  - Payments screen - empty for now
+  - Chef Profile
+      - Back end data
+      - Mock Data (Top Pro, High in demand,150 hires and Rating and review(From Singh G)) 
+  - Settings
+      - VerifyMobileNumber 
+          - Entering new mob
+          - Changing the mob
+          - If not given mobile number display error
+      - Set Location
+          - Gps/auto Complete
+          - Saved and populate the location details
+      - Profile Setup
+          - save profile detail in the back-end
+          - View updated profile detail
+          - service cost(per hour not to be stored in back-end)
+          - Availability - not work
+      - Basic profile 
+          - salutation
+          - firstname, lastname
+          - gender,
+          - date of birth
+      - Chef profile 
+        able save/display below fields 
+          - experience
+          - profile des,
+          - service cost
+          - business hours
+          - specialization
+          - license no
+          - uploading doc/image
+          - social url
+      - Payment methods
+          - Add/edit/delete fun are mock and display card all our mock data
+      - Booking History
+          - with back-end data
+          - Accept/reject/cancel/complete -  In Progress
+      - Booking Detail Screen
+            - with back-end data
+            - chat icon not work
+            - Accept/reject/cancel/complete -  In Progress
+      - switch to customer
+        - able to switch to customer with same login
+      - change password
+      - logout

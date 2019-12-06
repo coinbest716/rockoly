@@ -1,0 +1,81 @@
+https://connect.stripe.com/express/oauth/authorize?redirect_uri=https://connect.stripe.com/connect/default/oauth/test&client_id=ca_FzminCSsD5XREIvTBd8uKiIWB8JBL0W6
+
+https://connect.stripe.com/connect/default/oauth/test?code=ac_G24VQK8CetNQrW0oe6KF9F6ziGZctcw3
+
+
+curl -X POST https://connect.stripe.com/oauth/token \
+-d client_secret=sk_test_x980QiPeONfm7cfKVNQSFFNi00vOsQK71M \
+-d code=ac_G24VQK8CetNQrW0oe6KF9F6ziGZctcw3 \
+-d grant_type=authorization_code
+
+
+{
+  "access_token": "sk_test_zafiD0DtzoPNxDWjGxLf387D00tQJuBGHc",
+  "livemode": false,
+  "refresh_token": "rt_G24WQ2pFrrXNKwZ60MCNvuNZ3MC8KV1PO9wqQw0QtHl52Mcf",
+  "token_type": "bearer",
+  "stripe_publishable_key": "pk_test_Buv5BiByGg10cRj4Z8b58ggw00qZIOoZKu",
+  "stripe_user_id": "acct_1FW0LOFNoi5XElNk",
+  "scope": "express"
+}
+
+TRANSFER
+ 
+curl https://api.stripe.com/v1/transfers \
+  -u sk_test_x980QiPeONfm7cfKVNQSFFNi00vOsQK71M: \
+  -d amount=200 \
+  -d currency=usd \
+  -d destination=acct_1FW0LOFNoi5XElNk
+
+
+  {
+  "id": "tr_1FW0XIAZeKBPGDhH1AVGl5Bi",
+  "object": "transfer",
+  "amount": 200,
+  "amount_reversed": 0,
+  "balance_transaction": "txn_1FW0XIAZeKBPGDhHSV8Gdgnw",
+  "created": 1571662980,
+  "currency": "usd",
+  "description": null,
+  "destination": "acct_1FW0LOFNoi5XElNk",
+  "destination_payment": "py_1FW0XIFNoi5XElNkNE17sh75",
+  "livemode": false,
+  "metadata": {
+  },
+  "reversals": {
+    "object": "list",
+    "data": [
+
+    ],
+    "has_more": false,
+    "total_count": 0,
+    "url": "/v1/transfers/tr_1FW0XIAZeKBPGDhH1AVGl5Bi/reversals"
+  },
+  "reversed": false,
+  "source_transaction": null,
+  "source_type": "card",
+  "transfer_group": null
+}
+
+REFUND 
+
+curl https://api.stripe.com/v1/refunds \
+  -u sk_test_x980QiPeONfm7cfKVNQSFFNi00vOsQK71M: \
+  -d charge=ch_1FMtHPAZeKBPGDhHgZqu0fWG
+
+
+{
+  "id": "re_1FW0PJAZeKBPGDhHEBYLY6pI",
+  "object": "refund",
+  "amount": 100,
+  "balance_transaction": null,
+  "charge": "ch_1FMtHPAZeKBPGDhHgZqu0fWG",
+  "created": 1571662485,
+  "currency": "usd",
+  "metadata": {},
+  "reason": null,
+  "receipt_number": null,
+  "source_transfer_reversal": null,
+  "status": "succeeded",
+  "transfer_reversal": null
+}

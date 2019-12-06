@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Rockoly</string>
+    <string name="facebook_app_id">499226790899527</string>
+    <string name="default_notification_channel_id">rockoly_default_channel</string>
+</resources>

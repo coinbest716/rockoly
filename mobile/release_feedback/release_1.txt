@@ -1,0 +1,91 @@
+This is feedback from client for mobile and dashboard
+customer
+
+1 - Search by city not working - yet to work on 
+
+2 - Mobile number by default US - we will change it
+ - DONE
+
+3 - Crashed during registration( Changing the country code for the mobile number) - could not reproduce on our end. will try with differnet phone and get back to you
+	- May be share Android OS version details
+	- Note 8 
+	- oneplus 6
+		android - 9
+	
+4 - Are you chef during registration --- ??
+	- Not clear
+	- Later
+
+5 - After registration - Email verification : for regular emails Register success - wrong wording ( Sucess)
+	- we will change it
+
+
+6 - After DOB - Update Successfully ( we do not need OKAY next to it)
+	- Okay
+	- DONE
+	
+	To view chef profile to customer
+	 - not any personal details
+	 - don't show license details
+	 - don't show full address until booking made
+	 - location - city
+
+7 - Option to change picture - profile
+	- We will do that
+
+8 - Booking chef needs to be adjusted( we can discuss on call)
+	- Okay
+	- Adding validation for time
+	- Complete option should come after booking date
+
+9 - Bookings History ( Two section - sorted by date desceding with line future and past)
+	- So don't need completed/pending status as sperated tab
+	- Completed
+
+10 - Location should be just US - Zip codes
+	- Okay
+	- DONE
+
+11 - want review email, text, and app notification to leave review AFTER the cooking
+	- We will to that in upcoming days
+	
+12 - leave extra compliments + tip  - not now
+	- Need to discuss
+
+13 - refresh does not work / load work
+	- Any speific screen
+	
+
+chef
+store certifications
+	- multiple options
+	- Image
+	- We have PDF option to upload
+
+store other platform + import from other platform in the future
+	-  ?? - Later
+
+chose specialization + items = auto complete or free text
+	- we will choose it
+	- 
+
+save to original place 
+	- need to discuss
+
+upload an image file for license
+	- okay 
+	- IN progress
+
+too long to upload 1 picture
+	- we will check it 
+	- 
+
+you are not a top pro with 0 reviews / orders
+150 hires by default
+	- we yet to work on that
+
+admin dash
+
+sort chefs by date desc
+
+preview picture not showing - 
