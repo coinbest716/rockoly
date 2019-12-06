@@ -1,0 +1,66 @@
+{
+  "name": "chef_admin",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "antd": "^3.22.2",
+    "apexcharts": "^3.8.6",
+    "apollo-boost": "^0.4.4",
+    "apollo-cache-inmemory": "^1.6.3",
+    "apollo-client": "^2.6.4",
+    "apollo-link-context": "^1.0.19",
+    "apollo-link-http": "^1.5.16",
+    "env-cmd": "^10.0.1",
+    "firebase": "^6.6.1",
+    "graphql": "^14.5.6",
+    "graphql-tag": "^2.10.1",
+    "lodash": "^4.17.15",
+    "moment": "^2.24.0",
+    "react": "^16.9.0",
+    "react-apexcharts": "^1.3.3",
+    "react-apollo": "^3.1.1",
+    "react-dom": "^16.9.0",
+    "react-image-gallery": "^0.9.1",
+    "react-redux": "^7.1.1",
+    "react-router-dom": "^5.0.1",
+    "react-scripts": "3.1.1",
+    "redux": "^4.0.4",
+    "redux-thunk": "^2.3.0"
+  },
+  "scripts": {
+    "start:dev": "env-cmd -f ./src/config/.env.dev react-scripts start",
+    "start:prod": "env-cmd -f ./src/config/.env.prod react-scripts start",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "serve": "serve -l 9009 -s",
+    "build:dev": "set GENERATE_SOURCEMAP=false && env-cmd -f ./src/config/.env.dev react-scripts build",
+    "build:prod": "set GENERATE_SOURCEMAP=false && env-cmd -f ./src/config/.env.prod react-scripts build"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "eslint": "^6.2.2",
+    "eslint-config-airbnb": "^18.0.1",
+    "eslint-config-prettier": "^6.1.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-jsx-a11y": "^6.2.3",
+    "eslint-plugin-prettier": "^3.1.0",
+    "eslint-plugin-react": "^7.14.3",
+    "eslint-plugin-react-hooks": "^1.7.0",
+    "eslint-plugin-react-redux": "^3.0.1",
+    "prettier": "^1.18.2"
+  }
+}

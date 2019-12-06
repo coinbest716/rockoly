@@ -1,0 +1,8 @@
+To init submodule
+  - git submodule update --init
+
+  if you getting authentication add ssh key into bitbucket setting
+  to generate ssh key https://confluence.atlassian.com/bitbucket/set-up-an-ssh-key-728138079.html
+
+To install package
+ - npm install

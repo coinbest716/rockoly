@@ -1,0 +1,19 @@
+To run the app locally
+  Dev -> npm run-script start:dev
+  Production -> npm run-script start:dev
+
+To build the app and put in the server
+  //Dev:
+  1. npm run-script build:dev
+  2. In Putty 
+     - IP Address: 172.104.179.88,
+     - Port: 22
+     - Type: root
+     - Password: ..........
+     - cd /var/www/html/neosme/public_html/chefAdmin/rockolyadmin
+     - git pull
+
+  //Production:
+  1. Production -> npm run-script build:dev
+
+
