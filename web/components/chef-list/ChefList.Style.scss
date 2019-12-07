@@ -1,0 +1,511 @@
+.cheflist{
+  .dropdown {
+    position: relative;
+    display: inline-block;
+    z-index: 999;
+  }
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    cursor: pointer;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1000;
+  }
+
+  .dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+  }
+
+  .dropdown-content a:hover {background-color: #f1f1f1}
+
+  .dropdown:hover .dropdown-content {
+    display: block;
+  }
+
+  .dropdown:hover .dropbtn {
+    background-color: #3e8e41;
+  }
+
+
+  .dropdown-menu{
+  position: absolute;
+  cursor: pointer;
+  top: 100%;
+  left: 0;
+  z-index: 1000;
+  display: none;
+  float: left;
+  min-width: 160px;
+  padding: 5px 0;
+  margin: 2px 0 0;
+  font-size: 14px;
+  text-align: left;
+  list-style: none;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid #ccc;
+  border: 1px solid rgba(0,0,0,.15);
+  border-radius: 4px;
+  -webkit-box-shadow: 0 6px 12px rgba(0,0,0,.175);
+  box-shadow: 0 6px 12px rgba(0,0,0,.175);
+  }
+
+  .dropdown .divider {
+    height: 1px;
+    margin: 9px 0;
+    overflow: hidden;
+    background-color: #e5e5e5;
+  }
+
+  .dropdown-menu .li .a{
+    display: block;
+    padding: 3px 20px;
+    clear: both;
+    font-weight: 400;
+    line-height: 1.42857143;
+    color: #333;
+    white-space: nowrap;
+    
+}
+.ratingView{
+  display: flex;
+  margin-left: 5px;
+}
+#emptyStar{
+  display: flex;
+  margin-top: 4px;
+  margin-left: 1px;
+  width: 20px;
+}
+.chef-fullname{
+  cursor: pointer;
+font-size: 17px;
+font-weight: bold;
+white-space: nowrap !important;
+// width: 150px !important;
+overflow: hidden !important;
+text-overflow: ellipsis !important;
+}
+.locationIconView{
+  color: #000000 !important;
+}
+.chefprice{
+  cursor: pointer;
+  font-size:16px !important;
+}
+#ratingContainer {
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    font-size: 20px;
+    // margin-left: 59px;
+
+    color: #08AB93;
+  // display: flex;
+  // font-size: 20px !important;
+  // color: #eac11d;
+  // padding-bottom: 10px;
+  // justify-content: center;
+}
+.product-image{
+  cursor: pointer !important;
+}
+.fas{
+  color: #08AB93 !important;
+}
+.fa-crosshairs{
+  color: #000000 !important;
+}
+.far{
+  color: #3e8e41;
+}
+.totalCount{
+  font-size: 16px !important;
+  margin-left: 15px;
+}
+.priceTag{
+font-size: 18px;
+font-weight: bold;
+}
+.cheflist-images{
+  height: 171px;
+  // width: 85% !important;
+}
+#content-hover{
+  // margin-left: 6%;
+  width:100%;
+  box-shadow: 0 0 0 1px rgba(67,41,163,.1), 0 1px 8px 0 rgba(67,41,163,.1);
+  /* background-color: #fbfbfc; */
+  z-index: 1;
+}
+// #view-details-button{
+//   margin-top: 316px;
+// }
+.li{
+  width: 149px !important;
+}
+.blackStar{
+  color: black;
+}
+#heart-icon{
+  // stroke: red !important;
+  outline-color: red !important;
+  // border-style: red;
+  
+  // text-shadow: 1px 1px 1px red !important;
+  // border:1px solid red !important;
+}
+.favoriteHeart{
+  color: #08AB93;
+}
+.nodata-icon{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width:100%;
+}
+.emptyprice{ 
+  font-size:16px;
+  margin-bottom: 0px;
+  margin-top: 0px;
+}
+#view-details-button{
+  color: #fff;
+}
+#view-details-button:hover{
+  background-color: #fff !important;
+  border: 1px solid #08AB93 !important;
+  color: #08AB93 !important;
+}
+#sidebar-card{
+  border-right: 1px solid  rgba(67,41,163,.1);
+  box-shadow: 1px 0 5px -2px #888;
+  width: 90%;
+  // height: 800px;
+  max-height: max-content;
+  padding-top: 10px;
+
+}
+.list-Icon-view{
+  // display: flex;
+  // align-items: center;
+  // justify-content: flex-end;
+  // background: #f5f5f5;
+  // height: 45px;
+  // width: 8%;
+  background-color: #f5f5f5;
+}
+.address{
+  width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+#filter-space{
+  margin-bottom: 10px !important;
+}
+#sidebar-submit{
+  margin-bottom: 10px;
+}
+.load-more-button{
+  display: flex;
+  justify-content: center;
+}
+.location-filter-modal{
+  display: flex;
+  justify-content: space-between;
+}
+.list-location{
+  width:52%;
+}
+.cheflist .css-2b097c-container{
+  z-index: auto !important;
+}
+.woocommerce-sidebar-area .collapse-widget .tags-list-row li::selection{
+  color: #08AB93;
+  border-color: #08AB93;
+}
+#sidebar-input-style{
+  border: 1px solid lightgray;
+}
+// #dish-type-selector{
+  // width: 90%;
+  // margin-left: 5%;
+  // margin-bottom: 5%;
+// }
+#dish-type-selector{
+  margin-bottom: 10px;
+}
+.woocommerce-sidebar-area .collapse-widget .collapse-widget-title::before{
+  width:0px !important;
+}
+.collapse-widget-title{
+  text-transform: none !important;
+}
+.css-2b097c-container{
+  z-index: 999;
+  margin-left: 9%;
+  margin-bottom: 10px;
+  width:85%;
+}
+.no-data{
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width:100%;
+  
+}
+
+// .cart-totals{
+  // padding:25% !important;
+// }
+} 
+@media (min-width:400px) and  (max-width:605px){
+  #ratingContainer{
+    font-size: 16px !important;
+    margin-left:0px !important;
+    // width: 168px !important ;
+    display: flex;
+    justify-content: center !important;
+  }
+  #emptyStar{
+    width:16px !important;
+    // margin-left:24% !important; 
+  }
+  // .ratingView{
+  //   margin-left: 9% !important;
+  // }
+  .cheflist-images{
+    height: 100px !important;
+  }
+  .chef-fullname{
+    
+    font-weight: bold;
+    white-space: nowrap !important;
+    // width: 150px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    // display: flex !important;
+    // justify-content: center !important;
+  }
+  .starColor{
+    color: black !important;
+  }
+}
+@media (min-width:1200px) and (max-width:1329px){
+  .cheflist-images{
+    height: 140px !important;
+  }
+}
+
+@media (min-width:606px) and (max-width:1600px) {
+    #ratingContainer{
+      width: 100%;
+    display: flex !important;
+    justify-content: center !important;
+    margin-left: 0px !important;
+    }
+}
+
+@media (min-width:500px) and (max-width:530px) {
+  
+  .chef-fullname{
+    white-space: nowrap !important;
+    // width: 100px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    // display: flex !important;
+    // justify-content: center !important;
+  }
+//  #ratingContainer{
+//     width: 170px !important;
+//   }
+}
+@media (min-width:366px) and  (max-width:410px){
+  #ratingContainer{
+    font-size: 13px !important;
+    margin-left:0px !important;
+    // width: 168px !important ;
+    display: flex;
+    justify-content: center !important;
+  }
+  #emptyStar{
+    width:13px !important;
+    // margin-left:24% !important; 
+  }
+  // .ratingView{
+  //   margin-left: 9% !important;
+  // }
+  .cheflist-images{
+    height: 100px !important;
+  }
+  .chef-fullname{
+    
+    font-weight: bold;
+    white-space: nowrap !important;
+    // width: 150px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    // display: flex !important;
+    // justify-content: center !important;
+  }
+  .starColor{
+    color: black !important;
+  }
+}
+@media (min-width:340px) and  (max-width:365px){
+  #ratingContainer{
+    font-size: 10px !important;
+    margin-left:0px !important;
+    margin-top: 2px;
+    // width: 168px !important ;
+    display: flex;
+    justify-content: center !important;
+  }
+  #emptyStar{
+    width:9px !important;
+    // margin-left:24% !important; 
+  }
+  // .ratingView{
+  //   margin-left: 9% !important;
+  // }
+  .cheflist-images{
+    height: 100px !important;
+  }
+  .chef-fullname{
+    font-size: 13px !important;
+    font-weight: bold;
+    white-space: nowrap !important;
+    // width: 150px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    // display: flex !important;
+    // justify-content: center !important;
+  }
+  .starColor{
+    color: black !important;
+  }
+}
+@media (min-width:315px) and  (max-width:339px){
+  #ratingContainer{
+    font-size: 9px !important;
+    margin-left:0px !important;
+    // width: 168px !important ;
+    display: flex;
+    justify-content: center !important;
+    // margin-top: 2px !important;
+  }
+  #emptyStar{
+    width:9px !important;
+    margin-top: 2px !important;
+    // margin-left:24% !important; 
+  }
+  // .ratingView{
+  //   margin-left: 9% !important;
+  // }
+  .cheflist-images{
+    height: 100px !important;
+  }
+  .chef-fullname{
+    font-size: 12px !important;
+    font-weight: bold;
+    white-space: nowrap !important;
+    // width: 150px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    // display: flex !important;
+    // justify-content: center !important;
+  }
+  .starColor{
+    color: black !important;
+  }
+}
+@media(max-width:991px){
+  .list-location{
+    margin-top: 18px;
+  }
+}
+@media(min-width:540px) and (max-width:991px){
+  #sidebar-card{
+    width:60% !important;
+    // display: flex !important;
+    // justify-content: center !important;
+  }
+
+}
+#filter-text{
+  margin-left: 5%;
+  top:8px;
+}
+#chef-list-container{
+  max-width: 100% !important;
+}
+.crossStyle{
+  margin-top: 15px;
+}
+#clear-button{
+  margin-top: 0px !important;
+}
+.clear-field{
+  // background-color: #08AB93;
+  // color:#fff;
+  // height: 60%;
+  // width: 1%;
+  // margin-top: 2%;
+  margin-left: 2%;
+}
+@media(min-width:992px) and (max-width:1142px){
+  #ratingContainer{
+    font-size: 15px !important;
+    margin-left:0px !important;
+    // width: 168px !important ;
+    display: flex;
+    justify-content: center !important;
+    // margin-top: 2px !important;
+  }
+  #emptyStar{
+    width:15px !important;
+    margin-top: 2px !important;
+    // margin-left:24% !important; 
+  }
+}
+// @media(min-width:992px) and (max-width:1284px){
+//   #sidebar-card{
+//     border-right: 1px solid  rgba(67,41,163,.1);
+//     box-shadow: 1px 0 5px -2px #888;
+//     width: 100% !important;
+//     height: 66% !important;
+//     max-height: max-content;
+//     // height: 100%;
+  
+//   }
+//   #to-input{
+//     margin-left: 0% !important;
+//   }
+// }
+@media(max-width:545px){
+  #location-modal-view{
+    display: flex;
+    flex-direction: column;
+    // justify-content: center;
+    align-items: center;
+  }
+  #location-filter-view{
+    width: 90%;
+  }
+}
+.mobile-heart{
+  display: none;
+}
+@media(max-width:1200px){
+  .mobile-heart{
+    display: inline !important;
+  }
+}

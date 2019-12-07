@@ -1,0 +1,188 @@
+.payment {
+  .payment {
+    align-content: center;
+  }
+
+  .date {
+    color: brown;
+    font-size: 15px;
+  }
+
+  .contentView {
+    display: flex;
+    justify-content: center;
+    margin: 2%;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    transition: 0.3s;
+    border-radius: 5px; /* 5px rounded corners */
+  }
+
+  /* On mouse-over, add a deeper shadow */
+  .contentView:hover {
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+  }
+.nodata-content{
+  color: #08AB93;
+  font-weight: bolder;
+}
+  .ViewDetail {
+    width: 120px;
+  }
+
+  #payment-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #view-details-button {
+    color: #fff;
+  }
+
+  #view-details-button:hover {
+    background-color: #fff !important;
+    border: 1px solid #08AB93 !important;
+    color: #08AB93 !important;
+  }
+
+  #date-format {
+    display: flex;
+    align-items: center;
+  }
+
+  #chef-info-list {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .nodata-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .payment-common-content {
+    width: 95%;
+  }
+
+  .chefname {
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bolder;
+  }
+
+  .payment-user-image {
+    height: 125px;
+    border-radius: 10px;
+    margin: 10px;
+  }
+
+  #image-view {
+    display: flex;
+    justify-content: center;
+  }
+
+  #Viewdetails-button {
+    margin-left: 10%;
+    min-width: 135px;
+    display: flex;
+    align-items: center;
+  }
+
+  #page-full-content {
+    display: flex;
+    justify-content: center;
+  }
+
+  #chef-detail-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  #date-content {
+    display: flex;
+    align-items: center;
+  }
+
+  #payment-button-style {
+    display: flex;
+    align-items: center;
+  }
+
+  .load-more-button {
+    display: flex;
+    justify-content: center;
+  }
+
+  #payment-status {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  #date-format {
+    display: flex;
+    align-items: center;
+  }
+
+  @media(min-width:300px) and (max-width:799px) {
+    .products-image {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      // height: 170px;
+    }
+
+    .payment-user-image {
+      max-width: 65% !important;
+    }
+
+    #chef-info-list {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #date-format {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #payment-buttons {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 3%;
+      margin-bottom: 5%;
+    }
+  }
+}
+
+@media(max-width:991px) {
+  #payment-button-style {
+    display: flex;
+    justify-content: center;
+  }
+
+  .products-image {
+    display: flex;
+    justify-content: center;
+  }
+}
+@media(max-width:767px){
+  .booking-date-view{
+    display: flex;
+    justify-content: center;
+  }
+}
+.loadmore-view{
+  display: flex;
+  justify-content: center;
+}

@@ -1,0 +1,23 @@
+.aboutUs {
+  .testimonials-area {
+    position: relative;
+    z-index: 1;
+    background: {
+        position: center center;
+        size: cover;
+        repeat: no-repeat;
+        image: url(../../images/mock-image/main-banner1.jpg);
+    }
+}
+}
+
+// @media(max-width:600px){
+//   .about-img2{
+//     width: 165px !important;
+//   }
+// }
+// @media(max-width:750px){
+//   .about-img2{
+//     width: 215px !important;
+//   }
+// }

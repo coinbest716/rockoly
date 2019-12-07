@@ -1,0 +1,196 @@
+// .payments{
+  .StripeElement {
+    display: block;
+    margin: 10px 0 20px 0;
+    max-width: 500px;
+    padding: 10px 14px;
+    font-size: 1em;
+    font-family: 'Source Code Pro', monospace;
+    box-shadow: rgba(50, 50, 93, 0.14902) 0px 1px 3px, rgba(0, 0, 0, 0.0196078) 0px 1px 0px;
+    border: 0;
+    outline: 0;
+    border-radius: 4px;
+    background: white;
+  }
+  .paymentLabel{
+    margin-bottom: .5rem;
+    color: #6b7c93;
+    font-weight: bold;
+    letter-spacing: 0.025em;
+    display: inline;
+  }
+  .paymentNameLabel{
+    display: block;
+    margin: 10px 0 20px 0;
+    width: 500px !important;
+    padding: 10px 14px;
+    font-size: 1em;
+    font-family: 'Source Code Pro', monospace;
+    box-shadow: rgba(50, 50, 93, 0.14902) 0px 1px 3px, rgba(0, 0, 0, 0.0196078) 0px 1px 0px;
+    border: 0;
+    outline: 0;
+    border-radius: 4px;
+    background: white;
+  }
+  
+  #card-list-row{
+    display: flex !important;
+    justify-content: space-between !important;
+    margin-top: 7%;
+  }
+  #card-list-item{
+    display: flex !important;
+    justify-content: center !important;
+  }
+  .card-list-button{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 4%;
+  }
+  #input-method{
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+  }
+  .formContainer{
+    margin: 0 auto;
+    max-width: 800px;
+    box-sizing: border-box;
+    padding: 0 5px;
+  }
+  #payButton{
+    width: 100%;
+  }
+  .customer-addcard{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  #closeButton{
+    background-color: #08AB93 !important;
+    color: #fff !important;
+  }
+  #saveButton:hover{
+    background-color: #fff !important;
+    border: 1px solid #08AB93 !important;
+    color: #08AB93 !important;
+  }
+  #closeButton:hover{
+    background-color: #fff !important;
+    border: 1px solid #08AB93 !important;
+    color: #08AB93 !important;
+  }
+  #cardSpace{
+    margin: 6px
+  }
+  #tableContainer{
+    margin-top: 20px;
+  }
+  #buttonStyle {
+    display: contents
+  }
+  #defaultButton {
+    border: 2px solid #08AB93 !important;
+    padding: 3px;
+    border-radius: 20px;
+    text-align: center;
+  }
+  #emptyOption {
+    text-align: center;
+    padding-top: 7px;
+  }
+  .cardNo {
+    padding-left: 75px  
+  }
+  .cardNo1 {
+    padding-top: 5px  
+  }
+  .cardSelect {
+    padding-top: 10px  
+  }
+  .addCard {
+    margin-top: auto;
+    margin-left: 83px;
+  }
+  .deleteButton {
+    margin-bottom: 5px;
+  }
+  #customer-card-view{
+    display: flex;
+    flex-direction: row;
+    height: 71px;
+    margin-bottom: 3%;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    transition: 0.3s;
+    // justify-content: center;
+  }
+  #chef-card-view{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+
+    height: 71px;
+    margin-bottom: 3%;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    transition: 0.3s;
+  }
+  #chef-name-view{
+    display: flex;
+    align-items: center;
+  }
+  #chef-cardnumber-view{
+    display: flex;
+    align-items: center;
+  } 
+  #chef-date-view{
+    display: flex;
+    align-items: center;
+  }
+  .cuisineDisplay{
+    display: flex;
+    align-items: center;
+  }
+  #delete-button-view{
+    display: flex;
+    align-items: center;
+  }
+  #card-content-view{
+    display: flex;
+    align-items: center;
+  }
+  #customer-button-view{
+    display:flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding-right: 0px;
+    padding-left: 0px;
+
+  }
+  #card-number-view{
+    display: flex;
+    align-items: center;
+  }
+  
+// }
+@media(max-width:800px){
+  .ViewDetail{
+    width:90px !important;
+  } 
+}
+@media (max-width:456px){
+  #add-new-button{
+    margin-top: 5%;
+  }
+}
+@media(max-width:600px){
+  #chef-card-view{
+    height:auto;
+  }
+  #customer-card-view{
+    height: auto;
+  }
+  #closeButton{
+    margin-bottom: 10px;
+  }
+}

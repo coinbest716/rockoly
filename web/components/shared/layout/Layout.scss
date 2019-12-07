@@ -1,0 +1,187 @@
+.navbar-area {
+  .logoName{
+    font-size: 21px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+  }
+  #selectedMenuStyle{
+    color: #ABD037 !important;
+    text-decoration: underline !important;
+    font-weight: 800 !important;
+    cursor: pointer;
+  }
+  #unselectedMenuStyle {
+    color: #08AB93 !important;
+    cursor: pointer;
+  }
+  #notificationIcon{
+    font-size: 26px;
+  }
+  #favoriteIcon{
+    font-size: 26px;
+  }
+  #icons{
+    display: flex;
+    justify-content: space-evenly;
+    // margin-left: 200px;
+  }
+  .dropdown {
+    position: relative;
+    display: inline-block;
+    z-index: 1000;
+  }
+
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+  }
+.register-modal{
+  display: flex;
+}
+#switch-text{
+  cursor: pointer;
+}
+  .dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+  }
+  #option-view{
+    display: flex;
+  }
+
+  .dropdown-content a:hover {background-color: #f1f1f1}
+
+  .dropdown:hover .dropdown-content {
+    display: block;
+  }
+
+  .dropdown:hover .dropbtn {
+    background-color: #3e8e41;
+  }
+ 
+ 
+  #notificationBadge{
+    background-color: #08AB93 ;
+    font-size: 12px;
+    position: relative;
+    top: -10px;
+    right: 10px;
+    z-index: 1;
+    height: 20px;
+  }
+  ::webkit-appearance #notificationBadge{
+    background-color: #08AB93 ;
+    font-size: 12px;
+    position: relative;
+    top: -10px;
+    right: 10px;
+    z-index: 1;
+    height: fit-content;
+  }
+  .notificationContainer {
+    margin-top:15px;
+    margin-left: 7px;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .favoriteContainer {
+    margin-top:15px;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  .logout{
+    cursor: pointer
+  }
+  #userName{
+    margin-top: 12px;
+    font-size: 15px;
+    margin-left: 18px;
+    font-weight: bold;
+
+  }
+  .rounded-circle{
+    margin-left: 12px;
+    min-width: 48px;
+  }
+  .username{
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    margin-left: 22px;
+    cursor: pointer;
+    font-weight: bold;
+
+  }
+  .profile-image{
+    width:35%;
+    margin-left: 22px;
+
+  }
+}
+#dropdown-view{
+  height: max-content;
+}
+#menu-titles{
+  display: flex;
+  justify-content: center;
+}
+#container-view{
+  max-width: 97% !important;
+}
+#icon-view{
+  display: flex;
+  align-content: center;
+}
+@media (min-width: 1200px){
+.container {
+    max-width: 1267px !important;
+}
+}
+
+#profile-align {
+flex-wrap: nowrap!important;
+}
+// .logo-image{
+//   width: 9%;
+//   max-height: 55px;
+// }
+// @media(min-width:320px) and (max-width:850px){
+//   .comero-nav{
+//     height: 65px !important;
+//   }
+// }
+
+// @media (min-width:845px) and (max-width:1091px){
+//   #userName{
+//     margin-left: 28px !important;
+//   }
+// }
+@media screen and (max-width:1329px){
+  .logo-header{
+    margin-right: 3% !important;
+  }
+  .navbar-nav{
+    width:100%;
+  }
+  #unselectedMenuStyle{
+    font-size: 12px !important;
+  }
+}
+@media (max-width: 864px) and (min-width: 576px){
+  #profile-view{
+    display: flex !important;
+    flex-direction: column !important;
+}
+.pointer {
+  display: flex !important;
+  cursor: pointer !important;
+}
+}

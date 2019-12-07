@@ -1,0 +1,25 @@
+@import '../../assets/styles/color.scss';
+
+.intro_container{
+  p.content-title{
+    color: $black-color;
+    font-size: 20px;
+  }
+
+  .slick-prev:before,
+  .slick-next:before{
+    color: $black-color;
+  }
+
+  .slick-prev:hover:before, 
+  .slick-prev:focus:before, 
+  .slick-next:hover:before, 
+  .slick-next:focus:before{
+    opacity: 1;
+  }
+
+  .slick-dots li.slick-active button:before{
+    color: $app-secondry;
+  }
+
+}

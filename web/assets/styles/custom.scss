@@ -1,0 +1,346 @@
+@import './style.scss';
+@import './color.scss';
+@import './calendar/styles.scss';
+@import './toast/ReactToastify.css';
+@import './time/classic/default.css';
+@import './phoneNo/style.css';
+@import './stepzilla/main.css';
+
+/*================================================
+card
+=================================================*/
+
+.cart-totals {
+  background: #ffffff;
+    padding: 40px;
+     max-width: none !important; 
+    -webkit-box-shadow: 0 2px 48px 0 rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 48px 0 rgba(0, 0, 0, 0.08);
+    border-radius: 5px;
+    margin: -67px auto 0;
+
+  h3 {
+      margin-bottom: 20px;
+      font: {
+          size: 19px;
+      }
+  }
+  ul {
+    padding: 0;
+    margin: 0 0 25px;
+    list-style-type: none;
+    border:none !important;
+      
+      li {
+        color: #222222;
+        font-weight: 600;
+        overflow: hidden;
+
+                  span {
+                    float: right;
+                    color: #666666;
+                    font-weight: normal;
+
+              b {
+                font-weight: 600;
+              }
+          }
+      }
+  }
+}
+
+/*================================================
+checkbox
+=================================================*/
+.buy-checkbox-btn input {
+  display: none;
+}
+
+.buy-checkbox-btn .cbx {
+  margin: auto;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  cursor: pointer;
+}
+
+.buy-checkbox-btn .cbx span {
+  display: inline-block;
+  vertical-align: middle;
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+}
+
+.buy-checkbox-btn .cbx span:first-child {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  -webkit-transform: scale(1);
+  transform: scale(1);
+  vertical-align: middle;
+  border: 1px solid #a79f9f;
+  -webkit-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+  -webkit-transition: 0.5s;
+  transition: 0.5s;
+}
+
+.buy-checkbox-btn .cbx span:first-child svg {
+  position: absolute;
+  top: 3px;
+  left: 2px;
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 16px;
+  stroke-dashoffset: 16px;
+  -webkit-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+  -webkit-transition-delay: 0.1s;
+  transition-delay: 0.1s;
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+  -webkit-transition: 0.5s;
+  transition: 0.5s;
+}
+
+.buy-checkbox-btn .cbx span:first-child:before {
+  content: "";
+  width: 100%;
+  height: 100%;
+  background: #222222;
+  display: block;
+  -webkit-transform: scale(0);
+  transform: scale(0);
+  opacity: 1;
+  border-radius: 50%;
+  -webkit-transition: 0.5s;
+  transition: 0.5s;
+}
+.buy-checkbox-btn .cbx span:last-child {
+  padding-left: 10px;
+  color: black;
+}
+
+.buy-checkbox-btn .cbx:hover span:first-child {
+  border-color: #222222;
+}
+
+.buy-checkbox-btn .inp-cbx:checked + .cbx span:first-child {
+  background: #08AB93 ;
+  border-color: #222222;
+  -webkit-animation: wave 0.4s ease;
+  animation: wave 0.4s ease;
+}
+
+.buy-checkbox-btn .inp-cbx:checked + .cbx span:first-child svg {
+  stroke-dashoffset: 0;
+}
+
+.buy-checkbox-btn .inp-cbx:checked + .cbx span:first-child:before {
+  -webkit-transform: scale(3.5);
+  transform: scale(3.5);
+  opacity: 0;
+  -webkit-transition: all 0.6s ease;
+  transition: all 0.6s ease;
+}
+
+.buy-checkbox-btn .item:not(:first-child) {
+  margin-top: 15px;
+}
+
+.buy-checkbox-btn .btn {
+  display: block;
+}
+
+/*================================================
+Social Login
+=================================================*/
+.socialLogin {
+  .btn-fb{
+    background-color: #3b5998;
+    width: 159px;
+    color: #f1f1f1;
+  }
+  .btn-gplus{
+    background-color: #dd4b39;
+    width: 259px;
+    color: #f1f1f1;
+  }
+}
+
+.btn {
+  text-transform: none !important;
+  font-size: 1rem !important;
+}
+
+.comero-nav .navbar .navbar-nav .nav-item a.active {
+  color: #222222;
+  font-weight: 600 !important;
+}
+
+#FormRow {
+  display: flex;
+  justify-content: center;
+  align-self: center;
+}
+
+.pointerView {
+  cursor: pointer
+}
+
+.preview_container{
+  position: initial !important;
+    transform: none !important;
+    -webkit-transform: initial !important;
+}
+.divSpaceBetween{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.availabilityCalendar .rbc-month-view {
+  /* position: relative; */
+  border: 1px solid #DDD;
+  display:initial !important;
+  flex-direction: column;
+  flex: 1 0 0;
+  width: 100%;
+  user-select: none;
+  -webkit-user-select: none;
+  height: 100%;
+  /* padding: 11px 10px 10px; */
+}
+.availabilityCalendar .rbc-month-row {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  flex: 1 0 0;
+  flex-basis: 0px;
+  overflow: hidden;
+  height: 88px;
+  // padding: 10px !important;
+}
+
+#buttonText-danger:hover{
+  background: #ffffff;
+  color: red;
+  border: 1px solid red;
+}
+.availabilityCalendar .rbc-date-cell.rbc-now {
+  font-weight: bold;
+  color: #ef0f39;
+}
+.availabilityCalendar .rbc-month-header {
+  display: flex;
+  flex-direction: row;
+  background-color: #e8b1b1;
+}
+.availabilityCalendar .rbc-date-cell {
+  flex: 1 1 0;
+  min-width: 2px;
+  padding-right: 5px;
+  text-align: center !important;
+}
+
+.availabilityCalendar .rbc-header {
+  overflow: hidden;
+  flex: 1 0 0%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 4px 5px;
+  text-align: center;
+  vertical-align: middle;
+  font-weight: bold;
+  font-size: 95%;
+  min-height: 0;
+  border-bottom: 1px solid #DDD;
+  height: 30px;
+}
+// .availabilityCalendar .rbc-event{
+//     // height: 15px !important;
+//     // width: 106% !important;
+//     // // border-radius: 50% !important;
+//     // // display: inline-block !important;
+//     // // margin-left: 50px !important;
+//     // background-color: #4f2671 !important;
+// }
+// .table-bordered td, .table-bordered th {
+//   border: 0px solid #dee2e6 !important;
+// }
+.booking-button{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+// #cancel-button-style{
+//   height: 74%;
+//   margin-top: 4%;
+//   margin-left: 10%;
+// }
+.form-control {
+  color: $black !important
+}
+label {
+  color: $black-color;
+}
+.main-banner-content p {
+  color: $black !important
+}
+.woocommerce-sidebar-area .collapse-widget .aside-single-products .products-content h3 a{
+  color: $black !important
+}
+.section-title h2 {
+  color: $black-color;
+}
+button.btn.btn-primary {
+  &:hover, &:focus {
+  color: $black-color !important;
+  background-color: $white-color !important;
+  border-color: $black-color !important;
+}
+}
+.btn-light {
+  &:hover, &:focus {
+    color: $white-color !important;
+    background-color: $black-color !important;
+    border-color: $black-color !important;
+}
+}
+#closeButton {
+  cursor: pointer;
+}
+#login-social{
+  display: flex;
+ 
+}
+.google-login{
+  width:159px;
+  display: flex;
+  justify-content: center;
+  // margin-right: 4px;
+}
+// @media(min-width:551px) and (max-width:575px){
+// .booking-status-view{
+//   display: flex;
+//   justify-content: center;
+// }
+// #buttonText-danger{
+//   margin-left: 5px;
+// }
+// .booking-button{
+//   width: 100%;
+//   display: flex;
+//   justify-content: center;
+// }
+// }
+
+@media(max-width:575px){
+  .booking-status-view{
+    margin-left: 8%;
+  }
+}

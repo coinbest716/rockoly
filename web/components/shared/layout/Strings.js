@@ -1,0 +1,16 @@
+export default {
+  PENDING: 'PENDING',
+  FOR_UPDATE_PROFILE: 'Please update your profile details for admin approval ',
+  FOR_SUBMIT_PROFILE: 'Please submit your profile for admin approval ',
+  AFTER_SUBMIT: 'Admin will verify and approve your profile within 48 hours ',
+  FOR_REJECTED_PROFILE: 'Sorry, Your profile is rejected. please check the details',
+  READ_MORE: 'Read More',
+  SUBMITTED_FOR_REVIEW: 'SUBMITTED_FOR_REVIEW',
+  REJECTED: 'REJECTED',
+  SWITCHED_SUCCESS: 'Switched User Successfully',
+  CHEF: 'CHEF',
+  CUSTOMER: 'CUSTOMER',
+  LOGIN: 'LOGIN',
+  SWITCH_USER_CHEF: 'Switch to chef',
+  SWITCH_USER_CUSTOMER: 'Switch to customer',
+};

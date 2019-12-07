@@ -1,0 +1,311 @@
+.chefDetail{
+  #describe-content {
+    font-size: 18px;
+    font-weight: bold;
+    text-decoration: underline;
+  }
+  #describe-miles {
+    font-size: 18px;
+    margin-left: 15px;
+  }
+  #describe-min {
+    font-size: 18px;
+    margin-left: 15px;
+  }
+  #specializationProfiles-content{
+    font-size: 18px;
+    font-weight: bold;
+    text-decoration: underline;
+    margin-bottom: 2px;
+  }
+  .chefReviewCount{
+    padding-left: 5px;
+    padding-top: 1px;
+  }
+  .ratingView{
+    display: flex;
+    margin-left: 5px;
+  }
+  #emptyStarContent{
+    display: flex;
+    margin-top: 4px;
+    margin-left: 1px;
+    width: 26px;
+  }
+  #emptyStar{
+    display: flex;
+    margin-top: 4px;
+    margin-left: 1px;
+    width: 16px;
+  }
+  #ratingContainer {
+    display: flex;
+    font-size: 18px !important;
+    color: #08AB93;
+    // width: 28px;
+    padding-bottom: 10px;
+  }
+  #ratingContainer-items{
+    display: flex;
+    font-size: 18px !important;
+    color: #08AB93;
+    // width: 28px;
+    padding-bottom: 10px;
+  }
+  .reviewDisplay{
+    font-size: 18px;
+    color: black;
+    margin-left: 12px;
+  }
+  .imgView{
+    max-width: 25%;
+    display: inline-block;
+    max-height: 186px;
+    padding-top: 18px;
+    padding-right: 36px;
+  }
+  .docView{
+    max-width: 100% !important;
+    display: inline-block;
+    max-height: 186px;
+  }
+  .cuisineDisplay{
+    display: inline-block;
+    margin-right: 10px;
+  }
+  .reviewDescription{
+    margin-top: 10px;
+    font-size: 14px;
+  }
+  .h3{
+    font-size: 15px !important;
+  }
+ 
+  .customerpic{
+    width: 100px !important;
+    height: 96px !important;
+    border-radius: 50%;
+  }
+  #ratingContainerView{
+      display: flex;
+      font-size: 16px !important;
+      color: #08AB93;
+  }
+  .p{
+    margin-left: 9px !important;
+    margin-bottom: 0% !important;
+  }
+  .description-rating-view{
+    margin-left: 0px !important;
+  }
+  #chef-content-rating{
+    margin-left: 0px !important;
+  }
+  // .ratingsNameView{
+  //   // margin-left: 19px;
+  // }
+  .description{
+    color:#000;
+
+  }
+  #review-rating-view{
+    margin-left: 4px;
+  }
+  .hclass{
+    margin-top: 30px;
+  }
+  .description-content{
+    font-size: 16px !important;
+    // margin-bottom: 5px;
+    // margin-left: 9px;
+  }
+  .description-name{
+    font-size: 17px;
+    margin-bottom: 8px;
+    // border-right-style: groove;
+  }
+  .chef-content-fullname{
+    cursor: pointer;
+  }
+  .icon-images{
+    width: 35px;
+    color: #08AB93 !important;
+  }
+  .reward-style{
+    display: flex;
+  }
+  .iconColor{
+    color: #08AB93;
+  }
+  .location{
+    margin-left: 4px;
+  }
+//  .facebook1 {
+    // max-width: 50px;
+    // background-color: red;
+// }
+// #findchef-icons{
+//   display: flex !important;
+// }
+
+
+// .description-data{
+//   display: flex;
+// }
+// .description-content-text{
+//   display: flex;
+//   align-items: flex-end;
+//   margin-left: 3%;
+// }
+// .description-content{
+//   margin-left: 3%;
+// }
+// .description-business{
+//   // margin-left: 8%;
+// }
+// #description-date{
+//   display: flex;
+//   align-items: flex-end;
+//   margin-left: 17%;
+// }
+@media only screen and (min-width:300px) and (max-width:840px){
+  .product-details-content{
+    display: flex !important;
+    flex-direction: column !important;
+    margin-top: 5% !important;
+  }
+  
+}
+// @media( max-width: 844px ) and (orientation: landscape){
+//   .chefDetail{
+//     margin-left: 47% !important;
+//   }
+// }
+.atag{
+  display: contents !important;
+}
+#facebook1 {
+  max-width: 28% !important;
+  border-radius: 50% !important;
+  max-height: 25% !important;
+  margin-top: 10px !important;
+}
+#facebook{
+  max-width: 62% !important;
+  border-radius: 50% !important;
+  max-height: 35% !important;
+  margin-top: 13px;
+}
+// #cheflist-image{
+//  justify-content: space-evenly !important;
+// }
+#submit-button{
+  width: max-content;
+  // margin-left: 30%;
+  margin-top: 10%;
+}
+// .reviewon-style{
+//   margin-left: 9%;
+// }
+.review-desc{
+  margin-left: 9%;
+  margin-top: 10px;
+}
+#cuisine-dish-type{
+  border: 2px solid #08AB93 !important;
+  padding: 6px;
+  border-radius: 20px;
+}
+#desc-dish-type{
+  border: 2px solid #08AB93 !important;
+  padding: 6px;
+  border-radius: 20px;
+}
+
+// #description-date{
+//   margin-left: 22px;
+// }
+// .cuisine-type{
+//   margin-left: 20px;
+// }
+// .dish-type{
+//   margin-left: 40px;
+// }
+// .products-details-tab  p{
+//   margin-bottom: 0%  !important;
+// }
+// .profile-image{
+//   margin-left: 8px;
+// }
+// #cheflist-content{
+//   height: 80px !important;
+// }
+// #description-date{
+//   margin-left: 22px !important;
+// }
+// .cuisine-type{
+//   margin-left: 20px;
+// }
+// .dish-type{
+//   margin-left: 40px;
+// }
+.products-details-tab  p{
+  margin-bottom: 0%  !important;
+}
+.profile-image{
+  margin-left: 8px;
+}
+#cheflist-content{
+  height: 80px !important;
+}
+#description-full-view{
+  width:70%;
+}
+// @media{
+  @media(max-width: 767px){
+  .products-details-tab .tabs {
+      display: block !important;
+  }
+}
+// }
+
+
+}
+@media(max-width:410px){
+.tabs{
+  display: block !important;
+  // background-color: red !important;
+}
+}
+@media(min-width:411px) and (max-width:680px)
+{
+  .products-details-tab .tabs li:not(:first-child) {
+    margin-top: 0px !important;
+}
+}
+@media(min-width:767px) and (max-width:991px){
+  #cheflist-content{
+    max-width: 26%;
+  }
+}
+@media(max-width:767px){
+  .imgView{
+    max-width: 45% !important;
+    display: inline-block;
+    max-height: 186px;
+    padding-top: 18px;
+    padding-right: 36px;
+  }
+}
+@media(max-width:670px){
+  .reward-style{
+    display: flex;
+    flex-direction: column;
+  }
+  #pro-border-style{
+    border-right-style: none !important;
+  }
+}
+.top-pro-view{
+  width: max-content;
+}

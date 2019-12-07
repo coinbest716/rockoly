@@ -1,0 +1,16 @@
+export default {
+  FEEDBACK: 'Feedback',
+  GIVE_STAR_RATINGS: 'Give Star Ratings',
+  GIVE_COMPLIMENT: 'Give a Compliment',
+  NO_COMPLIMENT: 'No Compliments',
+  GIVE_YOUR_REVIEW_TITLE: 'Give your Review',
+  REVIEW_PLACE_HOLDER: 'Enter your Review',
+  COMPLIMENT_PLACE_HOLDER: 'Add your compliments',
+  CLEAR_ALL: 'Clear All',
+  SUBMIT: 'Submit',
+  FORM_CONTROL: 'form-control',
+  FULL_STAR: require('../../images/mock-image/star-yellow.png'),
+  EMPTY_STAR: require('../../images/mock-image/star-empty.png'),
+  FILL_DATA: 'Please fill the All fields',
+  SUCCESS_MSG: 'Saved Successfully',
+};

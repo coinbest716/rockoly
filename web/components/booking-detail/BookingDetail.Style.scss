@@ -1,0 +1,95 @@
+.bookingDetail{
+  #bookingLoopView {
+    display: flex;
+    // justify-content: center;
+  }
+  // .bookingData {
+  //   margin: auto;
+  // }
+
+}
+.booking-button{
+  display: flex;
+  justify-content: flex-start;
+}
+::ng-deep .product-page-gallery-main #imageStyle{
+  border-radius: '5%'
+}
+
+#list-button-style{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+#desc-dish-type{
+  border: 2px solid #08AB93 !important;
+  padding: 3px;
+  border-radius: 20px;
+  margin-left: 5px;
+}
+#buttonText{
+  margin-left: 0px;
+}
+#booking-content{
+  font-weight: bolder;
+}
+#cancel-button-style:hover{
+  background-color: #fff;
+  color: #000000;
+  border:1px solid yellow;
+}
+#cancel-button-style{
+  color: #fff;
+  height: 83%;
+  margin-top: 10px;
+  margin-right: 15px;
+}
+
+.booking-button{
+  margin-top: 10px;
+}
+#buttonTextWarning:hover{
+  background-color: #fff;
+  color: black;
+  border:1px solid yellow;
+}
+#buttonTextWarning{
+  color:#fff;
+}
+#booking-content{
+  font-weight: bolder;
+}
+#price-content{
+  font-size: 14px;
+  white-space: pre-wrap;
+  // background-color: red;
+}
+
+@media(min-width:400px) and (max-width:767px){
+  #booking-chef-details{
+    margin-top: 16%;
+  }
+}
+@media(max-width:575px){
+  #price-content{
+    margin-left: 17px;
+  }
+  .details-style{
+    margin-left: 17px;
+  }
+}
+@media(max-width:399px){
+#booking-chef-details{
+  margin-top: 20% !important;
+}
+}
+// #pay-button{
+//   margin-top: 10px;
+// }
+// #buttonTextCompleted{
+//   margin-top: 10px;
+// }
+// #chat-icon-view:hover{
+//   background-image: url("../../images/mock-image/open-chat-hover.png") !important;
+// }

@@ -1,0 +1,542 @@
+.bookingRequest {
+
+  .card {
+    width:100%;
+    .cardContainer {
+      display: flex
+    }
+  }
+  .bookingRequestCalendar .rbc-month-view {
+      /* position: relative; */
+      border: 1px solid #DDD;
+      display:initial !important;
+      flex-direction: column;
+      flex: 1 0 0;
+      width: 100%;
+      user-select: none;
+      -webkit-user-select: none;
+      // height: 100%;
+      /* padding: 11px 10px 10px; */
+  }
+  .bookingRequestCalendar .rbc-month-header {
+    display: flex;
+    flex-direction: row;
+    background-color: #e8b1b1;
+  }
+  .bookingRequestCalendar .rbc-month-row {
+      display: flex;
+      position: relative;
+      flex-direction: column;
+      flex: 1 0 0;
+      flex-basis: 0px;
+      overflow: hidden;
+      height: 65px !important;
+      padding: 10px !important;
+      cursor:pointer;
+  }
+  .bookingRequestCalendar .rbc-date-cell {
+    flex: 1 1 0;
+    min-width: 2px;
+    padding-right: 5px;
+    text-align: center !important;
+  }
+  .bookingRequestCalendar .rbc-date-cell.rbc-now {
+      font-weight: bold;
+      color: #ef0f39;
+  }
+   .iconColor{
+     color: #08AB93;
+   }
+   .buttons-view{
+     display: flex;
+     flex-direction: column;
+     align-items: center;;
+   }
+   #booking-button-view{
+     display: flex;
+     justify-content: center;
+   }
+  .address-view{
+    display: flex;
+    justify-content: center;
+  }
+  .addressText{
+    color: #08AB93;
+    font-weight: bolder;
+    width: 50%;
+  }
+  #cancel-button-style{
+    margin-top: 10px;
+    margin-right: 10px;
+  }
+   .rbc-event{
+      height: 15px !important;
+      width: 15px !important;
+      border-radius: 50% !important;
+      background-color: #08AB93 !important;
+  }
+  .rbc-allday-cell {
+    display: none;
+  }
+  .rbc-time-view .rbc-header {
+    border-bottom: none;
+  }
+  .rbc-row-segment{
+    display: flex;
+    justify-content: center;
+  }
+  .list-group{
+    // overflow-x: hidden;
+    max-height: max-content;
+    margin-left: 30px;
+    margin-top: 40px;
+    width: 93%;
+  }
+  .listScroll{
+    overflow-y: auto;
+    height: 60vh;
+}
+.rbc-date-cell > a{
+  pointer-events: none !important;
+}
+.listScroll::-webkit-scrollbar {
+  width: 0px;
+}
+
+/* Track */
+.listScroll::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 5px grey; 
+  border-radius: 10px;
+}
+ 
+/* Handle */
+.listScroll::-webkit-scrollbar-thumb {
+  background: #08AB93; 
+  border-radius: 10px;
+}
+
+/* Handle on hover */
+.listScroll::-webkit-scrollbar-thumb:hover {
+  background: #08AB93; 
+}
+  
+  #request-content-view{
+    margin-bottom: 5%;
+    display: flex;
+  }
+  // .calendarHeigth{
+  //   // height: 128px !important;
+  // }
+  // .cart-totals{
+    // height: 548px;
+  // }
+  // .cardHeight{
+  //   // height: 505px;
+  // }
+  .noRequest{
+    margin-top: 177px;
+  margin-left: 60px;
+  font-size: 20px;
+  color: #08AB93 !important;
+  }
+  }
+  #danger-button:hover{
+    background-color: #fff;
+    border: 1px solid red;
+    color: red;
+  }
+  #cancel-button-view:hover{
+    background-color: #fff;
+    border: 1px solid yellow;
+    color: yellow;
+  }
+  // #completed-button-view:hover{
+  //   background-color: #fff;
+  //   border: 1px solid yellow;
+  //   color: yellow;
+  // }
+  #acceptButton:hover{
+    background-color: #fff;
+    border-color: #08AB93;
+    color: #08AB93;
+  }
+  #button-danger:hover{
+    background-color: #fff;
+    border-color: red;
+    color: red;
+  }
+  #cancelButton{
+    color: #fff;
+    width:120px;
+  }
+  #completedButton{
+    margin-top: 15px;
+  }
+  #cancelButton:hover{
+    background-color: #fff;
+    color: black;
+    border-color: yellow;
+  }
+  #acceptButton{
+    width:120px;
+  }
+  #button-danger{
+    width:120px;
+    margin-top: 15px;
+  }
+#buttonText-danger{
+      margin-left: 10%;
+    }
+#buttonText{
+      margin-left: 10%;
+    }
+  // .rbc-row-segment{
+    // padding-left: 5px !important;
+  // }
+  @media(min-width:500px) and (max-width:621px){
+    .cart-totals{
+      height:max-content !important;
+    }
+    .cardHeight{
+      height:max-content !important;
+    }
+    .noRequest {
+      margin-top: 0px !important;
+      margin-left: 25px !important;
+    }
+    .list-group{
+      overflow-y: hidden !important;
+      width:100% !important;
+      margin-left: 3px !important;
+      margin-bottom: 20px !important;
+    }
+    // #danger-button{
+    //   width:101px !important;
+    // }
+    .date-view{
+      margin-left: 4% !important;
+      margin-left: 38px;
+      color: #08AB93 !important;
+    }
+  }
+  @media (min-width:865px) and (max-width:985px){
+    .list-group{
+      overflow-y: hidden !important;
+      width:100% !important;
+      margin-left: 3px !important;
+    }
+  }
+  @media(min-width:500px) and (max-width:550px){
+    .list-group{
+      overflow-y: hidden !important;
+      width:100% !important;
+      // margin-left: -40px !important;
+      // background-color: red !important;
+      display: inline-block !important;
+      flex-direction:column !important;
+      // overflow-x: visible !important;
+    }
+    .woocommerce-sidebar-area{
+      display: inline!important;
+      // flex-direction: row !important;
+    }
+    #button-content-view{
+      max-width:100% !important;
+    }
+    .aside-single-products{
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+    #danger-button{
+      // width:101px !important;
+      margin-top: 0px !important;
+      margin-left: 20px !important;
+    }
+    .row{
+      display: flex !important;
+      flex-direction: row !important;
+    }
+  }
+  @media (min-width:601px) and (max-width:864px){
+    .list-group{
+      overflow-y: hidden !important;
+      width:100% !important;
+      // margin-left: -40px !important;
+      // background-color: red !important;
+      display: inline-block !important;
+      flex-direction:column !important;
+      // overflow-x: visible !important;
+    }
+    .woocommerce-sidebar-area{
+      display: inline!important;
+      // flex-direction: row !important;
+    }
+    .products-content{
+      max-width:100% !important;
+    }
+    .aside-single-products{
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+    #danger-button{
+      // width:101px !important;
+      margin-top: 0px !important;
+      margin-left: 20px !important;
+    }
+    .row{
+      display: flex !important;
+      flex-direction: row !important;
+    }
+  }
+  @media (min-width:300px) and (max-width:499px){
+  .aside-single-products{
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  .cart-totals{
+    height:max-content !important;
+  }
+  .cardHeight{
+    height:max-content !important;
+  }
+  .noRequest {
+    margin-top: 0px !important;
+    margin-left: 25px !important;
+  }
+  .list-group{
+    overflow-y: hidden !important;
+    width:100% !important;
+    margin-left: 3px !important;
+    margin-bottom: 20px !important;
+    max-height: max-content !important;
+  }
+  #booking-list-style{
+    display: flex !important;
+    justify-content: center !important;
+  }
+  #button-content-view{
+    display: flex !important;
+    flex-direction: row !important;
+  }
+  #danger-button{
+    width:101px !important;
+    height: 40px;
+    margin-top: 0px !important;
+    margin-left: 20px !important;
+  }
+  #accept-button-type{
+    height: 40px;
+  }
+  #completed-button-view{
+    margin-left: 20px !important;
+  }
+  }
+  @media(min-width:626px) and (max-width:764px){
+    .cart-totals{
+      height:max-content !important;
+    }
+    .cardHeight{
+      height:max-content !important;
+    }
+    .noRequest {
+      margin-top: 0px !important;
+      margin-left: 25px !important;
+    }
+    .list-group{
+      overflow-y: hidden !important;
+      width:100% !important;
+      margin-left: 3px !important;
+      margin-bottom: 20px !important;
+    }
+    #danger-button{
+      // width:101px !important;
+      margin-left: 10px !important;
+      // margin-top: 10px !important;
+    }
+    #button-content-view{
+      // margin-left: 10px !important;
+      display: flex !important;
+      flex-direction:row !important;
+      // justify-content: space-around !important;
+    }
+  }
+  @media(min-width:576px) and (max-width:656px){
+    .rbc-btn-group{
+      margin-left: 20% !important;
+    }
+  }
+  @media(min-width:766px) and (max-width:863px){
+    #completed-button-view{
+      margin-left: 20px !important;
+    }
+  }
+  @media(min-width:300px) and (max-width:364px){
+    #completed-button-view{
+      width: 95px !important;
+    }
+  }
+  // @media(min-width:501px) and (max-width:559px){
+  //   #completed-button-view{
+  //     // margin-left: -49px !important;
+  //     width:100px !important;
+  //   }
+  //   #cancel-button-view{
+  //     // margin-left: -49px !important;
+  //     width:100px !important;
+  //   }
+  // }
+  @media(min-width:616px) and (max-width:763px){
+    #completed-button-view{
+      // width: 95px !important;
+      margin-left: 20px !important;
+    }
+  }
+  @media(min-width:500px) and (max-width:549px){
+    #completed-button-view{
+      // width: 95px !important;
+      margin-left: 20px !important;
+    }
+    #accept-reject-button{
+      max-width: max-content !important;
+    }
+  }
+  @media(min-width:300px) and (max-width:499px){
+    #accept-reject-button{
+      max-width: max-content !important;
+    }
+  }
+  @media(min-width:300px) and (max-width:362px){
+    #accept-reject-button{
+      // max-width: max-content !important;
+      display:flex !important;
+      flex-direction: row !important;
+    }
+  }
+  @media(min-width:993px) and (max-width:1187px){
+    .booking-button {
+      display: flex;
+      flex-direction: column;
+      // width: 72%;
+      justify-content: flex-start;
+  }
+  #cancel-button-style{
+    width: 130px;
+  }
+  #buttonText{
+    width: 130px;
+  }
+  #buttonText-danger{
+    margin-left: 0px;
+    margin-top: 10px;
+  }
+  }
+  // @media(min-width:865px) and (max-width:991px){
+  //   #request-status-view{
+  //     max-width: 30%;
+  //   }
+  //   #request-profile-view{
+  //     max-width: 23%;
+  //   }
+  //   #request-address-view{
+  //     max-width: 50%;
+  //   }
+  // } 
+  // @media(min-width:576px) and (max-width:600px){
+  //   #request-status-view{
+  //     max-width: 50%;
+  //   }
+  //   #request-profile-view{
+  //     max-width: 23%;
+  //   }
+  //   #request-address-view{
+  //     max-width: 27%;
+  //   }
+  //   #request-listmodal-view{
+  //     max-width: 100%;
+  //   }
+  //   #request-calendar-view{
+  //     max-width: 100%;
+  //   }
+  // } 
+  // @media(min-width:551px) and (max-width:575px){
+  //   #request-content-view{
+  //     display: flex;
+  //     flex-direction: column;
+  //   }
+  //   #request-profile-view{
+  //    display: flex;
+  //    justify-content: center;
+  //   }
+  //   .request-name-view{
+  //     display: flex;
+  //     justify-content: center;
+  //   }
+  //   .request-address-view{
+  //     width:85%
+  //   }
+  //   .request-addcontainer-view{
+  //     display: flex;
+  //     justify-content: center;
+  //   }
+  //   .request-time-view{
+  //     width: 48%;
+  //     display: flex;
+  //     justify-content: center;
+  //   }
+  //   #request-status-view{
+  //     display: flex;
+  //     flex-direction: column;
+  //     align-content: center;
+  //   }
+  //   #time-icon-view{
+  //     display: flex;
+  //     align-items: center;
+  //   }
+  // }
+  @media(max-width:575px){
+    #request-content-view{
+      display: flex;
+      flex-direction: column;
+    }
+    #request-profile-view{
+     display: flex;
+     justify-content: center;
+    }
+    .request-name-view{
+      display: flex;
+      justify-content: center;
+    }
+    .request-address-view{
+      width:85%
+    }
+    .request-addcontainer-view{
+      display: flex;
+      justify-content: center;
+    }
+    .request-time-view{
+      // width: 48%;
+      display: flex;
+      // justify-content: center;
+      margin-left: 8%;
+    }
+    #request-status-view{
+      display: flex;
+      flex-direction: column;
+      align-content: center;
+    }
+    #time-icon-view{
+      display: flex;
+      align-items: center;
+    }
+  }
+  @media(min-width:992px) and (max-width:2000px){
+    #request-content-view{
+      display: flex;
+    }
+  }

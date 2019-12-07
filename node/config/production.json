@@ -1,0 +1,64 @@
+{
+  "host": "172.105.48.206",
+  "port": 5000,
+  "public": "../public/",
+  "bodyLimit": {
+    "limit": "50mb",
+    "parameterLimit": 100000
+  },
+  "postgresDB": {
+    "host": "172.105.48.206",
+    "port": 5432,
+    "user": "postgres",
+    "password": "PrMwRcT7R2Req8g5",
+    "dbName": "chef",
+    "schema": "public"
+  },
+  "postgraphile": {
+    "protocol": "http",
+    "host": "172.105.48.206",
+    "port": 5001,
+    "options": {
+      "graphqlRoute": "/graphql_schema",
+      "graphiqlRoute": "/graphiql_schema",
+      "graphiql": true
+    }
+  },
+  "graphql": {
+    "path": "graphql",
+    "port": 5002
+  },
+  "graphqlPlayGround": {
+    "settings": {
+      "editor.cursorShape": "line",
+      "editor.theme": "dark",
+      "schema.polling.enable": false
+    }
+  },
+  "stripe": {
+    "secretKey": "sk_test_x980QiPeONfm7cfKVNQSFFNi00vOsQK71M",
+    "authTokenUrl": "https://connect.stripe.com/oauth/token"
+  },
+  "firebase": {
+    "type": "service_account",
+    "project_id": "rockoly-prod",
+    "private_key_id": "f57e949d8e2df94a525d12a6905a4eef5191aee9",
+    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCxzqWiKE3Wzcz4\nPIUUW1F00ASRvy8qlZaXS95oJNpw4EkTyWLrXSCj9ob/TWU8k3PaEMQXhjrIUwvo\nl6o7E0VL4PY7gt35oeXVzOsT1aLYpvzxHCk/X9VkX4FVgn4VGJLvulc7AVbOrBQu\nVf8PdRu314Uzrk54uTe2cKumNVJRdTnBx24TXg1Kid1HK3yk527S6OEnfwTb1DPU\n9svLIhxO2fygQv3hbAGPjvuegotwbounPThxBAI9+z7ENrkjU/Ye4EJGGyNaKeR2\nxWRcKixXvLo+nrCKRjy6pZu8R+5YcYrqAoQxrRGnja+uyyoR12Ii9jtLsH5fADGU\n1xuJODdTAgMBAAECggEAAQogwh3IirjMTyfnbUg1ZeCbeOYBwWwmI79P+b2Ra2Hc\nUNnMvWyKIXtHrHFy5ejvdKHEIREUrJF+ZdSRLGQ/SPjJPRgq8mfbFKYXOm1K1PJw\n/dCOKy6FFwpPPW/ptczdew+qApB48J9lRM9q54Jl8EFkfXoHlRbGzRxuhyZo/fdA\n0ugP0QUFQHNi80z/+hE3Rk531Y/YepKZXNszGDT+GRMZVwQb3NqIgqvSNnoTlsr2\nSTBxrEqEnRsCo3QiaJdQFe0XWGvjEgSh9v4ppLBI+eI/GSs1hjt38jIHxEfm2H7M\nucwFj+9y7fjwKsyt36FWHSTVl0AaZVmafuSMQkzNoQKBgQDkQe3D5X7jlea6u+GI\n5hhvsr/zdgv2w4yWXJaZDXQnt43CbV+vuDNW6pmB5B4CTcTmTKX5uEkWJMNEMVws\nNOPZhJxL81ft90O4B8808QhM+/ZIdvJTg4geXP7Y9M7UngAIjfLdD8ZH3WpTMCRk\nRd6mm/sVwsfz3a+aEe4O0ZRJoQKBgQDHav4KHGMLxVvva10kXJP5Uf6+PKGvRuJw\nSnTxU/KRVLBHe/g1k75993jzA824Uy2oXuQronF+ON8RUE4dihKRlgb7b+SerZeu\naN0KNvSqIWOTPg8BFo87NT8BX81r3TMdhVGq8nUv899XxT2KPTA+78xxwTwRt/1K\nrjKNbnCkcwKBgQDVDukVwsDXRFOzF65kb4p9sJbVdOmj81HmBBSaVmGGtSHASwFW\n7xQU3DRfdwO/2MGiygbe+nJWFgiiPYSwysmnfs25YzI/MF9ohvmVjCrYWRPA/i4h\nYBQNa3aCIrhw4+5aDc2VJKVK7VTSw4wkgMdcMxqCbGbhrZq8sGHKOTw2IQKBgCqB\nWq6rCE2M/qCUoODMPtooqQTBhbEHieJnbG+39f8WLxC9ktVQrYzJ/+TEjcfZKuU1\nfKr0T/6YfquBE3VmZbjUYp6bZf6Qf8E0JtEzj4jn3wKWero/pb34BnrzgaSZHHkR\nXqvyTBoxgAyERS6/BhaUJF6m0nfwYLPXV30f6jCTAoGBANSYFrj9Cl36VlgBwBCT\n4brSKZSMSzLpn7btotF2VFZlA/p2Pf+2ryuDWiQ9UJ+6Ut5SNOfqUloHz4n85/dB\nBE0QIMAggtweM1q7LP+mYar38O31eEKKmiJOnH5hAJl3zlMhiiLIcXwsgQy0Z7YX\n6YLc8T9vv2wGNbwsHa3nMpEd\n-----END PRIVATE KEY-----\n",
+    "client_email": "firebase-adminsdk-21gcm@rockoly-prod.iam.gserviceaccount.com",
+    "client_id": "100511367213801818450",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-21gcm%40rockoly-prod.iam.gserviceaccount.com"
+  },
+  "email": {
+    "host": "smtp.gmail.com",
+    "port": 587,
+    "secure": false,
+    "requireTLS": true,
+    "auth": {
+      "user": "rockolychef@gmail.com",
+      "pass": "RockolyCHEF@2019"
+    }
+  }
+}

@@ -1,0 +1,7 @@
+**/.idea/workspace.xml
+**/.idea/misc.xml
+
+# dependencies
+/node_modules
+
+/.next/

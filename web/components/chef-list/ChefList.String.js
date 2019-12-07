@@ -1,0 +1,18 @@
+export default {
+  CHEF_LIST: 'Chef List',
+  BOOK_NOW: 'Book Now',
+  VIEW: 'View :',
+  SHOWING_RESULT: 'Showing 16 of 102 results',
+  SHOW: 'Show :',
+  FILTER: 'Filter',
+  LIST_BY_LOCATION: 'List by Location',
+  SORT_BY_DATE: 'Sort by Date',
+  NUMBER_OF_GUESTS: 'Number of Guests',
+  HIGH_TO_LOW: 'High to Low',
+  LOW_TO_HIGH: 'Low to High',
+  TIME_OF_DAY: 'Time of Day',
+  HOUR: '/hour',
+  FULL_STAR: require('../../images/mock-image/star-yellow.png'),
+  EMPTY_STAR: require('../../images/mock-image/star-empty.png'),
+  VIEW_DETAILS: 'View Details',
+};

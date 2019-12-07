@@ -1,0 +1,117 @@
+// @import '../../../assets/styles/color.scss';
+// @import '../../../assets/styles/variables.scss';
+
+.auth {
+
+  // p{
+  //   color: $primary;
+  //   font-size: $p_font_size;
+  // }
+  .login-form {
+
+      .eyeIconView {
+        display: flex,
+      }
+      i {
+        font-size: 20px;
+        cursor: pointer;
+        position: absolute;
+        right: 45px;
+        margin-top: 13px;
+      }
+      .passwordContainer {
+        display: flex;
+      }
+      .changePwdInputLable {
+        margin-bottom: 15px;
+      }
+      .passwordContainer{
+        .form-control {
+          margin-bottom: 15px;
+        }
+      }
+      #resetPwdButton{
+        margin-top: 50px;
+      }
+   .forgot-password {
+        margin-top: 0px !important;
+    }
+
+}
+
+#socialLoginContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+
+    #orFont {
+      font-size: 20px,
+    }
+
+}
+.orFont {
+  font-size: 20px,
+}
+.login-keep {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding-bottom: 15px;
+}
+
+}
+#register-content{
+  width:50%;
+}
+#login-content{
+  width:50%;
+}
+#google-id{
+  margin-left: 15px;
+}
+#login-submit-button{
+  width:50%;
+}
+.login-btn-view{
+  display: flex;
+  justify-content: center;
+}
+@media(min-width:451px) and (max-width:800px){
+  #register-content{
+    width:80%;
+    display: flex;
+    justify-content: center;
+  }
+  #login-content{
+    width:80%;
+    display: flex;
+    justify-content: center;
+  }
+}
+@media(min-width:301px) and (max-width:450px){
+  #register-content{
+    width:100%;
+  }
+  #login-content{
+    width:100%;
+  }
+}
+@media(min-width:380px) and (max-width:416px){
+  #keep-me-login{
+    font-size: 12px;
+  }
+  #password-forgot-content{
+    font-size: 12px;
+  }
+}
+@media(max-width:379px){
+  .login-keep{
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  #password-forgot-content{
+    width: 117px;
+    top: 7px;
+  }
+}
