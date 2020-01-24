@@ -1,5 +1,5 @@
 {
-  "host": "172.105.48.206",
+  "host": "3.12.105.45",
   "port": 5000,
   "public": "../public/",
   "bodyLimit": {
@@ -7,16 +7,16 @@
     "parameterLimit": 100000
   },
   "postgresDB": {
-    "host": "172.105.48.206",
+    "host": "rockolydb.csdnml5hy38j.us-east-2.rds.amazonaws.com",
     "port": 5432,
     "user": "postgres",
-    "password": "PrMwRcT7R2Req8g5",
-    "dbName": "chef",
+    "password": "rE7dh$8mL&!pCd?s",
+    "dbName": "rockoly_dev",
     "schema": "public"
   },
   "postgraphile": {
     "protocol": "http",
-    "host": "172.105.48.206",
+    "host": "3.12.105.45",
     "port": 5001,
     "options": {
       "graphqlRoute": "/graphql_schema",
