@@ -1,5 +1,5 @@
 {
-  "host": "3.12.105.45",
+  "host": "localhost",
   "port": 7000,
   "public": "../public/",
   "bodyLimit": {
@@ -16,7 +16,7 @@
   },
   "postgraphile": {
     "protocol": "http",
-    "host": "3.12.105.45",
+    "host": "localhost",
     "port": 7001,
     "options": {
       "graphqlRoute": "/graphql_schema",
