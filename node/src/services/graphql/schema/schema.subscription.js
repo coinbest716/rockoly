@@ -76,6 +76,13 @@ export const subsCustomerFollowChef = {
   subsPkId: 'customerFollowChefId',
 };
 
+export const subsCustomerPreferenceProfile = {
+  subsChannelName: 'customerPreferenceProfile',
+  subsSchemaDefn: 'customerPreferenceProfile(customerId: String): JSONType',
+  subsFilterCriteria: ['customerId'],
+  subsPkId: 'customerPreferenceId',
+};
+
 /*
 Notification
 */

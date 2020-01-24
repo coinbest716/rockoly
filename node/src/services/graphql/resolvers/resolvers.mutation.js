@@ -225,23 +225,37 @@ const mutationResolvers = {
           utils.logData(`${logFileName} ${logFuncName} shared.db.updateBookingStatus Res: ${JSON.stringify(updateBookingStatusRes)}`, utils.LOGLEVELS.INFO);
 
           // 2: Transfer amnt to chef
-          return await transferBookingAmnt(args).then(transferBookingAmntRes => {
+          // 21st december 2019: Admin will transfer amount to chef from admin dashboard
+          /*
+          return await transferBookingAmnt(args).then(async function (transferBookingAmntRes) {
             utils.logData(`${logFileName} ${logFuncName} transferBookingAmnt Success: ${JSON.stringify(transferBookingAmntRes)}`, utils.LOGLEVELS.INFO);
 
+            // get booking records
+            let bookingData = await shared.db.getBookingDetails(args.bookingHistId);
+
             return {
-              data: updateBookingStatusRes,
+              data: bookingData,
             };
 
-          }).catch(err => {
+          }).catch(async function (err) {
 
             utils.logData(`${logFileName} ${logFuncName} transferBookingAmnt Catch Error: ${JSON.stringify(err)}`, utils.LOGLEVELS.ERROR);
-            // throw Error(err);
+
+            // get booking records
+            let bookingData = await shared.db.getBookingDetails(args.bookingHistId);
 
             return {
-              data: updateBookingStatusRes,
+              data: bookingData,
             };
 
-          });
+          });*/
+
+          // get booking records
+          let bookingData = await shared.db.getBookingDetails(args.bookingHistId);
+
+          return {
+            data: bookingData,
+          };
 
         }).catch(function (error) {
 
@@ -384,7 +398,14 @@ const mutationResolvers = {
         utils.logData(`${logFileName}${logFuncName} args: ${JSON.stringify(args)}`, utils.LOGLEVELS.INFO);
 
         // 0: calculate the price 
-        return await shared.db.getChefBookingPrice(args.fromTime, args.toTime, args.chefId).then(async function (getChefBookingPriceRes) {
+        let priceParams = {
+          'chefId': args.chefId,
+          'noOfGuest': args.noOfGuests,
+          'complexity': args.complexity,
+          'additionalServices': args.additionalServices
+        };
+
+        return await shared.db.getChefBookingPrice(priceParams).then(async function (getChefBookingPriceRes) {
 
           utils.logData(`${logFileName}${logFuncName} shared.db.getChefBookingPrice Res: ${JSON.stringify(getChefBookingPriceRes)}`, utils.LOGLEVELS.INFO);
 
@@ -397,6 +418,21 @@ const mutationResolvers = {
           }
 
           const totalPrice = bookingPrice + commissionPrice;
+
+          if (args.hasOwnProperty('additionalServices')) {
+            if (args.additionalServices != null) {
+              if (args.additionalServices.length != 0) {
+                args.additionalServices = JSON.stringify(args.additionalServices);
+              } else {
+                args.additionalServices = null;
+              }
+            } else {
+              args.additionalServices = null;
+            }
+          } else {
+            args.additionalServices = null;
+          }
+
 
           // 1: Create booking
           let bookingPayload = {
@@ -416,7 +452,29 @@ const mutationResolvers = {
             // Total Price
             totalPrice: totalPrice,
             totalPriceCurrency: 'USD',
-            dishTypeId: args.dishTypeId
+            dishTypeId: args.dishTypeId,
+            // New Fields
+            summary: args.summary,
+            allergyTypeIds: args.allergyTypeIds,
+            otherAllergyTypes: args.otherAllergyTypes,
+            dietaryRestrictionsTypesIds: args.dietaryRestrictionsTypesIds,
+            otherDietaryRestrictionsTypes: args.otherDietaryRestrictionsTypes,
+            kitchenEquipmentTypeIds: args.kitchenEquipmentTypeIds,
+            otherKitchenEquipmentTypes: args.otherKitchenEquipmentTypes,
+            storeTypeIds: args.storeTypeIds,
+            otherStoreTypes: args.otherStoreTypes,
+            noOfGuests: args.noOfGuests,
+            complexity: args.complexity,
+            additionalServices: args.additionalServices,
+            locationAddress: args.locationAddress,
+            locationLat: args.locationLat,
+            locationLng: args.locationLng,
+            addrLine1: args.addrLine1,
+            addrLine2: args.addrLine2,
+            state: args.state,
+            country: args.country,
+            city: args.city,
+            postalCode: args.postalCode
           };
 
           utils.logData(`${logFileName} ${logFuncName} bookingPayload: ${JSON.stringify(bookingPayload)}`, utils.LOGLEVELS.INFO);
@@ -448,18 +506,28 @@ const mutationResolvers = {
             // 2: Make Payment
             // eslint-disable-next-line require-atomic-updates
             args['bookingHistId'] = bookingHistId;
-            return await makeBookingPayment(args).then(res => {
+            args['paymentDoneForType'] = 'NEW_PAYMENT_FOR_BOOKING';
+
+            return await makeBookingPayment(args).then(async function (res) {
               utils.logData(`${logFileName} ${logFuncName} makeBookingPayment Success: ${JSON.stringify(res)}`, utils.LOGLEVELS.INFO);
 
+              // get booking records
+              let bookingData = await shared.db.getBookingDetails(args.bookingHistId);
+
               return {
-                data: bookingRes,
+                data: bookingData,
               };
 
-            }).catch(err => {
+            }).catch(async function (err) {
               utils.logData(`${logFileName} ${logFuncName} makeBookingPayment Catch Error: ${JSON.stringify(err)}`, utils.LOGLEVELS.ERROR);
+
+              // get booking records
+              let bookingData = await shared.db.getBookingDetails(args.bookingHistId);
+
               return {
-                data: bookingRes
+                data: bookingData,
               };
+
             });
 
           }).catch(function (error) {
@@ -506,12 +574,68 @@ const mutationResolvers = {
         utils.logData(`${logFileName} ${logFuncName} args: ${JSON.stringify(args)}`, utils.LOGLEVELS.INFO);
 
         // Make payment
-        return await makeBookingPayment(args).then(res => {
+        args['paymentDoneForType'] = 'ADDITIONAL_PAYMENT_FOR_BOOKING';
+
+        return await makeBookingPayment(args).then(async function (res) {
           utils.logData(`${logFileName} ${logFuncName} makeBookingPayment Success: ${JSON.stringify(res)}`, utils.LOGLEVELS.INFO);
 
-          return {
-            data: res,
-          };
+          // If payment done
+          // if this function is called when doing additional payment
+          // then transfer amount to chef
+          // else pass the booking data 
+          if (args.paymentDoneForType == 'ADDITIONAL_PAYMENT_FOR_BOOKING') {
+
+            // get chefId's stripe userId
+            let chefStripeUserId = await shared.db.getChefStripeUserId(args.chefId);
+
+            utils.logData(`${logFileName} ${logFuncName} shared.db.getChefStripeUserId: ${JSON.stringify(chefStripeUserId)}`, utils.LOGLEVELS.INFO);
+
+            // eslint-disable-next-line require-atomic-updates
+            args['chefStripeUserId'] = chefStripeUserId.chef_profile_default_stripe_user_id;
+
+            // 21st december 2019: Admin will transfer amount to chef from admin dashboard
+            // 2: Transfer amnt to chef
+            /*
+            return await transferBookingAmnt(args).then(async function (transferBookingAmntRes) {
+              utils.logData(`${logFileName} ${logFuncName} transferBookingAmnt Success: ${JSON.stringify(transferBookingAmntRes)}`, utils.LOGLEVELS.INFO);
+
+              // get booking records
+              let bookingData = await shared.db.getBookingDetails(args.bookingHistId);
+
+              return {
+                data: bookingData,
+              };
+
+            }).catch(async function (err) {
+
+              utils.logData(`${logFileName} ${logFuncName} transferBookingAmnt Catch Error: ${JSON.stringify(err)}`, utils.LOGLEVELS.ERROR);
+
+              // get booking records
+              let bookingData = await shared.db.getBookingDetails(args.bookingHistId);
+
+              return {
+                data: bookingData,
+              };
+
+            });*/
+
+            // get booking records
+            let bookingData = await shared.db.getBookingDetails(args.bookingHistId);
+
+            return {
+              data: bookingData,
+            };
+
+          } else {
+
+            // get booking records
+            let bookingData = await shared.db.getBookingDetails(args.bookingHistId);
+
+            return {
+              data: bookingData,
+            };
+
+          }
 
         }).catch(err => {
           utils.logData(`${logFileName} ${logFuncName} makeBookingPayment Catch Error: ${JSON.stringify(err)}`, utils.LOGLEVELS.ERROR);
@@ -797,14 +921,14 @@ const mutationResolvers = {
 
           return await shared.db.insertChefBankDetails(authTokenRes).then(async function (insertChefBankDetailsRes) {
 
-            utils.logData(`${logFileName} ${logFuncName} shared.db.insertPayment Res: ${JSON.stringify(insertChefBankDetailsRes)}`, utils.LOGLEVELS.INFO);
+            utils.logData(`${logFileName} ${logFuncName} shared.db.insertChefBankDetails Res: ${JSON.stringify(insertChefBankDetailsRes)}`, utils.LOGLEVELS.INFO);
 
             return {
               data: insertChefBankDetailsRes
             };
 
           }).catch(function (error) {
-            utils.logData(`${logFileName} ${logFuncName} shared.db.insertPayment Catch Error: ${JSON.stringify(error)}`, utils.LOGLEVELS.ERROR);
+            utils.logData(`${logFileName} ${logFuncName} shared.db.insertChefBankDetails Catch Error: ${JSON.stringify(error)}`, utils.LOGLEVELS.ERROR);
             throw Error(error);
           });
 
@@ -913,9 +1037,13 @@ const mutationResolvers = {
           utils.logData(`${logFileName} ${logFuncName} shared.db.getBookingDetails Res: ${JSON.stringify(getBookingDetailsRes)}`, utils.LOGLEVELS.INFO);
 
           // check if payment is done already
-          if (getBookingDetailsRes.payment_hist_id != null) {
+          utils.logData(`${logFileName} ${logFuncName} shared.db.getBookingDetails getBookingDetailsRes.payment_hist_ids: ${JSON.stringify(getBookingDetailsRes.payment_hist_ids)}`, utils.LOGLEVELS.INFO);
+          utils.logData(`${logFileName} ${logFuncName} shared.db.getBookingDetails getBookingDetailsRes.payment_hist_ids Length: ${getBookingDetailsRes.payment_hist_ids.length}`, utils.LOGLEVELS.INFO);
+
+          if (getBookingDetailsRes.payment_hist_ids != null && getBookingDetailsRes.payment_hist_ids.length != 0) {
 
             let bookingData = getBookingDetailsRes;
+            let paymentHistIds = getBookingDetailsRes.payment_hist_ids;
 
             // Deleting key from object due to reject_cancel reason string under 40 characters
             delete bookingData['chef_booking_chef_reject_or_cancel_reason'];
@@ -923,65 +1051,98 @@ const mutationResolvers = {
             delete bookingData['chef_booking_commission_charge_price_value'];
             delete bookingData['chef_booking_status_id'];
             delete bookingData['chef_booking_dish_type_id'];
+            delete bookingData['chef_booking_summary'];
+            delete bookingData['chef_booking_allergy_type_id'];
+            delete bookingData['chef_booking_other_allergy_types'];
+            delete bookingData['chef_booking_dietary_restrictions_type_id'];
+            delete bookingData['chef_booking_other_dietary_restrictions_types'];
+            delete bookingData['chef_booking_kitchen_equipment_type_id'];
+            delete bookingData['chef_booking_other_kitchen_equipment_types'];
+            delete bookingData['chef_booking_store_type_id'];
+            delete bookingData['chef_booking_other_store_types'];
+            delete bookingData['chef_booking_additional_services'];
+            delete bookingData['payment_hist_ids'];
 
             let bookingHistId = args.bookingHistId;
-            let paymentHistId = getBookingDetailsRes.payment_hist_id;
 
-            // get booking payment details
-            return await shared.db.getBookingPaymentDetails(paymentHistId).then(async function (getBookingPaymentDetailsRes) {
+            utils.logData(`${logFileName} ${logFuncName} shared.db.getBookingDetails paymentHistIds Length: ${paymentHistIds.length}`, utils.LOGLEVELS.INFO);
 
-              utils.logData(`${logFileName} ${logFuncName} shared.db.getBookingPaymentDetails Res: ${JSON.stringify(getBookingPaymentDetailsRes)}`, utils.LOGLEVELS.INFO);
+            // Loop all payments for refund
+            let processedRefundPayments = 0;
+            let i = 0;
 
-              let chargeId = getBookingPaymentDetailsRes.payment_id;
+            for (i = 0; i < paymentHistIds.length; i++) {
 
-              // refund the amt
-              return await shared.stripe.refundAmt(chargeId, getBookingDetailsRes.chef_booking_price_value, getBookingDetailsRes.chef_booking_price_unit, bookingData).then(async function (refundAmtRes) {
+              let paymentHistId = paymentHistIds[i];
 
-                utils.logData(`${logFileName}${logFuncName} shared.stripe.refundAmt Res: ${JSON.stringify(refundAmtRes)}`, utils.LOGLEVELS.INFO);
+              // get booking payment details
+              await shared.db.getBookingPaymentDetails(paymentHistId).then(async function (getBookingPaymentDetailsRes) {
 
-                // Insert into refund table
-                let saveRefundPaymentPayload = {
-                  customerId: args.customerId,
-                  paymentHistId: paymentHistId,
-                  bookingHistId: bookingHistId,
-                  chargeId: chargeId,
-                  refundId: refundAmtRes.id,
-                  dataAsJson: refundAmtRes
-                };
+                utils.logData(`${logFileName} ${logFuncName} shared.db.getBookingPaymentDetails Res: ${JSON.stringify(getBookingPaymentDetailsRes)}`, utils.LOGLEVELS.INFO);
 
-                utils.logData(`${logFileName}${logFuncName} saveRefundPaymentPayload: ${JSON.stringify(saveRefundPaymentPayload)}`, utils.LOGLEVELS.INFO);
+                let chargeId = getBookingPaymentDetailsRes.payment_id;
 
-                return await shared.db.insertRefundPayment(saveRefundPaymentPayload).then(async function (insertRefundPaymentRes) {
+                // refund the amt
+                await shared.stripe.refundAmt(chargeId, getBookingDetailsRes.chef_booking_price_value, getBookingDetailsRes.chef_booking_price_unit, bookingData).then(async function (refundAmtRes) {
 
-                  utils.logData(`${logFileName}${logFuncName} shared.db.insertPayment Res: ${JSON.stringify(insertRefundPaymentRes)}`, utils.LOGLEVELS.INFO);
+                  utils.logData(`${logFileName}${logFuncName} shared.stripe.refundAmt Res: ${JSON.stringify(refundAmtRes)}`, utils.LOGLEVELS.INFO);
 
-                  return {
-                    data: insertRefundPaymentRes
+                  // Insert into refund table
+                  let saveRefundPaymentPayload = {
+                    customerId: args.customerId,
+                    paymentHistId: paymentHistId,
+                    bookingHistId: bookingHistId,
+                    chargeId: chargeId,
+                    refundId: refundAmtRes.id,
+                    dataAsJson: refundAmtRes
                   };
 
-                }).catch(function (error) {
+                  utils.logData(`${logFileName}${logFuncName} saveRefundPaymentPayload: ${JSON.stringify(saveRefundPaymentPayload)}`, utils.LOGLEVELS.INFO);
 
-                  utils.logData(`${logFileName}${logFuncName} shared.db.insertPayment Catch Error: ${JSON.stringify(error)}`, utils.LOGLEVELS.ERROR);
-                  throw Error(error);
+                  await shared.db.insertRefundPayment(saveRefundPaymentPayload).then(async function (insertRefundPaymentRes) {
+
+                    utils.logData(`${logFileName}${logFuncName} shared.db.insertPayment Res: ${JSON.stringify(insertRefundPaymentRes)}`, utils.LOGLEVELS.INFO);
+
+                    processedRefundPayments = processedRefundPayments + 1;
+
+                  }).catch(function (error) {
+
+                    processedRefundPayments = processedRefundPayments + 1;
+                    utils.logData(`${logFileName}${logFuncName} shared.db.insertPayment Catch Error: ${JSON.stringify(error)}`, utils.LOGLEVELS.ERROR);
+                    // throw Error(error);
+
+                  });
+
+                }).catch(async function (error) {
+
+                  // Update booking status with transfer failed;
+                  processedRefundPayments = processedRefundPayments + 1;
+                  await shared.db.updateBookingStatus(args.bookingHistId, 'REFUND_AMOUNT_FAILED');
+
+                  utils.logData(`${logFileName} ${logFuncName} shared.stripe.transferAmt Catch Error: ${JSON.stringify(error)}`, utils.LOGLEVELS.ERROR);
+                  // throw Error('FAILED_TO_TRANSFER_AMOUNT');
 
                 });
 
-              }).catch(async function (error) {
+              }).catch(function (error) {
 
-                // Update booking status with transfer failed;
-                await shared.db.updateBookingStatus(args.bookingHistId, 'REFUND_AMOUNT_FAILED');
-
-                utils.logData(`${logFileName} ${logFuncName} shared.stripe.transferAmt Catch Error: ${JSON.stringify(error)}`, utils.LOGLEVELS.ERROR);
-                throw Error('FAILED_TO_TRANSFER_AMOUNT');
+                utils.logData(`${logFileName}${logFuncName} shared.db.getBookingPaymentDetails Catch Error: ${JSON.stringify(error)}`, utils.LOGLEVELS.ERROR);
+                // throw Error(error);
 
               });
+            }
 
-            }).catch(function (error) {
+            // If all process the return data 
+            if (processedRefundPayments == paymentHistIds.length) {
 
-              utils.logData(`${logFileName}${logFuncName} shared.db.getBookingPaymentDetails Catch Error: ${JSON.stringify(error)}`, utils.LOGLEVELS.ERROR);
-              throw Error(error);
+              // get booking records
+              let bookingData = await shared.db.getBookingDetails(bookingHistId);
 
-            });
+              return {
+                data: bookingData,
+              };
+
+            }
 
           } else {
             utils.logData(`${logFileName} ${logFuncName} shared.db.getBookingDetails 'NO_PAYMENT_ATTACHED_TO_BOOKING`, utils.LOGLEVELS.ERROR);
@@ -1025,16 +1186,55 @@ export async function makeBookingPayment(args) {
     delete chefBookingDetailRes['chef_booking_commission_charge_price_value'];
     delete chefBookingDetailRes['chef_booking_status_id'];
     delete chefBookingDetailRes['chef_booking_dish_type_id'];
+    delete chefBookingDetailRes['chef_booking_summary'];
+    delete chefBookingDetailRes['chef_booking_allergy_type_id'];
+    delete chefBookingDetailRes['chef_booking_other_allergy_types'];
+    delete chefBookingDetailRes['chef_booking_dietary_restrictions_type_id'];
+    delete chefBookingDetailRes['chef_booking_other_dietary_restrictions_types'];
+    delete chefBookingDetailRes['chef_booking_kitchen_equipment_type_id'];
+    delete chefBookingDetailRes['chef_booking_other_kitchen_equipment_types'];
+    delete chefBookingDetailRes['chef_booking_store_type_id'];
+    delete chefBookingDetailRes['chef_booking_other_store_types'];
+    delete chefBookingDetailRes['chef_booking_additional_services'];
+    delete chefBookingDetailRes['payment_hist_ids'];
 
     // 1: Make Payment
+    let paymentPayload = {};
+    let paymentOriginalPriceValueFormat = null;
+    let paymentOriginalPriceUnitFormat = null;
 
-    // Convert $ to cents
-    let paymentPayload = {
-      price: parseInt(100 * chefBookingDetailRes.chef_booking_total_price_value),
-      currency: 'USD',
-      stripeCustomerId: args.stripeCustomerId,
-      cardId: args.cardId,
-    };
+    // if new payment then price and unit passed
+    if (args.hasOwnProperty('price') && args.price !== null) {
+
+      utils.logData(`${logFileName} ${logFuncName} Price Given: ${args.price}`, utils.LOGLEVELS.INFO);
+
+      paymentOriginalPriceValueFormat = args.price;
+      paymentOriginalPriceUnitFormat = 'USD';
+
+      // Convert $ to cents
+      paymentPayload = {
+        price: parseInt(100 * args.price),
+        currency: 'USD',
+        stripeCustomerId: args.stripeCustomerId,
+        cardId: args.cardId,
+      };
+
+    } else {
+
+      utils.logData(`${logFileName} ${logFuncName} Price Not Given, Take booking price: ${chefBookingDetailRes.chef_booking_total_price_value}`, utils.LOGLEVELS.INFO);
+
+      paymentOriginalPriceValueFormat = chefBookingDetailRes.chef_booking_total_price_value;
+      paymentOriginalPriceUnitFormat = 'USD';
+
+      // Convert $ to cents
+      paymentPayload = {
+        price: parseInt(100 * chefBookingDetailRes.chef_booking_total_price_value),
+        currency: 'USD',
+        stripeCustomerId: args.stripeCustomerId,
+        cardId: args.cardId,
+      };
+
+    }
 
     utils.logData(`${logFileName}${logFuncName} paymentPayload: ${JSON.stringify(paymentPayload)}`, utils.LOGLEVELS.INFO);
 
@@ -1059,7 +1259,10 @@ export async function makeBookingPayment(args) {
         paymentReceiptUrl: paymentRes.receipt_url,
         paymentDataAsJson: paymentRes,
         paymentDoneByCustomerId: chefBookingDetailRes.customer_id,
-        paymentDoneForChefId: chefBookingDetailRes.chef_id
+        paymentDoneForChefId: chefBookingDetailRes.chef_id,
+        paymentDoneForType: args.paymentDoneForType,
+        paymentOriginalPriceValueFormat: paymentOriginalPriceValueFormat,
+        paymentOriginalPriceUnitFormat: paymentOriginalPriceUnitFormat
       };
 
       utils.logData(`${logFileName}${logFuncName} savePaymentPayload: ${JSON.stringify(savePaymentPayload)}`, utils.LOGLEVELS.INFO);
@@ -1082,8 +1285,52 @@ export async function makeBookingPayment(args) {
 
     }).catch(async function (error) {
 
-      // Update booking status with payment failed;
-      await shared.db.updateBookingStatus(args.bookingHistId, 'PAYMENT_FAILED');
+      // Dont update if payment is additional one
+      if (args.paymentDoneForType !== 'ADDITIONAL_PAYMENT_FOR_BOOKING') {
+
+        // Update booking status with payment failed;
+        await shared.db.updateBookingStatus(args.bookingHistId, 'PAYMENT_FAILED');
+      }
+
+      // if payment is not done
+      // Insert into payment table
+      let savePaymentPayload = {
+        bookingHistId: args.bookingHistId,
+        paymentId: null,
+        paymentStripeCustomerId: args.stripeCustomerId,
+        paymentCardId: args.cardId,
+        paymentOrderId: null,
+        paymentTransactionId: null,
+        paymentStatusId: 'FAILED',
+        paymentMethod: null,
+        paymentActualAmount: null,
+        paymentActualAmountUnit: null,
+        paymentTotalAmount: null,
+        paymentTotalAmountUnit: null,
+        paymentReceiptUrl: null,
+        paymentDataAsJson: null,
+        paymentDoneByCustomerId: chefBookingDetailRes.customer_id,
+        paymentDoneForChefId: chefBookingDetailRes.chef_id,
+        paymentDoneForType: args.paymentDoneForType,
+        paymentOriginalPriceValueFormat: paymentOriginalPriceValueFormat,
+        paymentOriginalPriceUnitFormat: paymentOriginalPriceUnitFormat
+      };
+
+      utils.logData(`${logFileName} ${logFuncName} savePaymentPayload: ${JSON.stringify(savePaymentPayload)}`, utils.LOGLEVELS.INFO);
+
+      await shared.db.insertPayment(savePaymentPayload).then(async function (savePaymentRes) {
+
+        utils.logData(`${logFileName} ${logFuncName} shared.db.insertPayment Res: ${JSON.stringify(savePaymentRes)}`, utils.LOGLEVELS.INFO);
+
+        return {
+          data: savePaymentRes
+        };
+
+      }).catch(function (error) {
+
+        utils.logData(`${logFileName}${logFuncName} shared.db.insertPayment Catch Error: ${JSON.stringify(error)}`, utils.LOGLEVELS.ERROR);
+
+      });
 
       utils.logData(`${logFileName}${logFuncName} shared.stripe.chargeCard Catch Error: ${JSON.stringify(error)}`, utils.LOGLEVELS.ERROR);
       throw Error(error);
@@ -1117,38 +1364,110 @@ export async function transferBookingAmnt(args) {
     delete chefBookingDetailRes['chef_booking_commission_charge_price_value'];
     delete chefBookingDetailRes['chef_booking_status_id'];
     delete chefBookingDetailRes['chef_booking_dish_type_id'];
+    delete chefBookingDetailRes['chef_booking_summary'];
+    delete chefBookingDetailRes['chef_booking_allergy_type_id'];
+    delete chefBookingDetailRes['chef_booking_other_allergy_types'];
+    delete chefBookingDetailRes['chef_booking_dietary_restrictions_type_id'];
+    delete chefBookingDetailRes['chef_booking_other_dietary_restrictions_types'];
+    delete chefBookingDetailRes['chef_booking_kitchen_equipment_type_id'];
+    delete chefBookingDetailRes['chef_booking_other_kitchen_equipment_types'];
+    delete chefBookingDetailRes['chef_booking_store_type_id'];
+    delete chefBookingDetailRes['chef_booking_other_store_types'];
+    delete chefBookingDetailRes['chef_booking_additional_services'];
+    delete chefBookingDetailRes['payment_hist_ids'];
 
 
     let amnt = parseInt(100 * chefBookingDetailRes.chef_booking_price_value);
 
-    return await shared.stripe.transferAmt(amnt, chefBookingDetailRes.chef_booking_price_unit, args.chefStripeUserId, chefBookingDetailRes).then(async function (transferAmtRes) {
+    return await shared.stripe.retrieveBalanceAmt().then(async function (retrieveBalanceAmtRes) {
 
-      utils.logData(`${logFileName}${logFuncName} shared.stripe.transferAmt Res: ${JSON.stringify(transferAmtRes)}`, utils.LOGLEVELS.INFO);
+      utils.logData(`${logFileName}${logFuncName} shared.stripe.retrieveBalanceAmt Res: ${JSON.stringify(retrieveBalanceAmtRes)}`, utils.LOGLEVELS.INFO);
 
-      let transferAmt = {
-        amt: chefBookingDetailRes.chef_booking_price_value,
-        amtCurrency: chefBookingDetailRes.chef_booking_price_unit,
-        bookingHistId: args.bookingHistId,
-        adminId: args.adminId ? args.adminId : null,
-        chefId: args.chefId,
-        chefStripeUserId: args.chefStripeUserId,
-        dataAsJson: transferAmtRes
-      };
+      if (retrieveBalanceAmtRes.hasOwnProperty('available')) {
 
-      //  insert into db
-      return await shared.db.insertBankTransfer(transferAmt).then(async function (saveTransferRes) {
-        utils.logData(`${logFileName} ${logFuncName} shared.db.insertBankTransfer Res: ${JSON.stringify(saveTransferRes)}`, utils.LOGLEVELS.INFO);
+        if (retrieveBalanceAmtRes.available.length != 0) {
 
-        return {
-          data: saveTransferRes
-        };
+          if (retrieveBalanceAmtRes.available[0].hasOwnProperty('amount')) {
 
-      }).catch(function (error) {
+            let availableBalance = retrieveBalanceAmtRes.available[0].amount;
 
-        utils.logData(`${logFileName} ${logFuncName} shared.db.insertBankTransfer Catch Error: ${JSON.stringify(error)}`, utils.LOGLEVELS.ERROR);
-        throw Error(error);
+            utils.logData(`${logFileName} ${logFuncName} availableBalance: ${availableBalance}`, utils.LOGLEVELS.ERROR);
+            utils.logData(`${logFileName} ${logFuncName} amnt: ${amnt}`, utils.LOGLEVELS.ERROR);
 
-      });
+            if (availableBalance > amnt) {
+
+              utils.logData(`${logFileName} ${logFuncName} Balance is availlable`, utils.LOGLEVELS.INFO);
+
+              return await shared.stripe.transferAmt(amnt, chefBookingDetailRes.chef_booking_price_unit, args.chefStripeUserId, chefBookingDetailRes).then(async function (transferAmtRes) {
+
+                utils.logData(`${logFileName} ${logFuncName} shared.stripe.transferAmt Res: ${JSON.stringify(transferAmtRes)}`, utils.LOGLEVELS.INFO);
+
+                let transferAmt = {
+                  amt: chefBookingDetailRes.chef_booking_price_value,
+                  amtCurrency: chefBookingDetailRes.chef_booking_price_unit,
+                  bookingHistId: args.bookingHistId,
+                  adminId: args.adminId ? args.adminId : null,
+                  chefId: args.chefId,
+                  chefStripeUserId: args.chefStripeUserId,
+                  dataAsJson: transferAmtRes
+                };
+
+                //  insert into db
+                return await shared.db.insertBankTransfer(transferAmt).then(async function (saveTransferRes) {
+                  utils.logData(`${logFileName} ${logFuncName} shared.db.insertBankTransfer Res: ${JSON.stringify(saveTransferRes)}`, utils.LOGLEVELS.INFO);
+
+                  return {
+                    data: saveTransferRes
+                  };
+
+                }).catch(function (error) {
+
+                  utils.logData(`${logFileName} ${logFuncName} shared.db.insertBankTransfer Catch Error: ${JSON.stringify(error)}`, utils.LOGLEVELS.ERROR);
+                  throw Error(error);
+
+                });
+
+              }).catch(async function (error) {
+
+                // Update booking status with transfer failed;
+                await shared.db.updateBookingStatus(args.bookingHistId, 'AMOUNT_TRANSFER_FAILED');
+
+                utils.logData(`${logFileName} ${logFuncName} shared.stripe.transferAmt Catch Error: ${JSON.stringify(error)}`, utils.LOGLEVELS.ERROR);
+                throw Error(error);
+
+              });
+
+            } else {
+
+              utils.logData(`${logFileName} ${logFuncName} Balance is low`, utils.LOGLEVELS.ERROR);
+
+              // Insufficent Balance
+              throw Error('INSUFFICENT_BALANCE');
+
+            }
+          } else {
+
+            utils.logData(`${logFileName} ${logFuncName} No Amount field is present in object`, utils.LOGLEVELS.ERROR);
+
+            // Insufficent Balance
+            throw Error('INSUFFICENT_BALANCE');
+
+          }
+        } else {
+
+          utils.logData(`${logFileName} ${logFuncName} available length is empty in object`, utils.LOGLEVELS.ERROR);
+
+          // Insufficent Balance
+          throw Error('INSUFFICENT_BALANCE');
+        }
+
+      } else {
+
+        utils.logData(`${logFileName} ${logFuncName} No avilable is not empty in object`, utils.LOGLEVELS.ERROR);
+
+        // Insufficent Balance
+        throw Error('INSUFFICENT_BALANCE');
+      }
 
     }).catch(async function (error) {
 
@@ -1167,7 +1486,6 @@ export async function transferBookingAmnt(args) {
 
   });
 }
-
 
 export {
   mutationResolvers

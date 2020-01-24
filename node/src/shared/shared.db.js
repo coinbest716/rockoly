@@ -226,7 +226,64 @@ export function createBooking(payload) {
         chef_booking_commission_price_unit,
         chef_booking_total_price_value,
         chef_booking_total_price_unit,
-        chef_booking_dish_type_id)values ($1, $2, $3, $4, $5, $6, $7, $8 , $9 , $10 , $11 , $12 , $13) RETURNING *`;
+        chef_booking_dish_type_id,
+        chef_booking_summary,
+        chef_booking_allergy_type_id,
+        chef_booking_other_allergy_types,
+        chef_booking_dietary_restrictions_type_id,
+        chef_booking_other_dietary_restrictions_types,
+        chef_booking_kitchen_equipment_type_id,
+        chef_booking_other_kitchen_equipment_types,
+        chef_booking_store_type_id,
+        chef_booking_other_store_types,
+        chef_booking_no_of_people,
+        chef_booking_complexity,
+        chef_booking_additional_services,
+        chef_booking_location_address,
+        chef_booking_location_lat,
+        chef_booking_location_lng,
+        chef_booking_addr_line_1,
+        chef_booking_addr_line_2,
+        chef_booking_state,
+        chef_booking_country,
+        chef_booking_city,
+        chef_booking_postal_code
+        ) values (
+          $1, 
+          $2, 
+          $3, 
+          $4, 
+          $5, 
+          $6, 
+          $7, 
+          $8 , 
+          $9 , 
+          $10 , 
+          $11 , 
+          $12 , 
+          $13 ,
+          $14 ,
+          $15 ,
+          $16 ,
+          $17 ,
+          $18 ,
+          $19 ,
+          $20 ,
+          $21 ,
+          $22 ,
+          $23 ,
+          $24 ,
+          $25 ,
+          $26 ,
+          $27 ,
+          $28 ,
+          $29 ,
+          $30 ,
+          $31 ,
+          $32 ,
+          $33 ,
+          $34
+          ) RETURNING *`;
 
       let variables = [
         payload.chefId,
@@ -241,7 +298,28 @@ export function createBooking(payload) {
         payload.commissionCurrency,
         payload.totalPrice,
         payload.totalPriceCurrency,
-        payload.dishTypeId
+        payload.dishTypeId,
+        payload.summary,
+        payload.allergyTypeIds,
+        payload.otherAllergyTypes,
+        payload.dietaryRestrictionsTypesIds,
+        payload.otherDietaryRestrictionsTypes,
+        payload.kitchenEquipmentTypeIds,
+        payload.otherKitchenEquipmentTypes,
+        payload.storeTypeIds,
+        payload.otherStoreTypes,
+        payload.noOfGuests,
+        payload.complexity,
+        payload.additionalServices,
+        payload.locationAddress,
+        payload.locationLat,
+        payload.locationLng,
+        payload.addrLine1,
+        payload.addrLine2,
+        payload.state,
+        payload.country,
+        payload.city,
+        payload.postalCode
       ];
 
       await db.one(sqlStr, variables).then(async function (data) {
@@ -342,8 +420,11 @@ export function insertPayment(payload) {
         payment_receipt_url,
         payment_data_as_json,
         payment_done_by_customer_id,
-        payment_done_for_chef_id)
-        values ($1,
+        payment_done_for_chef_id,
+        payment_done_for_type,
+        payment_original_price_value_format,
+        payment_original_price_unit_format
+        ) values ($1,
           $2,
           $3,
           $4,
@@ -358,7 +439,11 @@ export function insertPayment(payload) {
           $13,
           $14,
           $15,
-          $16) RETURNING *`;
+          $16,
+          $17,
+          $18,
+          $19
+          ) RETURNING *`;
 
       let variables = [
         payload.bookingHistId,
@@ -376,7 +461,10 @@ export function insertPayment(payload) {
         payload.paymentReceiptUrl,
         payload.paymentDataAsJson,
         payload.paymentDoneByCustomerId,
-        payload.paymentDoneForChefId
+        payload.paymentDoneForChefId,
+        payload.paymentDoneForType,
+        payload.paymentOriginalPriceValueFormat,
+        payload.paymentOriginalPriceUnitFormat
       ];
 
       await db.one(sqlStr, variables).then(async function (data) {
@@ -642,18 +730,18 @@ export function getChefBankDetails(chefId) {
 }
 
 // get price from
-export function getChefBookingPrice(fromTime, toTime, chefId) {
+export function getChefBookingPrice(payload) {
 
   let logFuncName = 'getChefBookingPrice';
 
-  utils.logData(`${logFileName}${logFuncName} fromTime: ${fromTime} , toTime: ${toTime}, chefId: ${chefId} `, utils.LOGLEVELS.INFO);
+  utils.logData(`${logFileName} ${logFuncName} payload: ${JSON.stringify(payload)} `, utils.LOGLEVELS.INFO);
 
   const executor = async function (resolve, reject) {
     try {
 
-      let sqlStr = `select calculate_price_by_params($1, $2, $3) as booking_price ,get_setting_value('BOOKING_SERVICE_CHARGE_IN_PERCENTAGE') as service_charge`;
+      let sqlStr = `select calculate_booking_price_by_params($1) as booking_price ,get_setting_value('BOOKING_SERVICE_CHARGE_IN_PERCENTAGE') as service_charge`;
 
-      await db.one(sqlStr, [fromTime, toTime, chefId]).then(async function (data) {
+      await db.one(sqlStr, [payload]).then(async function (data) {
 
         utils.logData(`${logFileName} ${logFuncName} Db Result: ${JSON.stringify(data)}`, utils.LOGLEVELS.INFO);
         resolve(data);
@@ -686,7 +774,7 @@ export function getBookingDetails(bookingHistId) {
   const executor = async function (resolve, reject) {
     try {
 
-      let sqlStr = 'select * from chef_booking_history where chef_booking_hist_id = $1';
+      let sqlStr = 'select *,chef_booking_history_payment_hist_ids(cbh) as payment_hist_ids from chef_booking_history cbh where chef_booking_hist_id = $1';
 
       await db.one(sqlStr, [bookingHistId]).then(async function (data) {
 
@@ -765,7 +853,6 @@ export function updateBookingStatus(bookingHistId, statusId) {
           chef_booking_status_id = $2
         where 
           chef_booking_hist_id = $1 and 
-          chef_booking_completed_by_chef_yn= true and 
           trim(chef_booking_status_id) in ('COMPLETED','AMOUNT_TRANSFER_FAILED')
         RETURNING * ; `;
 
@@ -776,7 +863,6 @@ export function updateBookingStatus(bookingHistId, statusId) {
           chef_booking_status_id = $2
         where 
           chef_booking_hist_id = $1 and 
-          chef_booking_completed_by_chef_yn= true and 
           trim(chef_booking_status_id) in ('COMPLETED','AMOUNT_TRANSFER_FAILED')
         RETURNING *; `;
 
@@ -794,11 +880,9 @@ export function updateBookingStatus(bookingHistId, statusId) {
 
         sqlStr = `Update chef_booking_history
         set 
-          chef_booking_completed_by_chef_yn= true,
           chef_booking_status_id = $2
         where 
           chef_booking_status_id = 'CHEF_ACCEPTED' and 
-          chef_booking_completed_by_chef_yn = false and 
           chef_booking_hist_id = $1 
         RETURNING *; `;
 
@@ -851,6 +935,42 @@ export function checkIfUserBlocked(id, role) {
       let sqlStr = 'select * from check_if_user_blocked($1,$2)';
 
       await db.one(sqlStr, [id, role]).then(async function (data) {
+
+        utils.logData(`${logFileName}${logFuncName} Db Result: ${JSON.stringify(data)}`, utils.LOGLEVELS.INFO);
+        resolve(data);
+
+      }).catch(function (error) {
+
+        utils.logData(`${logFileName}${logFuncName} Db Error: ${JSON.stringify(error)}`, utils.LOGLEVELS.ERROR);
+        reject(error);
+
+      });
+
+    } catch (error) {
+
+      utils.logData(`${logFileName}${logFuncName} Catch Error: ${JSON.stringify(error)}`, utils.LOGLEVELS.ERROR);
+      reject(error);
+
+    }
+  };
+
+  return new Promise(executor);
+}
+
+
+// getChefStripeUserId
+export function getChefStripeUserId(id) {
+
+  let logFuncName = 'getChefStripeUserId';
+
+  utils.logData(`${logFileName} ${logFuncName} id: ${id} `, utils.LOGLEVELS.INFO);
+
+  const executor = async function (resolve, reject) {
+    try {
+
+      let sqlStr = 'select chef_profile_default_stripe_user_id(cp) from chef_profile cp where chef_id=$1';
+
+      await db.one(sqlStr, [id]).then(async function (data) {
 
         utils.logData(`${logFileName}${logFuncName} Db Result: ${JSON.stringify(data)}`, utils.LOGLEVELS.INFO);
         resolve(data);

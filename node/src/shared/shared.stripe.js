@@ -305,8 +305,7 @@ export function refundAmt(chargeId, amount, currency, metaPayload) {
     try {
 
       await stripe.refunds.create({
-        charge: chargeId,
-        amount: amount * 100,
+        charge: chargeId
       }, function (error, result) {
 
         utils.logData(`${logFuncName} stripe.refunds.create: Error: ${JSON.stringify(error)}`, utils.LOGLEVELS.ERROR);
@@ -351,6 +350,38 @@ export function transferAmt(amt, currency, destinationAccount, metaPayload) {
 
         utils.logData(`${logFuncName} stripe.transfers.create: Error: ${JSON.stringify(error)}`, utils.LOGLEVELS.ERROR);
         utils.logData(`${logFuncName} stripe.transfers.create: Result: ${JSON.stringify(result)}`, utils.LOGLEVELS.INFO);
+
+        if (error) {
+          reject(error.code);
+        } else {
+          resolve(result);
+        }
+
+      });
+
+    } catch (err) {
+      let msg = `ERROR_OCCURED: ${logFuncName} `;
+      utils.logData(`${logFuncName} Catch Error: ${JSON.stringify(err)}`, utils.LOGLEVELS.ERROR);
+      reject(msg);
+    }
+  };
+
+  return new Promise(executor);
+
+}
+
+// retrieve balance amt
+export function retrieveBalanceAmt() {
+
+  let logFuncName = 'retrieveBalanceAmt';
+
+  const executor = async function (resolve, reject) {
+    try {
+
+      await stripe.balance.retrieve(function (error, result) {
+
+        utils.logData(`${logFuncName} stripe.balance.retrieve: Error: ${JSON.stringify(error)}`, utils.LOGLEVELS.ERROR);
+        utils.logData(`${logFuncName} stripe.balance.retrieve: Result: ${JSON.stringify(result)}`, utils.LOGLEVELS.INFO);
 
         if (error) {
           reject(error.code);

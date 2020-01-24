@@ -78,6 +78,11 @@ const subscriptionResolvers = {
       return doSubscribe(payload, variables, subs.subsMessageHistory);
     }),
   },
+  customerPreferenceProfile: {
+    subscribe: withFilter((_, args, {pubsub}) => pubsub.asyncIterator('customerPreferenceProfile'), (payload, variables) => {
+      return doSubscribe(payload, variables, subs.subsCustomerPreferenceProfile);
+    }),
+  },
 };
 
 export {

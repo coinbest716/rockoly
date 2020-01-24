@@ -7,6 +7,11 @@ export const localSchema = `
   type JSONType {
     data: JSON  
   }
+
+  input additionalServicesType {
+    service: String
+    price: Float
+  }
       
   # Query
   type Query {
@@ -94,15 +99,43 @@ export const localSchema = `
       customerId:String!
       fromTime:String!
       toTime:String!,
+
+      # older fields
       notes:String,
       dishTypeId:[String],
+
+      # new fields
+      summary:String
+      allergyTypeIds:[String]
+      otherAllergyTypes:JSON
+      dietaryRestrictionsTypesIds:[String]
+      otherDietaryRestrictionsTypes:JSON
+      kitchenEquipmentTypeIds:[String]
+      otherKitchenEquipmentTypes:JSON
+      storeTypeIds:[String]
+      otherStoreTypes:JSON
+      noOfGuests:Int
+      complexity:Float
+      additionalServices:[additionalServicesType]
+      locationAddress:String
+      locationLat:String
+      locationLng:String
+      addrLine1:String
+      addrLine2:String
+      state:String
+      country:String
+      city:String
+      postalCode:String
     ):JSONType
 
     # make booking for payment
     bookingPayment(
+      bookingHistId:String!
       stripeCustomerId:String!
       cardId:String!
-      bookingHistId:String!
+      chefId:String!
+      price: Float!
+      currecy:String!
     ):JSONType
 
     # Authenticate
@@ -152,6 +185,7 @@ export const localSchema = `
        ${subs.subsChefBankProfile.subsSchemaDefn}
        ${subs.subsCustomerProfile.subsSchemaDefn}
        ${subs.subsCustomerProfileExtended.subsSchemaDefn}
+       ${subs.subsCustomerPreferenceProfile.subsSchemaDefn}
        ${subs.subsCustomerFollowChef.subsSchemaDefn}
        ${subs.subsNotificationHistory.subsSchemaDefn}
        ${subs.subsbankTransferHistory.subsSchemaDefn}
