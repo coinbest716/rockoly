@@ -10,7 +10,7 @@
     "host": "rockolydb.csdnml5hy38j.us-east-2.rds.amazonaws.com",
     "port": 5432,
     "user": "postgres",
-    "password": "rE7dh$8mL&!pCd?s",
+    "password": "hkp5DTvT9J88iZ3",
     "dbName": "rockoly_dev",
     "schema": "public"
   },
@@ -21,7 +21,8 @@
     "options": {
       "graphqlRoute": "/graphql_schema",
       "graphiqlRoute": "/graphiql_schema",
-      "graphiql": true
+      "graphiql": true,
+	  "retryOnInitFail": false
     }
   },
   "graphql": {
