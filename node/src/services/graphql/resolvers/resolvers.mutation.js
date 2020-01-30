@@ -1390,6 +1390,8 @@ const mutationResolvers = {
             delete bookingData['chef_booking_chef_reject_or_cancel_reason'];
             delete bookingData['chef_booking_customer_reject_or_cancel_reason'];
             delete bookingData['chef_booking_commission_charge_price_value'];
+            delete bookingData['chef_booking_stripe_commission_price_value'];
+            delete bookingData['chef_booking_stripe_commission_price_unit'];
             delete bookingData['chef_booking_status_id'];
             delete bookingData['chef_booking_dish_type_id'];
             delete bookingData['chef_booking_summary'];
@@ -1403,8 +1405,6 @@ const mutationResolvers = {
             delete bookingData['chef_booking_other_store_types'];
             delete bookingData['chef_booking_additional_services'];
             delete bookingData['payment_hist_ids'];
-            delete bookingData['chef_booking_stripe_commission_price_value'];
-            delete bookingData['chef_booking_stripe_commission_price_unit'];
 
             let bookingHistId = args.bookingHistId;
 
@@ -1527,6 +1527,8 @@ export async function makeBookingPayment(args) {
     delete chefBookingDetailRes['chef_booking_chef_reject_or_cancel_reason'];
     delete chefBookingDetailRes['chef_booking_customer_reject_or_cancel_reason'];
     delete chefBookingDetailRes['chef_booking_commission_charge_price_value'];
+    delete chefBookingDetailRes['chef_booking_stripe_commission_price_value'];
+    delete chefBookingDetailRes['chef_booking_stripe_commission_price_unit'];
     delete chefBookingDetailRes['chef_booking_status_id'];
     delete chefBookingDetailRes['chef_booking_dish_type_id'];
     delete chefBookingDetailRes['chef_booking_summary'];
@@ -1540,9 +1542,7 @@ export async function makeBookingPayment(args) {
     delete chefBookingDetailRes['chef_booking_other_store_types'];
     delete chefBookingDetailRes['chef_booking_additional_services'];
     delete chefBookingDetailRes['payment_hist_ids'];
-    delete chefBookingDetailRes['chef_booking_stripe_commission_price_value'];
-    delete chefBookingDetailRes['chef_booking_stripe_commission_price_unit'];
-
+    
     // 1: Make Payment
     let paymentPayload = {};
     let paymentOriginalPriceValueFormat = null;
@@ -1707,6 +1707,8 @@ export async function makeBookingPaymentTest(args) {
     delete chefBookingDetailRes['chef_booking_chef_reject_or_cancel_reason'];
     delete chefBookingDetailRes['chef_booking_customer_reject_or_cancel_reason'];
     delete chefBookingDetailRes['chef_booking_commission_charge_price_value'];
+    delete chefBookingDetailRes['chef_booking_stripe_commission_price_value'];
+    delete chefBookingDetailRes['chef_booking_stripe_commission_price_unit'];
     delete chefBookingDetailRes['chef_booking_status_id'];
     delete chefBookingDetailRes['chef_booking_dish_type_id'];
     delete chefBookingDetailRes['chef_booking_summary'];
@@ -1885,6 +1887,8 @@ export async function transferBookingAmnt(args) {
     delete chefBookingDetailRes['chef_booking_chef_reject_or_cancel_reason'];
     delete chefBookingDetailRes['chef_booking_customer_reject_or_cancel_reason'];
     delete chefBookingDetailRes['chef_booking_commission_charge_price_value'];
+    delete chefBookingDetailRes['chef_booking_stripe_commission_price_value'];
+    delete chefBookingDetailRes['chef_booking_stripe_commission_price_unit'];
     delete chefBookingDetailRes['chef_booking_status_id'];
     delete chefBookingDetailRes['chef_booking_dish_type_id'];
     delete chefBookingDetailRes['chef_booking_summary'];
@@ -1898,8 +1902,6 @@ export async function transferBookingAmnt(args) {
     delete chefBookingDetailRes['chef_booking_other_store_types'];
     delete chefBookingDetailRes['chef_booking_additional_services'];
     delete chefBookingDetailRes['payment_hist_ids'];
-    delete chefBookingDetailRes['chef_booking_stripe_commission_price_value'];
-    delete chefBookingDetailRes['chef_booking_stripe_commission_price_unit'];
 
 
     let amnt = parseInt(100 * chefBookingDetailRes.chef_booking_price_value);
@@ -2030,6 +2032,8 @@ export async function transferBookingAmntTest(args) {
     delete chefBookingDetailRes['chef_booking_chef_reject_or_cancel_reason'];
     delete chefBookingDetailRes['chef_booking_customer_reject_or_cancel_reason'];
     delete chefBookingDetailRes['chef_booking_commission_charge_price_value'];
+    delete chefBookingDetailRes['chef_booking_stripe_commission_price_value'];
+    delete chefBookingDetailRes['chef_booking_stripe_commission_price_unit'];
     delete chefBookingDetailRes['chef_booking_status_id'];
     delete chefBookingDetailRes['chef_booking_dish_type_id'];
     delete chefBookingDetailRes['chef_booking_summary'];
