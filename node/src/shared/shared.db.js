@@ -346,6 +346,155 @@ export function createBooking(payload) {
 
 }
 
+
+// create booking
+export function createBookingTest(payload) {
+
+  let logFuncName = 'createBookingTest';
+  utils.logData(`${logFileName}${logFuncName} payload: ${JSON.stringify(payload)} `, utils.LOGLEVELS.INFO);
+
+  const executor = async function (resolve, reject) {
+    try {
+
+      let sqlStr = `insert into chef_booking_history(
+        chef_id, 
+        customer_id, 
+        chef_booking_from_time,
+        chef_booking_to_time,
+        chef_booking_price_value, 
+        chef_booking_price_unit,
+        chef_booking_service_charge_price_value,
+        chef_booking_service_charge_price_unit,
+        chef_booking_commission_price_value,
+        chef_booking_commission_price_unit,
+        chef_booking_stripe_commission_price_value,
+        chef_booking_stripe_commission_price_unit,
+        chef_booking_total_price_value,
+        chef_booking_total_price_unit,
+        chef_booking_dish_type_id,
+        chef_booking_summary,
+        chef_booking_allergy_type_id,
+        chef_booking_other_allergy_types,
+        chef_booking_dietary_restrictions_type_id,
+        chef_booking_other_dietary_restrictions_types,
+        chef_booking_kitchen_equipment_type_id,
+        chef_booking_other_kitchen_equipment_types,
+        chef_booking_store_type_id,
+        chef_booking_other_store_types,
+        chef_booking_no_of_people,
+        chef_booking_complexity,
+        chef_booking_additional_services,
+        chef_booking_location_address,
+        chef_booking_location_lat,
+        chef_booking_location_lng,
+        chef_booking_addr_line_1,
+        chef_booking_addr_line_2,
+        chef_booking_state,
+        chef_booking_country,
+        chef_booking_city,
+        chef_booking_postal_code
+        ) values (
+          $1, 
+          $2, 
+          $3, 
+          $4, 
+          $5, 
+          $6, 
+          $7, 
+          $8 , 
+          $9 , 
+          $10 , 
+          $11 , 
+          $12 , 
+          $13 ,
+          $14 ,
+          $15 ,
+          $16 ,
+          $17 ,
+          $18 ,
+          $19 ,
+          $20 ,
+          $21 ,
+          $22 ,
+          $23 ,
+          $24 ,
+          $25 ,
+          $26 ,
+          $27 ,
+          $28 ,
+          $29 ,
+          $30 ,
+          $31 ,
+          $32 ,
+          $33 ,
+          $34 ,
+          $35 ,
+          $36 
+          ) RETURNING *`;
+
+      let variables = [
+        payload.chefId,
+        payload.customerId,
+        payload.fromTime,
+        payload.toTime,
+        payload.bookingPrice,
+        payload.bookingCurrency,
+        payload.servicePrice,
+        payload.serviceCurrency,
+        payload.commissionPrice,
+        payload.commissionCurrency,
+        payload.stripeCommissionPrice,
+        payload.stripeCommissionCurrency,
+        payload.totalPrice,
+        payload.totalPriceCurrency,
+        payload.dishTypeId,
+        payload.summary,
+        payload.allergyTypeIds,
+        payload.otherAllergyTypes,
+        payload.dietaryRestrictionsTypesIds,
+        payload.otherDietaryRestrictionsTypes,
+        payload.kitchenEquipmentTypeIds,
+        payload.otherKitchenEquipmentTypes,
+        payload.storeTypeIds,
+        payload.otherStoreTypes,
+        payload.noOfGuests,
+        payload.complexity,
+        payload.additionalServices,
+        payload.locationAddress,
+        payload.locationLat,
+        payload.locationLng,
+        payload.addrLine1,
+        payload.addrLine2,
+        payload.state,
+        payload.country,
+        payload.city,
+        payload.postalCode
+      ];
+
+      await db.one(sqlStr, variables).then(async function (data) {
+
+        utils.logData(`${logFileName} ${logFuncName} Db Result: ${JSON.stringify(data)}`, utils.LOGLEVELS.INFO);
+        resolve(data);
+
+      }).catch(function (error) {
+
+        utils.logData(`${logFileName} ${logFuncName} Db Error: ${JSON.stringify(error)}`, utils.LOGLEVELS.ERROR);
+        reject(error);
+
+      });
+
+    } catch (error) {
+
+      utils.logData(`${logFileName} ${logFuncName} Catch Error: ${JSON.stringify(error)}`, utils.LOGLEVELS.ERROR);
+      reject(error);
+
+    }
+  };
+
+  return new Promise(executor);
+
+}
+
 // create notes
 export function insertNotes(payload) {
 
@@ -740,6 +889,40 @@ export function getChefBookingPrice(payload) {
     try {
 
       let sqlStr = `select calculate_booking_price_by_params($1) as booking_price ,get_setting_value('BOOKING_SERVICE_CHARGE_IN_PERCENTAGE') as service_charge`;
+
+      await db.one(sqlStr, [payload]).then(async function (data) {
+
+        utils.logData(`${logFileName} ${logFuncName} Db Result: ${JSON.stringify(data)}`, utils.LOGLEVELS.INFO);
+        resolve(data);
+
+      }).catch(function (error) {
+
+        utils.logData(`${logFileName} ${logFuncName} Db Error: ${JSON.stringify(error)}`, utils.LOGLEVELS.ERROR);
+        reject(error);
+
+      });
+
+    } catch (error) {
+
+      utils.logData(`${logFileName} ${logFuncName} Catch Error: ${JSON.stringify(error)}`, utils.LOGLEVELS.ERROR);
+      reject(error);
+
+    }
+  };
+
+  return new Promise(executor);
+}
+
+export function getChefBookingPriceTest(payload) {
+
+  let logFuncName = 'getChefBookingPriceTest';
+
+  utils.logData(`${logFileName} ${logFuncName} payload: ${JSON.stringify(payload)} `, utils.LOGLEVELS.INFO);
+
+  const executor = async function (resolve, reject) {
+    try {
+
+      let sqlStr = `select calculate_booking_price_by_params($1) as booking_price , get_setting_value('BOOKING_SERVICE_CHARGE_IN_PERCENTAGE') as service_charge, calculate_stripe_service_for_booking($1) as stripe_service_charge`;
 
       await db.one(sqlStr, [payload]).then(async function (data) {
 

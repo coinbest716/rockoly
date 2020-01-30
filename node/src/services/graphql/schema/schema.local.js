@@ -91,6 +91,14 @@ export const localSchema = `
       adminId:String
     ):JSONType
 
+    #Transfer Amt
+    stripeTransferAmtTest(
+      bookingHistId:String!
+      chefId:String!
+      chefStripeUserId:String!
+      adminId:String
+    ):JSONType
+
     # Create booking
     createBooking(
       stripeCustomerId:String!
@@ -128,8 +136,55 @@ export const localSchema = `
       postalCode:String
     ):JSONType
 
+    # Create booking
+    createBookingTest(
+      stripeCustomerId:String!
+      cardId:String!
+      chefId:String!
+      customerId:String!
+      fromTime:String!
+      toTime:String!,
+
+      # older fields
+      notes:String,
+      dishTypeId:[String],
+
+      # new fields
+      summary:String
+      allergyTypeIds:[String]
+      otherAllergyTypes:JSON
+      dietaryRestrictionsTypesIds:[String]
+      otherDietaryRestrictionsTypes:JSON
+      kitchenEquipmentTypeIds:[String]
+      otherKitchenEquipmentTypes:JSON
+      storeTypeIds:[String]
+      otherStoreTypes:JSON
+      noOfGuests:Int
+      complexity:Float
+      additionalServices:[additionalServicesType]
+      locationAddress:String
+      locationLat:String
+      locationLng:String
+      addrLine1:String
+      addrLine2:String
+      state:String
+      country:String
+      city:String
+      postalCode:String
+    ):JSONType
+
     # make booking for payment
     bookingPayment(
+      bookingHistId:String!
+      stripeCustomerId:String!
+      cardId:String!
+      chefId:String!
+      price: Float!
+      currecy:String!
+    ):JSONType
+
+    # make booking for payment
+    bookingPaymentTest(
       bookingHistId:String!
       stripeCustomerId:String!
       cardId:String!
