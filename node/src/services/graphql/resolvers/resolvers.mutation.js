@@ -647,7 +647,7 @@ const mutationResolvers = {
             commissionPrice = (servicePercentage / 100) * bookingPrice;
           }
 
-          const totalPrice = bookingPrice + commissionPrice + stripeCommissionPrice;
+          const totalPrice = bookingPrice - (commissionPrice + stripeCommissionPrice);
 
           if (args.hasOwnProperty('additionalServices')) {
             if (args.additionalServices != null) {
@@ -2049,7 +2049,7 @@ export async function transferBookingAmntTest(args) {
     delete chefBookingDetailRes['payment_hist_ids'];
 
 
-    let amount_without_service = chefBookingDetailRes.chef_booking_price_value - (chefBookingDetailRes.chef_booking_service_charge_price_value + chefBookingDetailRes.chef_booking_commission_price_value);
+    let amount_without_service = chefBookingDetailRes.chef_booking_total_price_unit;
     let amnt = parseInt(100 * amount_without_service);
 
     return await shared.stripe.retrieveBalanceAmt().then(async function (retrieveBalanceAmtRes) {
