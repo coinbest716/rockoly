@@ -16,7 +16,7 @@ export async function send(emailPayload) {
   var mailOptions = {
     to: emailPayload.toEmail,
     subject: emailPayload.subject,
-    text: emailPayload.message
+    html: emailPayload.message
   };
 
   const executor = async function (resolve, reject) {
