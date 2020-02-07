@@ -56,6 +56,9 @@
     "port": 587,
     "secure": false,
     "requireTLS": true,
+	"address":{
+	  "from": "Rockoly <info@rockoly.com>"
+	},
     "auth": {
       "user": "info@rockoly.com",
       "pass": "nYrts8duwCy3fC4x"

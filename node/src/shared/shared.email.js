@@ -14,6 +14,7 @@ export async function send(emailPayload) {
   utils.logData(`${logFuncName} emailPayload : ${JSON.stringify(emailPayload)}`, utils.LOGLEVELS.INFO);
 
   var mailOptions = {
+	from:emailConfig.address.from,
     to: emailPayload.toEmail,
     subject: emailPayload.subject,
     html: emailPayload.message
