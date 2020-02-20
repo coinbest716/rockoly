@@ -55,6 +55,19 @@ export function dbListeners(notification) {
 
     }
 
+    // Send SMS
+    if (payload.notification_channel == 'send_sms') {
+
+      let data = payload.notification_table_row_as_json;
+
+      shared.sms.send(data.phoneNo, data.message).then(async function (res) {
+        utils.logData(`${logName} SEND_SMS: Res: ${JSON.stringify(res)}`, utils.LOGLEVELS.INFO);
+      }).catch(function (error) {
+        utils.logData(`${logName} SEND_SMS: Catch Error: ${JSON.stringify(error)}`, utils.LOGLEVELS.ERROR);
+      });
+
+    }
+
     // Send Notification
     if (payload.notification_channel == 'send_notification') {
 

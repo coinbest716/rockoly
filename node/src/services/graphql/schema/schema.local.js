@@ -173,6 +173,41 @@ export const localSchema = `
       postalCode:String
     ):JSONType
 
+    # Create booking
+    createOrSaveBooking(
+      stripeCustomerId:String
+      cardId:String
+      chefId:String!
+      customerId:String!
+      fromTime:String
+      toTime:String
+      notes:String
+      dishTypeId:[String]
+      summary:String
+      allergyTypeIds:[String]
+      otherAllergyTypes:JSON
+      dietaryRestrictionsTypesIds:[String]
+      otherDietaryRestrictionsTypes:JSON
+      kitchenEquipmentTypeIds:[String]
+      otherKitchenEquipmentTypes:JSON
+      storeTypeIds:[String]
+      otherStoreTypes:JSON
+      noOfGuests:Int
+      complexity:Float
+      additionalServices:[additionalServicesType]
+      locationAddress:String
+      locationLat:String
+      locationLng:String
+      addrLine1:String
+      addrLine2:String
+      state:String
+      country:String
+      city:String
+      postalCode:String
+      isDraftYn:Boolean
+      bookingHistId:String
+    ):JSONType
+
     # make booking for payment
     bookingPayment(
       bookingHistId:String!
@@ -205,6 +240,12 @@ export const localSchema = `
     sendEmail(
       email:String!
       subject:String!
+      message:String!
+    ):JSONType
+
+    # Send sms
+    sendSMS(
+      phoneNo:String!
       message:String!
     ):JSONType
 
