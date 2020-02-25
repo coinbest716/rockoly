@@ -921,7 +921,7 @@ const mutationResolvers = {
           utils.logData(`${logFileName} ${logFuncName} bookingPayload: ${JSON.stringify(bookingPayload)}`, utils.LOGLEVELS.INFO);
 
           // if id not passed, then create it
-          if (!args.hasOwnProperty('bookingHistId')) {
+          if (!args.hasOwnProperty('bookingHistId') || args.bookingHistId==null ) {
 
             return await shared.db.createBookingTest(bookingPayload).then(async function (bookingRes) {
 
