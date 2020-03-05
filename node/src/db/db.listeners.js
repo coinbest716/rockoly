@@ -1,7 +1,7 @@
 import * as utils from '../utils';
 import * as shared from '../shared';
 
-export function dbListeners(notification) {
+export async function dbListeners(notification) {
   let logName = 'dbListeners';
 
   try {
@@ -59,8 +59,26 @@ export function dbListeners(notification) {
     if (payload.notification_channel == 'send_sms') {
 
       let data = payload.notification_table_row_as_json;
+      let message =  data.message;
+      let formatedMsg = '';
+      let newLink = '';
+      let link = data.link;
 
-      shared.sms.send(data.phoneNo, data.message).then(async function (res) {
+      if(data.hasOwnProperty('link')){
+        if(data.link != null && data.link != ''){
+          newLink = await shared.tinyurl.makeUrlAsTinyUrl(link);
+          formatedMsg = message.replace('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',newLink);
+        }else{
+          formatedMsg = message;
+        }
+      }else{
+        formatedMsg = message;
+      }
+      
+      utils.logData(`${logName} SEND_SMS: PhoneNo: ${data.phoneNo}`, utils.LOGLEVELS.INFO);
+      utils.logData(`${logName} SEND_SMS: Message: ${formatedMsg}`, utils.LOGLEVELS.INFO);
+
+      shared.sms.send(data.phoneNo, formatedMsg).then(async function (res) {
         utils.logData(`${logName} SEND_SMS: Res: ${JSON.stringify(res)}`, utils.LOGLEVELS.INFO);
       }).catch(function (error) {
         utils.logData(`${logName} SEND_SMS: Catch Error: ${JSON.stringify(error)}`, utils.LOGLEVELS.ERROR);

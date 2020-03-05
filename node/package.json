@@ -63,6 +63,7 @@
     "request-promise": "^4.2.4",
     "serve-favicon": "^2.5.0",
     "stripe": "^7.9.1",
+    "tinyurl": "^1.1.5",
     "twilio": "^3.39.5",
     "winston": "^3.0.0",
     "ws": "^7.1.2"
