@@ -1,8 +1,9 @@
-import React, { Component } from 'react';
+import React, { useEffect } from 'react';
 import FavoriteChefsScreen from '../components/favorite-chef/FavoriteChef.Screen';
-import {withApollo} from '../apollo/apollo';
+import { withApollo } from '../apollo/apollo';
 
-const Index = () =>{
+const Index = () => {
+
     return <FavoriteChefsScreen />;
 }
 export default withApollo(Index);

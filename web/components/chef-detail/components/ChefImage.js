@@ -27,6 +27,7 @@ const CHEF_SUBSCRIPTION_TAG = gql`
 `;
 
 const ChefImage = props => {
+  const [isUIRendered, setIsUIRendered] = useState(false);
   const [chefIdValue, setChefId] = useState(null);
   const [customerIdValue, setCustomerId] = useState(null);
   const [userRole, setUserRole] = useState('');
@@ -94,30 +95,35 @@ const ChefImage = props => {
     } else {
       setProfileDetails(null);
     }
+    setIsUIRendered(true);
   });
 
   try {
     return (
-      <div className="col-lg-2 col-md-6" id="cheflist-content">
+      <div className="col-lg-2 col-md-6 col-sm-6" id="cheflist-content">
         <div className="comment-author vcard">
-          {ProfileDetails && util.isStringEmpty(ProfileDetails.chefPicId) && (
-            <img
-              // src={ProfileDetails.chefPicId}
-              src={ProfileDetails.chefPicId}
-              className="avatar"
-              alt="image"
-              style={{ borderRadius: '5%', height: '150px', width: '150px !important' }}
-            />
-          )}
-          {ProfileDetails && !util.isStringEmpty(ProfileDetails.chefPicId) && (
-            <img
-              // src={ProfileDetails.chefPicId}
-              src={require('../../../images/mock-image/default_chef_profile.png')}
-              className="avatar"
-              alt="image"
-              style={{ borderRadius: '5%', height: '150px', width: '150px !important' }}
-            />
-          )}
+          {isUIRendered === true &&
+            ProfileDetails &&
+            util.isStringEmpty(ProfileDetails.chefPicId) && (
+              <img
+                src={ProfileDetails.chefPicId}
+                className="avatar"
+                id="chef-content-profile"
+                alt="image"
+                style={{ borderRadius: '5%', height: '150px', width: '100%', height: '171px' }}
+              />
+            )}
+          {isUIRendered === true &&
+            ProfileDetails &&
+            !util.isStringEmpty(ProfileDetails.chefPicId) && (
+              <img
+                // src={ProfileDetails.chefPicId}
+                src={require('../../../images/mock-image/default_chef_profile.png')}
+                className="avatar"
+                alt="image"
+                style={{ borderRadius: '5%', height: '150px', width: '150px !important' }}
+              />
+            )}
         </div>
       </div>
     );

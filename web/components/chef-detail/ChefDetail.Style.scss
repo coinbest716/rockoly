@@ -4,9 +4,14 @@
     font-weight: bold;
     text-decoration: underline;
   }
+  #describe-booking {
+    font-size: 18px;
+    font-weight: bold;
+  }
   #describe-miles {
     font-size: 18px;
-    margin-left: 15px;
+    margin-left: 1%;
+    margin-bottom: 10px;
   }
   #describe-min {
     font-size: 18px;
@@ -19,14 +24,14 @@
     margin-bottom: 2px;
   }
   .chefReviewCount{
-    padding-left: 5px;
+    padding-left: 0px;
     padding-top: 1px;
   }
   .ratingView{
     display: flex;
     margin-left: 5px;
   }
-  #emptyStarContent{
+  #empty-star-content{
     display: flex;
     margin-top: 4px;
     margin-left: 1px;
@@ -71,7 +76,10 @@
   }
   .cuisineDisplay{
     display: inline-block;
-    margin-right: 10px;
+    // margin-right: 6%;
+    margin-top: 10px;
+    // margin-left: 6%;
+    width: max-content;
   }
   .reviewDescription{
     margin-top: 10px;
@@ -122,13 +130,12 @@
   .description-name{
     font-size: 17px;
     margin-bottom: 8px;
-    // border-right-style: groove;
   }
   .chef-content-fullname{
     cursor: pointer;
   }
   .icon-images{
-    width: 35px;
+    width: 26px;
     color: #08AB93 !important;
   }
   .reward-style{
@@ -215,11 +222,13 @@
   border: 2px solid #08AB93 !important;
   padding: 6px;
   border-radius: 20px;
+  // width: max-content;
 }
 #desc-dish-type{
   border: 2px solid #08AB93 !important;
   padding: 6px;
   border-radius: 20px;
+  width: max-content;
 }
 
 // #description-date{
@@ -266,6 +275,13 @@
   .products-details-tab .tabs {
       display: block !important;
   }
+  #description-full-view{
+    width:100% !important;
+  }
+  #price-valu-view{
+    display: flex;
+    justify-content: center;
+  }
 }
 // }
 
@@ -276,6 +292,16 @@
   display: block !important;
   // background-color: red !important;
 }
+
+}
+@media(min-width:411px) and (max-width:720px){
+  .tabs{
+    display: block !important;
+    // background-color: red !important;
+  }
+  .tabs > li {
+    padding-bottom: 6%;
+  }
 }
 @media(min-width:411px) and (max-width:680px)
 {
@@ -308,4 +334,168 @@
 }
 .top-pro-view{
   width: max-content;
+}
+#chef-detail-screen{
+  box-shadow: 0 2px 48px 0 rgba(0, 0, 0, 0.08);
+  margin-bottom: 2%;
+  max-width: 100% !important;
+  width: calc(100vw - 90px );
+ }
+
+ @media(min-width:300px) and (max-width:410px){
+  #Additional-mobile-view{
+   width: fit-content !important;
+  //  margin-right: 6%;
+     // margin-top: 10px;
+    //  margin-left: 6%;
+ }
+ #emptyStarContent{
+  width:9px !important;
+  margin-top: 2px !important;
+  // margin-left:24% !important; 
+}
+}
+#Additional-mobile-view{
+  padding-right: 1%;
+}
+@media (min-width:340px) and  (max-width:400px){
+  #ratingContainer{
+    font-size: 9px !important;
+    margin-left:0px !important;
+    // width: 168px !important ;
+    display: flex;
+    justify-content: center !important;
+    // margin-top: 2px !important;
+  }
+  
+}
+// @media(max-width:70px){
+//   #complexity-content-container{
+//     display: flex;
+//     flex-direction: column;
+//   }
+// }
+@media(max-width:992px){
+#complexity-level-modal{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-left: 0px !important;
+  padding-right: 0px !important;
+  padding-bottom: 0px !important;
+  padding-top: 0px !important;
+
+}
+}
+@media(max-width:767px){
+  #complexity-level-modal{
+    padding-left: 8% !important;
+    padding-right: 8% !important;
+  }
+}
+@media(min-width:400px) and (max-width:575px){
+#chef-content-profile{
+  width:171px !important;
+}
+}
+@media(max-width:450px){
+  #empty-star-content{
+    display: inline-block !important;
+    width: 20px !important;
+    margin-top: 0px !important;
+
+  }
+  .review-text-view{
+    font-size: 12px;
+  }
+  .color-star-view{
+    font-size: 11px;
+  }
+}
+@media(min-width:575px) and (max-width:670px){
+  #empty-star-content{
+    display: inline-block !important;
+    width: 23px !important;
+    margin-top: 0px !important;
+
+  }
+  .review-text-view{
+    font-size: 14px;
+  }
+  .color-star-view{
+    font-size: 14px;
+  }
+}
+.review-text-view{
+  display: flex;
+  // align-items: center;
+}
+@media(max-width:767px){
+  .review-text-view{
+    width: max-content;
+    white-space: nowrap;
+  }
+  #chef-content-rating{
+    display: flex !important;
+  }
+}
+@media(max-width:992px){
+  #card-header-view{
+    padding-left: 5px !important;
+
+  }
+}
+@media(min-width:576px) and (max-width:766px){
+ .reward-style{
+   display: flex !important;
+   flex-direction: column !important;
+   
+ }
+ #pro-border-style{
+  border: none !important;
+ }
+}
+@media(max-width:767px){
+  .chef-content-fullname{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  #pro-border-style{
+    display: flex;
+    justify-content: center;
+  }
+  .chefDetail #ratingContainer-items{
+    // align-items: baseline !important;
+    // justify-content: center !important;
+    // width: auto !important;
+    padding-left: 8px !important;
+    display: flex !important;
+    flex-direction: column;
+  }
+  #cheflist-content{
+    display: flex !important;
+    justify-content: center !important;
+  }
+  .chefDetail .cuisineDisplay{
+    width: auto !important;
+  }
+  #review-text{
+    display: flex;
+    justify-content: center;
+  }
+}
+@media(max-width:767px){
+.review-rating > span > span{
+//  background-color: red !important;
+ font-size: 9px;
+ position: fixed;
+ top: 28%;
+}
+#chef-details-chat{
+  margin-top: 5px;
+}
+}
+#chef-details-chat{
+  margin-left: 10%;
 }

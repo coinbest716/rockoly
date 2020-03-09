@@ -1,8 +1,9 @@
-import React, { Component } from 'react';
+import React, { useEffect } from 'react';
 import PaymentsScreen from '../components/payments/Payments.Screen';
 
-export default class Payments extends Component {
-  render() {
+const Payments = () => {
+
     return <PaymentsScreen />;
-  }
 }
+
+export default Payments;

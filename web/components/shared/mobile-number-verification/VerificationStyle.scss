@@ -8,3 +8,19 @@
   //   border-color: lightgray;
   // }
 }
+#recaptcha-container{
+  width: fit-content;
+}
+#verificaton-button-view{
+  display: flex;
+  justify-content: center;
+}
+@media (max-width:992px){
+  #number-verification{
+    padding-left: 30px !important;
+    padding-right: 30px !important;
+  }
+  // #recaptcha-container{
+  //   width: fit-content;
+  // }
+}

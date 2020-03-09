@@ -4,12 +4,14 @@ import AvailabilityCalendar from '../../../profile-setup/components/availability
 
 const Availability = props => {
   try {
+    console.log('Availability', props);
     return (
       <div className="products-details-tab-content">
         <AvailabilityCalendar
           currentChefIdValue={props.chefId}
           chefDetails={props.chefDetails ? props.chefDetails : {}}
           calendarFrom="chefDetail"
+          showBookingModalOrNot={props.value}
         />
       </div>
     );

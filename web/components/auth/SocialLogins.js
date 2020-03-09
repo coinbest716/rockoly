@@ -37,15 +37,13 @@ const SOCIAL_AUTH = gql`
 export default function Login(props) {
   const [socialAuthMutation, { data, loading }] = useMutation(SOCIAL_AUTH, {
     onError: err => {
-      console.log('gql response', err.message);
       //To show the user blocked message
       let paragraph = err.message;
       let regex = /YOUR_ACCOUNT_WAS_BLOCKED/g;
       let found = paragraph.match(regex);
 
-      // console.log(found, isArrayEmpty(found));
       logOutUser()
-        .then(result => {})
+        .then(result => { })
         .catch(error => {
           toastMessage(renderError, error);
         });
@@ -68,7 +66,8 @@ export default function Login(props) {
   async function setAuthData(data) {
     if (data !== undefined) {
       if (utils.isObjectEmpty(data.authenticate) && utils.isObjectEmpty(data.authenticate.data)) {
-        //for customer user
+        //for customer user http://localhost:3000/chef-detail?chefId=7edc8891-e079-4b03-ba87-63c8d7db80b2
+        // let url = 'http://localhost:3000/chef-detail/';
         if (props.userType === CUSTOMER) {
           getCustomerAuthData(data.authenticate.data)
             .then(customerRes => {
@@ -79,7 +78,10 @@ export default function Login(props) {
                 props.sourceType === 'LOGIN' ? 'Logged in Successfully' : 'Registered Successfully'
               );
               if (props && props.chefId && props.chefId.chefId) {
-                NavigateToChefDetail(props.chefId.chefId);
+                let obj = {
+                  chefId : props.chefId.chefId
+                }
+                NavigateToChefDetail(obj);
               } else {
                 if (props.sourceType === 'LOGIN') {
                   loginTo();
@@ -121,7 +123,6 @@ export default function Login(props) {
   //1) facebook response
   function responseFacebook(response) {
     try {
-      console.log('responseFacebook', response, utils.hasProperty(response, 'email'));
       if (!utils.hasProperty(response, 'status') && response.status !== 'unknown') {
         socialAuthUser(response, 'FACEBOOK');
       } else {
@@ -138,7 +139,7 @@ export default function Login(props) {
       setLoader(true);
       let provider = '';
       let credential = '';
-      if (type === 'FACEBOOK'){
+      if (type === 'FACEBOOK') {
         provider = firebase.auth.FacebookAuthProvider;
         // create a new firebase credential with the token
         credential = provider.credential(data.accessToken);
@@ -147,13 +148,11 @@ export default function Login(props) {
         // create a new firebase credential with the token
         credential = provider.credential(data.tokenId, data.accessToken);
       }
-      console.log('GOOGLE credential', credential);
       StoreInLocal('signInMethod', credential.signInMethod);
       firebase
         .auth()
         .signInWithCredential(credential)
         .then(async currentUser => {
-          console.log('response for firebase', currentUser);
           //for new user register
           if (currentUser.additionalUserInfo.isNewUser === true) {
             if (currentUser.user.email === null) {
@@ -237,12 +236,10 @@ export default function Login(props) {
   function socialLoginFuction() {
     const currentUser = firebase.auth().currentUser;
     if (currentUser !== null) {
-      console.log('currentUser credential', currentUser);
       //get firebase token and call qgl tag
       currentUser
         .getIdToken()
         .then(data => {
-          console.log('currentUser credential', data);
           if (data) {
             let variables = {
               token: data,
@@ -250,7 +247,6 @@ export default function Login(props) {
               authenticateType: props.sourceType,
               extra: null,
             };
-            console.log('variables', variables);
             socialAuthMutation({
               variables,
             });
@@ -272,12 +268,10 @@ export default function Login(props) {
   }
 
   function responseSuccessGoogle(response) {
-    console.log('responseSuccessGoogle', response);
     socialAuthUser(response, 'GOOGLE');
   }
 
   function responseFailureGoogle(response) {
-    console.log('responseFailureGoogle', response);
     // toastMessage(error, response.error);
   }
 

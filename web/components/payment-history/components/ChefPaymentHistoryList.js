@@ -136,7 +136,10 @@ const ChefHistoryList = () => {
   //Navigate to booking detail page
   function onClickPaymentDetail(data) {
     data.chefBookingHistId = data.chefBookingHistoryByBookingHistId.chefBookingHistId;
-    NavigateToBookongDetail(data);
+    let newData = {};
+    newData.chefBookingHistId = data.chefBookingHistId;
+    newData.bookingType = '';
+    NavigateToBookongDetail(newData);
   }
 
   //loader
@@ -150,8 +153,8 @@ const ChefHistoryList = () => {
     }
   }
 
-  function formatCreatedDate(date) {   
-    return NotificationconvertDateandTime(date)+ " " + getTimeOnly(getLocalTime(date));
+  function formatCreatedDate(date) {
+    return NotificationconvertDateandTime(date) + ' ' + getTimeOnly(getLocalTime(date));
   }
 
   function formatBookingDate(payment) {
@@ -177,8 +180,9 @@ const ChefHistoryList = () => {
       util.hasProperty(payment.chefBookingHistoryByBookingHistId, 'chefBookingFromTime') &&
       util.isStringEmpty(payment.chefBookingHistoryByBookingHistId.chefBookingFromTime)
     ) {
-      
-      let bookingFromTime = getTimeOnly(getLocalTime(payment.chefBookingHistoryByBookingHistId.chefBookingFromTime))
+      let bookingFromTime = getTimeOnly(
+        getLocalTime(payment.chefBookingHistoryByBookingHistId.chefBookingFromTime)
+      );
       return bookingFromTime;
     } else {
       return '-';
@@ -192,7 +196,9 @@ const ChefHistoryList = () => {
       util.hasProperty(payment.chefBookingHistoryByBookingHistId, 'chefBookingToTime') &&
       util.isStringEmpty(payment.chefBookingHistoryByBookingHistId.chefBookingToTime)
     ) {
-      let bookingToTime = getTimeOnly(getLocalTime(payment.chefBookingHistoryByBookingHistId.chefBookingToTime))
+      let bookingToTime = getTimeOnly(
+        getLocalTime(payment.chefBookingHistoryByBookingHistId.chefBookingToTime)
+      );
       return bookingToTime;
     } else {
       return '-';
@@ -202,22 +208,21 @@ const ChefHistoryList = () => {
   try {
     return (
       <React.Fragment>
-        <div>
+        <div className="payment-containar">
           {renderLoader()}
           <div className="payment">
             {chefCount > 0 && chefPaymentCount > 0 && (
-              <p>
+              <p className="totalCount" style={{ paddingTop: '1%' }}>
                 Showing {chefCount} of {chefPaymentCount} results
               </p>
             )}
-            {paymentsData &&
-              util.isArrayEmpty(paymentsData) &&
+            {paymentsData && util.isArrayEmpty(paymentsData) ? (
               paymentsData.map((payment, index) => {
                 return (
                   <div className="container">
                     <div id={payment.bankTransferHistId} className="contentView">
                       <div className="payment-common-content row" key={payment.bankTransferHistId}>
-                        <div className="col-md-2" id="image-view">
+                        <div className="col-sm-2 col-md-2 col-lg-2" id="image-view">
                           <img
                             src={
                               util.isObjectEmpty(payment.customerDetails) &&
@@ -230,9 +235,15 @@ const ChefHistoryList = () => {
                             className="payment-user-image"
                           />
                         </div>
-                        <div className="col-md-3 products-content " id="chef-info-list">
+                        <div
+                          className="col-lg-3 col-md-3 col-sm12 products-content "
+                          id="chef-info-list"
+                        >
                           <span>
-                            <a className="chefname">
+                            <a
+                              className="chefname"
+                              style={{ display: 'flex', justifyContent: 'center' }}
+                            >
                               {util.isObjectEmpty(payment.customerDetails) &&
                               util.isObjectEmpty(payment.customerDetails.nodes[0]) &&
                               util.isStringEmpty(payment.customerDetails.nodes[0].fullName)
@@ -256,7 +267,7 @@ const ChefHistoryList = () => {
 
                           <a></a>
                         </div>
-                        <div className="col-md-3" id="payment-status">
+                        <div className="col-lg-3 col-md-3 col-sm-12" id="payment-status">
                           <p>
                             <b>Starts On: </b>
                             {formatBookingFromTimeDate(payment)}
@@ -267,10 +278,14 @@ const ChefHistoryList = () => {
                           </p>
                           <p>
                             <b>Price: </b>$
-                            {payment.chefBookingHistoryByBookingHistId.chefBookingPriceValue}
+                            {payment.chefBookingHistoryByBookingHistId.chefBookingPriceValue
+                              ? payment.chefBookingHistoryByBookingHistId.chefBookingPriceValue.toFixed(
+                                  2
+                                )
+                              : null}
                           </p>
                         </div>
-                        <div className="col-md-2" id="payment-buttons">
+                        <div className="col-lg-2 col-md-2 col-sm-12" id="payment-buttons">
                           <button
                             className="btn btn-primary ViewDetail"
                             onClick={() => {
@@ -280,7 +295,7 @@ const ChefHistoryList = () => {
                             View
                           </button>
                         </div>
-                        <div className="col-md-2" id="date-format">
+                        <div className="col-lg-2 col-md-2 col-sm-12" id="date-format">
                           <h5 className="date">
                             <a> {formatCreatedDate(payment.createdAt)}</a>
                           </h5>
@@ -290,7 +305,27 @@ const ChefHistoryList = () => {
                     </div>
                   </div>
                 );
-              })}
+              })
+            ) : (
+              <div
+                class="nodata-content"
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  paddingBottom: '3%',
+                }}
+              >
+                <img
+                  src={S.noDataImage}
+                  alt="image"
+                  className="icon-images"
+                  style={{ width: '185px', height: '185px', color: 'gray' }}
+                />
+                <h4 style={{ color: '#08AB93' }}>{S.NO_DATA_AVAILABLE}</h4>
+              </div>
+            )}
             {paymentsData && paymentsData.length === 0 && S.NO_DATA_AVAILABLE}
           </div>
           {chefPaymentCount > 0 && chefPaymentCount >= firstParams && (

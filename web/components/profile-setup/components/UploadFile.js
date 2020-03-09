@@ -14,6 +14,7 @@ import {
   isStringEmpty,
 } from '../../../utils/checkEmptycondition';
 import { getChefId, chefId } from '../../../utils/UserType';
+import { StoreInLocal, GetValueFromLocal } from '../../../utils/LocalStorage';
 
 // Create a root reference
 const storageRef = firebase.storage().ref();
@@ -31,6 +32,13 @@ const profileGQL = gql`
 const attachmentSubscriptionGQLTag = gqlTag.subscription.chef.attachmentGQLTAG;
 const attachmentSubscriptionGQL = gql`
   ${attachmentSubscriptionGQLTag}
+`;
+
+//update screen
+const updateScreens = gqlTag.mutation.chef.updateScreensGQLTAG;
+
+const UPDATE_SCREENS = gql`
+  ${updateScreens}
 `;
 
 const UploadFile = props => {
@@ -86,6 +94,14 @@ const UploadFile = props => {
         getChefProfile();
       }
     },
+  });
+
+  const [updateScreenTag, { loading, error }] = useMutation(UPDATE_SCREENS, {
+    onCompleted: data => {
+      // toastMessage(success, 'Favourite cuisines updated successfully');
+      // console.log('daskjhkjhkjasdasd123123', data);
+    },
+    onError: err => {},
   });
 
   useEffect(() => {
@@ -249,12 +265,12 @@ const UploadFile = props => {
                 type: base64File.indexOf('data:image') >= 0 ? 'IMAGE' : 'DOCUMENT',
                 url: base64File,
               };
-              const randNo = Math.floor(Math.random() * 9000000000) + 1000000000
+              const randNo = Math.floor(Math.random() * 9000000000) + 1000000000;
               const dateTime = new Date().getTime();
               // ref/chef_id/{CERITIFICATION/GALLERY/}/rand_datetime.format
-            
+
               // const imageFileName = chefIdValue+ '/' + type + '/' + dateTime;
-              const imageFileName = `${chefIdValue}/${type}/${dateTime}_${randNo}              `
+              const imageFileName = `${chefIdValue}/${type}/${dateTime}_${randNo}              `;
               // console.log("imageFileName",imageFileName)
               firebase
                 .storage()
@@ -313,72 +329,104 @@ const UploadFile = props => {
   }
 
   function save() {
-    setSaveLoader(true);
-    // changing license type an url in object to pAttachmentType,pAttachmentUrl
-    let saveLicense = licenseFiles;
-    saveLicense = saveLicense.map(({ type: pAttachmentType, ...data }) => ({
-      pAttachmentType,
-      ...data,
-    }));
-    saveLicense = saveLicense.map(({ url: pAttachmentUrl, ...data }) => ({
-      pAttachmentUrl,
-      ...data,
-    }));
+    if (licenseFiles.length + otherFiles.length + certificateFiles.length == 0) {
+      toastMessage('error', 'You should upload one file in any of the categories');
+    } else {
+      setSaveLoader(true);
+      // changing license type an url in object to pAttachmentType,pAttachmentUrl
+      let saveLicense = licenseFiles;
+      saveLicense = saveLicense.map(({ type: pAttachmentType, ...data }) => ({
+        pAttachmentType,
+        ...data,
+      }));
+      saveLicense = saveLicense.map(({ url: pAttachmentUrl, ...data }) => ({
+        pAttachmentUrl,
+        ...data,
+      }));
 
-    // changing certificate type an url in object to pAttachmentType,pAttachmentUrl
-    let saveCertificate = certificateFiles;
-    saveCertificate = saveCertificate.map(({ type: pAttachmentType, ...data }) => ({
-      pAttachmentType,
-      ...data,
-    }));
-    saveCertificate = saveCertificate.map(({ url: pAttachmentUrl, ...data }) => ({
-      pAttachmentUrl,
-      ...data,
-    }));
+      // changing certificate type an url in object to pAttachmentType,pAttachmentUrl
+      let saveCertificate = certificateFiles;
+      saveCertificate = saveCertificate.map(({ type: pAttachmentType, ...data }) => ({
+        pAttachmentType,
+        ...data,
+      }));
+      saveCertificate = saveCertificate.map(({ url: pAttachmentUrl, ...data }) => ({
+        pAttachmentUrl,
+        ...data,
+      }));
 
-    // changing others type an url in object to pAttachmentType,pAttachmentUrl
-    let saveOther = otherFiles;
-    saveOther = saveOther.map(({ type: pAttachmentType, ...data }) => ({
-      pAttachmentType,
-      ...data,
-    }));
-    saveOther = saveOther.map(({ url: pAttachmentUrl, ...data }) => ({ pAttachmentUrl, ...data }));
+      // changing others type an url in object to pAttachmentType,pAttachmentUrl
+      let saveOther = otherFiles;
+      saveOther = saveOther.map(({ type: pAttachmentType, ...data }) => ({
+        pAttachmentType,
+        ...data,
+      }));
+      saveOther = saveOther.map(({ url: pAttachmentUrl, ...data }) => ({
+        pAttachmentUrl,
+        ...data,
+      }));
 
-    // changing image type an url in object to pAttachmentType,pAttachmentUrl
-    let saveImage = imageFiles;
-    saveImage = saveImage.map(({ type: pAttachmentType, ...data }) => ({
-      pAttachmentType,
-      ...data,
-    }));
-    saveImage = saveImage.map(({ url: pAttachmentUrl, ...data }) => ({ pAttachmentUrl, ...data }));
+      // changing image type an url in object to pAttachmentType,pAttachmentUrl
+      let saveImage = imageFiles;
+      saveImage = saveImage.map(({ type: pAttachmentType, ...data }) => ({
+        pAttachmentType,
+        ...data,
+      }));
+      saveImage = saveImage.map(({ url: pAttachmentUrl, ...data }) => ({
+        pAttachmentUrl,
+        ...data,
+      }));
 
-    attachmentSectionArray.map(attachmentSection => {
-      let attachments = [];
-      if (attachmentSection === 'LICENSE') {
-        attachments = saveLicense;
-      } else if (attachmentSection === 'CERTIFICATION') {
-        attachments = saveCertificate;
-      } else if (attachmentSection === 'OTHERS') {
-        attachments = saveOther;
-      } else if (attachmentSection === 'GALLERY') {
-        attachments = saveImage;
-      }
-
-      attachments = JSON.stringify(attachments);
-
-      updateChefAttachment({
-        variables: {
-          pChefId: chefIdValue,
-          pChefAttachments: attachments,
-          pAttachmentAreaSection: attachmentSection,
-        },
-      }).then(data => {
-        if (attachmentSection === 'GALLERY') {
-          toastMessage('success', 'Attachments uploaded successfully');
-          setSaveLoader(false);
+      attachmentSectionArray.map(attachmentSection => {
+        let attachments = [];
+        if (attachmentSection === 'LICENSE') {
+          attachments = saveLicense;
+        } else if (attachmentSection === 'CERTIFICATION') {
+          attachments = saveCertificate;
+        } else if (attachmentSection === 'OTHERS') {
+          attachments = saveOther;
+        } else if (attachmentSection === 'GALLERY') {
+          attachments = saveImage;
         }
+
+        attachments = JSON.stringify(attachments);
+
+        updateChefAttachment({
+          variables: {
+            pChefId: chefIdValue,
+            pChefAttachments: attachments,
+            pAttachmentAreaSection: attachmentSection,
+          },
+        }).then(data => {
+          if (attachmentSection === 'GALLERY') {
+            if (props.screen && props.screen === 'register') {
+              // To get the updated screens value
+              let screensValue = [];
+              GetValueFromLocal('SharedProfileScreens')
+                .then(result => {
+                  if (result && result.length > 0) {
+                    screensValue = result;
+                  }
+                  screensValue.push('DOCUMENTS');
+                  screensValue = _.uniq(screensValue);
+                  let variables = {
+                    chefId: props.chefId,
+                    chefUpdatedScreens: screensValue,
+                  };
+                  updateScreenTag({ variables });
+                  if (props.nextStep) props.nextStep();
+                  StoreInLocal('SharedProfileScreens', screensValue);
+                })
+                .catch(err => {
+                  console.log('err', err);
+                });
+            }
+            toastMessage('success', 'Attachments uploaded successfully');
+            setSaveLoader(false);
+          }
+        });
       });
-    });
+    }
   }
   function updateCurrentFetch(imageUrl) {
     setOpen(true);
@@ -395,16 +443,34 @@ const UploadFile = props => {
   }
   return (
     <div>
-      <section className="products-collections-area ptb-60 ">
+      <section
+        className={`products-collections-area ptb-60 
+        ${props.screen === 'register' ? 'base-rate-info' : ''}`}
+        id="sction-card-modal"
+      >
         {saveLoader && <Loader />}
-        <div className="section-title">
-          <h2>Upload</h2>
-        </div>
-
-        <form className="login-form">
+        {props.screen !== 'register' && (
+          <div className="section-title">
+            <h2>Upload</h2>
+          </div>
+        )}
+        <form className="login-form" style={{ paddingLeft: '2%' }}>
           <div className="form-group">
             <div className="image-upload">
-              <label> License (Image / Document) </label>
+              {/* <label> */}
+              <h5
+                style={{
+                  color: '#08AB93',
+                  fontSize: '20px',
+                  textDecoration: 'underline',
+                  fontWeight: 400,
+                  paddingBottom: '1%',
+                }}
+              >
+                {' '}
+                License (Image / Document){' '}
+              </h5>
+              {/* </label> */}
               {licenseLoader && <Loader />}
               <input
                 type="file"
@@ -414,6 +480,7 @@ const UploadFile = props => {
                   uploadItem(event, 'LICENSE');
                 }}
                 name="filename"
+                style={{ fontSize: '17px' }}
               />
             </div>
             {licenseFiles && licenseFiles.length > 0 ? (
@@ -431,7 +498,8 @@ const UploadFile = props => {
                         ></i>
                         <div className="imgResponsiveMax">
                           <img
-                            className="imgResponsiveMax"
+                            // className=""
+                            id="license-image-view"
                             src={licenseFile.url}
                             alt="image"
                             onClick={() => {
@@ -465,11 +533,25 @@ const UploadFile = props => {
                 ))}
               </div>
             ) : (
-              <div> No License</div>
+              <div style={{ fontSize: '17px' }}> No License</div>
             )}
             <br />
             <div className="image-upload">
-              <label> Certificate (Image / Document) </label>
+              {/* <label>
+                {' '} */}
+              <h5
+                style={{
+                  color: '#08AB93',
+                  fontSize: '20px',
+                  textDecoration: 'underline',
+                  fontWeight: 400,
+                  paddingBottom: '1%',
+                }}
+              >
+                {' '}
+                Certificate (Image / Document)
+              </h5>
+              {/* </label> */}
               {certificateLoader && <Loader />}
               <input
                 type="file"
@@ -479,6 +561,7 @@ const UploadFile = props => {
                   uploadItem(event, 'CERTIFICATION');
                 }}
                 name="filename"
+                style={{ fontSize: '17px' }}
               />
             </div>
             {certificateFiles && certificateFiles.length > 0 ? (
@@ -496,6 +579,7 @@ const UploadFile = props => {
                         ></i>
                         <img
                           src={certificateFile.url}
+                          id="license-image-view"
                           alt="image"
                           onClick={() => {
                             setViewerOpen(true);
@@ -527,11 +611,25 @@ const UploadFile = props => {
                 ))}
               </div>
             ) : (
-              <div> No Certificates</div>
+              <div style={{ fontSize: '17px' }}> No Certificates</div>
             )}
             <br />
             <div className="image-upload">
-              <label> Others (Image / Document) </label>
+              {/* <label>
+                {' '} */}
+              <h5
+                style={{
+                  color: '#08AB93',
+                  fontSize: '20px',
+                  textDecoration: 'underline',
+                  fontWeight: 400,
+                  paddingBottom: '1%',
+                }}
+              >
+                {' '}
+                Others (Image / Document){' '}
+              </h5>
+              {/* </label> */}
               {othersLoader && <Loader />}
               <input
                 type="file"
@@ -541,6 +639,7 @@ const UploadFile = props => {
                   uploadItem(event, 'OTHERS');
                 }}
                 name="filename"
+                style={{ fontSize: '17px' }}
               />
             </div>
             {otherFiles && otherFiles.length > 0 ? (
@@ -559,6 +658,7 @@ const UploadFile = props => {
                         <img
                           src={otherFile.url}
                           alt="image"
+                          id="license-image-view"
                           onClick={() => {
                             setViewerOpen(true);
                             setSrcURL(otherFile.url);
@@ -589,7 +689,7 @@ const UploadFile = props => {
                 ))}
               </div>
             ) : (
-              <div> No Certificates</div>
+              <div style={{ fontSize: '17px' }}> No Certificates</div>
             )}
             <br />
             {/* <div className="image-upload">

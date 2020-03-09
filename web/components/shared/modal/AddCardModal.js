@@ -9,16 +9,23 @@ const AddCardModal = props => {
   const [open, setOpen] = useState(true);
 
   //For closing modal
-  function closeAddCardModal() {
+  function closeAddCardModal(value) {
     if (props.closeAddCardModal) {
       props.closeAddCardModal();
+    }
+  }
+
+  //For closing modal
+  function closeAddCardModalAddCard(value) {
+    if (props.closeAddCardModal) {
+      props.closeAddCardModal(value);
     }
   }
 
   return (
     <Modal open={open} onClose={closeAddCardModal} center closeOnOverlayClick={false}>
       <div>
-        <AddCard closeAddCardModal={props.closeAddCardModal} />
+        <AddCard closeAddCardModal={closeAddCardModalAddCard} />
         <a onClick={closeAddCardModal} className="bts-popup-close" id="closeButton"></a>
       </div>
     </Modal>

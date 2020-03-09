@@ -1,11 +1,14 @@
 .feedback{
   .headerText {
     font-size: 15px;
-    padding-bottom: 10px
-  }
-  #ratingContainer {
+    text-transform: none !important;
+    // padding-bottom: 10px
     display: flex;
-    font-size: 30px;
+    align-items: center;
+  }
+  #rating-container-view {
+    display: flex;
+    font-size: 20px;
     color: #FFD700;
     padding-bottom: 10px;
     justify-content: center;
@@ -16,17 +19,68 @@
   }
   .complimentText {
     text-align: center;
+    padding-left: 1%;
+    width: max-content;
   }
   .complimentView {
     font-size: 15px;
   }
   #clearButton{
     margin-bottom: 10px;
-    margin-left: 5px;
+    // margin-left: 5px;
+    display: flex;
+    justify-content: flex-end;
   }
-  #emptyStar{
+  #empty-star-view{
     display: flex;
     margin-top: 4px;
     margin-left: 1px;
+    width: 20px;
+  }
+}
+.product-review{
+  padding: 10px 15px;
+  margin-left: 10px;
+}
+@media(max-width:992px){
+  .compliment-content{
+    display: inline-block !important;
+  }
+  .headerText {
+    padding-bottom: 0px !important;
+  }
+
+}
+@media(min-width:678) and (max-width:992px){
+#rating-container-view {
+  // display: flex;
+  font-size: 14px !important;
+}
+#empty-star-view{
+  display: flex;
+  margin-top: 3px;
+  margin-left: 1px;
+  width: 14px !important;
+}
+}
+@media(min-width:300px) and (max-width:677px){
+  #rating-container-view {
+    // display: flex;
+    font-size: 12px !important;
+  }
+  #empty-star-view{
+    display: flex;
+    margin-top: 3px;
+    margin-left: 1px;
+    width: 12px !important;
+  }
+  .product-review{
+    padding: 0px 0px !important;
+    margin-left: 0px !important;
+  }
+}
+@media(max-width:450px){
+  #login-form-view{
+    padding-right: 0px !important;
   }
 }

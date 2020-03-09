@@ -24,6 +24,7 @@ let apolloClient = null;
  * @param {Object} [config]
  * @param {Boolean} [config.ssr=false]
  */
+
 export function withApollo(PageComponent, { ssr = true } = {}) {
   const WithApollo = ({ apolloClient, apolloState, ...pageProps }) => {
     const client = useMemo(() => apolloClient || initApolloClient(apolloState), []);
@@ -144,7 +145,7 @@ const httpLink = createHttpLink({
 const wsLink = process.browser
   ? new WebSocketLink({
       // if you instantiate in the server, the error will be thrown
-      uri: `wss://gqldev.neosme.com/graphql`,
+      uri: `wss://gql.rockoly.com:7002/graphql`,
       options: {
         reconnect: true,
         connectionParams: {

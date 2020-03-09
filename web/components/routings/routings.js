@@ -27,4 +27,5 @@ export default {
   CARD_DETAIL: '/card-detail',
   INTRO: '/intro',
   CHAT: '/chat',
+  SHARED_PROFILE: '/shared-profile',
 };

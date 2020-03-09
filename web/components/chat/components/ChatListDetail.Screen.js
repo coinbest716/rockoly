@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
+import moment from 'moment';
 import Page from '../../shared/layout/Main';
 import { toastMessage, success, renderError, error } from '../../../utils/Toast';
 import * as gqlTag from '../../../common/gql';
@@ -11,6 +12,7 @@ import _ from 'lodash';
 
 const chatDetailById = gqlTag.query.chat.conversationMessagesGQLTAG;
 const chatDataPost = gqlTag.mutation.chat.createMsgGQLTAG;
+const chatDataPostValue = gqlTag.mutation.chat.createConversationGQLTAG;
 const chatSubs = gqlTag.subscription.chat.messsageHistoryGQLTAG;
 const getTotalCount = gqlTag.query.custom.totalCountGQLTAG;
 
@@ -22,12 +24,16 @@ const CHAT_DATA_POST = gql`
   ${chatDataPost}
 `;
 
+const CHAT_DATA_POST_VALUE = gql`
+  ${chatDataPostValue}
+`;
+
 const chatSubsGQL = gql`
   ${chatSubs}
 `;
 
 export default function ChatDetailScreen(props) {
-  const [chatId, setChatId] = useState(props.chatListId.conversationId);
+  const [chatId, setChatId] = useState('');
   const [chatMsgAry, setChatMsgAry] = useState([]);
   const [inputValue, setInputValue] = useState(null);
   const [state, setState] = useContext(AppContext);
@@ -37,6 +43,7 @@ export default function ChatDetailScreen(props) {
   const [firstNum, setFirstNum] = useState(5);
   const [chatListCountValue, setChatListCountValue] = useState(0);
   const [showSend, setShowSend] = useState(false);
+  const [timeGreater, setTimeGreater] = useState(true);
   const ref = React.createRef();
 
   // function handleClick() {
@@ -59,9 +66,18 @@ export default function ChatDetailScreen(props) {
 
   // const messagesEndRef = useRef();
 
+  //set conversation Id
+  useEffect(() => {
+    if (props && props.chatListId && props.chatListId.conversationId) {
+      setChatId(props.chatListId.conversationId);
+    } else if (props && props.chefDetails && props.chefDetails.conversationHistId) {
+      setChatId(props.chefDetails.conversationHistId);
+    }
+  }, [props]);
+
   const subsDate = useSubscription(chatSubsGQL, {
     variables: {
-      conversationHistId: props.chatListId.conversationId,
+      conversationHistId: chatId,
     },
     onSubscriptionData: res => {
       if (res) {
@@ -74,7 +90,7 @@ export default function ChatDetailScreen(props) {
 
   let data = {
     type: 'CONVERSATION_MESSAGES',
-    conversationHistId: props.chatListId.conversationId,
+    conversationHistId: chatId,
   };
 
   const CHAT_COUNT_BY_ID = gql`
@@ -93,7 +109,7 @@ export default function ChatDetailScreen(props) {
 
   const [getChatDetailData, chatDetail] = useLazyQuery(CHAT_DETAIL_BY_ID, {
     variables: {
-      conversationHistId: props.chatListId.conversationId,
+      conversationHistId: chatId,
       first: firstNum,
       offset: 0,
     },
@@ -111,6 +127,12 @@ export default function ChatDetailScreen(props) {
       setUserId(state.chefId);
     }
     // scrollToBottom();
+    if (props && props.chatListId && props.chatListId.createdAt) {
+      let timeValue = moment(props.createdAt).add(3, 'day');
+      timeValue = timeValue.format();
+      let showConv = new Date(timeValue) > new Date();
+      setTimeGreater(showConv);
+    }
   }, []);
 
   useEffect(() => {
@@ -120,18 +142,38 @@ export default function ChatDetailScreen(props) {
   }, [chatListCount]);
 
   useEffect(() => {
-    if (props && props.chatListId && props.chatListId.conversationId) {
+    if (
+      (props && props.chatListId && props.chatListId.conversationId) ||
+      (props && props.chefDetails && props.chefDetails.conversationHistId)
+    ) {
       setTotalCount(0);
       setChatListCountValue(0);
       setFirstNum(5);
       getChatDetailData();
       getChatListCount();
     }
-  }, [props.chatListId.conversationId]);
+  }, [props]);
 
-  const [postChatData, { chatData }] = useMutation(CHAT_DATA_POST, {
+  //with conversation id gql call
+  const [postChatDataWithConversationId, { chatData }] = useMutation(CHAT_DATA_POST, {
     onCompleted: chatData => {
       setInputValue('');
+    },
+    onError: err => {
+      toastMessage(renderError, err.message);
+    },
+  });
+
+  //without conversation id gql call
+  const [postChatDataWithoutConversationId, chatValue] = useMutation(CHAT_DATA_POST_VALUE, {
+    onCompleted: chatValue => {
+      let chatData =
+        chatValue.createConversationHistByParams.conversationHistory.conversationHistId;
+      setChatId(chatData);
+      setInputValue('');
+      getChatDetailData();
+      getChatListCount();
+      setShowSend(false);
     },
     onError: err => {
       toastMessage(renderError, err.message);
@@ -163,11 +205,11 @@ export default function ChatDetailScreen(props) {
     }
   }, [chatDetail]);
 
-  useEffect(() => {
-    if (props.chatListId) {
-      setChatId(props.chatListId);
-    }
-  }, [props.chatListId]);
+  // useEffect(() => {
+  //   if (props.chatListId) {
+  //     setChatId(props.chatListId);
+  //   }
+  // }, [props.chatListId]);
 
   const sampleChatList = [{ name: 'ChatList1', id: 1 }, { name: 'ChatList2', id: 2 }];
   const messageForId = [
@@ -209,6 +251,15 @@ export default function ChatDetailScreen(props) {
   ];
   const [chatList, setChatList] = useState([]);
 
+  function chatDataParser(value) {
+    try {
+      let newValue = JSON.parse(value);
+      return newValue;
+    } catch (e) {
+      return value;
+    }
+  }
+
   function chatListRender() {
     // return sampleChatList.map((res, index) => {
     //   console.log('dalskjdlk1j23123', res);
@@ -218,38 +269,44 @@ export default function ChatDetailScreen(props) {
       let value = _.orderBy(chatMsgAry.nodes, ['createdAt'], ['asc']);
       return value.map((res, index) => {
         let nameData = JSON.parse(res.fromEntityDetails);
-        return (
-          <div>
-            <div style={chatListStyle(res)}>
-              {res.fromEntityId !== userId ? (
-                <div
-                  className="col-5"
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                  }}
-                >
-                  <div style={{ height: '30px', width: '30px' }}>
-                    <img
-                      src={
-                        props.chatListId.pic
-                          ? props.chatListId.pic
-                          : require('../../../images/mock-image/default_chef_profile.png')
-                      }
-                      alt="image"
-                      style={{ borderRadius: '50%' }}
-                    />
-                    {/* {imageAlign(res)} */}
-                  </div>
-                  <div style={chatTextStyle(res)}>
-                    <div>{JSON.parse(res.msgText)}</div>
-                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                      <text style={{ fontSize: '13px' }}>{convertDateandTime(res.createdAt)}</text>
+
+        if (res.msgType && res.msgType === 'NEW_MESSAGE') {
+          return (
+            <div>
+              <div style={chatListStyle(res)}>
+                {res.fromEntityId !== userId ? (
+                  <div
+                    className="col-5"
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <div style={{ height: '30px', width: '30px' }}>
+                      <img
+                        src={
+                          props.chatListId.pic
+                            ? props.chatListId.pic
+                            : require('../../../images/mock-image/default_chef_profile.png')
+                        }
+                        alt="image"
+                        style={{ borderRadius: '50%' }}
+                      />
+                      {/* {imageAlign(res)} */}
+                    </div>
+                    <div style={chatTextStyle(res)}>
+                      {/* // todo: Dhilipan the json parse throws error */}
+                      {/* <div>{JSON.parse(res.msgText)}</div> */}
+                      <div>{chatDataParser(res.msgText)}</div>
+                      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <text style={{ fontSize: '13px' }}>
+                          {convertDateandTime(res.createdAt)}
+                        </text>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ) : (
+                ) : (
                   <div
                     className="col-5"
                     style={{
@@ -260,12 +317,16 @@ export default function ChatDetailScreen(props) {
                     }}
                   >
                     <div style={chatTextStyle(res)}>
-                      <div>{JSON.parse(res.msgText)}</div>
+                      {/* // todo: Dhilipan the json parse throws error */}
+                      {/* <div>{JSON.parse(res.msgText)}</div> */}
+                      <div>{chatDataParser(res.msgText)}</div>
                       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                        <text style={{ fontSize: '13px' }}>{convertDateandTime(res.createdAt)}</text>
+                        <text style={{ fontSize: '13px' }}>
+                          {convertDateandTime(res.createdAt)}
+                        </text>
                       </div>
                     </div>
-                    <div style={{ height: '30px', width: '30px' }}>
+                    <div style={{ height: '50px', width: '50px' }}>
                       <img
                         src={require('../../../images/mock-image/default_chef_profile.png')}
                         alt="image"
@@ -275,15 +336,36 @@ export default function ChatDetailScreen(props) {
                     </div>
                   </div>
                 )}
-              {/* <div ref={this.messagesEndRef} /> */}
+                {/* <div ref={this.messagesEndRef} /> */}
+              </div>
+              {/* <div ref={ref} /> */}
             </div>
-            {/* <div ref={ref} /> */}
-          </div>
-        );
+          );
+        } else {
+          return (
+            <div className="special-msg-view">
+              <div className="special_message">
+                <div className="Message">{chatDataParser(res.msgText)}</div>
+                <div className="date"> {convertDateandTime(res.createdAt)} </div>
+              </div>
+            </div>
+          );
+        }
       });
     } else {
       return (
-        <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>No data</div>
+        <div
+          class="nodata-icon"
+          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+        >
+          <img
+            src={require('../../../images/mock-image/no-data.png')}
+            alt="image"
+            className="icon-images"
+            style={{ width: '20%' }}
+          />
+          <p className="no-data-text">No data</p>
+        </div>
       );
     }
   }
@@ -352,16 +434,29 @@ export default function ChatDetailScreen(props) {
     setShowSend(true);
     if (inputValue) {
       // let newArray = chatMsgAry;
-      let variables = {
-        fromEntityId: userId,
-        conversationHistId: props.chatListId.conversationId,
-        msgText: JSON.stringify(inputValue),
-      };
-      postChatData({
-        variables,
-      }).then(data => {
-        setInputValue('');
-      });
+      if (chatId) {
+        let variables = {
+          fromEntityId: userId,
+          conversationHistId: chatId,
+          msgText: JSON.stringify(inputValue),
+        };
+        postChatDataWithConversationId({
+          variables,
+        }).then(data => {
+          setInputValue('');
+        });
+      } else {
+        let variables = {
+          pChefId: chatId,
+          pCustomerId: state && state.customerId ? state.customerId : null,
+          pMsgText: JSON.stringify(inputValue),
+        };
+        postChatDataWithoutConversationId({
+          variables,
+        }).then(data => {
+          setInputValue('');
+        });
+      }
     }
   }
 
@@ -390,51 +485,50 @@ export default function ChatDetailScreen(props) {
           )}
           {/* } */}
 
-          {props.chatListId && chatListRender()}
+          {chatId && chatListRender()}
         </div>
-        {props.chatListId &&
-          (props.chatListId.status.trim() !== S.CHEF_REJECTED &&
-            props.chatListId.status.trim() !== S.COMPLETED &&
-            props.chatListId.status.trim() !== S.AMT_TRANSFER_FAILED &&
-            props.chatListId.status.trim() !==  S.AMT_TRANSFER_SUCCESS &&
-            props.chatListId.status.trim() !== S.REFUND_AMOUNT_FAILED &&
-            props.chatListId.status.trim() !== S.REFUND_AMOUNT_SUCCESS &&
-            props.chatListId.status.trim() !== S.CANCELLED_BY_CHEF &&
-            props.chatListId.status.trim() !== S.CANCELLED_BY_CUSTOMER) && (
-            <div
-              className="chat-input-style"
+        {timeGreater === true ? (
+          <div
+            className="chat-input-style"
+            style={{
+              margin: '10px',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'flex-end',
+              width: '92%',
+            }}
+          >
+            <textarea
+              style={{ border: '1px solid' }}
+              className="input-method"
+              type="text"
+              value={inputValue}
+              onChange={val => inputValueChange(val)}
               style={{
-                margin: '10px',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'flex-end',
-                width: '92%',
+                width: '100%',
+                borderRadius: '5px',
+                maxHeight: '70px',
+                height: '70px',
+                minHeight: '70px',
               }}
+              placeholder="Enter Your message here..."
+            />
+            <button
+              className="btn btn-primary"
+              disabled={showSend}
+              onClick={() => onSubmitButtonClick()}
+              style={{ marginLeft: '4%', marginBottom: '10px' }}
             >
-              <textarea
-                className="input-method"
-                type="text"
-                value={inputValue}
-                onChange={val => inputValueChange(val)}
-                style={{
-                  width: '100%',
-                  borderRadius: '5px',
-                  maxHeight: '70px',
-                  height: '70px',
-                  minHeight: '70px',
-                }}
-                placeholder="Enter Your message here..."
-              />
-              <button
-                className="btn btn-primary"
-                disabled={showSend}
-                onClick={() => onSubmitButtonClick()}
-                style={{ marginLeft: '4%', marginBottom: '10px' }}
-              >
-                Send
-              </button>
-            </div>
-          )}
+              Send
+            </button>
+          </div>
+        ) : (
+          <div>
+            <p style={{ display: 'flex', justifyContent: 'center' }}>
+              Conversation has been closed
+            </p>
+          </div>
+        )}
       </React.Fragment>
     );
   } catch (error) {

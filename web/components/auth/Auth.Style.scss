@@ -1,12 +1,67 @@
 // @import '../../../assets/styles/color.scss';
 // @import '../../../assets/styles/variables.scss';
 
+#register-content,#login-content{
+  box-shadow: 0 2px 48px 0 rgba(0, 0, 0, 0.08);
+  padding: 20px;
+}
 .auth {
 
   // p{
   //   color: $primary;
   //   font-size: $p_font_size;
   // }
+
+  .register_type{
+    display: flex;
+    justify-content: center;
+    .chef_register_type{
+      display: flex;
+      justify-content: flex-end;
+      .chef_register_type_card{
+        // width: 35%;
+        background: #ABD037;
+        padding: 20px;
+        cursor: pointer;
+        .chef_register_type_card_img{
+          // width: 300px;
+          // height: 400px;
+        }
+       
+        .chef_register_type_card_div{
+          text-align: center;
+          // display: flex;
+          // justify-content: center;
+          .chef_register_type_card_div_name{
+            color: white;
+          }
+        }
+      }
+    }
+    .customer_register_type{
+      display: flex;
+      justify-content: flex-end;
+      .customer_register_type_card{
+        // width: 35%;
+        
+        background: #08AB93;
+        padding: 20px;
+        cursor: pointer;
+        .customer_register_type_card_img{
+          // width: 300px;
+          // height: 400px;
+        }
+        .customer_register_type_card_div{
+          text-align: center;
+          // display: flex;
+          // justify-content: center;
+          .customer_register_type_card_div_name{
+            color: white;
+          }
+        }
+      }
+    }
+  }
   .login-form {
 
       .eyeIconView {
@@ -105,13 +160,29 @@
     font-size: 12px;
   }
 }
-@media(max-width:379px){
+// @media(max-width:379px){
+//   #password-forgot-content{
+//     width: 117px;
+//     top: 7px;
+//   }
+// }
+@media(max-width:767px){
+  #google-id{
+    margin-left: 0px !important;
+    width: 100% !important;
+    margin-right: 7px !important;
+  }
   .login-keep{
-    display: flex !important;
-    flex-direction: column !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  #login-submit-button{
+    width:100% !important;
   }
   #password-forgot-content{
-    width: 117px;
-    top: 7px;
+    width: 100% !important;
+    top: 0px !important;
+    text-align: center !important;
   }
 }

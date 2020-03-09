@@ -1,13 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import moment from 'moment';
 import Autocomplete from 'react-google-autocomplete';
 import Select from 'react-select';
 import { useQuery } from '@apollo/react-hooks';
 import gql from 'graphql-tag';
+import ModernDatepicker from 'react-modern-datepicker';
 import * as gqlTag from '../../../common/gql';
 import * as util from '../../../utils/checkEmptycondition';
 import { toastMessage } from '../../../utils/Toast';
-
+import { getCurrentMonth } from '../../../utils/DateTimeFormat';
+import S from '../../booking-history/BookingHistory.String';
+import DatePicker from 'react-datepicker';
+import { subDays, addDays } from 'date-fns';
+import '../../../assets/styles/datePicker/datepicker.scss';
+import { getDateMonthYear } from '../../../utils/DateTimeFormat';
 const cuisineDataTag = gqlTag.query.master.cuisineGQLTAG; // cuisine tag
 
 const dishDataTag = gqlTag.query.master.dishGQLTAG; // dishes tag
@@ -40,14 +47,30 @@ const LeftSidebar = props => {
   const [cusinesMasterList, setCuisinesMasterList] = useState([]);
   const [dishesMasterList, setDishesMasterList] = useState([]);
   const [selectedDishesId, setSelectedDishesId] = useState([]);
-  const [fullAddress, setFullAddress] = useState('');
-  const [latitude, setLatitude] = useState(null);
-  const [rating, setRatingValue] = useState(null);
   const [minRange, setMinRange] = useState();
   const [maxRange, setMaxRange] = useState();
   const [location, setLocation] = useState();
   const [cuisineStateValue, setCuisineStateValue] = useState();
   const [experience, setExperience] = useState('');
+  const [startTime, setstartTime] = useState(new Date());
+  const [endTime, setendTime] = useState(getCurrentMonth(new Date()).toDate);
+  const [time, setTime] = useState(false);
+  const [startDate, setStartDate] = useState();
+  const [endDate, setEndDate] = useState();
+  const [fiveStar, setFiveStar] = useState(false);
+  const [fourStar, setFourStar] = useState(false);
+  const [threeStar, setThreeStar] = useState(false);
+  const [noStar, setNoStar] = useState(false);
+  const [isDateSelected, setIsDateSelected] = useState(false);
+  const [firstChecked, setFirstChecked] = useState(false);
+  const [secondChecked, setSecondChecked] = useState(false);
+  const [thirdChecked, setthirdChecked] = useState(false);
+  const [fourthChecked, setfourthChecked] = useState(false);
+  const [zeroDollor, setZeroDollor] = useState(false);
+  const [twentyDollor, setTwentyDollor] = useState(false);
+  const [fourtyDollor, setFourtyDollor] = useState(false);
+  const [sixtyDollor, setSixtyDollor] = useState(false);
+
   let cuisineValue, dishValue;
   let count = 0,
     dishCount = 0;
@@ -135,6 +158,8 @@ const LeftSidebar = props => {
       setRange(!pricerange);
     } else if (evt == 'location') {
       setLocation(!location);
+    } else if (evt == 'time') {
+      setTime(!time);
     }
   }
 
@@ -241,18 +266,69 @@ const LeftSidebar = props => {
   }
 
   function FilterSubmit(event) {
-    if (props.setRatingValue && rating > 0) {
-      props.setRatingValue(rating);
-    } else if (!rating) {
-      props.setRatingValue(0);
+    if (props.setRatingValue) {
+      let ratingArray = [];
+      if (fiveStar) {
+        ratingArray.push(5);
+      }
+      if (fourStar) {
+        ratingArray.push(4);
+      }
+      if (threeStar) {
+        ratingArray.push(3);
+      }
+      if (noStar) {
+        ratingArray.push(0, 1, 2);
+      }
+      let passingValue = '{';
+      if (ratingArray && ratingArray.length > 0) {
+        ratingArray.map((rate, index) => {
+          if (index == ratingArray.length - 1) {
+            passingValue = passingValue + rate;
+          } else {
+            passingValue = passingValue + rate + ',';
+          }
+        });
+        passingValue = passingValue + '}';
+      } else {
+        passingValue = null;
+      }
+      props.setRatingValue(passingValue);
     }
-    if (props.setPriceValue && minRange && maxRange) {
-      props.setPriceValue(minRange, maxRange);
-    } else if (!minRange && !maxRange) {
-      props.setPriceValue(0, 0);
-    } else {
-      props.setPriceValue(minRange, maxRange);
+    if (props.setPriceValue) {
+      // props.setPriceValue(minRange, maxRange);
+      let priceArray = [];
+      if (zeroDollor) {
+        priceArray.push({
+          min_price: 0,
+          max_price: 20,
+        });
+      }
+      if (twentyDollor) {
+        priceArray.push({
+          min_price: 20,
+          max_price: 40,
+        });
+      }
+      if (fourtyDollor) {
+        priceArray.push({
+          min_price: 40,
+          max_price: 60,
+        });
+      }
+      if (sixtyDollor) {
+        priceArray.push({
+          min_price: 60,
+          max_price: null,
+        });
+      }
+      props.setPriceValue(priceArray);
     }
+    // else if (!minRange && !maxRange) {
+    //   props.setPriceValue(0, 0);
+    // } else {
+    //   props.setPriceValue(minRange, maxRange);
+    // }
     if (props.setCuisineOption && filterCuisineOptionValue) {
       props.setCuisineOption(filterCuisineOptionValue);
     } else {
@@ -268,6 +344,22 @@ const LeftSidebar = props => {
     } else if (!experience) {
       props.setExperienceValue(0);
     }
+
+    if (props.setEventTime && startTime && endTime && startDate && endDate && isDateSelected) {
+      let isCorrect = moment(startTime).isAfter(endTime);
+      if (isCorrect === true) {
+        toastMessage('error', 'Please select future time of the event');
+      } else {
+        props.setEventTime(startTime, endTime);
+      }
+    } else {
+      if (isDateSelected) props.setEventTime(startTime, endTime);
+    }
+  }
+
+  function selectStartDate(event) {
+    setstartTime(event + ' ' + '00:00:00');
+    setendTime(event + ' ' + '23:59:59');
   }
 
   function onClearFilterOption(filterOption) {
@@ -279,6 +371,7 @@ const LeftSidebar = props => {
       props.setDishOption ||
       props.setCuisineOption ||
       props.setExperienceValue ||
+      props.setEventTime ||
       filterOption
     ) {
       setRange(false);
@@ -286,13 +379,14 @@ const LeftSidebar = props => {
       setPopular(false);
       setColor(false);
       setBrand(false);
+      setTime(false);
       props.setFilterOption(filterOption);
       props.setDishOption('');
       props.setCuisineOption('');
-      props.setPriceValue(0, 0);
-      props.setRatingValue(0);
+      props.setPriceValue([]);
+      props.setRatingValue('');
       props.setExperienceValue(0);
-      setRatingValue(0);
+      props.setEventTime('', '');
       setSelectedCuisinesId([]);
       setSelectedCuisines([]);
       setSelectedDishes([]);
@@ -302,68 +396,94 @@ const LeftSidebar = props => {
       setCuisineFilterOptionValue('');
       setDishFilterOptionValue('');
       setExperience('');
+      setstartTime('');
+      setendTime('');
+      setStartDate();
+      setEndDate();
+      setstartTime();
+      setendTime();
+      setNoStar(false);
+      setThreeStar(false);
+      setFourStar(false);
+      setFiveStar(false);
+      setFirstChecked(false);
+      setSecondChecked(false);
+      setthirdChecked(false);
+      setfourthChecked(false);
     }
   }
-
   return (
     <div className={`col-lg-${props.col ? props.col : '3'} col-md-12`}>
       <button
         className="btn btn-primary"
-        style={{ marginBottom: '30px', marginTop: '3%' }}
+        style={{ marginBottom: '30px', marginTop: '7%' }}
         onClick={() => onClearFilterOption('CHEF_SNO_ASC')}
       >
         Clear Filter
       </button>
       <div id="sidebar-card">
         <div className="woocommerce-sidebar-area cheflist">
-          {/* <div className={`collapse-widget collections-list-widget ${location ? '' : 'open'}`}>
+          <div
+            className={`collapse-widget tag-list-widget ${time ? '' : 'open'}`}
+            id="filter-space"
+          >
             <h3
-              className={`collapse-widget-title ${location ? '' : 'active'}`}
-              onClick={e => handleToggle(e, 'location')}
-            >
-              Location
-              <i className="fas fa-angle-up"></i>
-            </h3>
-            <ul className={`collections-list-row ${location ? 'block' : 'none'}`}>
-              <Autocomplete
-                className="form-control inputView"
-                placeholder="Enter location"
-                required
-                value={fullAddress}
-                onChange={event => setFullAddress(event.target.value)}
-                onPlaceSelected={place => {
-                  setFullAddress(place.formatted_address);
-                  setLatitude(place.geometry.location.lat());
-                  setLongtitude(place.geometry.location.lng());
-                  filterByLocation(place);
-                }}
-                types={['address']}
-                // componentRestrictions={{ country: 'in' }}
-              />
-            </ul>
-          </div> */}
-          {/* <div className={`collapse-widget collections-list-widget ${collection ? '' : 'open'}`}>
-            <h3
-              className={`collapse-widget-title ${collection ? '' : 'active'}`}
-              onClick={e => handleToggle(e, 'collection')}
+              className={`collapse-widget-title ${time ? '' : 'active'}`}
+              onClick={e => handleToggle(e, 'time')}
               id="filter-text"
             >
-              Price Sort
+              Date of the Event
               <i className="fas fa-angle-up"></i>
             </h3>
-            <ul className={`collections-list-row ${collection ? 'block' : 'none'}`}>
-              <li>
-                <Link href="#">
-                  <a onClick={() => onsetFilterOption('PRICE_PER_HOUR_DESC')}>High To Low</a>
-                </Link>
-              </li>
-              <li>
-                <Link href="#">
-                  <a onClick={() => onsetFilterOption('PRICE_PER_HOUR_ASC')}>Low To High</a>
-                </Link>
-              </li>
+
+            <ul className={`tags-list-row ${time ? 'block' : 'none'}`}>
+              <div className="start-date-container">
+                From Date
+                <div className="start-date-calendar">
+                  <DatePicker
+                    selected={startDate ? startDate : new Date()}
+                    onChange={date => {
+                      setIsDateSelected(true);
+                      setStartDate(date);
+                      setstartTime(moment(date).format('YYYY-MM-DDTHH:mm:SS'));
+                      if (date) {
+                        setEndDate(addDays(date, 1));
+                        setendTime(moment(addDays(date, 1)).format('YYYY-MM-DDTHH:mm:SS'));
+                      }
+                    }}
+                    timeInputLabel="Time:"
+                    minDate={new Date()}
+                    timeFormat="HH:mm"
+                    dateFormat="MMMM d, yyyy h:mm aa"
+                    // showTimeInput
+                    showTimeSelect
+                    timeIntervals={15}
+                    timeCaption="time"
+                  />
+                </div>
+              </div>
+              <div className="end-date-container">
+                To Date
+                <div className="start-date-calendar">
+                  <DatePicker
+                    selected={endDate}
+                    onChange={date => {
+                      setEndDate(date);
+                      setendTime(moment(date).format('YYYY-MM-DDTHH:mm:SS'));
+                    }}
+                    timeInputLabel="Time:"
+                    timeFormat="HH:mm"
+                    dateFormat="MMMM d, yyyy h:mm aa"
+                    minDate={startDate ? startDate : new Date()}
+                    // showTimeInput
+                    showTimeSelect
+                    timeIntervals={15}
+                    timeCaption="time"
+                  />
+                </div>
+              </div>
             </ul>
-          </div> */}
+          </div>
           <div
             className={`collapse-widget size-list-widget ${pricerange ? '' : 'open'}`}
             id="filter-space"
@@ -380,97 +500,56 @@ const LeftSidebar = props => {
             <ul className={`brands-list-row ${pricerange ? 'block' : 'none'}`}>
               <div>
                 <li>
-                  Min
-                  <input
-                    className="sidebar-input-style"
-                    type="number"
-                    min="1"
-                    value={minRange}
-                    onChange={() => {
-                      setMinRange(event.target.value);
-                      setMaxRange(parseInt(event.target.value) + 1);
-                    }}
-                    placeholder="$"
-                    style={{ marginLeft: '2%' }}
-                  />
+                  <div>
+                    <input
+                      type="checkbox"
+                      checked={sixtyDollor}
+                      onChange={() => {
+                        setSixtyDollor(!sixtyDollor);
+                      }}
+                    />
+                    $$$$ ($60 +)
+                  </div>
                 </li>
-              </div>
-              <div>
                 <li>
-                  Max{' '}
-                  <input
-                    className="sidebar-input-style"
-                    type="number"
-                    min={maxRange}
-                    value={maxRange}
-                    onChange={event => {
-                      setMaxRange(event.target.value);
-                      // setPriceValue(event);
-                    }}
-                    placeholder="$"
-                    id="to-input"
-                    // style={{ marginLeft: '7%' }}
-                  />
+                  <div>
+                    <input
+                      type="checkbox"
+                      checked={fourtyDollor}
+                      onChange={() => {
+                        setFourtyDollor(!fourtyDollor);
+                      }}
+                    />
+                    $$$ ($40 - $60)
+                  </div>
+                </li>
+                <li>
+                  <div>
+                    <input
+                      type="checkbox"
+                      checked={twentyDollor}
+                      onChange={() => {
+                        setTwentyDollor(!twentyDollor);
+                      }}
+                    />
+                    $$ ($20 - $40)
+                  </div>
+                </li>
+                <li>
+                  <div>
+                    <input
+                      type="checkbox"
+                      checked={zeroDollor}
+                      onChange={() => {
+                        setZeroDollor(!zeroDollor);
+                      }}
+                    />
+                    $ ($0 - $20)
+                  </div>
                 </li>
               </div>
             </ul>
           </div>
-
-          <div
-            className={`collapse-widget size-list-widget ${brand ? '' : 'open'}`}
-            id="filter-space"
-          >
-            <h3
-              className={`collapse-widget-title ${brand ? '' : 'active'}`}
-              onClick={e => handleToggle(e, 'brand')}
-              id="filter-text"
-            >
-              Experience
-              <i className="fas fa-angle-up"></i>
-            </h3>
-
-            <ul className={`brands-list-row ${brand ? 'block' : 'none'}`}>
-              <div>
-                <li>
-                  <input
-                    className="sidebar-input-style"
-                    type="number"
-                    min="1"
-                    value={experience}
-                    onChange={() => {
-                      setExperienceValue(event.target.value);
-                    }}
-                    placeholder="1"
-                    style={{ marginLeft: '2%' }}
-                  />
-                </li>
-              </div>
-            </ul>
-          </div>
-          {/* <div className={`collapse-widget brands-list-widget ${brand ? '' : 'open'}`}>
-            <h3
-              className={`collapse-widget-title ${brand ? '' : 'active'}`}
-              onClick={e => handleToggle(e, 'brand')}
-              id="filter-text"
-            >
-              Rating Sort
-              <i className="fas fa-angle-up"></i>
-            </h3>
-
-            <ul className={`brands-list-row ${brand ? 'block' : 'none'}`}>
-              <li>
-                <Link href="#">
-                  <a onClick={() => onsetFilterOption('AVERAGE_RATING_DESC')}>High To Low</a>
-                </Link>
-              </li>
-              <li>
-                <Link href="#">
-                  <a onClick={() => onsetFilterOption('AVERAGE_RATING_ASC')}>Low To High</a>
-                </Link>
-              </li>
-            </ul>
-          </div> */}
-
           <div
             className={`collapse-widget tag-list-widget ${stars ? '' : 'open'}`}
             id="filter-space"
@@ -483,114 +562,66 @@ const LeftSidebar = props => {
               Rating
               <i className="fas fa-angle-up"></i>
             </h3>
-
             <ul className={`tags-list-row ${stars ? 'block' : 'none'}`}>
               <li>
-                <Link href="#" className="sidebar-input-style">
-                  <div>
-                    <a
-                      onClick={() => {
-                        setRatingValue(1);
-                      }}
-                    >
-                      1 <i className="far fa-star starColor"></i> & above{' '}
-                    </a>
-                  </div>
-                </Link>
-              </li>
-              <li>
-                <Link href="#">
-                  <a
-                    onClick={() => {
-                      setRatingValue(2);
+                <div>
+                  <input
+                    type="checkbox"
+                    checked={fiveStar}
+                    onChange={() => {
+                      setFiveStar(!fiveStar);
                     }}
-                  >
-                    2 <i className="far fa-star starColor"></i> & above{' '}
-                  </a>
-                </Link>
+                  />
+                  <i className="fa fa-star starColor"></i>
+                  <i className="fa fa-star starColor"></i>
+                  <i className="fa fa-star starColor"></i>
+                  <i className="fa fa-star starColor"></i>
+                  <i className="fa fa-star starColor"></i>
+                  {/* <span>{' and above'}</span> */}
+                </div>
               </li>
+              <br />
               <li>
-                <Link href="#">
-                  <a
-                    onClick={() => {
-                      setRatingValue(3);
-                    }}
-                  >
-                    3 <i className="far fa-star starColor"></i> & above
-                  </a>
-                </Link>
+                <input
+                  type="checkbox"
+                  checked={fourStar}
+                  onChange={() => {
+                    setFourStar(!fourStar);
+                  }}
+                />{' '}
+                <i className="fa fa-star starColor"></i>
+                <i className="fa fa-star starColor"></i>
+                <i className="fa fa-star starColor"></i>
+                <i className="fa fa-star starColor"></i>
+                {/* <span>{' and above'}</span> */}
               </li>
+              <br />
               <li>
-                <Link href="#">
-                  <a
-                    onClick={() => {
-                      setRatingValue(4);
-                    }}
-                  >
-                    4 <i className="far fa-star starColor"></i> & above
-                  </a>
-                </Link>
+                <input
+                  type="checkbox"
+                  checked={threeStar}
+                  onChange={() => {
+                    setThreeStar(!threeStar);
+                  }}
+                />{' '}
+                <i className="fa fa-star starColor"></i>
+                <i className="fa fa-star starColor"></i>
+                <i className="fa fa-star starColor"></i>
+                {/* <span>{' and above'}</span> */}
               </li>
+              <br />
               <li>
-                <Link href="#">
-                  <a
-                    onClick={() => {
-                      setRatingValue(5);
-                    }}
-                  >
-                    5 <i className="far fa-star starColor"></i> & above
-                  </a>
-                </Link>
+                <input
+                  type="checkbox"
+                  checked={noStar}
+                  onChange={() => {
+                    setNoStar(!noStar);
+                  }}
+                />{' '}
+                <span>{'  Rising talent'}</span>
               </li>
             </ul>
           </div>
-
-          {/* <div className={`collapse-widget size-list-widget ${size ? '' : 'open'}`}>
-            <h3
-              className={`collapse-widget-title ${size ? '' : 'active'}`}
-              onClick={e => handleToggle(e, 'size')}
-              id="filter-text"
-            >
-              Chef Created Date
-              <i className="fas fa-angle-up"></i>
-            </h3> */}
-          {/* <div className={`collapse-widget size-list-widget ${size ? '' : 'open'}`}>
-          <h3
-            className={`collapse-widget-title ${size ? '' : 'active'}`}
-            onClick={e => handleToggle(e, 'size')}
-          >
-            Chef Created Date
-            <i className="fas fa-angle-up"></i>
-          </h3>
-
-          <ul className={`brands-list-row ${size ? 'block' : 'none'}`}>
-            <li>
-              <Link href="#">
-                <a onClick={() => onsetFilterOption('CREATED_AT_DESC')}>High To Low</a>
-              </Link>
-            </li>
-            <li>
-              <Link href="#">
-                <a onClick={() => onsetFilterOption('CREATED_AT_ASC')}>Low To High</a>
-              </Link>
-            </li>
-          </ul>
-        </div> */}
-
-          {/* <ul className={`brands-list-row ${size ? 'block' : 'none'}`}>
-              <li>
-                <Link href="#">
-                  <a onClick={() => onsetFilterOption('CREATED_AT_DESC')}>High To Low</a>
-                </Link>
-              </li>
-              <li>
-                <Link href="#">
-                  <a onClick={() => onsetFilterOption('CREATED_AT_ASC')}>Low To High</a>
-                </Link>
-              </li>
-            </ul> */}
-          {/* </div> */}
-
           <div
             className={`collapse-widget tag-list-widget ${popular ? '' : 'open'}`}
             id="filter-space"
@@ -600,7 +631,7 @@ const LeftSidebar = props => {
               onClick={e => handleToggle(e, 'popular')}
               id="filter-text"
             >
-              Dish Type
+              Dish Specialty
               <i className="fas fa-angle-up"></i>
             </h3>
 
@@ -615,7 +646,6 @@ const LeftSidebar = props => {
               />
             </ul>
           </div>
-
           <div
             className={`collapse-widget tag-list-widget ${color ? '' : 'open'}`}
             id="filter-space"
@@ -641,17 +671,6 @@ const LeftSidebar = props => {
                   options={cusinesMasterList}
                   placeholder="Select Cuisine"
                 />
-
-                {/* <Select
-                    isMulti={true}
-                    isSearchable={true}
-                    value={selectedCuisines}
-                    onChange={value =>
-                      handleChange(value, setSelectedCuisines, setSelectedCuisinesId)
-                    }
-                    options={cusinesMasterList}
-                    placeholder="Select Cuisine"
-                  /> */}
               </ul>
               <ul>
                 <div
@@ -663,6 +682,7 @@ const LeftSidebar = props => {
                   }}
                 >
                   <button
+                    type="button"
                     className="btn btn-primary"
                     onClick={() => FilterSubmit()}
                     id="sidebar-submit"

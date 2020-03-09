@@ -17,7 +17,7 @@ export const menuOptions = [
     keyName: 'booking_history',
     subMenu: [
       {
-        title: 'Booking Request',
+        title: 'Booking',
         routing: n.BOOKING_REQUEST,
       },
       {
@@ -59,6 +59,13 @@ export const menuOptions = [
     isChef: true,
     isCustomer: true,
     isCommon: true,
+  },
+  {
+    title: 'Inbox',
+    routing: n.CHAT,
+    keyName: 'chat',
+    isChef: true,
+    isCustomer: true,
   },
   // {
   //   title: 'Contact Us',

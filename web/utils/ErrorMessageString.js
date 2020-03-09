@@ -22,8 +22,8 @@ export default {
   SWITCH_TO_IS_REQUIRED: 'Switch to is required',
   AVAILABILITY_DATA_IS_REQUIRED: 'Availability Data is required',
   DATE_IS_REQUIRED: 'Date is required',
-  USER_IS_BLOCKED : 'Admin blocked your account',
-  UNAUTHORIZED : 'Authorization is required',
-  AGE_LIMIT : 'Age should be greater than 18',
-  ALREADY_BOOKING_EXISTS_ON_THIS_DATETIME : 'Sorry, You have another booking on this time'
+  USER_IS_BLOCKED: 'Admin blocked your account',
+  UNAUTHORIZED: 'Authorization is required',
+  AGE_LIMIT: 'Age should be greater than 18',
+  ALREADY_BOOKING_EXISTS_ON_THIS_DATETIME: 'Sorry, You have another booking on this time',
 };

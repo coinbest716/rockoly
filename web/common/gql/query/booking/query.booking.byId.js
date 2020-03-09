@@ -7,6 +7,8 @@ export const byIdGQLTAG = `query chefBookingHistoryByChefBookingHistId($chefBook
     chefBookingStatusId
     chefBookingPriceValue
     chefBookingPriceUnit
+    chefBookingStripeCommissionPriceValue
+    chefBookingStripeCommissionPriceUnit
     chefBookingServiceChargePriceValue
     chefBookingServiceChargePriceUnit
     chefBookingCommissionPriceValue
@@ -15,13 +17,40 @@ export const byIdGQLTAG = `query chefBookingHistoryByChefBookingHistId($chefBook
     chefBookingTotalPriceUnit
     chefBookingCompletedByChefYn
     chefBookingCompletedByCustomerYn
+    chefBookingSummary
+    chefBookingCuisineTypeId
+    chefBookingOtherCuisineTypes
+    chefBookingAllergyTypeId
+    chefBookingOtherAllergyTypes
+    chefBookingDietaryRestrictionsTypeId
+    chefBookingOtherDietaryRestrictionsTypes
+    chefBookingDishTypeId
+    chefBookingKitchenEquipmentTypeId
+    chefBookingOtherKitchenEquipmentTypes
+    chefBookingStoreTypeId
+    chefBookingOtherStoreTypes
+    chefBookingNoOfPeople
+    chefBookingComplexity
+    chefBookingFoodCost
+    chefBookingAdditionalServices
+    additionalServiceDetails
     chefBookingChefRejectOrCancelReason
     chefBookingCustomerRejectOrCancelReason
+    chefBookingLocationAddress
+    chefBookingLocationLat
+    chefBookingLocationLng
+    chefBookingAddrLine1
+    chefBookingAddrLine2
+    chefBookingState
+    chefBookingCountry
+    chefBookingCity
+    chefBookingPostalCode
     conversationId
     dishTypeDesc
-    bookingNotes{
+    createdAt
+    bookingNotes {
       totalCount
-      nodes{
+      nodes {
         notesHistId
         notesDescription
         tableName
@@ -31,18 +60,59 @@ export const byIdGQLTAG = `query chefBookingHistoryByChefBookingHistId($chefBook
         createdAt
       }
     }
-    createdAt
+    kitchenEquipmentTypes {
+      nodes {
+        kitchenEquipmentTypeId
+        kitchenEquipmentTypeName
+        kitchenEquipmentTypeDesc
+      }
+    }
+    cuisineTypes {
+      nodes {
+        cuisineTypeId
+        cusineTypeName
+        cuisineTypeDesc
+      }
+    }
+    allergyTypes {
+      nodes {
+        allergyTypeId
+        allergyTypeName
+        allergyTypeDesc
+      }
+    }
+    dietaryRestrictionsTypes {
+      nodes {
+        dietaryRestrictionsTypeId
+        dietaryRestrictionsTypeName
+        dietaryRestrictionsTypeDesc
+      }
+    }
+    storeTypes {
+      nodes {
+        storeTypeId
+        storeTypeName
+        storeTypeDesc
+      }
+    }
     chefProfileByChefId {
       chefId
       fullName
       chefPicId
       defaultStripeUserId
+      averageRating
+      totalReviewCount
       chefProfileExtendedsByChefId {
         totalCount
         nodes {
           chefLocationAddress
           chefLocationLat
           chefLocationLng
+          chefPricePerHour
+          chefPriceUnit
+          chefCity
+          chefAvailableAroundRadiusInValue
+          chefAvailableAroundRadiusInUnit
         }
       }
     }
@@ -50,6 +120,8 @@ export const byIdGQLTAG = `query chefBookingHistoryByChefBookingHistId($chefBook
       customerId
       fullName
       customerPicId
+      averageRating
+      totalReviewCount
       customerProfileExtendedsByCustomerId {
         totalCount
         nodes {
@@ -82,9 +154,9 @@ export const byIdGQLTAG = `query chefBookingHistoryByChefBookingHistId($chefBook
         }
       }
     }
-    customerBookingReviews{
+    customerBookingReviews {
       totalCount
-      nodes{
+      nodes {
         reviewHistId
         reviewPoint
         reviewDesc
@@ -95,21 +167,47 @@ export const byIdGQLTAG = `query chefBookingHistoryByChefBookingHistId($chefBook
         isReviewedByCustomerYn
         reviewStatusId
         reviewBlockedReason
-        customerProfileByCustomerId{
+        customerProfileByCustomerId {
           fullName
           customerPicId
         }
-        chefProfileByChefId{
+        chefProfileByChefId {
           fullName
           chefPicId
         }
       }
     }
-    trackBookingHistoryStatusesByChefBookingHistId(orderBy:TRACK_ORDER_NO_ASC){
-      nodes{
+    trackBookingHistoryStatusesByChefBookingHistId(
+      orderBy: TRACK_ORDER_NO_ASC
+    ) {
+      nodes {
         updatedAt
         trackOrderNo
         status
+      }
+    }
+    paymentHistoriesByBookingHistId {
+      nodes {
+        paymentHistId
+        bookingHistId
+        paymentId
+        paymentStripeCustomerId
+        paymentCardId
+        paymentOrderId
+        paymentType
+        bookingHistId
+        paymentTransactionId
+        paymentStatusId
+        paymentMethod
+        paymentActualAmount
+        paymentTotalAmountUnit
+        paymentReceiptUrl
+        paymentDoneByCustomerId
+        paymentDoneForChefId
+        paymentDoneForType
+        paymentOriginalPriceValueFormat
+        paymentOriginalPriceUnitFormat
+        createdAt
       }
     }
   }

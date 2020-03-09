@@ -4,6 +4,8 @@ import { toastMessage, renderError } from './Toast';
 //availability time picker default start time & end time
 export const initialStartTime = '09:00';
 export const initialEndTime = '09:30';
+export const initialBlockStartTime = '09:00';
+export const initialBlockEndTime = '21:00';
 export const endTimeLimit = '20:00';
 export const getCurrentDate = new Date();
 export const timeFormat = 'hh:mm:ss';
@@ -21,6 +23,7 @@ export const checkIfItIsFutureDate = 'MM/DD/YYYY';
 export const month = 'month';
 export const M = 'M';
 export const timeOnly = 'h:mm a';
+export const timeValue = 'hh:mm';
 export const dateWithTime1 = 'MM-DD-YYYY h:mm a';
 // export const checkIfItIsFutureDate = 'MM-DD-YYYY hh:mm';
 
@@ -70,6 +73,25 @@ export const getTimestamp = date => {
   }
 };
 
+export const getCurrentTimestamp = date => {
+
+  console.log("date",date)
+  try {
+    var time = moment(new Date()).format('hh');
+    console.log("date time",time)
+    var day = moment(new Date());
+    // console.log("date day",day)
+    // day.setHours(time)
+    // var day = moment(new Date(date)).set(time, 'hh');
+    console.log("date day",day)
+    return new Date(date);
+
+  } catch (error) {
+    toastMessage(renderError, error.message);
+  }
+};
+
+
 // get date format
 export const getDateFormat = date => {
   try {
@@ -98,10 +120,33 @@ export const getDateWithTimeLocal = date => {
   }
 };
 
+// get date local format
+export const getDateWithTimeLocalWithoutFormat = date => {
+  try {
+    let localTime = getLocalTime(date);
+    return moment(localTime).format(dateWithTime1);
+  } catch (error) {
+    toastMessage(renderError, error.message);
+  }
+};
+
 // get time format
 export const getTimeOnly = date => {
   try {
     return moment(date).format(timeOnly);
+  } catch (error) {
+    toastMessage(renderError, error.message);
+  }
+};
+
+// get future date reverseDateFormat
+export const alterTime = (date, value, sign) => {
+  try {
+    if (sign === 'add') {
+      return moment(date).add(value, 'hours');
+    } else if (sign === 'sub') {
+      return moment(date).subtract(value, 'hours');
+    }
   } catch (error) {
     toastMessage(renderError, error.message);
   }
@@ -168,6 +213,13 @@ export const getTimeFormat = date => {
   }
 };
 
+export const getIsoTime = date =>{
+  try {
+    return moment(date).format(timeValue);
+  } catch (error) {
+    toastMessage(renderError, error.message);
+  }
+};
 // get Hours Format
 export const getHourFormat = date => {
   try {
@@ -204,6 +256,7 @@ export const futureMonth = () => {
     toastMessage(renderError, error.message);
   }
 };
+
 export const futureMonthReversed = () => {
   try {
     return moment()
@@ -234,16 +287,15 @@ export const getDateMonthYear = date => {
 };
 
 // get current month start date and end date
-export const getCurrentMonth = () => {
+export const getCurrentMonth = date => {
   try {
-    const date = new Date();
+    // const date = new Date();
     const month = date.getMonth() + 1;
     const year = date.getFullYear();
     const startDate = moment([year, month - 1]);
     const endDate = moment(startDate).endOf('month');
     const fromDate = startDate.toDate();
     const toDate = endDate.toDate();
-    // console.log('eeeeeeeeeeeeee', startDate, fromDate, getDateFormatGql(fromDate));
     let currentMonth = {
       fromDate: getDateFormatGql(fromDate),
       toDate: getDateFormatGql(toDate),
@@ -260,7 +312,6 @@ export const getDataForGmt = (date, type) => {
     if (type === 'startDate') {
       const startDate = date + ' ' + '00:00:00';
       const fromDate = moment(startDate, dateWithTimeFormat).format();
-      // console.log('sssssssssssssssssss', startDate, fromDate, new Date(fromDate));
       return getDateFormatGql(new Date(fromDate));
     } else if (type === 'endDate') {
       const endDate = date + ' ' + '23:59:59';

@@ -7,12 +7,22 @@ import { logOutUser } from './LogOut';
 
 const toastStyles = {
   position: 'top-center',
-  autoClose: 10000,
-  hideProgressBar: false,
+  autoClose: 1000,
+  hideProgressBar: true,
+  closeOnClick: true,
+  pauseOnHover: false,
+  draggable: true,
+  autoClose: true,
+  toastId: null,
+};
+
+const errorToastStyle = {
+  position: 'top-center',
+  autoClose: false,
+  hideProgressBar: true,
   closeOnClick: true,
   pauseOnHover: true,
   draggable: true,
-  autoClose: false,
   toastId: null,
 };
 
@@ -21,7 +31,6 @@ export const error = 'error';
 export const renderError = 'renderError';
 
 export function toastMessage(type, Message) {
-
   let toastMessage = null;
   let messageString = null;
 
@@ -29,7 +38,6 @@ export function toastMessage(type, Message) {
   // if in object format
   if (typeof Message === 'object' && util.hasProperty(Message, 'message')) {
     messageString = Message.message;
-    
   }
   // if in string format
   else if (typeof Message === 'string') {
@@ -37,7 +45,7 @@ export function toastMessage(type, Message) {
   }
 
   // // Format the message
-  if (messageString){
+  if (messageString) {
     if (messageString.indexOf('STATUS_ID_REQUIRED') >= 0) {
       toastMessage = errorCodes.STATUS_ID_REQUIRED;
     } else if (messageString.indexOf('CHEF_ID_REQUIRED') >= 0) {
@@ -101,44 +109,56 @@ export function toastMessage(type, Message) {
       toastMessage = errorCodes.USER_IS_BLOCKED;
     } else if (messageString.indexOf('UNAUTHORIZED') >= 0) {
       toastMessage = errorCodes.UNAUTHORIZED;
-    } else if (messageString.indexOf('customer_profile_customer_mobile_number_uindex') >= 0 ||
-    (messageString.indexOf('user_profile_user_mobile_number_uindex') >= 0)
+    } else if (
+      messageString.indexOf('customer_profile_customer_mobile_number_uindex') >= 0 ||
+      messageString.indexOf('user_profile_user_mobile_number_uindex') >= 0
     ) {
       toastMessage = errorCodes.MOBILE_NO_IS_ALREADY_EXISTS;
     } else if (messageString.indexOf('AGE_LIMIT') >= 0) {
       toastMessage = errorCodes.AGE_LIMIT;
-    }else if(messageString.indexOf('ALREADY_BOOKING_EXISTS_ON_THIS_DATETIME') >=0){
+    } else if (messageString.indexOf('ALREADY_BOOKING_EXISTS_ON_THIS_DATETIME') >= 0) {
       toastMessage = errorCodes.ALREADY_BOOKING_EXISTS_ON_THIS_DATETIME;
-    }
-     else {
+    } else {
       toastMessage = messageString;
     }
   }
-
 
   if (type !== 'success' && messageString === null && toastMessage === null) {
     toastMessage = errorCodes.DEFAULT_MESSAGE;
   }
 
-  // show toast if not for blocked
-  if (toastStyles.toastId === null) {
+  if (toastMessage === 'Network error: Failed to fetch') {
+    toastStyles.toastId = 'NETWORK_ERROR';
+  }
+
+  // show toast if not for blocked/networkError
+  if (
+    toastStyles.toastId === null ||
+    (toastStyles.toastId !== 'USER_IS_BLOCKED' && toastStyles.toastId !== 'NETWORK_ERROR')
+  ) {
     switch (type) {
       case 'success':
         toast.success(toastMessage, toastStyles);
         break;
       case 'error':
-        toast.error(toastMessage, toastStyles);
+        toast.error(toastMessage, errorToastStyle);
         break;
       case 'renderError':
-        toast.error(toastMessage, toastStyles);
+        toast.error(toastMessage, errorToastStyle);
         break;
     }
   } else {
     // check if toast is shown already for blocked type
-    if (!toast.isActive('USER_IS_BLOCKED')) {
+    if (!toast.isActive('USER_IS_BLOCKED') && toastStyles.toastId === 'USER_IS_BLOCKED') {
       toast.error(toastMessage, toastStyles);
       toastStyles.toastId = null;
       logOutUser();
+    }
+
+    // check if toast is shown already for blocked type
+    if (!toast.isActive('NETWORK_ERROR') && toastStyles.toastId === 'NETWORK_ERROR') {
+      toast.error('Please try again later', toastStyles);
+      toastStyles.toastId = null;
     }
   }
 }

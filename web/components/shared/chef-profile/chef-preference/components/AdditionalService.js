@@ -28,7 +28,7 @@ const AdditionalService = props => {
   const [isvaluePresent, setIsValuePresent] = useState([]);
   const [masterList, setmasterList] = useState([]);
   const [textBox, setTextBox] = useState([]);
-  const [text0, setText0] = useState(0);
+  const [text0, setText0] = useState();
   const [text1, setText1] = useState(0);
   const [text2, setText2] = useState(0);
   const [text3, setText3] = useState(0);
@@ -82,17 +82,32 @@ const AdditionalService = props => {
     let data = [],
       option = {},
       txtbx = [],
-      arr = [],
-      checkBoxvalue = [];
+      arr = [];
+    let checkBoxvalue = [];
+
     if (servicemasterList.length > 0) {
       servicemasterList.map((listvalue, index) => {
-        let isValuePresenet = savedService.includes(listvalue.additionalServiceTypeId);
-        checkBoxvalue.push(isValuePresenet);
-        option = {
-          label: listvalue.additionalServiceTypeDesc,
-          value: listvalue.additionalServiceTypeId,
-        };
-       
+        let newIndex = null;
+        let priceValue = null;
+        newIndex = _.findIndex(props.extendedData, function(o) {
+          return o.service == listvalue.additionalServiceTypeId;
+        });
+        if (newIndex != -1) {
+          checkBoxvalue.push(true);
+          option = {
+            label: listvalue.additionalServiceTypeDesc,
+            value: listvalue.additionalServiceTypeId,
+            price: props.extendedData[newIndex].price,
+          };
+        } else {
+          checkBoxvalue.push(false);
+          option = {
+            label: listvalue.additionalServiceTypeDesc,
+            value: listvalue.additionalServiceTypeId,
+            price: null,
+          };
+        }
+
         data.push(option);
       });
       setmasterList(data);
@@ -104,167 +119,69 @@ const AdditionalService = props => {
   function onSelectCheckbox(label, indexValue) {
     let deleteArray = isvaluePresent;
     deleteArray[indexValue] = !isvaluePresent[indexValue];
-    setIsValuePresent(deleteArray);
-   
-    deleteArray.map((res,index) => {
+
+    deleteArray.map((res, index) => {
       let obj = {};
-      if (res) {
-        if(indexValue === 0 && res){
-          obj = {
-            service : masterList[index].value,
-            price : 0
-          }
-        }else if(indexValue === 1 && res){
-          obj = {
-            service : masterList[index].value,
-            price : 0
-          }
-        } else if(indexValue === 2 && res){
-          obj = {
-            service : masterList[index].value,
-            price : 0
-          }
-        }else if(indexValue === 3 && res){
-          obj = {
-            service : masterList[index].value,
-            price : 0
-          }
-        }else if(indexValue === 4 && res){
-          obj = {
-            service : masterList[index].value,
-            price : 0
-          }
-        }else if(indexValue === 5 && res){
-          obj = {
-            service : masterList[index].value,
-            price : 0
-          }
-        }else if(indexValue === 6 && res){
-          obj = {
-            service : masterList[index].value,
-            price : 0
-          }
-        }else if(indexValue === 7 && res){
-          obj = {
-            service : masterList[index].value,
-            price : 0
-          }
-        }else if(indexValue === 8 && res){
-          obj = {
-            service : masterList[index].value,
-            price : 0
-          }
-        }
-        sampleArray.push(obj)
+      if (res === true) {
+        obj = {
+          service: masterList[index].value,
+          price: masterList[index].price,
+        };
+        sampleArray.push(obj);
       }
     });
-
-
+    setIsValuePresent(deleteArray);
     if (props.onValuesChange) {
       props.onValuesChange(sampleArray, 'service');
     }
+    sampleArray = [];
   }
 
-  function onTypingValue(value, indexValue,text) {
-   
-    if (indexValue === 0 && text === 'text0') {
-      if (isvaluePresent[indexValue])
-        setText0(value)
-      else {
-        // setText0('');
-        toastMessage('error', 'Please select the checkbox');
+  function onTypingValue(value, indexValue) {
+  if (value >= 0){
+    let data = [];
+    masterList.map((listvalue, index) => {
+      let newIndex = null;
+      let priceValue = null;
+      let option = {};
+      let obj = {};
+      if (indexValue === index && isvaluePresent[index]) {
+        listvalue.price = value;
+        // listvalue.label =
+        // option = {
+        //   label: listvalue.additionalServiceTypeDesc,
+        //   value: listvalue.additionalServiceTypeId,
+        //   price: value,
+        // };
+      } else if (indexValue === index && !isvaluePresent[indexValue]) {
+        listvalue.price = value;
+        // option = {
+        //   label: listvalue.additionalServiceTypeDesc,
+        //   value: listvalue.additionalServiceTypeId,
+        //   price: 0,
+        // };
       }
-    } else if (indexValue === 1 && text === 'text1') {
-      if (isvaluePresent[indexValue])
-        setText1(value)
-      else
-        toastMessage('error', 'Please select the checkbox')
-    } else if (indexValue === 2 && text === 'text2') {
-      if (isvaluePresent[indexValue])
-        setText2(value)
-      else
-        toastMessage('error', 'Please select the checkbox')
-    } else if (indexValue === 3 && text === 'text3') {
-      if (isvaluePresent[indexValue])
-        setText3(value)
-      else
-        toastMessage('error', 'Please select the checkbox')
-    } else if (indexValue === 4 && text === 'text4') {
-      if (isvaluePresent[indexValue])
-        setText4(value)
-      else
-        toastMessage('error', 'Please select the checkbox')
-    } else if (indexValue === 5 && text === 'text5') {
-      if (isvaluePresent[indexValue])
-        setText5(value)
-      else
-        toastMessage('error', 'Please select the checkbox')
-    } else if (indexValue === 6 && text === 'text6') {
-      if (isvaluePresent[indexValue])
-        setText6(value)
-      else
-        toastMessage('error', 'Please select the checkbox')
-    } else if (indexValue === 7 && text === 'text7') {
-      if (isvaluePresent[indexValue])
-        setText7(value)
-      else
-        toastMessage('error', 'Please select the checkbox')
-    } else if (indexValue === 8 && text === 'text8') {
-      if (isvaluePresent[indexValue])
-        setText8(value)
-      else
-        toastMessage('error', 'Please select the checkbox')
-    }
-    isvaluePresent.map((res,index) => {
+
+      // data.push(option);
+    });
+    let deleteArray = masterList;
+    deleteArray[indexValue].price = value;
+    setmasterList(deleteArray);
+    isvaluePresent.map((res, index) => {
       let obj = {};
       if (res) {
-        if(indexValue === 0 && res && text === 'text0'){
+        if (indexValue === index && res) {
           obj = {
-            service : masterList[index].value,
-            price : value
-          }
-        }else if(indexValue === 1 && res && text === 'text1'){
+            service: deleteArray[index].value,
+            price: deleteArray[index].price,
+          };
+        } else if (indexValue !== index && res) {
           obj = {
-            service : masterList[index].value,
-            price : value
-          }
-        } else if(indexValue === 2 && res && text === 'text2'){
-          obj = {
-            service : masterList[index].value,
-            price : value
-          }
-        }else if(indexValue === 3 && res && text === 'text3'){
-          obj = {
-            service : masterList[index].value,
-            price : value
-          }
-        }else if(indexValue === 4 && res && text === 'text4'){
-          obj = {
-            service : masterList[index].value,
-            price : value
-          }
-        }else if(indexValue === 5 && res && text === 'text5'){
-          obj = {
-            service : masterList[index].value,
-            price : value
-          }
-        }else if(indexValue === 6 && res && text === 'text6'){
-          obj = {
-            service : masterList[index].value,
-            price : value
-          }
-        }else if(indexValue === 7 && res && text === 'text7'){
-          obj = {
-            service : masterList[index].value,
-            price : value
-          }
-        }else if(indexValue === 8 && res && text === 'text8'){
-          obj = {
-            service : masterList[index].value,
-            price : value
-          }
+            service: deleteArray[index].value,
+            price: deleteArray[index].price,
+          };
         }
-        storeTextValue.push(obj)
+        storeTextValue.push(obj);
       }
     });
 
@@ -272,16 +189,32 @@ const AdditionalService = props => {
       props.onValuesChange(storeTextValue, 'service');
     }
   }
+  else{
+    
+    toastMessage('renderError', 'Do not select negative numbers');
+  }
+  }
 
   try {
     return (
-      <section className="products-collections-area ptb-60 ProfileSetup">
+      <section className="products-collections-area ptb-40 ProfileSetup" id="sction-card-modal">
         <form className="login-form">
-          <div className="form-group">
-            <label>
-              <h5 style={{ textAlign: 'center' }}>Additional Services</h5>
-            </label>
-            <p style={{ textAlign: 'center', fontSize: '17px' }}>
+          <div>
+            {/* <label style={{}}> */}
+            <h5
+              style={{
+                color: '#08AB93',
+                paddingLeft: '2%',
+                fontSize: '20px',
+                textDecoration: 'underline',
+                fontWeight: 400,
+                paddingBottom: '1%',
+              }}
+            >
+              Additional Services
+            </h5>
+            {/* </label> */}
+            <p style={{ fontSize: '17px', paddingLeft: '2%' }}>
               What additional services can you provide? You can change the prices any time under
               your profile.
             </p>
@@ -289,114 +222,49 @@ const AdditionalService = props => {
               masterList.map((res, index) => {
                 return (
                   <div className="row" id="availabilityRow" style={{ marginLeft: '2%' }}>
-                    <div className="row">
-                      <div
-                        className="buy-checkbox-btn"
-                        id="checkBoxView"
-                        style={{ display: 'flex' }}
-                      >
-                        <div className="item">
-                          <input
-                            className="inp-cbx"
-                            id={res.value}
-                            type="checkbox"
-                            checked={isvaluePresent[index]}
-                            onChange={event => {
-                              // event.persist();
-                              onSelectCheckbox(res.value, index);
-                            }}
-                          />
-                          <label className="cbx" htmlFor={res.value}>
-                            <span>
-                              <svg width="12px" height="10px" viewBox="0 0 12 10">
-                                <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
-                              </svg>
-                            </span>
-                            <span>{res.label}</span>
-                          </label>
+                    <div className="col-lg-12" style={{ display: 'flex', paddingLeft: '0px' }}>
+                      <div className="col-lg-4" style={{ paddingLeft: '0px' }}>
+                        <div
+                          className="buy-checkbox-btn"
+                          id="checkBoxView"
+                          style={{ display: 'flex' }}
+                        >
+                          <div className="item">
+                            <input
+                              className="inp-cbx"
+                              id={res.value}
+                              type="checkbox"
+                              checked={isvaluePresent[index]}
+                              onChange={event => {
+                                // event.persist();
+                                onSelectCheckbox(res.value, index);
+                              }}
+                            />
+                            <label className="cbx" htmlFor={res.value}>
+                              <span>
+                                <svg width="12px" height="10px" viewBox="0 0 12 10">
+                                  <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+                                </svg>
+                              </span>
+                              <span>{res.label}</span>
+                            </label>
+                          </div>
                         </div>
                       </div>
+
+                      <div className="col-lg-2">
+                        <input
+                          type="number"
+                          value={res.price}
+                          onChange={() => onTypingValue(event.target.value, index)}
+                          className="form-control"
+                          placeholder="0"
+                        />
+                      </div>
                     </div>
-                    {index === 0 &&
-                      <input type="text" value={text0}
-                        onChange={() => onTypingValue(event.target.value, index,'text0')}
-                        className="form-control"
-                        placeholder="Enter price for this service" />
-                    }
-                    {index === 1 &&
-                      <input type="text" value={text1}
-                        onChange={() => onTypingValue(event.target.value, index,'text1')}
-                        className="form-control"
-                        placeholder="Enter price for this service" />
-                    }
-                    {index === 2 &&
-                      <input type="text" value={text2}
-                        onChange={() => onTypingValue(event.target.value, index,'text2')}
-                        className="form-control"
-                        placeholder="Enter price for this service" />
-                    }
-                    {index === 3 &&
-                      <input type="text" value={text3}
-                        onChange={() => onTypingValue(event.target.value, index,'text3')}
-                        className="form-control"
-                        placeholder="Enter price for this service" />
-                    }
-                    {index === 4 &&
-                      <input type="text" value={text4}
-                        onChange={() => onTypingValue(event.target.value, index,'text4')}
-                        className="form-control"
-                        placeholder="Enter price for this service" />
-                    }
-                    {index === 5 &&
-                      <input type="text" value={text5}
-                        onChange={() => onTypingValue(event.target.value, index,'text5')}
-                        className="form-control"
-                        placeholder="Enter price for this service" />
-                    }
-                    {index === 6 &&
-                      <input type="text" value={text6}
-                        onChange={() => onTypingValue(event.target.value, index,'text6')}
-                        className="form-control"
-                        placeholder="Enter price for this service" />
-                    }
-                    {index === 7 &&
-                      <input type="text" value={text7}
-                        onChange={() => onTypingValue(event.target.value, index,'text7')}
-                        className="form-control"
-                        placeholder="Enter price for this service" />
-                    }
-                    {index === 8 &&
-                      <input type="text" value={text8}
-                        onChange={() => onTypingValue(event.target.value, index,'text8')}
-                        className="form-control"
-                        placeholder="Enter price for this service"
-                      />
-                    }
                   </div>
                 );
               })}
-            {/* <div className="buy-checkbox-btn" id="checkBoxView">
-              <div className="item">
-                <input
-                  className="inp-cbx"
-                  id="other"
-                  type="checkbox"
-
-                />
-                <label className="cbx"
-                  htmlFor="other"
-                >
-                  <span>
-                    <svg width="12px" height="10px" viewBox="0 0 12 10">
-                      <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
-                    </svg>
-                  </span>
-                  <span>Other (Please specify and we will review):  </span>
-                </label>
-
-              </div>
-            </div>
-            <input type="text" className="form-control" /> */}
           </div>
         </form>
       </section>

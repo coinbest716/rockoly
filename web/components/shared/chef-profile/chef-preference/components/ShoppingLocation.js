@@ -1,35 +1,49 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
-const ShoppingLocation = (props) => {
-
+const ShoppingLocation = props => {
   const [isChecked, setIsChecked] = useState(false);
 
-  useEffect(()=>{
-    setIsChecked(props.shopYn)
-  },[props.shopYn])
+  useEffect(() => {
+    setIsChecked(props.shopYn);
+  }, [props.shopYn]);
 
   function onSelectCheckbox() {
-    setIsChecked(!isChecked)
+    setIsChecked(!isChecked);
     if (props.onValuesChange) {
-      props.onValuesChange(!isChecked,'shop')
+      props.onValuesChange(!isChecked, 'shop');
     }
   }
 
   try {
     return (
-      <section className="products-collections-area ptb-40 ProfileSetup">
+      <section className="products-collections-area ptb-40 ProfileSetup" id="sction-card-modal">
         <form className="login-form">
-          <div>
-            <label>
-              <h5 style={{ textAlign: 'center' }}>Shopping Location</h5>
-            </label>
+          <div style={{ paddingLeft: '2%' }}>
+            {/* <label> */}
+            <h5
+              style={{
+                color: '#08AB93',
+                fontSize: '20px',
+                textDecoration: 'underline',
+                fontWeight: 400,
+                paddingBottom: '1%',
+              }}
+            >
+              Shopping Location
+            </h5>
+            {/* </label> */}
+
             <p style={{ fontSize: '17px' }}>
-              We don't charge the customer for the ingredients. Will you be able to pickup the
+              We don't charge the customer for the ingredients. Will you be able to pick up the
               ingredients for the customer at the store of their choice and provide the customer
-              with the food bill.
+              with ingredients receipt.
             </p>
             <label>
-              <div className="row" id="availabilityRow" style={{ width: '120%', marginLeft: '2%' }}>
+              <div
+                className="row"
+                id="availabilityRow"
+                style={{ width: 'max-content', display: 'flex', marginLeft: '2%' }}
+              >
                 {/* {console.log("res",res)} */}
                 <div>
                   <div className="buy-checkbox-btn" id="checkBoxView">
@@ -40,12 +54,10 @@ const ShoppingLocation = (props) => {
                         type="checkbox"
                         checked={isChecked}
                         onChange={event => {
-                          onSelectCheckbox()
+                          onSelectCheckbox();
                         }}
                       />
-                      <label className="cbx"
-                        htmlFor="agree"
-                      >
+                      <label className="cbx" htmlFor="agree">
                         <span>
                           <svg width="12px" height="10px" viewBox="0 0 12 10">
                             <polyline points="1.5 6 4.5 9 10.5 1"></polyline>

@@ -80,7 +80,7 @@ export const FavoriteChef = props => {
   // unfollow favorite chef
   const [updatefollowunfollowlist, { data }] = useMutation(UPDATE_FOLLOW_UNFOLLOW_LIST, {
     onCompleted: data => {
-      toastMessage('success', 'Removed from favourite list');
+      toastMessage('success', 'Removed from Favorite list');
     },
     onError: err => {
       toastMessage('error', err);
@@ -179,12 +179,12 @@ export const FavoriteChef = props => {
 
       <ToastContainer transition={Slide} />
 
-      {favoriteChefData &&
+      {favoriteChefData && favoriteChefData.length > 0 ? (
         favoriteChefData.map(favoriteChef => {
           if (isObjectEmpty(favoriteChef)) {
             return (
               <div
-                className="col-lg-3 col-sm-6 col-md-4 col-6 products-col-item favoritechef"
+                className="col-lg-3 col-sm-12 col-md-4  products-col-item favoritechef"
                 key={favoriteChef.customerFollowChefId}
               >
                 <div
@@ -222,24 +222,24 @@ export const FavoriteChef = props => {
                       ) &&
                       favoriteChef.chefProfileByChefId.chefProfileExtendedsByChefId.nodes.map(
                         chefaddress => {
+                          console.log('chefaddress',chefaddress)
                           return (
                             <div key={chefaddress.chefProfileExtendedId}>
                               {isObjectEmpty(chefaddress) &&
                               isStringEmpty(chefaddress.chefAddrLine2) ? (
-                                <div className="address">{chefaddress.chefAddrLine2}</div>
+                                <div className="address">{chefaddress.chefCity}</div>
                               ) : (
                                 <div>-----</div>
                               )}
 
-                              {isObjectEmpty(chefaddress) &&
-                                isStringEmpty(chefaddress.pricePerHour) &&
+                              { isStringEmpty(chefaddress.chefPricePerHour) &&
                                 isStringEmpty(chefaddress.chefPriceUnit) &&
-                                chefaddress.pricePerHour !== 0 && (
+                                chefaddress.chefPricePerHour !== 0 && (
                                   <p className="chefprice">
                                     {chefaddress.chefPriceUnit.toUpperCase() === 'USD'
                                       ? '$'
                                       : chefaddress.chefPriceUnit}
-                                    {chefaddress.pricePerHour} / Hour
+                                    {chefaddress.chefPricePerHour}
                                   </p>
                                 )}
                             </div>
@@ -283,13 +283,14 @@ export const FavoriteChef = props => {
                     favoriteChef.chefProfileByChefId.totalReviewCount > 0 ? (
                       <div>{favoriteChef.chefProfileByChefId.totalReviewCount} Reviews</div>
                     ) : (
-                      <div>No Reviews</div>
+                      <div>New Chef</div>
                     )}
                     {/* <br />{' '} */}
 
                     <br />
                     {/* {!isStringEmpty(chef.pricePerHour) && <p className="emptyprice">-----</p>}
                     {isStringEmpty(chef.pricePerHour) && chef.pricePerHour === 0 && <p>-----</p>} */}
+                    {favoriteChef.chefProfileByChefId.totalReviewCount > 0 && (
                     <div className="rating" id="ratingContainer">
                       <Rating
                         initialRating={
@@ -323,6 +324,7 @@ export const FavoriteChef = props => {
                         </i>
                       )}
                     </div>
+                    )}
                     {/* {chef.totalReviewCount > 0 ?
                       <div>
                         {chef.totalReviewCount} Reviews
@@ -347,13 +349,33 @@ export const FavoriteChef = props => {
               </div>
             );
           }
-        })}
+        })
+      ) : (
+        <NoData />
+        // <div
+        //   class="nodata-content"
+        //   style={{
+        //     display: 'flex',
+        //     flexDirection: 'column',
+        //     justifyContent: 'center',
+        //     alignItems: 'center',
+        //     paddingBottom: '3%',
+        //   }}
+        // >
+        //   <img
+        //     src={s.noDataImage}
+        //     alt="image"
+        //     className="icon-images"
+        //     style={{ width: '185px', height: '185px', color: 'gray' }}
+        //   />
+        //   <h4 style={{ color: '#08AB93' }}>{s.NO_DATA_AVAILABLE}</h4>
+        // </div>
+      )}
       {favoriteChefData.length === 0 && (
         <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
           {/* <Loader /> */}
         </div>
       )}
-      {favoriteChefData === null && favoriteChefData.length === 0 && <NoData />}
       {favoriteCount > firstParams && (
         <div className="loadmore-button">
           <a

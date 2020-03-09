@@ -37,10 +37,10 @@
     margin-right: 8px;
     color: #08AB93;
 }
-#__next{
-    overflow-x:hidden;
-    height: 100vh;
-}
+// #__next{
+//     overflow-x:hidden;
+//     height: 100vh;
+// }
 .location-text{
     font-size:58px;
     font-weight: bolder;
@@ -66,4 +66,17 @@
         // justify-content: center;
         // top:-10px !important;
     }
+}
+#home-screen-view{
+    // height: calc(100vh - 28vh);
+    overflow: hidden;
+    // width: calc(100% - 36px);
+}
+@media(max-width:1075px){
+#home-search-button{
+    margin-right: 12px;
+}
+}
+.homePage .main-banner.item-bg1{
+    height: calc(100vh - 68px);
 }

@@ -29,7 +29,7 @@ const ChefBookingStatus = props => {
     <React.Fragment>
       <div
         className="booking-status-view"
-        style={{ width: '100%', display: 'flex', alignItems: 'center' }}
+        style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
       >
         <div>
           {(status === S.REFUND_AMOUNT_SUCCESS || status === S.REFUND_AMOUNT_FAILED) && (
@@ -48,8 +48,11 @@ const ChefBookingStatus = props => {
             </div>
           )}
           {status === S.CANCELLED_BY_CHEF && <div className="infoText">{S.YOU_HAVE_CANCELLED}</div>}
+          {status === S.CHEF_REQUESTED_AMOUNT && (
+            <div className="infoText">{S.CHEF_REQUESTED_AMOUNT_TEXT_CHEF}</div>
+          )}
           {status === S.COMPLETED ? (
-            <div className="infoText">{S.COMPLETED_TEXT}</div>
+            <div className="infoText">{S.NEW_COMPLETED_TEXT}</div>
           ) : (
             <div>
               {status === S.AMT_TRANSFER_SUCCESS ? (

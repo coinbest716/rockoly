@@ -15,11 +15,10 @@ export default function ChatViewScreen(props) {
   );
 
   function handleChatListId(idValue) {
+    console.log('daslkhlklk1jk2j3123', idValue);
     setChatListId(idValue);
   }
-  function handleChatDetailScreen() {
-    
-  }
+  function handleChatDetailScreen() {}
 
   try {
     return (

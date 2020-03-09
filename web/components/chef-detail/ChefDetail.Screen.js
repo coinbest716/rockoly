@@ -6,11 +6,10 @@ import DetailsTab from './components/detailsTab/DetailsTab';
 import Loader from '../Common/loader';
 
 const ChefDetail = props => {
-
   const [isClickBooking, setIsClickBooking] = useState(null);
-  const [isEvent,setEvent] = useState();
-  
-  function onClickBooking(event,clickBook){
+  const [isEvent, setEvent] = useState();
+
+  function onClickBooking(event, clickBook) {
     setIsClickBooking(clickBook);
     setEvent(event);
   }
@@ -18,17 +17,21 @@ const ChefDetail = props => {
     return (
       <React.Fragment>
         <Page>
-          <section className="products-details-area pt-60">
-            <div className="container">
+          <section className="products-details-area pt-30">
+            <div className="container" id="chef-detail-screen" style={{ paddingTop: '2%' }}>
               <div className="row">
                 {/* {!props.chefIdToDisplay.chefId &&
                      setLoading(true) 
                 } */}
                 <ChefImage chefId={props.chefIdToDisplay.chefId} />
-                <ChefContent chefId={props.chefIdToDisplay.chefId} onClickBooking={onClickBooking}/>
-                <DetailsTab chefId={props.chefIdToDisplay.chefId} 
-                isClickBooking={isClickBooking} 
-                event = {isEvent}
+                <ChefContent
+                  chefId={props.chefIdToDisplay.chefId}
+                  onClickBooking={onClickBooking}
+                />
+                <DetailsTab
+                  chefId={props.chefIdToDisplay.chefId}
+                  isClickBooking={isClickBooking}
+                  event={isEvent}
                 />
               </div>
             </div>

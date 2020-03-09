@@ -39,7 +39,7 @@ export default function ChatListScreen(props) {
   const [state, setState] = useContext(AppContext);
   const [userId, setUserId] = useState('');
   const [totalCount, setTotalCount] = useState(0);
-  const [firstNum, setFirstNum] = useState(4);
+  const [firstNum, setFirstNum] = useState(15);
 
   //Fetching favorite list of particular customer
 
@@ -138,12 +138,23 @@ export default function ChatListScreen(props) {
   }
 
   function stringTrim(value) {
-    if (value.length > 10) {
-      let res = value.slice(0, 15);
-      let newValue = res + '...';
-      return newValue;
+    if (value) {
+      // todo: Dhilipan the json parse throws error
+      // let txt = JSON.parse(value);
+      let txt = value;
+      if (txt != null && txt != '') {
+        if (txt.length > 10) {
+          let res = txt.slice(0, 15);
+          let newValue = res + '...';
+          return newValue;
+        } else {
+          return value;
+        }
+      } else {
+        return '';
+      }
     } else {
-      return value;
+      return '';
     }
   }
 
@@ -151,77 +162,123 @@ export default function ChatListScreen(props) {
     setFirstNum(firstNum + 4);
   }
 
+  function chatDataParser(value) {
+    try {
+      let newValue = JSON.parse(value);
+      return newValue;
+    } catch (e) {
+      return value;
+    }
+  }
+
   function chatListRender() {
-    if (chatList && chatList.length > 0) {
-      return chatList.map((res, index) => {
-        let chefBookingDetails = JSON.parse(res.conversationDetails);
-        return (
-          <div style={listItemStyle(res)}>
-            <div
-              onClick={() => chatListPress(res, index)}
-              style={{ display: 'flex', borderBottom: '1px solid lightgray' }}
-            >
-              <div className="" style={{ height: '60px', width: '60px' }}>
-                <img
-                  src={
-                    res.conversationPic
-                      ? res.conversationPic
-                      : require('../../../images/mock-image/default_chef_profile.png')
-                  }
-                  alt="image"
-                  style={{ borderRadius: '50%' }}
-                />
-              </div>
+    if (chatList) {
+      if (chatList && chatList.length > 0) {
+        return chatList.map((res, index) => {
+          let chefBookingDetails = JSON.parse(res.conversationDetails);
+          return (
+            <div style={listItemStyle(res)}>
               <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  width: '100%',
-                }}
+                onClick={() => chatListPress(res, index, chefBookingDetails)}
+                style={{ borderBottom: '1px solid lightgray' }}
               >
-                <b style={{ marginLeft: '14px' }}>{res.conversationName}</b>
-                <div style={{ marginLeft: '11%' }}>
-                  {res &&
-                    res.conversationLastMessage &&
-                    stringTrim(JSON.parse(res.conversationLastMessage))}
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <div className="" style={{ display: 'flex' }}>
+                    <img
+                      src={
+                        res.conversationPic
+                          ? res.conversationPic
+                          : require('../../../images/mock-image/default_chef_profile.png')
+                      }
+                      alt="image"
+                      style={{ borderRadius: '50%', width: '50px', height: '50px' }}
+                    />
+                    {res && (res.conversationName != '' || res.conversationName != null) && (
+                      <b style={{ marginLeft: '14px' }}>{res.conversationName}</b>
+                    )}
+
+                    {res &&
+                      (res.conversationLastMessage != '' && res.conversationLastMessage != null) &&
+                      (stringTrim(res.conversationLastMessage) != '' &&
+                        stringTrim(res.conversationLastMessage) == null && (
+                          <div style={{ marginLeft: '11%' }}>
+                            {stringTrim(res.conversationLastMessage)}
+                          </div>
+                        ))}
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    {res.conversationLastMessageTimestamp
+                      ? fromNow(res.conversationLastMessageTimestamp)
+                      : fromNow(res.conversationDate)}
+                  </div>
                 </div>
+
                 {chefBookingDetails &&
                   chefBookingDetails.chef_booking_from_time &&
                   chefBookingDetails.chef_booking_to_time && (
-                    <div style={{ width: '190%', fontSize: '13px', marginLeft: '11%' }}>
+                    <div
+                      style={{
+                        position: 'relative',
+                        left: '35px',
+                        bottom: '25px',
+                        fontSize: '13px',
+                        marginLeft: '11%',
+                        paddingRight: '10%',
+                      }}
+                    >
                       {getDateWithTimeLocal(chefBookingDetails.chef_booking_from_time)} {' / '}
                       {getDateWithTimeLocal(chefBookingDetails.chef_booking_to_time)}
                     </div>
                   )}
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
-                {res.conversationLastMessageTimestamp
-                  ? fromNow(res.conversationLastMessageTimestamp)
-                  : fromNow(res.conversationDate)}
+                {res &&
+                  res.conversationRefTableName &&
+                  res.conversationRefTableName === 'chef_customer_conversation' && (
+                    <div
+                      style={{
+                        position: 'relative',
+                        left: '35px',
+                        bottom: '25px',
+                        fontSize: '13px',
+                        marginLeft: '11%',
+                        paddingRight: '10%',
+                        overflow: 'hidden',
+                        whiteSpace: 'nowrap',
+                        textOverflow: 'ellipsis',
+                      }}
+                    >
+                      {chatDataParser(res.conversationLastMessage)}
+                    </div>
+                  )}
               </div>
             </div>
+          );
+        });
+      } else if (chatList && chatList.length === 0) {
+        return (
+          <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>No data</div>
+        );
+      } else if (chatList === null) {
+        return (
+          <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+            <Loader />;
           </div>
         );
-      });
-    } else if (chatList && chatList.length === 0) {
+      }
+    } else {
       return (
         <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>No data</div>
       );
-    } else if (chatList === null) {
-      return (
-        <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-          <Loader />;
-        </div>
-      );
     }
   }
-  function chatListPress(idValue, index) {
+
+  function chatListPress(idValue, index, chefBookingDetails) {
     let value = JSON.parse(idValue.conversationDetails);
     let val = {
       conversationId: idValue.conversationId,
       fullName: idValue.conversationName,
       pic: idValue.conversationPic,
-      status: value.chef_booking_status_id.trim(),
+      status: value && value.chef_booking_status_id ? value.chef_booking_status_id.trim() : '',
+      createdAt: chefBookingDetails.createdAt,
     };
     setSelectedItem(index);
     props.handleChatListId(val);
@@ -253,7 +310,9 @@ export default function ChatListScreen(props) {
             }}
           >
             {chatList && chatList.length > 0 && totalCount > chatList.length && (
-              <div onClick={() => onLoadMoreButtonClick()}>Load More</div>
+              <button className="btn btn-primary" onClick={() => onLoadMoreButtonClick()}>
+                Load More
+              </button>
             )}
           </div>
         </div>

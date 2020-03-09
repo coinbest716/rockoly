@@ -5,8 +5,8 @@ import Router from 'next/router';
 import { ToastContainer } from 'react-toastify';
 import { useQuery, useLazyQuery, useSubscription, useMutation } from '@apollo/react-hooks';
 import gql from 'graphql-tag';
-import { firebase, auth,app } from '../../../config/firebaseConfig';
 import * as gqlTag from '../../../common/gql';
+import { firebase, auth,app } from '../../../config/firebaseConfig';
 import n from '../../../components/routings/routings';
 import { menuOptions, rightSideMenuOptions } from './const/MenuOptions';
 import { toastMessage, renderError, success, error } from '../../../utils/Toast';
@@ -20,7 +20,8 @@ import {
 } from '../../../utils/UserType';
 import * as util from '../../../utils/checkEmptycondition';
 import S from './Strings';
-import { NavigateToProfileSetup, NavigateToHome, NavigateToIntro } from './Navigation';
+import { NavigateToProfileSetup, NavigateToHome, NavigateToIntro,NavigateToRequest,NavigateToRegisterScreen, NavigateToLogin } from './Navigation';
+import { createBrowserHistory } from 'history';
 
 const chefProfilePicture = gqlTag.query.chef.profileByIdGQLTAG;
 const customerProfilePicture = gqlTag.query.customer.profileByIdGQLTAG;
@@ -67,7 +68,9 @@ const GET_PROFILE_DATA = gql`
 
 const MegaMenu = () => {
   // Declare a new state variable
+  const [isUIRendered, setIsUIRendered] = useState(false);
   const [collapsed, setCollapsed] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(null);
   const [userRole, setUserRole] = useState(false);
   const [selectedMenu, setSelectedMenu] = useState();
   const [chefIdValue, setChefId] = useState(null);
@@ -79,9 +82,17 @@ const MegaMenu = () => {
   const [chefUnreadCount, setChefUnreadCount] = useState();
   const [customerunreadCount, setCustomerUnreadCount] = useState();
   const [loggedInType,setLoggedInType] = useState();
+  const [url,setUrl] = useState('');
+
+  const classOne = collapsed ? 'collapse navbar-collapse' : 'collapse navbar-collapse show';
+  const classTwo = collapsed
+    ? 'navbar-toggler navbar-toggler-right collapsed'
+    : 'navbar-toggler navbar-toggler-right';
+
   // console.log('state123', state)
   const [getChefData, { data,error}] = useLazyQuery(CHEF_DISPLAY_PROFILE_PICTURE, {
     variables: { chefId: chefIdValue },
+    fetchPolicy: 'network-only',
   });
   if(error){
     toastMessage('error',error)
@@ -89,6 +100,7 @@ const MegaMenu = () => {
 
   const [getCustomer, getCustomerData] = useLazyQuery(CUSTOMER_DISPLAY_PROFILE_PICTURE, {
     variables: { customerId: customerIdValue },
+    fetchPolicy: 'network-only',
   });
 
   const [getChefIds, chefData] = useLazyQuery(GET_PROFILE_DATA);
@@ -102,11 +114,14 @@ const MegaMenu = () => {
             chefId: jsonObj.chef.chefId,
           });
         }
+        else{
+          getCustomer();
+        }
       }
     },
-    onError: err => {
-      toastMessage(renderError, err.message);
-    },
+    // onError: err => {
+    //   toastMessage(renderError, err.message);
+    // },
   });
 
 
@@ -179,6 +194,7 @@ const MegaMenu = () => {
       if (checkPath === false) {
         clearLocalStorage();
       }
+      setIsUIRendered(true);
     }
   }, [Router, state]);
 
@@ -292,6 +308,77 @@ const MegaMenu = () => {
       }
     }
   }, [totalCountValue]);
+
+
+  // watch the field values
+  useEffect(() => {
+    if(userRole === chef){
+      if(ProfileDetails!==null){
+        // Get saved screens from db
+        if(ProfileDetails.hasOwnProperty('chefUpdatedScreens')){
+          let screensValue = 
+          ProfileDetails.chefUpdatedScreens &&
+          ProfileDetails.chefUpdatedScreens.length > 0 ?
+          ProfileDetails.chefUpdatedScreens : [];
+          StoreInLocal('SharedProfileScreens', screensValue);
+        }
+        if(ProfileDetails.hasOwnProperty('isRegistrationCompletedYn')){
+          if(ProfileDetails.isRegistrationCompletedYn==false && roleType !== 'Admin'){
+            NavigateToRegisterScreen();
+          }
+        }
+      }
+    }else{
+      if(customerProfileDetails!==null){
+        // Get saved screens from db
+        if(customerProfileDetails.hasOwnProperty('customerUpdatedScreens')){
+          let screensValue = 
+          customerProfileDetails.customerUpdatedScreens &&
+          customerProfileDetails.customerUpdatedScreens.length > 0 ?
+          customerProfileDetails.customerUpdatedScreens : [];
+          StoreInLocal('SharedProfileScreens', screensValue);
+        }
+        if(customerProfileDetails.hasOwnProperty('isRegistrationCompletedYn')){
+          if(customerProfileDetails.isRegistrationCompletedYn==false && roleType !== 'Admin'){
+            NavigateToRegisterScreen();
+          }
+        }
+      }
+    }
+  }, [ProfileDetails,customerProfileDetails]);
+
+    //Get url data for check admin flow
+    useEffect(() => {
+      let user_role = localStorage.getItem('user_role');
+      
+      let windows = window.location;  
+      let url = window.location.href;
+      // console.log('daskjkjhkjhkjhkj123123', windows, state.role, user_role);
+      if(user_role === null || user_role === undefined){
+        if(windows.pathname === '/booking-detail'){
+          StoreInLocal('redirected_path', windows.search);
+          NavigateToLogin();
+        }
+      }
+      // if()
+      if (url) {
+        setUrl(url);
+      }
+      const history = createBrowserHistory();
+      const path = (/#!(\/.*)$/.exec(window.location) || [])[1];
+      if (path) {
+        Router.replace(path);
+      }
+    });
+
+    useEffect(() => {
+      if ((url === 'http://localhost:3000/' || url === 'https://webdev.neosme.com/') && 
+      roleType === 'Admin') {
+        onLogout();
+      }
+    }, [url, roleType]);
+ 
+
   function toggleNavbar() {
     setCollapsed(!collapsed);
   };
@@ -321,7 +408,12 @@ const MegaMenu = () => {
         .then(async () => {
           // let keysToRemove = ['user_ids', 'selected_menu'];
           await localStorage.clear();
-          toastMessage('success', 'Logged out Successfully');
+          if ((url === 'http://localhost:3000/' || url === 'https://webdev.neosme.com/') && 
+          roleType === 'Admin') {
+            setRoleType('');
+          } else {
+            toastMessage('success', 'Logged out Successfully');
+          }
           setTimeout(async function () {
             await StoreInLocal('chef_loggedIn', false);
             await StoreInLocal('selected_menu', 'home_page');
@@ -371,10 +463,13 @@ const MegaMenu = () => {
         chefData.data.chefProfileByChefId.chefProfileExtendedsByChefId.nodes[0]
           .isIntroSlidesSeenYn === false
       ) {
-        NavigateToIntro();
+        // NavigateToIntro();
+        // reload();
       } else {
-        NavigateToHome();
+        NavigateToRequest();
+        // reload();
       }
+
     }
   }, [chefData]);
 
@@ -401,7 +496,12 @@ const MegaMenu = () => {
             StoreInLocal('user_ids', customerRes);
             StoreInLocal('user_role', customer);
             StoreInLocal('selected_menu', 'home_page');
-            NavigateToHome();
+            if(window.location.pathname === '/'){
+            window.location.reload();
+            }
+            else{
+              NavigateToHome();
+            }
           })
           .catch(error => {
             toastMessage(renderError, error.message);
@@ -422,7 +522,12 @@ const MegaMenu = () => {
             getChefIds({
               variables,
             });
-            NavigateToHome();
+            if(window.location.pathname === '/'){
+              window.location.reload();
+              }
+              else{
+                NavigateToHome();
+              }
           })
           .catch(error => {
             toastMessage(renderError, error.message);
@@ -461,14 +566,12 @@ const MegaMenu = () => {
       </li>
     );
   };
-  const classOne = collapsed ? 'collapse navbar-collapse' : 'collapse navbar-collapse show';
-  const classTwo = collapsed
-    ? 'navbar-toggler navbar-toggler-right collapsed'
-    : 'navbar-toggler navbar-toggler-right';
+
   return (
     <React.Fragment>
       <ToastContainer />
       <div className="navbar-area">
+      <div className="col-lg-12 col-md-12 col-sm-12" id="header-content">
         <div id="navbar" className="comero-nav">
           <div className="container" id="container-view">
             <nav className="navbar navbar-expand-md navbar-light">
@@ -482,6 +585,7 @@ const MegaMenu = () => {
                 <Link href="/">
                   <a className="navbar-brand" style={{ display: 'flex', width: '85px' }}>
                     <img
+                   
                       src={require("../../../images/mock-image/rockoly-logo.png")}
                       alt="image"
                       className="logo-image" style={{ width: '50%', height: '10%' }}
@@ -492,20 +596,23 @@ const MegaMenu = () => {
                 </Link>
               </div>
               {/* menu button option for mobile view */}
-              <button
-                onClick={toggleNavbar}
-                className={classTwo}
-                type="button"
-                data-toggle="collapse"
-                data-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent"
-                aria-expanded="false"
-                aria-label="Toggle navigation"
-              >
-                <span className="navbar-toggler-icon"></span>
-              </button>
+              {isUIRendered === true && (
+                <button
+                  onClick={toggleNavbar}
+                  className={classTwo}
+                  type="button"
+                  data-toggle="collapse"
+                  data-target="#navbarSupportedContent"
+                  aria-controls="navbarSupportedContent"
+                  aria-expanded="false"
+                  aria-label="Toggle navigation"
+                >
+                  <span className="navbar-toggler-icon"></span>
+                </button>
+              )}
               {/*Menus*/}
-              <div className={classOne} id="navbarSupportedContent">
+              {isUIRendered === true && (
+                <div className={classOne} id="navbarSupportedContent">
                 <ul className="navbar-nav" id="menu-titles">
                   {roleType !== 'Admin' && menuOptions.map((res, index) => {
                     // show menu based on chef/customer login
@@ -554,18 +661,18 @@ const MegaMenu = () => {
                   {isStringEmpty(userRole) === true && roleType === 'Admin' && (
                     <a className="option-item" id="unselectedMenuStyle" onClick={() => onLogout()}>
                       Log Out
-              </a>
+                    </a>
                   )}
                 </div>
                 {isStringEmpty(userRole) === true && roleType !== 'Admin' && (
                   <div className="row" id="profile-align">
                     <div id="icons">
                       {/* favorite icon */}
-                      {userRole !== chef &&
-                        <a href={n.FAVORITE_CHEFS_LIST} className="notificationContainer" id="icon-view">
-                          <p className="far fa-heart" id="notificationIcon" onClick={() => clearLocalStorage()}></p>
-                        </a>
-                      }
+                      {/* {userRole !== chef && */}
+                        {/* <a href={n.CHAT} className="notificationContainer" id="icon-view">
+                          <p className="far fa-comment" id="notificationIcon" onClick={() => clearLocalStorage()}></p>
+                        </a> */}
+                      {/* } */}
                       {/* notification icon customerProfileDetails*/}
                       <a href={n.NOTIFICATION} className="notificationContainer" id="icon-view">
                         <p className="far fa-bell" id="notificationIcon" onClick={() => clearLocalStorage()}></p>
@@ -606,11 +713,12 @@ const MegaMenu = () => {
                                 height="50"
                                 data-toggle="dropdown"
                               />
+                              <div style={{display:'flex',justifyContent:'flex-end'}}>
                               <div className="dropdown-content" onClick={() => clearLocalStorage()}>
                                 <a href={`${n.PROFILE}?fromRegister:false`}>Edit Profile</a>
                                 <a href={n.SETTINGS}>Settings</a>
                                 <a href={n.CHAT}>Inbox</a>
-                                <a style={{ cursor: 'pointer' }} onClick={() => onSwitchClick()}
+                                <a style={{ cursor: 'pointer' }} onClick={(e) => onSwitchClick()}
                                   className="pointer">{userRole === chef
                                     ? S.SWITCH_USER_CUSTOMER
                                     : S.SWITCH_USER_CHEF}</a>
@@ -622,15 +730,16 @@ const MegaMenu = () => {
                               </a>
                               </div>
                             </div>
+                            </div>
                           </div>
-                          <div className="col-sm-3" id="userName">
+                          <div className="col-lg-3 col-md-12 col-sm-12" id="userName">
                             <p >{ProfileDetails.chefFirstName}</p>
                           </div>
                         </div>
                       }
                       {customerProfileDetails &&
                         <div className="row">
-                          <div className="col-sm-6">
+                          <div className="col-lg-6">
                             <div className="dropdown">
                               <img src={
                                 customerProfileDetails.customerPicId ?
@@ -646,10 +755,11 @@ const MegaMenu = () => {
                               />
                               <div>
                               </div>
+                              <div style={{display:'flex',justifyContent:'flex-end'}}>
                               <div className="dropdown-content" onClick={() => clearLocalStorage()}>
                                 <a href={`${n.PROFILE}?fromRegister:false`}>Edit Profile</a>
                                 <a href={n.SETTINGS}>Settings</a>
-                                <a href={n.CHAT}>Inbox</a>
+                                <a href={n.FAVORITE_CHEFS_LIST}>Favorite Chefs</a>
                                 <a onClick={() => onSwitchClick()} style={{ cursor: 'pointer' }} className="pointer">{userRole === chef
                                   ? S.SWITCH_USER_CUSTOMER
                                   : S.SWITCH_USER_CHEF}</a>
@@ -659,6 +769,7 @@ const MegaMenu = () => {
                                 <a className="logout" onClick={() => onLogout()}>
                                   Log Out
                               </a>
+                              </div>
                               </div>
                             </div>
                           </div>
@@ -671,8 +782,10 @@ const MegaMenu = () => {
                   </div>
                 )}
               </div>
+              )}
             </nav>
           </div>
+        </div>
         </div>
       </div>
     </React.Fragment>

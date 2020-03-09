@@ -3089,20 +3089,20 @@ padding:0px !important;
   border-radius: 5px;
   cursor: pointer;
   background: azure;
-  height: 75vh;
+  height: 465px;
   overflow-y: auto;
   box-shadow: 2px 2px 2px 2px lightgrey;
 }
 
 #chat-text-view{
 //     // background: azure;
-  height: 52vh;
-  overflow-y: auto;
-  position: relative;
+//   height: 52vh;
+//   overflow-y: auto;
+height: 350px;
 }
 #fullchat-view{
     padding: 0px !important;
-    height: 75vh;
+    // height: 75vh;
     box-shadow: 2px 2px 2px 2px lightgrey;
 }
 #chat-text-view::-webkit-scrollbar {
@@ -3151,7 +3151,7 @@ padding:0px !important;
 .chat-input-style{
     height: auto;
     z-index: 999;
-    position: absolute !important;
+    position: relative !important;
     top:81% !important;
 }
 .input-method{
@@ -7796,13 +7796,14 @@ Go Top CSS
 
 @media(max-width:990px){
     #fullchat-view{
-        height: 58vh;
+        // height: 58vh;
         max-width: 100% !important;
         margin-left: 0px !important;
         // box-shadow: none !important;
     }
     #chat-text-view{
         height: 42vh !important;
+        overflow: auto;
     }
 }
 @media(max-width:750px){

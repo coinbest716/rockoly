@@ -36,18 +36,16 @@ export default function Feedback(props) {
   const [chefId, setChefId] = useState('');
 
   //createFeedbackInfo
-  const [createFeedbackInfo, { feedbackData,error }] = useMutation(CREATE_FEEDBACK_DETAILS, {
+  const [createFeedbackInfo, { feedbackData }] = useMutation(CREATE_FEEDBACK_DETAILS, {
     onCompleted: feedbackData => {
       toastMessage(success, S.SUCCESS_MSG);
       Router.push(n.HOME);
     },
     onError: err => {
-      toastMessage(renderError, err.message);
+      toastMessage(error, err.message);
     },
   });
-  if(error){
-    toastMessage('error',error)
-  }
+
   useEffect(() => {
     if (props && props.bookinHistoryId) {
       let name = props.bookinHistoryId.name ? props.bookinHistoryId.name : '';
@@ -58,8 +56,11 @@ export default function Feedback(props) {
       setCustomerId(props.bookinHistoryId.customerId);
     }
   }, []);
-  function complimentClick(data) {
-    setCompliment(_.pull(compliment, data));
+  function complimentClick(index) {
+    if (index > -1) {
+      compliment.splice(index, 1);
+      setCompliment(compliment);
+    }
   }
   function clearAll() {
     setCompliment([]);
@@ -78,7 +79,6 @@ export default function Feedback(props) {
         reviewRefTablePkId: historyId,
         reviewRefTableName: 'chef_booking_history',
       };
-      console.log('varibale', variables);
       await createFeedbackInfo({
         variables,
       });
@@ -91,9 +91,11 @@ export default function Feedback(props) {
     const str = complimentText.split(',');
     if (str.length === 2) {
       const temp = compliment;
-      temp.push(str[0]);
-      setCompliment(temp);
-      setComplimentText('');
+      if (str[0]) {
+        temp.push(str[0]);
+        setCompliment(temp);
+        setComplimentText('');
+      }
     }
   }, [complimentText]);
 
@@ -112,9 +114,9 @@ export default function Feedback(props) {
   }
   return (
     <section className="login-area ptb-60">
-      <div className="container">
+      <div className="container" id="feedback-content-view">
         <div className="row" id="FormRow">
-          <div className="col-sm-6">
+          <div className="col-sm-12 col-md-12 col-lg-6">
             <div className="login-content">
               <div className="section-title">
                 <h2>{S.FEEDBACK}</h2>
@@ -127,16 +129,18 @@ export default function Feedback(props) {
                 </h2>
               </div>
 
-              <div className="login-form">
-                <div>
-                  <label className="headerText">{S.GIVE_STAR_RATINGS}</label>
+              <div className="login-form" id="login-form-view">
+                <div className="rating-content" style={{ display: 'flex' }}>
+                  <label className="headerText">{S.GIVE_STAR_RATINGS} :</label>
                   <div className="product-review">
-                    <div className="rating" id="ratingContainer">
+                    <div className="rating" id="rating-container-view">
                       <Rating
                         initialRating={starRating}
                         onClick={event => setStarRating(event)}
                         className="ratingView"
-                        emptySymbol={<img src={S.EMPTY_STAR} id="emptyStar" className="rating" />}
+                        emptySymbol={
+                          <img src={S.EMPTY_STAR} id="empty-star-view" className="rating" />
+                        }
                         fullSymbol="fa fa-star"
                         fractions={2}
                       />
@@ -144,25 +148,32 @@ export default function Feedback(props) {
                   </div>
                 </div>
                 <div>
-                  <label className="complimentView">{S.GIVE_COMPLIMENT}</label>
                   <div className="woocommerce-sidebar-area">
                     <div className="collapse-widget filter-list-widget open">
                       <div className="selected-filters-wrap-list block">
-                        <ul>
-                          {compliment.length > 0 ? (
-                            compliment.map((data, key) => {
-                              return (
-                                <li key={key}>
-                                  <Link href="#">
-                                    <a onClick={() => complimentClick(data)}>{data}</a>
-                                  </Link>
-                                </li>
-                              );
-                            })
-                          ) : (
-                            <div className="complimentText">{S.NO_COMPLIMENT}</div>
-                          )}
-                        </ul>
+                        <div
+                          className="compliment-content"
+                          style={{ display: 'flex', alignItems: 'center' }}
+                        >
+                          <label className="complimentView" style={{ marginBottom: '0px' }}>
+                            {S.GIVE_COMPLIMENT} :
+                          </label>
+                          <ul style={{ paddingTop: '0px' }}>
+                            {compliment.length > 0 ? (
+                              compliment.map((data, key) => {
+                                return (
+                                  <li key={key}>
+                                    <Link href="#">
+                                      <a onClick={() => complimentClick(key)}>{data}</a>
+                                    </Link>
+                                  </li>
+                                );
+                              })
+                            ) : (
+                              <div className="complimentText">{S.NO_COMPLIMENT}</div>
+                            )}
+                          </ul>
+                        </div>
                         <div className="form-group">
                           <input
                             type="text"
@@ -186,8 +197,9 @@ export default function Feedback(props) {
                   </div>
                 </div>
                 <div className="form-group">
-                  <label className="headerText">{S.GIVE_YOUR_REVIEW_TITLE}</label>
+                  <label className="headerText">{S.GIVE_YOUR_REVIEW_TITLE} :</label>
                   <textarea
+                    style={{ border: '1px solid', paddingTop: 10, paddingBottom: 10 }}
                     className={S.FORM_CONTROL}
                     rows="5"
                     placeholder={S.REVIEW_PLACE_HOLDER}
@@ -195,8 +207,13 @@ export default function Feedback(props) {
                     value={review}
                   />
                 </div>
-                <div>
-                  <button type="button" className="btn btn-primary" onClick={() => OnSubmitClick()}>
+                <div style={{ display: 'flex', justifyContent: 'center', paddingBottom: '5%' }}>
+                  <button
+                    style={{ width: 'fit-content' }}
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => OnSubmitClick()}
+                  >
                     {S.SUBMIT}
                   </button>
                 </div>

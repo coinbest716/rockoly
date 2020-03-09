@@ -4,7 +4,7 @@
   }
 
   .date {
-    color: brown;
+    color: #08AB93;
     font-size: 15px;
   }
 
@@ -25,7 +25,7 @@
     // position: relative !important;
     // background-color: #e3fd90;
     margin: 2%;
-    border: 5px solid #e3fd90;
+    border: 5px solid #08AB93;
     border-radius: 25px;
     // border-top: 1px dashed #ff0000 !important;
     box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
@@ -250,5 +250,16 @@
   .ViewDetail {
     width: 140px;
 
+  }
+}
+.notification-containar{
+  box-shadow: 0 2px 48px 0 rgba(0, 0, 0, 0.08);
+}
+.notification > div{
+  padding-bottom: 2%;
+}
+@media(max-width:767px){
+  .contentViewSent {
+    margin-bottom: 10% !important;
   }
 }

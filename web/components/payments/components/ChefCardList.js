@@ -130,9 +130,8 @@ const ChefCardList = props => {
 
   //set user data
   useEffect(() => {
-    if(chefId)
-    getChefData();
-  }, [stripeId,chefId]);
+    if (chefId) getChefData();
+  }, [stripeId, chefId]);
 
   //set user data
   useEffect(() => {
@@ -316,7 +315,9 @@ const ChefCardList = props => {
     // extended end
 
     if (typeof window == 'undefined') return;
-    window.open(stripeURL); //to open new page
+    //to open new page
+    window.open(stripeURL, '_self');
+    window.location.href = stripeURL;
   }
   // console.log('chefStripeId', chefStripeId);
   //Get url data from stripe
@@ -433,18 +434,24 @@ const ChefCardList = props => {
                     ---
                   </div>
                 )}
-                <div className="" id="delete-button-view">
-                  <button
-                    className="btn btn-primary"
-                    id="closeButton"
-                    onClick={e => {
-                      e.preventDefault();
-                      removeAccount(res);
-                    }}
-                  >
-                    Delete
-                  </button>
-                </div>
+                {res.is_default_yn === true ? (
+                  <div className="" id="emptyOption1">
+                    ---
+                  </div>
+                ) : (
+                  <div className="" id="delete-button-view">
+                    <button
+                      className="btn btn-primary"
+                      id="closeButton"
+                      onClick={e => {
+                        e.preventDefault();
+                        removeAccount(res);
+                      }}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="product-name">
@@ -496,9 +503,11 @@ const ChefCardList = props => {
         <div>
           <h2>Card List</h2>
           <br />
-          <button type="button" className="btn btn-primary" onClick={() => changeButton()}>
-            {buttonType}
-          </button>
+          {cardListData && cardListData.length > 0 && (
+            <button type="button" className="btn btn-primary" onClick={() => changeButton()}>
+              {buttonType}
+            </button>
+          )}
           {'   '}
           <button
             type="button"
@@ -506,7 +515,7 @@ const ChefCardList = props => {
             id="add-new-button"
             onClick={() => onClickAddButton()}
           >
-            Add new card
+            Connect Stripe
           </button>
           <br />
           <br />

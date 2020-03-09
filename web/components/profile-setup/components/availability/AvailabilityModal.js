@@ -144,6 +144,7 @@ const AvailabilityModal = props => {
             <div className="col-sm-8">
               <div className="form-group">
                 <textarea
+                  style={{ border: '1px solid' }}
                   id="comment"
                   className="form-control"
                   rows="8"

@@ -17,3 +17,21 @@ export const loginToAdmin = () => {
     pathname: n.PROFILE,
   });
 };
+
+export const SharedProfile = () => {
+  Router.push({
+    pathname: n.SHARED_PROFILE,
+  });
+};
+
+export const ChefList = () => {
+  Router.push({
+    pathname: n.CHEF_LIST,
+  });
+};
+
+export const loginPage = () => {
+  Router.push({
+    pathname: n.LOGIN,
+  });
+};

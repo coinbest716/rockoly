@@ -12,8 +12,7 @@ const CERTIFICATION = gql`
   ${certificationGqlTag}
 `;
 
-const Certifications = (props) => {
-  
+const Certifications = props => {
   let sampleArray = [];
   const [certificationData, setCertificationData] = useState([]);
   const [savedcertifications, setSavedCertifications] = useState([]);
@@ -31,11 +30,12 @@ const Certifications = (props) => {
   }, []);
 
   useEffect(() => {
-    setSavedCertifications(props.savedcertifications)
-  }, [props.savedcertifications])
+    setSavedCertifications(props.savedcertifications);
+  }, [props.savedcertifications]);
 
   useEffect(() => {
-    if (util.isObjectEmpty(certificationDataArray) &&
+    if (
+      util.isObjectEmpty(certificationDataArray) &&
       util.hasProperty(certificationDataArray, 'data') &&
       util.isObjectEmpty(certificationDataArray.data) &&
       util.hasProperty(certificationDataArray.data, 'allCertificateTypeMasters') &&
@@ -45,50 +45,59 @@ const Certifications = (props) => {
     ) {
       let data = certificationDataArray.data.allCertificateTypeMasters.nodes;
 
-      let certificateObj = {}, storeDate = [], checkBoxvalue = [];
-     
-      if (data.length > 0) {
-        data.map((certificate) => {
+      let certificateObj = {},
+        storeDate = [],
+        checkBoxvalue = [];
 
+      if (data.length > 0) {
+        data.map(certificate => {
           let isValuePresenet = savedcertifications.includes(certificate.certificateTypeId);
-          checkBoxvalue.push(isValuePresenet)
+          checkBoxvalue.push(isValuePresenet);
 
           certificateObj = {
             label: certificate.certificateTypeName,
-            value: certificate.certificateTypeId
-          }
+            value: certificate.certificateTypeId,
+          };
 
-          storeDate.push(certificateObj)
-        })
+          storeDate.push(certificateObj);
+        });
         setCertificationData(storeDate);
         setIsValuePresent(checkBoxvalue);
       } else {
-        setCertificationData([])
+        setCertificationData([]);
       }
-
     }
-  }, [certificationDataArray, savedcertifications])
+  }, [certificationDataArray, savedcertifications]);
 
   function onSelectCheckbox(label, type, index) {
-    
     let deleteArray = isvaluePresent;
-    deleteArray[index] = !isvaluePresent[index] 
-    setIsValuePresent(deleteArray)
-   
-    deleteArray.map((res,index) =>{
-      if(res){
-        sampleArray.push(certificationData[index].value)
+    deleteArray[index] = !isvaluePresent[index];
+    setIsValuePresent(deleteArray);
+
+    deleteArray.map((res, index) => {
+      if (res) {
+        sampleArray.push(certificationData[index].value);
       }
-    })
+    });
     if (props.uploadingData) {
-      props.uploadingData(sampleArray, 'certificates')
+      props.uploadingData(sampleArray, 'certificates');
     }
   }
 
   try {
     return (
-      <section className="products-collections-area ptb-6 ProfileSetup">
-        <h4>Certifications</h4>
+      <section className="products-collections-area ptb-6 ProfileSetup" id="certification-card">
+        <h5
+          style={{
+            color: '#08AB93',
+            fontSize: '20px',
+            textDecoration: 'underline',
+            fontWeight: 400,
+            paddingBottom: '1%',
+          }}
+        >
+          Certifications
+        </h5>
         <div className="container">
           {certificationData &&
             certificationData.map((res, index) => {
@@ -101,16 +110,12 @@ const Certifications = (props) => {
                           className="inp-cbx"
                           id={res.value}
                           type="checkbox"
-                          checked={
-                            isvaluePresent[index]
-                          }
+                          checked={isvaluePresent[index]}
                           onChange={event => {
-                            onSelectCheckbox(res.value, 'certificate', index)
+                            onSelectCheckbox(res.value, 'certificate', index);
                           }}
                         />
-                        <label className="cbx"
-                          htmlFor={res.value}
-                        >
+                        <label className="cbx" htmlFor={res.value}>
                           <span>
                             <svg width="12px" height="10px" viewBox="0 0 12 10">
                               <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
@@ -121,17 +126,15 @@ const Certifications = (props) => {
                       </div>
                     </div>
                   </div>
-
                 </div>
               );
             })}
-
         </div>
       </section>
-    )
+    );
   } catch (error) {
-    console.log("error", error)
+    console.log('error', error);
   }
-}
+};
 
 export default Certifications;

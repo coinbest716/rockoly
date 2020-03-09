@@ -71,8 +71,10 @@ export default function HistoryList(props) {
 
   //Navigate to booking detail page
   function onClickBookingDetail(data) {
-    data.bookingType = bookingType;
-    NavigateToBookongDetail(data);
+    let newData = {};
+    newData.chefBookingHistId = data.chefBookingHistId;
+    newData.bookingType = data.bookingType;
+    NavigateToBookongDetail(newData);
   }
 
   function payNowModal(data) {
@@ -123,7 +125,7 @@ export default function HistoryList(props) {
     <React.Fragment>
       <div className="list-group" id="booking-history-list">
         {props.bookingDetails.length > 0 && props.bookingCount > 0 && (
-          <p>
+          <p className="totalCount" style={{ width: '100%', fontSize: '16px' }}>
             Showing {props.bookingDetails.length} of {props.bookingCount} results
           </p>
         )}
@@ -131,7 +133,7 @@ export default function HistoryList(props) {
           bookingArray.map((res, index) => {
             return (
               <div className="row" id="list-content" style={{ width: '100%' }} key={index}>
-                <div className="col-md-2" id="image-view">
+                <div className="col-lg-2 col-md-2 col-sm-12" id="image-view">
                   <a onClick={() => onClickBookingDetail(res)}>
                     <img
                       src={
@@ -153,7 +155,7 @@ export default function HistoryList(props) {
                   </a>
                 </div>
 
-                <div className="products-content col-md-2" id="chef-info-list">
+                <div className="products-content col-lg-2 col-md-3 col-sm-12" id="chef-info-list">
                   <span className="nameText">
                     <a onClick={() => onClickBookingDetail(res)}>
                       {userRole === customer
@@ -167,32 +169,38 @@ export default function HistoryList(props) {
                         : ''}
                     </a>
                   </span>
-                  <h6>
-                    <a className="addressText" onClick={() => onClickBookingDetail(res)}>
-                      {userRole === customer
-                        ? res &&
-                          res.chefProfileByChefId &&
-                          res.chefProfileByChefId.chefProfileExtendedsByChefId &&
-                          res.chefProfileByChefId.chefProfileExtendedsByChefId.nodes[0] &&
-                          res.chefProfileByChefId.chefProfileExtendedsByChefId.nodes[0]
-                            .chefLocationAddress
-                          ? res.chefProfileByChefId.chefProfileExtendedsByChefId.nodes[0]
+                  <div>
+                    <h6 className="text-address-view">
+                      <a
+                        className="addressText"
+                        id="address-modal-container"
+                        onClick={() => onClickBookingDetail(res)}
+                      >
+                        {userRole === customer
+                          ? res &&
+                            res.chefProfileByChefId &&
+                            res.chefProfileByChefId.chefProfileExtendedsByChefId &&
+                            res.chefProfileByChefId.chefProfileExtendedsByChefId.nodes[0] &&
+                            res.chefProfileByChefId.chefProfileExtendedsByChefId.nodes[0]
                               .chefLocationAddress
-                          : ''
-                        : res &&
-                          res.customerProfileByCustomerId &&
-                          res.customerProfileByCustomerId.customerProfileExtendedsByCustomerId &&
-                          res.customerProfileByCustomerId.customerProfileExtendedsByCustomerId
-                            .nodes[0] &&
-                          res.customerProfileByCustomerId.customerProfileExtendedsByCustomerId
-                            .nodes[0].customerLocationAddress
-                        ? res.customerProfileByCustomerId.customerProfileExtendedsByCustomerId
-                            .nodes[0].customerLocationAddress
-                        : ''}
-                    </a>
-                  </h6>
+                            ? res.chefProfileByChefId.chefProfileExtendedsByChefId.nodes[0]
+                                .chefLocationAddress
+                            : ''
+                          : res &&
+                            res.customerProfileByCustomerId &&
+                            res.customerProfileByCustomerId.customerProfileExtendedsByCustomerId &&
+                            res.customerProfileByCustomerId.customerProfileExtendedsByCustomerId
+                              .nodes[0] &&
+                            res.customerProfileByCustomerId.customerProfileExtendedsByCustomerId
+                              .nodes[0].customerLocationAddress
+                          ? res.customerProfileByCustomerId.customerProfileExtendedsByCustomerId
+                              .nodes[0].customerLocationAddress
+                          : ''}
+                      </a>
+                    </h6>
+                  </div>
                 </div>
-                <div className="col-md-3" id="notification-status">
+                <div className="col-lg-3 col-md-4 col-sm-12" id="notification-status">
                   <p>
                     <b>Date:</b> {NotificationconvertDateandTime(res.chefBookingFromTime)}
                   </p>
@@ -223,7 +231,7 @@ export default function HistoryList(props) {
                   </p>
                 </div>
                 {bookingType === S.ALL && (
-                  <div className="col-md-3" id="button-type-list">
+                  <div className="col-lg-3 col-md-3 col-sm-12" id="button-type-list">
                     {userRole && userRole === chef ? (
                       <ChefBookingStatus bookingDetails={res} />
                     ) : (
@@ -232,7 +240,7 @@ export default function HistoryList(props) {
                   </div>
                 )}
 
-                <div className="col-lg-2 col-md-2 col-sm-12" id="history-button-view">
+                {/* <div className="col-lg-2 col-md-2 col-sm-12" id="history-button-view">
                   {userRole && userRole === chef ? (
                     <ChefBookingButton
                       triggerSubscription={triggerSubscription}
@@ -246,7 +254,7 @@ export default function HistoryList(props) {
                       userRole={userRole}
                     />
                   )}
-                </div>
+                </div> */}
 
                 {/* <div className="col-md-2" id="date-format"> */}
                 {/* <h3 className="date"> */}
@@ -264,13 +272,14 @@ export default function HistoryList(props) {
               flexDirection: 'column',
               justifyContent: 'center',
               alignItems: 'center',
+              paddingBottom: '3%',
             }}
           >
             <img
               src={S.noDataImage}
               alt="image"
               className="icon-images"
-              style={{ width: '20%', color: 'gray' }}
+              style={{ width: '185px', height: '185px', color: 'gray' }}
             />
             <h4 style={{ color: '#08AB93' }}>{S.NO_DATA_AVAILABLE}</h4>
           </div>

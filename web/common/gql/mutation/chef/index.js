@@ -21,6 +21,8 @@ import {updateChefWorkDetailsGQLTAG} from './mutation.chef.updateChefWorkDetails
 import {updateServiceGQLTAG} from './mutation.chef.updateService';
 import {updateRegistrationFlag} from './mutation.chef.updateRegistration';
 import {updateScreensGQLTAG} from './mutation.chef.updateScreens';
+import {updateIsEmailVerifiedYnGQLTAG} from './mutation.chef.updateIsEmailVerifiedYn';
+import {updateIsMobileNoVerifiedYnGQLTAG} from './mutation.chef.updateIsMobileNoVerifiedYn';
 
 export {
   saveIntroTourGQLTAG,
@@ -45,5 +47,7 @@ export {
   updateChefWorkDetailsGQLTAG,
   updateServiceGQLTAG,
   updateRegistrationFlag,
-  updateScreensGQLTAG  
+  updateScreensGQLTAG,
+  updateIsEmailVerifiedYnGQLTAG,
+  updateIsMobileNoVerifiedYnGQLTAG
 };

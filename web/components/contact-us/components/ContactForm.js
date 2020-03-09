@@ -86,6 +86,7 @@ class ContactForm extends Component {
                               Your Message <span>(required)*</span>
                             </label>
                             <textarea
+                              style={{ border: '1px solid' }}
                               name="message"
                               id="message"
                               cols="30"

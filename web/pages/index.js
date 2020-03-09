@@ -5,14 +5,14 @@ import { withApollo } from '../apollo/apollo';
 import Head from 'next/head';
 
 const Index = () => {
-  try{
-  return (
-    <React.Fragment>
-      <HomePage />
-    </React.Fragment>
-  );
-  }catch(error){
-    console.log("error",error)
+  try {
+    return (
+      <React.Fragment>
+        <HomePage />
+      </React.Fragment>
+    );
+  } catch (error) {
+    console.log('error', error);
   }
 };
 

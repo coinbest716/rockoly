@@ -32,14 +32,14 @@ const FavoriteChefScreen = () => {
                 <span className="dot"></span> Favorite Chef List
               </h2>
             </div>
-            <div className="row">
-              <FavoriteFilterOption totalCount={totalCountValue} resultCount = {resultCountValue}/>
+            <div className="row" id="favorite-chef-row">
+              <FavoriteFilterOption totalCount={totalCountValue} resultCount={resultCountValue} />
               <div
                 id="products-filter"
                 className={`products-collections-listing row ${4}`}
                 style={{ width: '100%' }}
               >
-                <FavoriteChef setCountValue={setCountValue}/>
+                <FavoriteChef setCountValue={setCountValue} />
               </div>
             </div>
           </div>

@@ -11,6 +11,6 @@ export default {
   CHEF: 'CHEF',
   CUSTOMER: 'CUSTOMER',
   LOGIN: 'LOGIN',
-  SWITCH_USER_CHEF: 'Switch to chef',
-  SWITCH_USER_CUSTOMER: 'Switch to customer',
+  SWITCH_USER_CHEF: 'Switch to Chef',
+  SWITCH_USER_CUSTOMER: 'Switch to Customer',
 };

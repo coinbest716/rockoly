@@ -14,6 +14,7 @@ import {
   isStringEmpty,
 } from '../../../../utils/checkEmptycondition';
 import { getChefId, chefId } from '../../../../utils/UserType';
+import { StoreInLocal, GetValueFromLocal } from '../../../../utils/LocalStorage';
 
 // Create a root reference
 const storageRef = firebase.storage().ref();
@@ -31,6 +32,13 @@ const profileGQL = gql`
 const attachmentSubscriptionGQLTag = gqlTag.subscription.chef.attachmentGQLTAG;
 const attachmentSubscriptionGQL = gql`
   ${attachmentSubscriptionGQLTag}
+`;
+
+//update screen
+const updateScreens = gqlTag.mutation.chef.updateScreensGQLTAG;
+
+const UPDATE_SCREENS = gql`
+  ${updateScreens}
 `;
 
 const ImageGallery = props => {
@@ -72,11 +80,20 @@ const ImageGallery = props => {
 
   const [updateChefAttachment, { data }] = useMutation(updateAttachmentGQL, {
     onCompleted: data => {
+      // toastMessage(success, 'Images Uploaded Successfully');
       setSaveLoader(false);
     },
     onError: err => {
       toastMessage('error', err);
     },
+  });
+
+  const [updateScreenTag, { loading, error }] = useMutation(UPDATE_SCREENS, {
+    onCompleted: data => {
+      // toastMessage(success, 'Favourite cuisines updated successfully');
+      // console.log('daskjhkjhkjasdasd123123', data);
+    },
+    onError: err => {},
   });
 
   const { chefAttachmentsSubs } = useSubscription(attachmentSubscriptionGQL, {
@@ -122,14 +139,13 @@ const ImageGallery = props => {
 
         setImageCarousel(carouselObj);
       }
-
     }
   }, [chefProfile]);
 
   function removeItems(url, type) {
-    let carouselImageArray = [],imageArray=[];
+    let carouselImageArray = [],
+      imageArray = [];
     imageArray = imageArray.concat(imageFiles);
-
 
     // remove images
     if (type == 'GALLERY') {
@@ -179,12 +195,12 @@ const ImageGallery = props => {
                 type: base64File.indexOf('data:image') >= 0 ? 'IMAGE' : 'DOCUMENT',
                 url: base64File,
               };
-              const randNo = Math.floor(Math.random() * 9000000000) + 1000000000
+              const randNo = Math.floor(Math.random() * 9000000000) + 1000000000;
               const dateTime = new Date().getTime();
               // ref/chef_id/{CERITIFICATION/GALLERY/}/rand_datetime.format
-            
+
               // const imageFileName = chefIdValue+ '/' + type + '/' + dateTime;
-              const imageFileName = `${chefIdValue}/${type}/${dateTime}_${randNo}              `
+              const imageFileName = `${chefIdValue}/${type}/${dateTime}_${randNo}              `;
               // console.log("imageFileName",imageFileName)
               firebase
                 .storage()
@@ -198,7 +214,7 @@ const ImageGallery = props => {
                     .then(url => {
                       newFile.url = url;
                       // license
-                      
+
                       // images
                       if (type == 'GALLERY') {
                         setImageFiles(data => [...data, newFile]);
@@ -228,7 +244,7 @@ const ImageGallery = props => {
 
   function save() {
     setSaveLoader(true);
-       
+
     // changing image type an url in object to pAttachmentType,pAttachmentUrl
     let saveImage = imageFiles;
     saveImage = saveImage.map(({ type: pAttachmentType, ...data }) => ({
@@ -253,7 +269,29 @@ const ImageGallery = props => {
         },
       }).then(data => {
         if (attachmentSection === 'GALLERY') {
-          toastMessage('success', 'Attachments uploaded successfully');
+          if (props.screen && props.screen === 'register') {
+            // To get the updated screens value
+            let screensValue = [];
+            GetValueFromLocal('SharedProfileScreens')
+              .then(result => {
+                if (result && result.length > 0) {
+                  screensValue = result;
+                }
+                screensValue.push('GALLERY');
+                screensValue = _.uniq(screensValue);
+                let variables = {
+                  chefId: props.chefId,
+                  chefUpdatedScreens: screensValue,
+                };
+                updateScreenTag({ variables });
+                if (props.nextStep) props.nextStep();
+                StoreInLocal('SharedProfileScreens', screensValue);
+              })
+              .catch(err => {
+                console.log('err', err);
+              });
+          }
+          toastMessage('success', 'Gallery uploaded successfully');
           setSaveLoader(false);
         }
       });
@@ -274,16 +312,35 @@ const ImageGallery = props => {
   }
   return (
     <div>
-      <section className="products-collections-area ptb-60 ">
+      <section
+        className={`products-collections-area ptb-60 
+        ${props.screen === 'register' ? 'base-rate-info' : ''}`}
+        // className="products-collections-area ptb-60"
+        id="sction-card-modal"
+      >
         {saveLoader && <Loader />}
-        <div className="section-title">
-          <h2>Upload</h2>
-        </div>
-
-        <form className="login-form">
+        {props.screen !== 'register' && (
+          <div className="section-title">
+            <h2>Image Gallery</h2>
+          </div>
+        )}
+        <form className="login-form" style={{ paddingLeft: '2%' }}>
           <div className="form-group">
             <div className="image-upload">
-              <label> Gallery (Showcase your image gallery) </label>
+              {/* <label> */}
+              <h5
+                style={{
+                  color: '#08AB93',
+                  fontSize: '20px',
+                  textDecoration: 'underline',
+                  fontWeight: 400,
+                  paddingBottom: '1%',
+                }}
+              >
+                {' '}
+                Gallery (Showcase your image gallery){' '}
+              </h5>
+              {/* </label> */}
               {imageLoader && <Loader />}
               <input
                 type="file"
@@ -303,6 +360,7 @@ const ImageGallery = props => {
                     {imageFile.type === 'IMAGE' && (
                       <div className="container">
                         <i
+                          style={{ marginRight: '25px' }}
                           onClick={() => {
                             removeItems(imageFile.url, 'GALLERY');
                           }}
@@ -313,7 +371,8 @@ const ImageGallery = props => {
                           <img
                             src={imageFile.url}
                             alt="image"
-                            className="imgResponsiveMax"
+                            // className="imgResponsiveMax"
+                            id="image-upload-view"
                             onClick={() => {
                               // setViewerOpen(true);
                               updateCurrentFetch(imageFile);

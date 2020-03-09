@@ -31,7 +31,7 @@ export default function HomePageScreen() {
     return (
       <React.Fragment>
         <Page>
-          <div className="homePage">
+          <div className="homePage" id="home-screen-view">
             <Banner getLocation={getLocation} />
             {/* <ChefList />
             <CategoryList /> */}

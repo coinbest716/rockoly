@@ -49,7 +49,7 @@ export const getCustomerId = option => {
             resolve(res.customerId);
           } else if (option === customerProfileExtendedId) {
             resolve(res.customerProfileExtendedId);
-          } else if(option === customerPreferenceId){
+          } else if (option === customerPreferenceId) {
             resolve(res.customerPreferenceId);
           }
         }
@@ -88,7 +88,7 @@ export const getCustomerAuthData = data => {
         const customerIds = {
           customerId: customerData.customerId,
           customerProfileExtendedId: customerData.customerProfileExtendedId,
-          customerPreferenceId: customerData.customerPreferenceId
+          customerPreferenceId: customerData.customerPreferenceId,
         };
         resolve(customerIds);
       }

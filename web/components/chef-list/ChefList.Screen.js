@@ -27,8 +27,9 @@ const ChefListScreen = props => {
   const [cuisineFilterOptionValue, setCuisineFilterOptionValue] = useState('');
   const [dishFilterOptionValue, setDishFilterOptionValue] = useState('');
   const [rating, setRating] = useState();
-  const [minRange, setMinRange] = useState();
-  const [maxRange, setMaxRange] = useState();
+  const [price, setPrice] = useState([]);
+  // const [minRange, setMinRange] = useState();
+  // const [maxRange, setMaxRange] = useState();
   const [firstParams, setFirstParams] = useState(state.firstparams ? state.firstparams : 15);
   const [latitude, setLatitude] = useState(
     props.locationFilter.latitude ? parseFloat(props.locationFilter.latitude).toFixed(10) : ''
@@ -36,8 +37,10 @@ const ChefListScreen = props => {
   const [longitude, setLongitude] = useState(
     props.locationFilter.longtitude ? parseFloat(props.locationFilter.longtitude).toFixed(10) : ''
   );
-  const [priceFlagYn,setPriceFlagYn] = useState(false);
-  const [experience,setExperience] = useState('');
+  const [priceFlagYn, setPriceFlagYn] = useState(false);
+  const [experience, setExperience] = useState('');
+  const [startTime, setstartTime] = useState('');
+  const [endTime, setendTime] = useState('');
 
   function handleGrid(e) {
     //handling grid styles
@@ -87,64 +90,61 @@ const ChefListScreen = props => {
     setRating(rating);
   }
 
-  function setPriceValue(min, max) {
-    
-    let minValue = min, maxValue = max;
-    console.log("min",min,"max",max)
-    if (min != null && max != null && min != 0 && max != 0) {
-      console.log("1")
-      setPriceFlagYn(maxValue > minValue);
-        if((maxValue - minValue) >0) {
-          console.log("1.1")
-        setMinRange(min);
-        setMaxRange(max);
-      } else {
-        console.log("2")
-        toastMessage('error', 'Max value should be greater');
-      }      
-    }
-    else if (min != 0 && max == 0) {
-      console.log("2")
-      toastMessage('error', 'Max value should be greater');
-    } 
-    else if (min == 0 && max != 0) {
-      console.log("3")
-      setMinRange(min);
-      setMaxRange(max);
-    }
-    if (min == 0 && max == 0) {
-      console.log("4")
-      setMinRange(min);
-      setMaxRange(max);
-    }
-    if(!min && max){
-      console.log("5")
-      toastMessage('error','Enter both price values')
-    }
+  function setPriceValue(value) {
+    // console.log('min', min, 'max', max);
+    // let minValue = min,
+    //   maxValue = max;
+    // if (min != null && max != null && min != 0 && max != 0) {
+    //   setPriceFlagYn(maxValue > minValue);
+    //   if (maxValue - minValue > 0) {
+    //     setMinRange(min);
+    //     setMaxRange(max);
+    //   } else {
+    //     toastMessage('error', 'Max value should be greater');
+    //   }
+    // } else if (min != 0 && max == 0) {
+    //   toastMessage('error', 'Max value should be greater');
+    // } else if (min == 0 && max != 0) {
+    //   setMinRange(min);
+    //   setMaxRange(max);
+    // }
+    // if (min == 0 && max == 0) {
+    // setMinRange(min);
+    // setMaxRange(max);
+    setPrice(value);
+
+    // }
+    // if (!min && max) {
+    //   toastMessage('error', 'Enter both price values');
+    // }
   }
-   
-  function setExperienceValue(exp){
+
+  function setExperienceValue(exp) {
     setExperience(exp);
   }
+
+  function setEventTime(start, end) {
+    setstartTime(start);
+    setendTime(end);
+  }
   function SendFilterOption() {
-      rangeObj = {
-        lat: latitude ? latitude : undefined,
-        lng: longitude ? longitude : undefined,
-        type : "CHEF_LIST",
-        orderBy: rating > 0 ? 'AVERAGE_RATING_ASC' : minRange > 0 && maxRange > 0 ? 
-        'PRICE_PER_HOUR_ASC' : undefined,
-        cuisine:  cuisineFilterOptionValue!=='' ? 
-            cuisineFilterOptionValue : undefined,
-        dish: dishFilterOptionValue !=='' ? 
-            dishFilterOptionValue : undefined,
-        min_rating: rating > 0 ? rating : undefined,
-        min_price: minRange > 0 ? minRange : undefined,
-        max_price: maxRange ? maxRange : undefined,
-        experience : experience ? experience : undefined
-      };
-      rangeObj = JSON.stringify(rangeObj);
-      rangeObj = JSON.stringify(rangeObj);
-      return rangeObj;
+    rangeObj = {
+      lat: latitude ? latitude : undefined,
+      lng: longitude ? longitude : undefined,
+      type: 'CHEF_LIST',
+      cuisine: cuisineFilterOptionValue !== '' ? cuisineFilterOptionValue : undefined,
+      dish: dishFilterOptionValue !== '' ? dishFilterOptionValue : undefined,
+      rating: rating !== '' ? rating : undefined,
+      // min_price: maxRange == 20 ? 0 : minRange ? minRange : undefined,
+      // max_price: maxRange ? maxRange : undefined,
+      pricing: price && price.length > 0 ? price : [],
+      experience: experience ? experience : undefined,
+      event_from_time: startTime ? startTime : undefined,
+      event_to_time: endTime ? endTime : undefined,
+    };
+    rangeObj = JSON.stringify(rangeObj);
+    rangeObj = JSON.stringify(rangeObj);
+    return rangeObj;
   }
 
   return (
@@ -168,7 +168,8 @@ const ChefListScreen = props => {
                       setCuisineOption={setCuisineOption}
                       setRatingValue={setRatingValue}
                       setPriceValue={setPriceValue}
-                      setExperienceValue = {setExperienceValue}
+                      setExperienceValue={setExperienceValue}
+                      setEventTime={setEventTime}
                     />
                     <div className="col-lg-9 col-md-12">
                       {/* <card> */}

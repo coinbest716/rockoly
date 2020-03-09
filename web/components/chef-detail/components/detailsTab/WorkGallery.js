@@ -4,10 +4,12 @@ import ImgsViewer from 'react-images-viewer';
 import * as util from '../../../../utils/checkEmptycondition';
 import { toastMessage } from '../../../../utils/Toast';
 
-let URLOfImages = [], imageUrl = {}, count = 0, imageCarouselSrcToDisplay = [];
+let URLOfImages = [],
+  imageUrl = {},
+  count = 0,
+  imageCarouselSrcToDisplay = [];
 
 const WorkGallery = props => {
-
   const [currImage, setcurrImage] = useState(0);
   const [open, setOpen] = useState(false);
   const [imageGallery, setImageGallery] = useState([]);
@@ -16,24 +18,21 @@ const WorkGallery = props => {
   useEffect(() => {
     URLOfImages = [];
     imageCarouselSrcToDisplay = [];
-    if (props.chefDetails
-      &&
-      util.hasProperty(props.chefDetails, 'chefAttachmentProfilesByChefId')
-      &&
-      util.hasProperty(props.chefDetails.chefAttachmentProfilesByChefId, 'nodes')
-      &&
+    if (
+      props.chefDetails &&
+      util.hasProperty(props.chefDetails, 'chefAttachmentProfilesByChefId') &&
+      util.hasProperty(props.chefDetails.chefAttachmentProfilesByChefId, 'nodes') &&
       util.isArrayEmpty(props.chefDetails.chefAttachmentProfilesByChefId.nodes)
     ) {
-      props.chefDetails.chefAttachmentProfilesByChefId.nodes.map((node) => {
-        if (node.chefAttachmentType === "IMAGE" &&
-          node.chefAttachmentsAreaSection === 'GALLERY') {
+      props.chefDetails.chefAttachmentProfilesByChefId.nodes.map(node => {
+        if (node.chefAttachmentType === 'IMAGE' && node.chefAttachmentsAreaSection === 'GALLERY') {
           imageUrl = {
             src: node.chefAttachmentUrl,
           };
           URLOfImages.push(node.chefAttachmentUrl);
           imageCarouselSrcToDisplay.push(imageUrl);
         }
-      })
+      });
       setImageGallery(URLOfImages);
       setCarouselDisplay(imageCarouselSrcToDisplay);
     }
@@ -41,8 +40,7 @@ const WorkGallery = props => {
 
   function setImageCarouselValue(imageArrayURL) {
     setOpen(true);
-    setcurrImage(imageGallery.indexOf(imageArrayURL))
-    
+    setcurrImage(imageGallery.indexOf(imageArrayURL));
   }
   function gotoPrevImg(index) {
     index = index - 1;
@@ -58,29 +56,38 @@ const WorkGallery = props => {
   }
   try {
     return (
-      <div className="products-details-tab-content chefDetail container">
+      <div
+        className="products-details-tab-content chefDetail container"
+        style={{ paddingBottom: '3%' }}
+      >
         {props.chefDetails &&
           util.hasProperty(props.chefDetails, 'chefAttachmentProfilesByChefId') &&
           util.hasProperty(props.chefDetails.chefAttachmentProfilesByChefId, 'nodes') &&
           props.chefDetails.chefAttachmentProfilesByChefId.nodes.map(node => {
-            if (node.chefAttachmentType === 'IMAGE' &&
-              node.chefAttachmentsAreaSection === 'GALLERY') {
-              return <img
-                className="imgView"
-                src={node.chefAttachmentUrl}
-                onClick={() => {
-                  setImageCarouselValue(node.chefAttachmentUrl)
-                }}
-              />;
+            if (
+              node.chefAttachmentType === 'IMAGE' &&
+              node.chefAttachmentsAreaSection === 'GALLERY'
+            ) {
+              return (
+                <img
+                  className="imgView"
+                  style={{ cursor: 'pointer' }}
+                  src={node.chefAttachmentUrl}
+                  onClick={() => {
+                    setImageCarouselValue(node.chefAttachmentUrl);
+                  }}
+                />
+              );
             }
-          }
-          )}
-          {imageGallery.length===0 &&
-             <div>
-                <h5 style={{ textAlign: 'center',color: '#08AB93',fontweight: 'bolder'}}>No Data!</h5>
-               {/* <p>Chef doesn't upload and images</p> */}
-             </div>
-          }
+          })}
+        {imageGallery.length === 0 && (
+          <div>
+            <h5 style={{ textAlign: 'center', color: '#08AB93', fontweight: 'bolder' }}>
+              No Data!
+            </h5>
+            {/* <p>Chef doesn't upload and images</p> */}
+          </div>
+        )}
         {/* <h5 className="hclass">Document Gallery</h5>
         {props.chefDetails &&
           util.hasProperty(props.chefDetails, 'chefAttachmentProfilesByChefId') &&
@@ -101,14 +108,16 @@ const WorkGallery = props => {
               );
             }
           })} */}
-          {/* {console.log("value",currImage)} */}
+        {/* {console.log("value",currImage)} */}
         <ImgsViewer
           imgs={CarouselDisplay}
           currImg={currImage}
           isOpen={open}
           onClickPrev={() => gotoPrevImg(currImage)}
           onClickNext={() => gotoNextImg(currImage)}
-          onClose={() => { onStateEmpty() }}
+          onClose={() => {
+            onStateEmpty();
+          }}
         />
       </div>
     );

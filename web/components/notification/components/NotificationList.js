@@ -19,6 +19,7 @@ import {
   convertDate,
   convertDateandTime,
   NotificationconvertDateandTime,
+  fromNow,
 } from '../../../utils/DateTimeFormat';
 import NotificationDismissModal from '../../shared/modal/NotificationDismissModal';
 import NotificationCustomerDismissModal from '../../shared/modal/customerNotificationDismissModal';
@@ -58,13 +59,26 @@ const GET_TOTAL_COUNT = gql`
 
 const apolloClient = createApolloClient();
 
+const NEW_MESSAGE = 'New Message Posted';
+const CUSTOMER_REQUESTED_BOOKING = 'New Booking Request';
+const CHEF_ACCEPTED_BOOKING = 'Accepted Booking Request';
+const CHEF_REJECTED_BOOKING = 'Rejected Booking Request';
+const CHEF_CANCELLED_BOOKING = 'Cancelled Booking Request';
+const CUSTOMER_CANCELLED_BOOKING = 'Cancelled Booking Request';
+const CHEF_COMPLETED_BOOKING = 'Booking Completed, please submit your review';
+const CUSTOMER_REFUND_AMOUNT_SUCCESS = 'Your booking amount refunded successfully';
+const CUSTOMER_REFUND_AMOUNT_FAILED = 'Your booking amount failed to refund';
+const CHEF_AMOUNT_TRANSFER_SUCCESS = 'Booking amount transfered successfully to your account';
+const CHEF_AMOUNT_TRANSFER_FAILED = 'Booking amount failed to transfer to your account';
+const CHEF_REQUESTED_BOOKING_AMOUNT = 'Chef requested booking amount';
+
 const NotificationList = props => {
   const [state, setState] = useContext(AppContext);
   const [userRole, setUserRole] = useState('');
   const [chefIdValue, setChefId] = useState();
   const [customerIdValue, setCustomerId] = useState();
   const [content, setContent] = useState('');
-  const [chefNotifications, setchefnotifications] = useState([]);
+  const [chefNotifications, setChefnotifications] = useState([]);
   const [customerNotificationList, setCustomerNotificationList] = useState([]);
   const [dismissModal, setDismissModal] = useState(false);
   const [notificationData, setNotificationData] = useState({});
@@ -72,7 +86,7 @@ const NotificationList = props => {
   const [customerModal, setCustomerModal] = useState(false);
   const [chefCount, setChefCount] = useState();
   const [customerCount, setCustomerCount] = useState();
-  const [chefNotificationCount, setChefNotificationCount] = useState();
+  const [chefNotificationCount, setChefNotificationCount] = useState(0);
   const [customerNotificationCount, setCustomerNotificationCount] = useState();
 
   const [markNotificationSeen, { data }] = useMutation(SEEN_NOTIFICATION, {
@@ -166,11 +180,11 @@ const NotificationList = props => {
           result.data.allNotificationHistories &&
           result.data.allNotificationHistories.nodes
         ) {
-          setchefnotifications(result.data.allNotificationHistories.nodes);
+          setChefnotifications(result.data.allNotificationHistories.nodes);
           setChefNotificationCount(result.data.allNotificationHistories.nodes.length);
           getTotalCountValue();
         } else {
-          setchefnotifications([]);
+          setChefnotifications([]);
           getTotalCountValue();
         }
       });
@@ -286,7 +300,10 @@ const NotificationList = props => {
       }).then(data => {
         let bookingType = 'Upcoming';
         unStringifyObject.bookingType = bookingType;
-        NavigateToBookingDetail(unStringifyObject.booking);
+        let newData = {};
+        newData.chefBookingHistId = unStringifyObject.booking.chef_booking_hist_id;
+        newData.bookingType = bookingType;
+        NavigateToBookingDetail(newData);
       });
     } else {
       markNotificationSeen({
@@ -324,7 +341,10 @@ const NotificationList = props => {
       }).then(data => {
         let bookingType = 'All';
         unStringifyObject.bookingType = bookingType;
-        NavigateToBookingDetail(unStringifyObject.booking);
+        let newData = {};
+        newData.chefBookingHistId = unStringifyObject.booking.chef_booking_hist_id;
+        newData.bookingType = bookingType;
+        NavigateToBookingDetail(newData);
       });
     } else if (type === 'message') {
       markNotificationSeen({
@@ -357,57 +377,53 @@ const NotificationList = props => {
     setFirstParams(firstParams + 15);
   }
   function ChefProfilePicture(data, type) {
-    if(data){
-    let parsedData = JSON.parse(data);
-    if (type === 'booking') {
-      if (parsedData.chef !== null) {
-        return parsedData.chef.chef_pic;
-      } else return null;
-    }} else {
-      if (parsedData.details !== null) {
+    if (data) {
+      let parsedData = JSON.parse(data);
+      if (type === 'booking') {
+        if (parsedData.chef !== null) {
+          return parsedData.chef.chef_pic;
+        } else return null;
+      } else if (type === 'message') {
         return parsedData.details.pic;
       }
-     else{
-       return null;
-     }
+    } else {
+      if (parsedData.details !== null) {
+        return parsedData.details.pic;
+      } else {
+        return null;
+      }
     }
   }
-  function ParseChefAddress(data, type) {
-    if(data){
-    let parsedData = JSON.parse(data);
-    if (parsedData.chef !== null && type === 'booking') return parsedData.chef.address2;
-    // else if (type === 'message' && parsedData.details !== null) return 'address';
-     } else return null;
-  }
-  function chefBookData(data, type) {
-    if(data){
-    let parsedData = JSON.parse(data);
 
-    if (parsedData.booking !== null) {
-      var bookingStarttime = new Date(parsedData.booking.chef_booking_from_time);
-      let bookingTime = moment(bookingStarttime).format('MM-DD-YYYY');
-      return convertDate(parsedData.booking.chef_booking_from_time);
-    } }else {
+  function chefBookData(data, type) {
+    if (data) {
+      let parsedData = JSON.parse(data);
+
+      if (parsedData.booking !== null) {
+        return convertDate(parsedData.booking.chef_booking_from_time);
+      }
+    } else {
       return null;
     }
   }
   function chefBookingTime(data, type) {
-    if(data){
-    let parsedData = JSON.parse(data);
-    if (parsedData.booking !== null) {
-      //converting GMT to local time and splitting time from it
-      var startTime = convertDateandTime(parsedData.booking.chef_booking_from_time);
-      let fromTime = startTime.split(',');
+    if (data) {
+      let parsedData = JSON.parse(data);
+      if (parsedData.booking !== null) {
+        //converting GMT to local time and splitting time from it
+        var startTime = convertDateandTime(parsedData.booking.chef_booking_from_time);
+        let fromTime = startTime.split(',');
 
-      var endTime = convertDateandTime(parsedData.booking.chef_booking_to_time);
-      let toTime = endTime.split(',');
+        var endTime = convertDateandTime(parsedData.booking.chef_booking_to_time);
+        let toTime = endTime.split(',');
 
-      return fromTime[1] + ' - ' + toTime[1];
-    }} else return null;
+        return fromTime[1] + ' - ' + toTime[1];
+      }
+    } else return null;
   }
 
   function chefBookPrice(data, type) {
-    if(data){
+    if (data) {
       let parsedData = JSON.parse(data);
       if (parsedData.booking !== null) {
         let bookingPriceUnit = parsedData.booking.chef_booking_price_unit
@@ -415,60 +431,98 @@ const NotificationList = props => {
           : parsedData.booking.chef_booking_price_unit;
         return bookingPriceUnit + parsedData.booking.chef_booking_price_value.toFixed(2);
       }
-    }
-     else {
+    } else {
       return null;
     }
   }
   function customerBookPrice(data, type) {
-    if(data){
-    let parsedData = JSON.parse(data);
-    if (parsedData.booking !== null) {
-      let bookingPriceUnit = parsedData.booking.chef_booking_price_unit
-        ? '$'
-        : parsedData.booking.chef_booking_price_unit;
-      return bookingPriceUnit + parsedData.booking.chef_booking_total_price_value.toFixed(2);
-    }} else {
+    if (data) {
+      let parsedData = JSON.parse(data);
+      if (parsedData.booking !== null) {
+        let bookingPriceUnit = parsedData.booking.chef_booking_price_unit
+          ? parsedData.booking.chef_booking_price_unit
+          : '$';
+        bookingPriceUnit = bookingPriceUnit === 'USD' ? '$' : bookingPriceUnit;
+        let bookingPriceValue = parsedData.booking.chef_booking_total_price_value
+          ? parsedData.booking.chef_booking_total_price_value
+          : 0;
+        return bookingPriceUnit + bookingPriceValue.toFixed(2);
+      }
+    } else {
       return null;
     }
   }
   function CustomerProfilePicture(data, type) {
-    if(data){
-    let parsedData = JSON.parse(data);
-    if (type === 'booking') {
-      if (parsedData.customer !== null) {
-        return parsedData.customer.customer_pic;
-      } else return null;
-    }} else {
+    if (data) {
+      let parsedData = JSON.parse(data);
+      if (type === 'booking') {
+        if (parsedData.customer !== null) {
+          return parsedData.customer.customer_pic;
+        } else return null;
+      }
+    } else {
       if (parsedData.details !== null) {
         return parsedData.details.pic;
-      }
-      else{
+      } else {
         return null;
       }
     }
   }
 
-  function ParseCustomerAddress(data, type) {
-    if(data){
-    let parsedData = JSON.parse(data);
-    if (parsedData.customer !== null && type === 'booking') {
-      return parsedData.customer.address2 ? parsedData.customer.address2 : null;
-    }} else return null;
+  function changeNotificationTime(createdTime) {
+    let date = fromNow(createdTime);
+    if (date.indexOf('day') > 0) {
+      var notificationTime = convertDateandTime(createdTime);
+      var dateFormat = NotificationconvertDateandTime(createdTime);
+      let createdTimeLocal = notificationTime.split(',');
+      return dateFormat + createdTimeLocal[1];
+    } else {
+      return fromNow(createdTime);
+    }
   }
 
-  function changeNotificationTime(createdTime) {
-    var notificationTime = convertDateandTime(createdTime);
-    var dateFormat = NotificationconvertDateandTime(createdTime);
-    let createdTimeLocal = notificationTime.split(',');
-    return dateFormat + createdTimeLocal[1];
+  function getNotificationType(type) {
+    if (type === 'NEW_MESSAGE') {
+      return NEW_MESSAGE;
+    } else if (type === 'CHEF_ACCEPTED_BOOKING') {
+      return CHEF_ACCEPTED_BOOKING;
+    } else if (type === 'CHEF_REJECTED_BOOKING') {
+      return CHEF_REJECTED_BOOKING;
+    } else if (type === 'CHEF_CANCELLED_BOOKING') {
+      return CHEF_CANCELLED_BOOKING;
+    } else if (type === 'CHEF_COMPLETED_BOOKING') {
+      return CHEF_COMPLETED_BOOKING;
+    } else if (type === 'CUSTOMER_REFUND_AMOUNT_SUCCESS') {
+      return CUSTOMER_REFUND_AMOUNT_SUCCESS;
+    } else if (type === 'CUSTOMER_REFUND_AMOUNT_FAILED') {
+      return CUSTOMER_REFUND_AMOUNT_FAILED;
+    } else if (type === 'CHEF_AMOUNT_TRANSFER_SUCCESS') {
+      return CHEF_AMOUNT_TRANSFER_SUCCESS;
+    } else if (type === 'CHEF_AMOUNT_TRANSFER_FAILED') {
+      return CHEF_AMOUNT_TRANSFER_FAILED;
+    } else if (type === 'CHEF_REQUESTED_BOOKING_AMOUNT') {
+      return CHEF_REQUESTED_BOOKING_AMOUNT;
+    } else if (type === 'CUSTOMER_REQUESTED_BOOKING') {
+      return CUSTOMER_REQUESTED_BOOKING;
+    } else if (type === 'CUSTOMER_CANCELLED_BOOKING') {
+      return CUSTOMER_CANCELLED_BOOKING;
+    } else {
+      return '';
+    }
   }
 
   try {
     return (
       <React.Fragment>
-        <div>
-          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <div className="notification-containar">
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              paddingTop: '1%',
+              paddingRight: '1%',
+            }}
+          >
             {userRole === customer &&
               customerNotificationList &&
               customerNotificationList.length > 0 && (
@@ -499,7 +553,7 @@ const NotificationList = props => {
             {userRole && userRole === customer && (
               <div>
                 {customerNotificationCount > 0 && customerCount > 0 && (
-                  <p>
+                  <p className="totalCount">
                     Showing {customerNotificationCount} of {customerCount} results
                   </p>
                 )}
@@ -508,7 +562,7 @@ const NotificationList = props => {
                   customerNotificationList.map(notification => {
                     return (
                       <div
-                        id={notification.notificationHistId}
+                        key={notification.notificationHistId}
                         className={`row ${
                           notification.notificationStatusId.trim() === 'SENT'
                             ? 'contentViewSent'
@@ -545,36 +599,36 @@ const NotificationList = props => {
                                   : convertToString(notification.notificationDetails, 'booking')}
                               </a>
 
-                              <p>
-                                {notification.notificationAreaType === 'NEW_MESSAGE'
-                                  ? ParseChefAddress(notification.notificationDetails, 'message')
-                                  : ParseChefAddress(notification.notificationDetails, 'booking')}
-                              </p>
+                              <p>{getNotificationType(notification.notificationAreaType)}</p>
                             </span>
                           </div>
-                          <div className="col-md-3" id="notification-status">
-                            <a>
-                              <b>{notification.notificationTitle}</b>
-                            </a>
-                            <p>
-                              <b>Date: </b>{' '}
-                              {notification.notificationAreaType === 'NEW_MESSAGE'
-                                ? chefBookData(notification.notificationDetails, 'message')
-                                : chefBookData(notification.notificationDetails, 'booking')}
-                            </p>
-                            <p>
-                              <b>Time:</b>
-                              {notification.notificationAreaType === 'NEW_MESSAGE'
-                                ? chefBookingTime(notification.notificationDetails, 'message')
-                                : chefBookingTime(notification.notificationDetails, 'booking')}
-                            </p>
-                             <p style={{ display: 'flex', justifyContent: 'center' }}>
-                              <b>Price:</b>
-                              {notification.notificationAreaType === 'NEW_MESSAGE'
-                                ? customerBookPrice(notification.notificationDetails, 'message')
-                                : customerBookPrice(notification.notificationDetails, 'booking')}
-                            </p>
-                          </div>
+                          {notification.notificationAreaType === 'NEW_MESSAGE' ? (
+                            <div className="col-md-3" id="notification-status">
+                              <b>{JSON.parse(notification.notificationDescription)}</b>
+                            </div>
+                          ) : (
+                            <div className="col-md-3" id="notification-status">
+                              <p>
+                                <b>Booking Date: </b>{' '}
+                                {notification.notificationAreaType === 'NEW_MESSAGE'
+                                  ? chefBookData(notification.notificationDetails, 'message')
+                                  : chefBookData(notification.notificationDetails, 'booking')}
+                              </p>
+                              <p>
+                                <b>Booking Time:</b>
+                                {notification.notificationAreaType === 'NEW_MESSAGE'
+                                  ? chefBookingTime(notification.notificationDetails, 'message')
+                                  : chefBookingTime(notification.notificationDetails, 'booking')}
+                              </p>
+                              <p style={{ display: 'flex', justifyContent: 'center' }}>
+                                <b>Booking Price:</b>
+                                {notification.notificationAreaType === 'NEW_MESSAGE'
+                                  ? customerBookPrice(notification.notificationDetails, 'message')
+                                  : customerBookPrice(notification.notificationDetails, 'booking')}
+                              </p>
+                            </div>
+                          )}
+
                           <div className="col-md-3" id="notification-buttons">
                             <button
                               className="btn btn-danger"
@@ -599,7 +653,7 @@ const NotificationList = props => {
                               View
                             </button>
                           </div>
-                       
+
                           <div className="col-md-2" id="date-format">
                             <h5 className="date">
                               <a> {changeNotificationTime(notification.createdAt)}</a>
@@ -628,7 +682,7 @@ const NotificationList = props => {
             {userRole === chef && (
               <div>
                 {chefNotificationCount > 0 && chefCount > 0 && (
-                  <p>
+                  <p className="totalCount">
                     Showing {chefNotificationCount} of {chefCount} results
                   </p>
                 )}
@@ -659,7 +713,7 @@ const NotificationList = props => {
                                         notification.notificationDetails,
                                         'message'
                                       )
-                                    : require('../../../images/mock-image/sample_user.png')
+                                    : require('../../../images/mock-image/rockoly-logo.png')
                                   : CustomerProfilePicture(
                                       notification.notificationDetails,
                                       'booking'
@@ -668,7 +722,7 @@ const NotificationList = props => {
                                       notification.notificationDetails,
                                       'booking'
                                     )
-                                  : require('../../../images/mock-image/sample_user.png')
+                                  : require('../../../images/mock-image/rockoly-logo.png')
                               }
                               alt="image"
                               className="notification-user-image"
@@ -688,47 +742,38 @@ const NotificationList = props => {
                                     )}
                               </a>
 
-                              <p>
-                                {notification.notificationAreaType === 'NEW_MESSAGE'
-                                  ? ParseCustomerAddress(
-                                      notification.notificationDetails,
-                                      'message'
-                                    )
-                                  : ParseCustomerAddress(
-                                      notification.notificationDetails,
-                                      'booking'
-                                    )}
-                              </p>
+                              <p>{getNotificationType(notification.notificationAreaType)}</p>
                             </span>
                           </div>
 
-                          <div className="col-md-3" id="notification-status">
-                            <a>
-                              <b>{notification.notificationTitle}</b>
-                            </a>
-                            <div>
+                          {notification.notificationAreaType === 'NEW_MESSAGE' ? (
+                            <div className="col-md-3" id="notification-status">
+                              {console.log("GGGGGGGGGGGGGGGGGGG",notification.notificationDescription)}
+                              <b>{notification.notificationDescription ? 
+                             notification.notificationDescription : ''}</b>
+                            </div>
+                          ) : (
+                            <div className="col-md-3" id="notification-status">
                               <p>
-                                <p>
-                                  <b>Date: </b>
-                                  {notification.notificationAreaType === 'NEW_MESSAGE'
-                                    ? chefBookData(notification.notificationDetails, 'message')
-                                    : chefBookData(notification.notificationDetails, 'booking')}
-                                </p>
+                                <b>Booking Date: </b>{' '}
+                                {notification.notificationAreaType === 'NEW_MESSAGE'
+                                  ? chefBookData(notification.notificationDetails, 'message')
+                                  : chefBookData(notification.notificationDetails, 'booking')}
                               </p>
                               <p>
-                                <b>Time:</b>
+                                <b>Booking Time:</b>
                                 {notification.notificationAreaType === 'NEW_MESSAGE'
                                   ? chefBookingTime(notification.notificationDetails, 'message')
                                   : chefBookingTime(notification.notificationDetails, 'booking')}
                               </p>
-                              <p>
-                                <b>Price:</b>
+                              <p style={{ display: 'flex', justifyContent: 'center' }}>
+                                <b>Booking Price:</b>
                                 {notification.notificationAreaType === 'NEW_MESSAGE'
-                                  ? chefBookPrice(notification.notificationDetails, 'message')
-                                  : chefBookPrice(notification.notificationDetails, 'booking')}
+                                  ? customerBookPrice(notification.notificationDetails, 'message')
+                                  : customerBookPrice(notification.notificationDetails, 'booking')}
                               </p>
                             </div>
-                          </div>
+                          )}
                           <div className="col-md-3" id="notification-buttons">
                             <button
                               className="btn btn-danger"

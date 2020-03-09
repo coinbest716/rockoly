@@ -15,9 +15,8 @@ const dismissNotification = gqlTag.mutation.notification.updateStatusGQLTag;
 
 const DISMISS_NOTIFICATION = gql`
   ${dismissNotification}
-  `;
+`;
 const NotificationCustomerDismissModal = props => {
-
   const [dismissnotifications, { data }] = useMutation(DISMISS_NOTIFICATION, {
     onCompleted: data => {
       toastMessage('success', 'Notification dismissed');
@@ -31,37 +30,35 @@ const NotificationCustomerDismissModal = props => {
     if (props.onCloseModal) {
       props.onCloseModal();
     }
-    
 
     if (props.notificationData === null) {
-      dismissnotifications({ // storing files in db
+      dismissnotifications({
+        // storing files in db
         variables: {
           pChefId: null,
           pCustomerId: props.customerId,
           pAdminId: null,
-          pStatusId: "DISMISSED",
-          pNotificationId: null
+          pStatusId: 'DISMISSED',
+          pNotificationId: null,
         },
-      })
-    }
-
-    else { // dismiss 1 notification
+      });
+    } else {
+      // dismiss 1 notification
       let unStringifyObject = JSON.parse(props.notificationData.notificationDetails);
 
-        dismissnotifications({ // storing files in db
-          variables: {
-            pChefId: null,
-            pCustomerId: props.customerId,
-            pAdminId: null,
-            pStatusId: "DISMISSED",
-            pNotificationId: props.notificationData.notificationHistId
-          },
-        });
+      dismissnotifications({
+        // storing files in db
+        variables: {
+          pChefId: null,
+          pCustomerId: props.customerId,
+          pAdminId: null,
+          pStatusId: 'DISMISSED',
+          pNotificationId: props.notificationData.notificationHistId,
+        },
+      });
       // }
-  
     }
   }
-  // console.log("props", props.notificationData)
   function closeModal() {
     if (props.onCloseModal) {
       props.onCloseModal();
@@ -72,14 +69,22 @@ const NotificationCustomerDismissModal = props => {
     <div className={`bts-popup ${open ? 'is-visible' : ''}`} role="alert">
       <div className="bts-popup-container">
         <h6>{props.content}</h6>
-        <button type="submit"
+        <button
+          type="submit"
           className="btn btn-success"
-          onClick={() => { onClickYes() }}
+          onClick={() => {
+            onClickYes();
+          }}
         >
           {S.YES}
         </button>
 
-        <button type="button" style={{ marginLeft: '23px' }} className="btn btn-danger" onClick={closeModal}>
+        <button
+          type="button"
+          style={{ marginLeft: '23px' }}
+          className="btn btn-danger"
+          onClick={closeModal}
+        >
           {S.NO}
         </button>
         <Link href="#">

@@ -26,7 +26,6 @@ const listKitchenTag = gqlTag.query.master.allKitchenEquipmentsByStatusGQLTAG;
 const savePreferenceTag = gqlTag.mutation.customer.updatePreferencesGQLTAG;
 const listCustomerAllergy = gqlTag.query.master.allergyByCustomerIdGQLTAG;
 
-
 //for getting cuisine data
 const GET_CUISINE_DATA = gql`
   ${cuisineDataTag}
@@ -53,7 +52,6 @@ const LIST_CUSTOMER_ALLERGY = gql`
 `;
 
 const Preference = props => {
-
   const [customerPreferenceIdValue, setCustomerPreferenceId] = useState('');
 
   const [savedAllergies, setSavedAllergies] = useState([]);
@@ -61,8 +59,7 @@ const Preference = props => {
   const [savedUtensils, setSavedUtensils] = useState([]);
   const [savedCuisines, setSavedCuisines] = useState([]);
 
-
-  const [typedAllergies, setTypedAllergies] = useState('')
+  const [typedAllergies, setTypedAllergies] = useState('');
   const [typedDietary, setTypedDietary] = useState('');
   const [typedUtensile, setTypedUtensile] = useState('');
   const [typedFavourite, setTypedfavourite] = useState('');
@@ -79,7 +76,7 @@ const Preference = props => {
   }); //get cuisine data
 
   const [getAllergyDataQuery, getAllergyData] = useLazyQuery(LIST_ALLERGY, {
-    variables: { statusId: "APPROVED" },
+    variables: { statusId: 'APPROVED' },
     fetchPolicy: 'network-only',
     onError: err => {
       toastMessage('renderError', err);
@@ -87,16 +84,15 @@ const Preference = props => {
   }); //get cuisine data LIST_DIETARY
 
   const [getDietaryDataQuery, getDietaryData] = useLazyQuery(LIST_DIETARY, {
-    variables: { statusId: "APPROVED" },
+    variables: { statusId: 'APPROVED' },
     fetchPolicy: 'network-only',
     onError: err => {
       toastMessage('renderError', err);
     },
   }); //get cuisine data LIST_DIETARY
 
-
   const [getKitchenDataQuery, getKitchenData] = useLazyQuery(LIST_KITCHEN, {
-    variables: { statusId: "APPROVED" },
+    variables: { statusId: 'APPROVED' },
     fetchPolicy: 'network-only',
     onError: err => {
       toastMessage('renderError', err);
@@ -105,7 +101,7 @@ const Preference = props => {
 
   const [updatePreferenceValues, { data }] = useMutation(SAVE_PREFERENCE, {
     onCompleted: data => {
-      toastMessage(success, 'Values updated successfully');
+      toastMessage(success, 'Updated Successfully');
       setIsTriggerSubs(true);
       getCuisineDataQuery();
       getAllergyDataQuery();
@@ -115,7 +111,6 @@ const Preference = props => {
     },
     onError: err => {
       toastMessage('error', err);
-
     },
   });
 
@@ -125,7 +120,7 @@ const Preference = props => {
     onError: err => {
       toastMessage('renderError', err);
     },
-  })
+  });
   useEffect(() => {
     if (props.customerId) {
       getCuisineDataQuery();
@@ -141,8 +136,8 @@ const Preference = props => {
       .then(res => {
         setCustomerPreferenceId(res);
       })
-      .catch(err => { });
-  })
+      .catch(err => {});
+  });
 
   //customerProfileByCustomerId
   useEffect(() => {
@@ -150,28 +145,45 @@ const Preference = props => {
     if (
       util.isObjectEmpty(customerData) &&
       util.hasProperty(customerData, 'customerProfileByCustomerId') &&
-      util.isObjectEmpty(customerData.customerProfileByCustomerId)
-      &&
-      util.hasProperty(customerData.customerProfileByCustomerId, 'customerPreferenceProfilesByCustomerId')
-      &&
-      util.isObjectEmpty(customerData.customerProfileByCustomerId.customerPreferenceProfilesByCustomerId)
-      &&
-      util.isArrayEmpty(customerData.customerProfileByCustomerId.customerPreferenceProfilesByCustomerId.nodes)
-      &&
-      util.isObjectEmpty(customerData.customerProfileByCustomerId.customerPreferenceProfilesByCustomerId.nodes[0])
+      util.isObjectEmpty(customerData.customerProfileByCustomerId) &&
+      util.hasProperty(
+        customerData.customerProfileByCustomerId,
+        'customerPreferenceProfilesByCustomerId'
+      ) &&
+      util.isObjectEmpty(
+        customerData.customerProfileByCustomerId.customerPreferenceProfilesByCustomerId
+      ) &&
+      util.isArrayEmpty(
+        customerData.customerProfileByCustomerId.customerPreferenceProfilesByCustomerId.nodes
+      ) &&
+      util.isObjectEmpty(
+        customerData.customerProfileByCustomerId.customerPreferenceProfilesByCustomerId.nodes[0]
+      )
     ) {
-      let propsData = customerData.customerProfileByCustomerId.customerPreferenceProfilesByCustomerId.nodes[0];
-      setSavedAllergies(propsData.customerAllergyTypeId)
-      setSavedCuisines(propsData.customerCuisineTypeId)
-      setSavedDietary(propsData.customerDietaryRestrictionsTypeId)
-      setSavedUtensils(propsData.customerKitchenEquipmentTypeId)
-      setTypedAllergies(propsData.customerOtherAllergyTypes ? JSON.parse(propsData.customerOtherAllergyTypes) : '');
-      setTypedDietary(propsData.customerOtherDietaryRestrictionsTypes ? JSON.parse(propsData.customerOtherDietaryRestrictionsTypes) : '');
-      setTypedUtensile(propsData.customerOtherKitchenEquipmentTypes ? JSON.parse(propsData.customerOtherKitchenEquipmentTypes) : '');
-      setTypedfavourite(propsData.customerOtherCuisineTypes ? JSON.parse(propsData.customerOtherCuisineTypes) : "");
+      let propsData =
+        customerData.customerProfileByCustomerId.customerPreferenceProfilesByCustomerId.nodes[0];
+      setSavedAllergies(propsData.customerAllergyTypeId);
+      setSavedCuisines(propsData.customerCuisineTypeId);
+      setSavedDietary(propsData.customerDietaryRestrictionsTypeId);
+      setSavedUtensils(propsData.customerKitchenEquipmentTypeId);
+      setTypedAllergies(
+        propsData.customerOtherAllergyTypes ? JSON.parse(propsData.customerOtherAllergyTypes) : ''
+      );
+      setTypedDietary(
+        propsData.customerOtherDietaryRestrictionsTypes
+          ? JSON.parse(propsData.customerOtherDietaryRestrictionsTypes)
+          : ''
+      );
+      setTypedUtensile(
+        propsData.customerOtherKitchenEquipmentTypes
+          ? JSON.parse(propsData.customerOtherKitchenEquipmentTypes)
+          : ''
+      );
+      setTypedfavourite(
+        propsData.customerOtherCuisineTypes ? JSON.parse(propsData.customerOtherCuisineTypes) : ''
+      );
     }
-  }, [props.details])
-
+  }, [props.details]);
 
   //getting cuisnes list from master table getAllergyData
 
@@ -187,75 +199,83 @@ const Preference = props => {
         customerDietaryRestrictionsTypeId: savedDietary ? savedDietary : [],
         customerOtherDietaryRestrictionsTypes: typedDietary ? JSON.stringify(typedDietary) : null,
         customerKitchenEquipmentTypeId: savedUtensils ? savedUtensils : [],
-        customerOtherKitchenEquipmentTypes: typedUtensile ? JSON.stringify(typedUtensile) : null
+        customerOtherKitchenEquipmentTypes: typedUtensile ? JSON.stringify(typedUtensile) : null,
       },
-    })
+    });
   }
 
   function uploadingData(data, dataType, preferenceType) {
-    setFavouriteCuisines()
+    setFavouriteCuisines();
     if (dataType === 'array') {
       if (preferenceType === 'allergy') {
         // setSavedAllergies(savedAllergies => [...savedAllergies, data])
-        setSavedAllergies(data)
+        setSavedAllergies(data);
       } else if (preferenceType === 'dietary') {
-        setSavedDietary(data)
+        setSavedDietary(data);
       } else if (preferenceType === 'kitchen') {
-        setSavedUtensils(data)
+        setSavedUtensils(data);
       } else if (preferenceType === 'favourite') {
-        if (savedCuisines.length === 0) {
-          setSavedCuisines(data)
-        } else {
-          // data.map((value) => {
-          setSavedCuisines(data)
-          // })
-        }
+        // if (savedCuisines.length === 0) {
+        //   setSavedCuisines(data)
+        // } else {
+        // data.map((value) => {
+        setSavedCuisines(data);
+        // })
+        // }
         // setSavedCuisines(data)
       }
     } else if (dataType === 'string') {
       if (preferenceType === 'allergy') {
-        setTypedAllergies(data)
+        setTypedAllergies(data);
       } else if (preferenceType === 'dietary') {
-        setTypedDietary(data)
+        setTypedDietary(data);
       } else if (preferenceType === 'kitchen') {
-        setTypedUtensile(data)
+        setTypedUtensile(data);
       } else if (preferenceType === 'favourite') {
-        setTypedfavourite(data)
+        setTypedfavourite(data);
       }
     }
   }
 
   return (
-    <section className="products-collections-area ptb-60 ProfileSetup">
+    <section className="products-collections-area ptb-60 ProfileSetup" id="sction-card-modal">
       <div className="section-title" id="sectionTitle">
         <h2>{s.PREFERENCES}</h2>
       </div>
       <form className="login-form col-ls-10">
-        <AllergyUpdate details={props.details}
+        <AllergyUpdate
+          details={props.details}
           customerId={props.customerId}
           role={customer}
           uploadingData={uploadingData}
-          isTriggerSubs={isTriggerSubs} />
-        <DietaryRestrictions details={props.details}
+          isTriggerSubs={isTriggerSubs}
+        />
+        <DietaryRestrictions
+          details={props.details}
           customerId={props.customerId}
           role={customer}
           uploadingData={uploadingData}
-          isTriggerSubs={isTriggerSubs} />
-        <KitchenUtensilsUpdate details={props.details}
+          isTriggerSubs={isTriggerSubs}
+        />
+        <KitchenUtensilsUpdate
+          details={props.details}
           customerId={props.customerId}
           role={customer}
           uploadingData={uploadingData}
-          isTriggerSubs={isTriggerSubs} />
-        <FavoriteCuisine details={props.details}
+          isTriggerSubs={isTriggerSubs}
+        />
+        <FavoriteCuisine
+          details={props.details}
           customerId={props.customerId}
           role={customer}
           uploadingData={uploadingData}
-          isTriggerSubs={isTriggerSubs} />
+          isTriggerSubs={isTriggerSubs}
+        />
         {/* <button className="btn btn-primary" onClick={() => updatePreference(event)}>
           SAVE
       </button> */}
       </form>
-      <div className="container">
+      {/* <div className="container">
         <div className="saveButton">
           <button
             type="button"
@@ -265,7 +285,7 @@ const Preference = props => {
             Save
             </button>
         </div>
-      </div>
+      </div> */}
     </section>
   );
 };

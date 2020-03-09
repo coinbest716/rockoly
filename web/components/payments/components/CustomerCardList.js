@@ -30,20 +30,11 @@ const CustomerCardList = props => {
   const [removeModal, setRemoveModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState({});
   const [state, setState] = useContext(AppContext);
-  const [stripeId, setStripeId] = useState('');
+  const [stripeId, setStripeId] = useState(null);
   const [cardData, setCardData] = useState({});
   const [addModalOpen, setAddModalOpen] = useState(false);
 
-  const [getCustomerData, { data, loading }] = useLazyQuery(GET_CUSTOMER_DATA, {
-    variables: {
-      customerId: stripeId,
-      limit: 10,
-    },
-    fetchPolicy: 'network-only',
-    onError: err => {
-      toastMessage('renderError', err);
-    },
-  });
+  const [getCustomerData, { data, loading }] = useLazyQuery(GET_CUSTOMER_DATA);
 
   const [removeCustomerCard] = useMutation(REMOVE_CUSTOMER_CARD, {
     onCompleted: data => {
@@ -68,13 +59,26 @@ const CustomerCardList = props => {
         state.customerProfile.customerProfileExtendedsByCustomerId.nodes[0]
           .customerStripeCustomerId;
       setStripeId(stripDetails);
+    } else {
+      // setStripeId(null);
     }
   }, [state]);
 
-   //set user data
+  //set user data
   useEffect(() => {
-    if(stripeId)
-    getCustomerData();
+    if (stripeId !== null) {
+      // console.log('stripeId', stripeId);
+      getCustomerData({
+        variables: {
+          customerId: stripeId,
+          limit: 10,
+        },
+        fetchPolicy: 'network-only',
+        onError: err => {
+          toastMessage('renderError', err);
+        },
+      });
+    }
   }, [stripeId]);
 
   //set user data
@@ -88,6 +92,7 @@ const CustomerCardList = props => {
     ) {
       let listData = data.stripeGetCustomerCards.data.data;
       setCardListData(listData);
+      setStripeId(null);
     } else {
       setCardListData([]);
     }
@@ -149,8 +154,9 @@ const CustomerCardList = props => {
   }
 
   //To close the add card modal
-  function closeAddCardModal() {
-    getCustomerData();
+  function closeAddCardModal(value) {
+    // getCustomerData();
+    setStripeId(value);
     setAddModalOpen(false);
   }
 
@@ -179,62 +185,56 @@ const CustomerCardList = props => {
   }
 
   try {
-    let cartItems = cardListData.length ? (
-      cardListData.map((res, index) => {
-        return (
-          <div>
-            {props && props.type && props.type === 'page' ? (
-              // <div>
-              <div className="row card" id="customer-card-view">
-                <div
-                  className="col-4 row cardNo1"
-                  id="card-content-view"
-                  onClick={() => onViewCardItem(res)}
-                >
-                  <i className="fas fa-credit-card" id="cardSpace"></i>
-                  <div className="cardNo1">{res.brand}</div>
-                </div>
-                <div className=" col-4 cardNo1" id="card-number-view">
-                  {'**** **** **** '}
-                  {res.last4}
-                </div>
-                <div className="col-4" id="customer-button-view">
-                  <button
-                    className="btn btn-primary deleteButton"
-                    id="closeButton"
-                    onClick={e => {
-                      e.preventDefault();
-                      setRemoveModal(true);
-                      setSelectedItem(res);
-                    }}
+    let cartItems = cardListData.length
+      ? cardListData.map((res, index) => {
+          return (
+            <div>
+              {props && props.type && props.type === 'page' ? (
+                // <div>
+                <div className="row card" id="customer-card-view">
+                  <div
+                    className="col-4 row cardNo1"
+                    id="card-content-view"
+                    onClick={() => onViewCardItem(res)}
                   >
-                    Delete
-                  </button>
-                </div>
-                {/* </div> */}
-              </div>
-            ) : (
-              <td className="product-name">
-                <div className="row">
-                  <div className="col-sm-12 cardSelect">
-                    <input type="radio" name="radio-group" onClick={() => setCardDetails(res)} />{' '}
                     <i className="fas fa-credit-card" id="cardSpace"></i>
-                    {res.brand} {'**** **** **** '}
+                    <div className="cardNo1">{res.brand}</div>
+                  </div>
+                  <div className=" col-4 cardNo1" id="card-number-view">
+                    {'**** **** **** '}
                     {res.last4}
                   </div>
+                  <div className="col-4" id="customer-button-view">
+                    <button
+                      className="btn btn-primary deleteButton"
+                      id="closeButton"
+                      onClick={e => {
+                        e.preventDefault();
+                        setRemoveModal(true);
+                        setSelectedItem(res);
+                      }}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                  {/* </div> */}
                 </div>
-              </td>
-            )}
-          </div>
-        );
-      })
-    ) : (
-      <tr>
-        <td className="product-thumbnail" colspan="5">
-          <p>Empty.</p>
-        </td>
-      </tr>
-    );
+              ) : (
+                <td className="product-name">
+                  <div className="row">
+                    <div className="col-sm-12 cardSelect">
+                      <input type="radio" name="radio-group" onClick={() => setCardDetails(res)} />{' '}
+                      <i className="fas fa-credit-card" id="cardSpace"></i>
+                      {res.brand} {'**** **** **** '}
+                      {res.last4}
+                    </div>
+                  </div>
+                </td>
+              )}
+            </div>
+          );
+        })
+      : null;
 
     return (
       <React.Fragment>
@@ -244,15 +244,29 @@ const CustomerCardList = props => {
             id="card-list-row"
             // style={{ marginTop: '7%', display: 'flex', justifyContent: 'spaceBetween' }}
           >
-            <h2>{props && props.type === 'modal' ? 'Select card' : 'Card List'}</h2>
-            <button
-              type="button"
-              className="btn btn-primary addCard"
-              id="closeButton"
-              onClick={() => onClickAddButton()}
+            <div
+              style={{
+                width: '100%',
+                display: 'flex',
+                justifyContent: 'center',
+                paddingBottom: '10px',
+              }}
             >
-              Add new card
-            </button>
+              <h2 style={{ fontSize: '18px', color: '#08AB93' }}>
+                {props && props.type === 'modal' ? 'Select card' : 'Card List'}
+              </h2>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+              <button
+                type="button"
+                className="btn btn-primary addCard"
+                id="closeButton"
+                onClick={() => onClickAddButton()}
+                style={{ width: 'fit-content', paddingeft: '0px', marginLeft: '0px' }}
+              >
+                Add new card
+              </button>
+            </div>
           </div>
           <br />
           <div className="formContainer">
@@ -271,9 +285,16 @@ const CustomerCardList = props => {
         </div>
         <br />
         {utils.isObjectEmpty(cardData) && props && props.type === 'modal' && (
-          <button type="button" className="btn btn-primary" onClick={() => selectCard()}>
-            Continue
-          </button>
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <button
+              style={{ width: 'fit-content' }}
+              type="button"
+              className="btn btn-primary"
+              onClick={() => selectCard()}
+            >
+              Pay Now
+            </button>
+          </div>
         )}
         <div>{addModalOpen === true && <AddCardModal closeAddCardModal={closeAddCardModal} />}</div>
       </React.Fragment>

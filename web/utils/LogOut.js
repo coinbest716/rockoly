@@ -4,7 +4,7 @@ import { StoreInLocal } from './LocalStorage';
 import { firebase } from '../config/firebaseConfig';
 
 // log out function
-export const logOutUser = () => {
+export const logOutUser = name => {
   try {
     return new Promise(function(resolve, reject) {
       firebase
@@ -14,7 +14,13 @@ export const logOutUser = () => {
           await localStorage.clear();
           await StoreInLocal('chef_loggedIn', false);
           await StoreInLocal('selected_menu', 'home_page');
-          await Router.push('/');
+          if (name && name !== 'intialAdmin') {
+            await Router.push('/');
+          }
+          if (name === 'shared-profile') {
+            await Router.push('/');
+            toastMessage('success', 'Logged out Successfully');
+          }
           resolve(true);
         })
         .catch(err => {

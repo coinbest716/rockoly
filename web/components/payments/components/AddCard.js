@@ -21,10 +21,17 @@ const StripeWrapper = props => {
     }
   }, []);
 
+  //For closing modal
+  function closeAddCardModal(value) {
+    if (props.closeAddCardModal) {
+      props.closeAddCardModal(value);
+    }
+  }
+
   return (
     <StripeProvider stripe={stripe}>
       <Elements>
-        <CardForm closeAddCardModal={props.closeAddCardModal} />
+        <CardForm closeAddCardModal={closeAddCardModal} />
       </Elements>
     </StripeProvider>
   );

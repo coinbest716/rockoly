@@ -1,5 +1,6 @@
 export default {
   GOOGLEAPI: 'https://maps.googleapis.com/maps/api/geocode/json?latlng=',
+  GOOGLEAPI2: 'https://maps.googleapis.com/maps/api/geocode/json?key=',
   KEY: '&key=',
   TEXT: 'text',
   NUMBER: 'number',

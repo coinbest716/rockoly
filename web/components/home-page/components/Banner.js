@@ -8,9 +8,18 @@ import dynamic from 'next/dynamic';
 import { bannerData } from '../const/BannerData';
 import { toastMessage } from '../../../utils/Toast';
 import { AccordionItemPanel } from 'react-accessible-accordion';
-import { getUserTypeRole, getCustomerId, customerId, customer } from '../../../utils/UserType';
 import s from '../../profile-setup/ProfileSetup.String';
 const OwlCarousel = dynamic(import('react-owl-carousel3'));
+import gql from 'graphql-tag';
+import { useLazyQuery } from '@apollo/react-hooks';
+import * as gqlTag from '../../../common/gql';
+import * as util from '../../../utils/checkEmptycondition';
+import {
+  getCustomerId,
+  customer,
+  getUserTypeRole,
+  customerId,
+} from '../../../utils/UserType';
 
 // Carousel options
 const { publicRuntimeConfig } = getConfig();
@@ -27,24 +36,81 @@ const options = {
   navText: ["<i class='fas fa-arrow-left'></i>", "<i class='fas fa-arrow-right'></i>"],
 };
 
+//customer
+const customerDataTag = gqlTag.query.customer.profileByIdGQLTAG;
+//for getting customer data
+const GET_CUSTOMER_DATA = gql`
+  ${customerDataTag}
+`;
+
 const Banner = props => {
+
   const [userRole, setUserRole] = useState([]);
   const [display, setDisplay] = useState(false);
   const [panel, setPanel] = useState(true);
   const [fullAddress, setFullAddress] = useState('');
   const [latitude, setLatitude] = useState(null);
   const [longtitude, setLongtitude] = useState(null);
+  const [customerIdValue,setCustomerId] = useState(null);
+  const [customerProfileDetails, setCustomerProfileDetails] = useState([]);
+
+  const [getCustomerData, { data }] = useLazyQuery(GET_CUSTOMER_DATA, {
+    variables: { customerId: customerIdValue },
+    fetchPolicy: 'network-only',
+    onError: err => {
+      toastMessage('renderError', err);
+    },
+  });
+
   useEffect(() => {
     setDisplay(true);
   }, []);
 
-  useEffect(() => {
-    getUserTypeRole()
-      .then(res => {
-        setUserRole(res);
-      })
-      .catch(err => {});
-  }, []);
+ //get chef id
+ useEffect(() => {
+  //get user role
+  getUserTypeRole()
+    .then(async res => {
+      setUserRole(res);
+      if (res === customer) {
+        //customer user
+        getCustomerId(customerId)
+          .then(customerResult => {
+            setCustomerId(customerResult);
+          })
+          .catch(err => { });
+      }
+    })
+    .catch(err => { });
+}, []);
+
+useEffect(() => {
+  if (customerIdValue) {
+    getCustomerData();
+  }
+}, customerIdValue);
+
+useEffect(() => {
+  // getting customer's details
+  if (
+    util.isObjectEmpty(data) &&
+    util.hasProperty(data, 'customerProfileByCustomerId') &&
+    util.isObjectEmpty(data.customerProfileByCustomerId) &&
+    util.hasProperty(data.customerProfileByCustomerId,'customerProfileExtendedsByCustomerId') &&
+    util.isObjectEmpty(data.customerProfileByCustomerId.customerProfileExtendedsByCustomerId)   
+  ) {
+    let details = data.customerProfileByCustomerId.customerProfileExtendedsByCustomerId;
+    if(util.hasProperty(details,'nodes')&&
+       util.isArrayEmpty(details.nodes)
+    ){
+      setFullAddress(details.nodes[0].customerLocationAddress ? details.nodes[0].customerLocationAddress : '')
+      setLongtitude(details.nodes[0].customerLocationLng ? details.nodes[0].customerLocationLng : '');
+      setLatitude(details.nodes[0].customerLocationLat ? details.nodes[0].customerLocationLat : '');
+    }
+  } else {
+    setCustomerProfileDetails([]);
+  }
+}, [data]);
 
   function getLocation(location) {
     if (props.getLocation) {
@@ -155,6 +221,7 @@ const Banner = props => {
                         />
                         <button
                           className="btn btn-primary"
+                          id="home-search-button"
                           onClick={() => getLocation(event)}
                           style={{ height: '42px', marginLeft: '20px', marginTop: '2px' }}
                         >

@@ -18,9 +18,8 @@ const useTagFunc = () => {
 };
 
 const Reviews = props => {
-
-  function formatCreatedDate(date) {   
-    return NotificationconvertDateandTime(date)+ " " + getTimeOnly(getLocalTime(date));
+  function formatCreatedDate(date) {
+    return NotificationconvertDateandTime(date) + ' ' + getTimeOnly(getLocalTime(date));
   }
 
   try {
@@ -47,7 +46,7 @@ const Reviews = props => {
                           src={
                             node.customerProfileByCustomerId.customerPicId
                               ? node.customerProfileByCustomerId.customerPicId
-                              : require('../../../../images/mock-image/sample_user.png')
+                              : require('../../../../images/mock-image/rockoly-logo.png')
                           }
                           style={{ width: '53px !important' }}
                         />
@@ -60,10 +59,10 @@ const Reviews = props => {
                           <span>
                             <Rating
                               initialRating={node.reviewPoint}
-                              className="ratingView"
+                              className="ratingView review-rating"
                               id="description-rating-view"
                               emptySymbol={
-                                <img src={s.EMPTY_STAR} id="emptyStar" className="rating" />
+                                <img src={s.EMPTY_STAR} id="emptyStar" className="rating " />
                               }
                               fullSymbol="fa fa-star"
                               fractions={2}

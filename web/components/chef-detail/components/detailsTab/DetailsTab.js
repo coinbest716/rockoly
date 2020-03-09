@@ -26,10 +26,16 @@ const GET_CHEF_DATA = gql`
   ${chefDataTag}
 `;
 
+const customerDataTag = gqlTag.query.customer.profileByIdGQLTAG;
+//for getting customer data
+const GET_CUSTOMER_DATA = gql`
+  ${customerDataTag}
+`;
+
 const chefProfileSubscription = gqlTag.subscription.chef.ProfileGQLTAG;
 const CHEF_SUBSCRIPTION_TAG = gql`
   ${chefProfileSubscription}
-  `;
+`;
 
 const chefLocationSubscription = gqlTag.subscription.chef.profileExtendedGQLTAG;
 const CHEF_LOCATION_SUBS = gql`
@@ -50,29 +56,68 @@ const AVAILABILITY_SUBSCRIPTION = gql`
   ${availabilitySubscription}
 `;
 
-
 const DetailsTab = props => {
-
+  console.log('props', props);
+  const [isUIRendered, setIsUIRendered] = useState(false);
   const [chefIdValue, setChefId] = useState(null);
   const [customerIdValue, setCustomerId] = useState(null);
   const [userRole, setUserRole] = useState('');
   const [ProfileDetails, setProfileDetails] = useState([]);
-  const tab1 = 'tab1', tab2 = 'tab2', tab3 = 'tab3', tab4 = 'tab4';
+  const [customerProfileDetails, setCustomerProfileDetails] = useState([]);
+  const [customerUserId, setCustomerUserId] = useState(null);
+  const [chefUserId, setChefUserId] = useState(null);
+  const [value, setValue] = useState(null);
+
+  const tab1 = 'tab1',
+    tab2 = 'tab2',
+    tab3 = 'tab3',
+    tab4 = 'tab4';
   const [getChefDataByProfile, { data }] = useLazyQuery(GET_CHEF_DATA, {
     variables: { chefId: props.chefId },
-    fetchPolicy: 'network-only'
+    fetchPolicy: 'network-only',
+  });
+
+  const [getCustomerDataByProfile, customerData] = useLazyQuery(GET_CUSTOMER_DATA, {
+    variables: { customerId: customerIdValue },
+    fetchPolicy: 'network-only',
   });
 
   useEffect(() => {
+    console.log('data', data);
     if (
       util.hasProperty(data, 'chefProfileByChefId') &&
       util.isObjectEmpty(data.chefProfileByChefId)
     ) {
       setProfileDetails(data.chefProfileByChefId);
+      setChefUserId(data.chefProfileByChefId.userId);
     } else {
       setProfileDetails(null);
     }
+    setIsUIRendered(true);
   }, [data]);
+
+  useEffect(() => {
+    console.log('customerData', customerData.data);
+    if (
+      util.hasProperty(customerData.data, 'customerProfileByCustomerId') &&
+      util.isObjectEmpty(customerData.data.customerProfileByCustomerId)
+    ) {
+      setCustomerProfileDetails(customerData.data.customerProfileByCustomerId);
+      setCustomerUserId(customerData.data.customerProfileByCustomerId.userId);
+    } else {
+      setCustomerProfileDetails(null);
+    }
+    setIsUIRendered(true);
+  }, [customerData]);
+
+  useEffect(() => {
+    if (customerUserId && chefUserId && customerUserId == chefUserId) {
+      setValue(true);
+    } else {
+      setValue(false);
+    }
+  }, [customerUserId, chefUserId]);
+
   useEffect(() => {
     //get user role
     getUserTypeRole()
@@ -88,68 +133,64 @@ const DetailsTab = props => {
           getCustomerId(customerId)
             .then(async customerResult => {
               await setCustomerId(customerResult);
+              getCustomerDataByProfile();
               // console.log("customerResult",customerResult)
               // getCustomerData();
             })
-            .catch(err => { });
+            .catch(err => {});
         }
       })
-      .catch(err => { });
+      .catch(err => {});
   }, []);
+
   useEffect(() => {
     if (customerIdValue) {
       getChefDataByProfile();
+      getCustomerDataByProfile();
     }
-  }, customerIdValue)
+  }, customerIdValue);
 
-  const { chefProfileSubsdata, error, loading } = useSubscription(CHEF_SUBSCRIPTION_TAG,
-    {
-      variables: { chefId: props.chefId },
-      onSubscriptionData: (res) => {
-
-        if (res.subscriptionData.data.chefProfile) {
-          getChefDataByProfile();
-        }
-      },
-    });
-  const { chefLocationSubs } = useSubscription(CHEF_LOCATION_SUBS,
-    {
-      variables: { chefId: props.chefId },
-      onSubscriptionData: (res) => {
-        if (res.subscriptionData.data.chefProfileExtended) {
-
-          getChefDataByProfile();
-        }
-      },
-    });
-  const { chefAttachmentsSubs } = useSubscription(ATTACHMENT_SUBSCRIPTION,
-    {
-      variables: { chefId: props.chefId },
-      onSubscriptionData: (res) => {
-        if (res.subscriptionData.data.chefAttachmentProfile) {
-          getChefDataByProfile();
-        }
-      },
-    });
-  const { chefSpecializationSubsdata } = useSubscription(SPECIALIZATION_SUBSCRIPTION,
-    {
-      variables: { chefId: props.chefId },
-      onSubscriptionData: (res) => {
-        if (res.subscriptionData.data.chefSpecializationProfile) {
-          getChefDataByProfile();
-        }
-      },
-    });
-  const { customerAvailabilitySubs } = useSubscription(AVAILABILITY_SUBSCRIPTION,
-    {
-      variables: { chefId: props.chefId },
-      onSubscriptionData: (res) => {
-        // console.log("res", res)
-        if (res.subscriptionData.data.chefAvailabilityProfile) {
-          getChefDataByProfile();
-        }
-      },
-    });
+  const { chefProfileSubsdata, error, loading } = useSubscription(CHEF_SUBSCRIPTION_TAG, {
+    variables: { chefId: props.chefId },
+    onSubscriptionData: res => {
+      if (res.subscriptionData.data.chefProfile) {
+        getChefDataByProfile();
+      }
+    },
+  });
+  const { chefLocationSubs } = useSubscription(CHEF_LOCATION_SUBS, {
+    variables: { chefId: props.chefId },
+    onSubscriptionData: res => {
+      if (res.subscriptionData.data.chefProfileExtended) {
+        getChefDataByProfile();
+      }
+    },
+  });
+  const { chefAttachmentsSubs } = useSubscription(ATTACHMENT_SUBSCRIPTION, {
+    variables: { chefId: props.chefId },
+    onSubscriptionData: res => {
+      if (res.subscriptionData.data.chefAttachmentProfile) {
+        getChefDataByProfile();
+      }
+    },
+  });
+  const { chefSpecializationSubsdata } = useSubscription(SPECIALIZATION_SUBSCRIPTION, {
+    variables: { chefId: props.chefId },
+    onSubscriptionData: res => {
+      if (res.subscriptionData.data.chefSpecializationProfile) {
+        getChefDataByProfile();
+      }
+    },
+  });
+  const { customerAvailabilitySubs } = useSubscription(AVAILABILITY_SUBSCRIPTION, {
+    variables: { chefId: props.chefId },
+    onSubscriptionData: res => {
+      // console.log("res", res)
+      if (res.subscriptionData.data.chefAvailabilityProfile) {
+        getChefDataByProfile();
+      }
+    },
+  });
 
   function openTabSection(evt, tabNmae) {
     let i, tabcontent, tablinks;
@@ -165,129 +206,129 @@ const DetailsTab = props => {
       tablinks[i].className = tablinks[i].className.replace('current', '');
     }
 
-
-
     document.getElementById(tabNmae).style.display = 'block';
     document.getElementById(tabNmae).className += ' fadeInUp animated';
-
 
     evt.currentTarget.className += 'current';
   }
 
   try {
+    console.log('checkAvailbility', customerProfileDetails, ProfileDetails);
     return (
       <div className="col-lg-12 col-md-12" style={{ paddingTop: 121 }}>
-        <div className="tab products-details-tab">
-          <div className="row">
-            <div className="col-lg-12 col-md-12">
-              <ul className="tabs">
-                {props.isClickBooking &&
-                  <div>
-                    {openTabSection(props.event, tab3)}
-                  </div>
-                }
-                {props.isClickBooking ?
+        {isUIRendered === true && (
+          <div className="tab products-details-tab">
+            <div className="row">
+              <div className="col-lg-12 col-md-12">
+                <ul className="tabs">
+                  {props.isClickBooking && <div>{openTabSection(props.event, tab3)}</div>}
+                  {props.isClickBooking ? (
+                    <li
+                      onClick={e => {
+                        e.preventDefault();
+                        openTabSection(e, tab1);
+                      }}
+                    >
+                      <a href="#">
+                        <div className="dot"></div> Description
+                      </a>
+                    </li>
+                  ) : (
+                    <li
+                      onClick={e => {
+                        e.preventDefault();
+                        openTabSection(e, tab1);
+                      }}
+                      className="current"
+                    >
+                      <a href="#">
+                        <div className="dot"></div> Description
+                      </a>
+                    </li>
+                  )}
+
                   <li
                     onClick={e => {
                       e.preventDefault();
-                      openTabSection(e, tab1);
+                      openTabSection(e, tab2);
                     }}
                   >
                     <a href="#">
-                      <div className="dot"></div> Description
-                  </a>
-                  </li> :
-                  <li
-                    onClick={e => {
-                      e.preventDefault();
-                      openTabSection(e, tab1);
-                    }}
-                    className="current"
-                  >
-                    <a href="#">
-                      <div className="dot"></div> Description
+                      <div className="dot"></div> Work Gallery
                     </a>
                   </li>
-                }
+                  {props.isClickBooking ? (
+                    <li
+                      onClick={e => {
+                        e.preventDefault();
+                        openTabSection(e, tab3);
+                      }}
+                      className="current"
+                    >
+                      <a href="#">
+                        <div className="dot"></div> Check Availability
+                      </a>
+                    </li>
+                  ) : (
+                    <li
+                      onClick={e => {
+                        e.preventDefault();
+                        openTabSection(e, tab3);
+                      }}
+                    >
+                      <a href="#">
+                        <div className="dot"></div> Check Availability
+                      </a>
+                    </li>
+                  )}
 
-
-                <li
-                  onClick={e => {
-                    e.preventDefault();
-                    openTabSection(e, tab2);
-                  }}
-                >
-                  <a href="#">
-                    <div className="dot"></div> Work Gallery
-                  </a>
-                </li>
-                 {props.isClickBooking ?
                   <li
-                  onClick={e => {
-                    e.preventDefault();
-                    openTabSection(e, tab3);
-                  }}
-                  className="current"
-                >
-                  <a href="#">
-                    <div className="dot"></div> Availability
-                  </a>
-                </li> : 
-                <li
-                onClick={e => {
-                  e.preventDefault();
-                  openTabSection(e, tab3);
-                }}
-              >
-                <a href="#">
-                  <div className="dot"></div> Availability
-                </a>
-              </li>
-                 }
-                
+                    onClick={e => {
+                      e.preventDefault();
+                      openTabSection(e, tab4);
+                    }}
+                  >
+                    <a href="#">
+                      <div className="dot"></div> Ratings & Reviews
+                    </a>
+                  </li>
+                </ul>
+              </div>
 
-                <li
-                  onClick={e => {
-                    e.preventDefault();
-                    openTabSection(e, tab4);
-                  }}
-                >
-                  <a href="#">
-                    <div className="dot"></div> Ratings & Reviews
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            <div className="col-lg-12 col-md-12" style={{ height: '100vh !important' }}>
-              <div className="tab_content">
-                <div id="tab1" className="tabs_item">
-                  <div className="products-details-tab-content">
-                    <Description chefDetails={ProfileDetails} />
+              <div className="col-lg-12 col-md-12">
+                <div className="tab_content">
+                  <div id="tab1" className="tabs_item">
+                    <div className="products-details-tab-content">
+                      <Description chefDetails={ProfileDetails} />
+                    </div>
                   </div>
-                </div>
 
-                <div id="tab2" className="tabs_item">
-                  <div className="products-details-tab-content">
-                    <WorkGallery chefDetails={ProfileDetails} />
+                  <div id="tab2" className="tabs_item">
+                    <div className="products-details-tab-content">
+                      <WorkGallery chefDetails={ProfileDetails} />
+                    </div>
                   </div>
-                </div>
 
-                <div id="tab3" className="tabs_item">
-                  <div className="products-details-tab-content">
-                    <Availability chefDetails={ProfileDetails} chefId={props.chefId} />
+                  <div id="tab3" className="tabs_item">
+                    <div className="products-details-tab-content">
+                      <Availability
+                        value={value}
+                        chefDetails={ProfileDetails}
+                        chefId={props.chefId}
+                      />
+                    </div>
                   </div>
-                </div>
 
-                <div id="tab4" className="tabs_item">
-                  <div className="products-details-tab-content">
-                    <Reviews chefDetails={ProfileDetails} />
+                  <div id="tab4" className="tabs_item">
+                    <div className="products-details-tab-content">
+                      <Reviews chefDetails={ProfileDetails} />
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     );
   } catch (error) {

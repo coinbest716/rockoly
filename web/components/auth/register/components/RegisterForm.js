@@ -7,7 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { firebase } from '../../../../config/firebaseConfig';
 import Login from '../../SocialLogins';
 import s from '../../Auth.String';
-import { SignupToCustomer, SignupToChef } from './Navigation';
+import { SignupToCustomer, SignupToChef, SharedProfile } from './Navigation';
 import { toastMessage } from '../../../../utils/Toast';
 import { StoreInLocal } from '../../../../utils/LocalStorage';
 import Loader from '../../../Common/loader';
@@ -44,13 +44,13 @@ export default function RegisterForm() {
   const [passwordIcon1, setPasswordIcon1] = useState(true);
   const [passwordIcon2, setPasswordIcon2] = useState(true);
   const [loader, setLoader] = useState(false);
-  const [chefUser, setChefUser] = useState(false);
+  const [chefUser, setChefUser] = useState(null);
+  const [showCustomer, setShowCustomer] = useState(null);
 
   //mutation query
 
-  const [registerAuthMutation, { data, loading,error }] = useMutation(REGISTER_AUTH, {
+  const [registerAuthMutation, { data, loading, error }] = useMutation(REGISTER_AUTH, {
     onError: err => {
-      console.log('gql response', err);
       logOutUser()
         .then(result => {})
         .catch(error => {
@@ -59,8 +59,8 @@ export default function RegisterForm() {
       toastMessage('renderError', err.message);
     },
   });
-  if(error){
-    toastMessage('error',error)
+  if (error) {
+    toastMessage('error', error);
   }
 
   useEffect(() => {
@@ -72,10 +72,12 @@ export default function RegisterForm() {
   }, [data]);
 
   async function checkMobileAndEmailDataExist(emailData, mobileData) {
+    let mobile = mobileData.replace(" ", "");
+    mobile = mobile.replace(" ", "");
     //Query for check mobile number exist or not
     let data = {
       pEmail: emailData ? emailData : '',
-      pMobileNo: mobileData ? mobileData : '',
+      pMobileNo: mobileData ? mobile : '',
     };
     //get value form db
     const mobileValueCheckTag = gqlTag.query.auth.checkEmailAndMobileNoExistsGQLTAG;
@@ -102,11 +104,12 @@ export default function RegisterForm() {
         //for customer login
         if (chefUser === false) {
           getCustomerAuthData(data.authenticate.data)
-            .then(customerRes => {
+            .then(async customerRes => {
               StoreInLocal('user_ids', customerRes);
               StoreInLocal('user_role', customer);
               toastMessage('success', 'Registered Successfully');
-              SignupToCustomer();
+              // SignupToCustomer();
+              await SharedProfile();
             })
             .catch(error => {
               toastMessage('renderError', error.message);
@@ -115,11 +118,11 @@ export default function RegisterForm() {
         //for chef login
         else {
           getChefAuthData(data.authenticate.data)
-            .then(chefRes => {
+            .then(async chefRes => {
               StoreInLocal('user_ids', chefRes);
               StoreInLocal('user_role', chef);
               toastMessage('success', 'Registered Successfully');
-              SignupToChef();
+              await SharedProfile();
             })
             .catch(error => {
               toastMessage('renderError', error.message);
@@ -131,6 +134,7 @@ export default function RegisterForm() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+
     //Callback function from mobile number verification
     const mobileData = await childRef.current.getMobileNumberValue();
 
@@ -160,8 +164,9 @@ export default function RegisterForm() {
         lastname: lastName ? lastName : null,
         dob: dob ? dob : null,
         mobileNumber: mobileData.mobileNumberValue ? mobileData.mobileNumberValue : null,
-        countryCode: mobileData.countryCode ? mobileData.countryCode : null,
+        mobileCountryCode: mobileData.countryCode ? mobileData.countryCode : null,
       };
+      // countryCode: mobileData.countryCode ? mobileData.countryCode : null,
       firebase
         .auth()
         .createUserWithEmailAndPassword(email, password)
@@ -175,7 +180,6 @@ export default function RegisterForm() {
                 authenticateType: 'REGISTER',
                 extra: JSON.stringify(userDetail),
               };
-              // console.log('userDetail11', variables);
               registerAuthMutation({ variables });
               setLoader(false);
               StoreInLocal('current_user_token', data);
@@ -207,6 +211,15 @@ export default function RegisterForm() {
         });
     } catch (error) {
       toastMessage('renderError', error.message);
+    }
+  }
+
+  function onSelectButtonTypeClick(value) {
+    setShowCustomer(value);
+    if (value === true) {
+      setChefUser(false);
+    } else {
+      setChefUser(true);
     }
   }
 
@@ -249,63 +262,100 @@ export default function RegisterForm() {
 
   return (
     <React.Fragment>
-      <section className="login-area ptb-60">
-        <ToastContainer />
-        <div className="container" id="register-content">
-          <div className="">
-            <div className="col-lg-12 col-md-12">
-              <div className="login-content">
-                <div className="section-title">
-                  <h2>
-                    <span className="dot"></span> Register
-                  </h2>
-                </div>
-
-                <form className="login-form" onSubmit={handleSubmit}>
-                  <div className="form-group">
-                    <label>{s.FIRST_NAME}</label>
-                    <input
-                      type="text"
-                      className={s.FORM_CONTROL}
-                      placeholder={s.FIRST_NAME_PLACEHOLDER}
-                      id="fname"
-                      name="fname"
-                      required
-                      data-error="Please enter first name"
-                      value={firstName}
-                      onChange={event => onChangeValue(event.target.value, setFirstName)}
-                    />
+      {showCustomer === null && (
+        <div className="register_type row">
+          <div
+            onClick={() => onSelectButtonTypeClick(false)}
+            className="chef_register_type col-lg-2 col-md-12 col-sm-12"
+          >
+            <div className="chef_register_type_card card">
+              <img
+                className="chef_register_type_card_img"
+                src={require('../../../../images/noun_chef_white.png')}
+                alt="image"
+              />
+              <div className="chef_register_type_card_div">
+                <b className="chef_register_type_card_div_name">Are you a private chef?</b>
+              </div>
+            </div>
+          </div>
+          <div
+            onClick={() => onSelectButtonTypeClick(true)}
+            className="customer_register_type col-lg-2 col-md-12 col-sm-12"
+          >
+            <div className="customer_register_type_card card">
+              <img
+                className="customer_register_type_card_img"
+                src={require('../../../../images/customer_white.png')}
+                alt="image"
+              />
+              <div className="customer_register_type_card_div">
+                <b className="customer_register_type_card_div_name">
+                  Are you looking for a private chef?
+                </b>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {showCustomer !== null && (
+        <section className="login-area ptb-60">
+          <ToastContainer />
+          <div className="container" id="register-content">
+            <div className="">
+              <div className="col-lg-12 col-md-12">
+                <div className="login-content">
+                  <div className="section-title">
+                    <h2>
+                      <span className="dot"></span> Register
+                    </h2>
                   </div>
 
-                  <div className="form-group">
-                    <label>{s.LAST_NAME}</label>
-                    <input
-                      type="text"
-                      className={s.FORM_CONTROL}
-                      required
-                      placeholder={s.LAST_NAME_PLACEHOLDER}
-                      id="lname"
-                      name="lname"
-                      value={lastName}
-                      onChange={event => onChangeValue(event.target.value, setLastName)}
-                    />
-                  </div>
+                  <form className="login-form" onSubmit={handleSubmit}>
+                    <div className="form-group">
+                      <label>{s.FIRST_NAME}</label>
+                      <input
+                        type="text"
+                        className={s.FORM_CONTROL}
+                        placeholder={s.FIRST_NAME_PLACEHOLDER}
+                        id="fname"
+                        name="fname"
+                        required
+                        data-error="Please enter first name"
+                        value={firstName}
+                        onChange={event => onChangeValue(event.target.value, setFirstName)}
+                      />
+                    </div>
 
-                  <div className="form-group">
-                    <label>{s.EMAIL}</label>
-                    <input
-                      type={s.EMAIL_INPUT}
-                      className={s.FORM_CONTROL}
-                      required
-                      placeholder={s.EMAIL_PLACEHOLDER}
-                      id={s.EMAIL_INPUT}
-                      name={s.EMAIL_INPUT}
-                      value={email}
-                      onChange={event => onChangeValue(event.target.value, setEmail)}
-                    />
-                  </div>
+                    <div className="form-group">
+                      <label>{s.LAST_NAME}</label>
+                      <input
+                        type="text"
+                        className={s.FORM_CONTROL}
+                        required
+                        placeholder={s.LAST_NAME_PLACEHOLDER}
+                        id="lname"
+                        name="lname"
+                        value={lastName}
+                        onChange={event => onChangeValue(event.target.value, setLastName)}
+                      />
+                    </div>
 
-                  {/* <div className="form-group">
+                    <div className="form-group">
+                      <label>{s.EMAIL}</label>
+                      <input
+                        type={s.EMAIL_INPUT}
+                        className={s.FORM_CONTROL}
+                        required
+                        placeholder={s.EMAIL_PLACEHOLDER}
+                        id={s.EMAIL_INPUT}
+                        name={s.EMAIL_INPUT}
+                        value={email}
+                        onChange={event => onChangeValue(event.target.value, setEmail)}
+                      />
+                    </div>
+
+                    {/* <div className="form-group">
                     <label>{s.DOB}</label>
                     <br />
                     <ModernDatepicker
@@ -320,47 +370,51 @@ export default function RegisterForm() {
                     />
                   </div> */}
 
-                  <div className="form-group">
-                    <label>{s.PASSWORD}</label>
-                    <div className="eyeIconView">
-                      <input
-                        type={passwordIcon1 ? s.PASSWORD_INPUT : s.TEXT}
-                        required
-                        minLength="6"
-                        className={s.FORM_CONTROL}
-                        placeholder={s.PASSWORD_PLACEHOLDER}
-                        id={s.PASSWORD_INPUT}
-                        name={s.PASSWORD_INPUT}
-                        value={password}
-                        onChange={event => onChangeValue(event.target.value, setPassword)}
-                      />
-                      <span>
-                        <i className={icEye1} onClick={() => changePwdType1()}></i>
-                      </span>
+                    <div className="form-group">
+                      <label>{s.PASSWORD}</label>
+                      <div className="eyeIconView">
+                        <input
+                          type={passwordIcon1 ? s.PASSWORD_INPUT : s.TEXT}
+                          required
+                          minLength="6"
+                          className={s.FORM_CONTROL}
+                          placeholder={s.PASSWORD_PLACEHOLDER}
+                          id={s.PASSWORD_INPUT}
+                          name={s.PASSWORD_INPUT}
+                          value={password}
+                          onChange={event => onChangeValue(event.target.value, setPassword)}
+                        />
+                        <span>
+                          <i className={icEye1} onClick={() => changePwdType1()}></i>
+                        </span>
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="form-group">
-                    <label>{s.CONFIRM_PASSWORD}</label>
-                    <div className="eyeIconView">
-                      <input
-                        type={passwordIcon2 ? s.PASSWORD_INPUT : s.TEXT}
-                        required
-                        minLength="6"
-                        className={s.FORM_CONTROL}
-                        placeholder={s.CONFIRM_PASSWORD_PLACEHOLDER}
-                        name={s.PASSWORD_INPUT}
-                        value={confirmPassword}
-                        onChange={event => onChangeValue(event.target.value, setConfirmPassword)}
-                      />
-                      <i className={icEye2} onClick={() => changePwdType2()}></i>
+                    <div className="form-group">
+                      <label>{s.CONFIRM_PASSWORD}</label>
+                      <div className="eyeIconView">
+                        <input
+                          type={passwordIcon2 ? s.PASSWORD_INPUT : s.TEXT}
+                          required
+                          minLength="6"
+                          className={s.FORM_CONTROL}
+                          placeholder={s.CONFIRM_PASSWORD_PLACEHOLDER}
+                          name={s.PASSWORD_INPUT}
+                          value={confirmPassword}
+                          onChange={event => onChangeValue(event.target.value, setConfirmPassword)}
+                        />
+                        <i className={icEye2} onClick={() => changePwdType2()}></i>
+                      </div>
+                      <p>
+                        <b>(password must contain at least 6 characters)</b>
+                      </p>
                     </div>
-                    <p>
-                      <b>(password must contain at least 6 characters)</b>
-                    </p>
-                  </div>
-                  <MobileNumberVerification ref={childRef} mobileNumber={mobileNumber} />
-                  {/* <div className="login-keep">
+                    <MobileNumberVerification
+                      screen={'register1'}
+                      ref={childRef}
+                      mobileNumber={mobileNumber}
+                    />
+                    {/* <div className="login-keep">
                     <div className="buy-checkbox-btn">
                       <div className="item">
                         <input
@@ -381,30 +435,31 @@ export default function RegisterForm() {
                       </div>
                     </div>
                   </div> */}
-                  {renderLoader()}
-                  <button type="submit" className="btn btn-primary">
-                    Register
-                  </button>
-                </form>
+                    {renderLoader()}
+                    <button type="submit" className="btn btn-primary">
+                      Register
+                    </button>
+                  </form>
+                </div>
               </div>
-            </div>
 
-            <div className="col-lg-12 col-md-12" id="socialLoginContainer">
-              <p className="orFont">or</p>
-            </div>
+              <div className="col-lg-12 col-md-12" id="socialLoginContainer">
+                <p className="orFont">or</p>
+              </div>
 
-            <div className="col-lg-12 col-md-12" id="socialLoginContainer">
-              <div>
-                <Login
-                  sourceType={'REGISTER'}
-                  userType={chefUser === true ? 'CHEF' : 'CUSTOMER'}
-                  checkMobileAndEmailDataExist={checkMobileAndEmailDataExist}
-                />
+              <div className="col-lg-12 col-md-12" id="socialLoginContainer">
+                <div>
+                  <Login
+                    sourceType={'REGISTER'}
+                    userType={chefUser === true ? 'CHEF' : 'CUSTOMER'}
+                    checkMobileAndEmailDataExist={checkMobileAndEmailDataExist}
+                  />
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </React.Fragment>
   );
 }

@@ -1,0 +1,113 @@
+.step-progress.shared_profile.chef {
+  // width: 80%;
+  // margin: auto;
+}
+
+.step-progress.shared_profile {
+  display: flex;
+  justify-content: center;
+
+  ol.progtrckr li.progtrckr-done:before {
+    background-color: #08AB93;
+  }
+
+  ol.progtrckr li span {
+    color: #08AB93;
+  }
+
+  ol.progtrckr li.progtrckr-done {
+    border-bottom: 4px solid #08AB93;
+  }
+
+  ol.progtrckr li.progtrckr-doing:before {
+    background-color: #ABD037
+  }
+
+  ol.progtrckr li.progtrckr-doing {
+    color: #ABD037;
+    border-bottom: 4px solid #ABD037;
+  }
+
+  .profile_pic:hover .image {
+    opacity: 1 !important;
+  }
+  .profile_pic .image {
+    display: unset;
+    max-width: 20%;
+  }
+
+  .profile_pic{
+    position: relative;
+    text-align: center;
+  }
+
+  .containers:hover .middle {
+    opacity: 1;
+  }
+  .container .middle {
+    opacity: 1;
+  }
+  
+
+}
+@media(max-width:650px){
+  #shared-profile-view > div{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+ }
+
+/* Slide */
+.rsw-wrapper {
+  min-height: 400px !important;
+}
+
+/** Progress Bar */
+
+@keyframes stripes {
+  from { background-position: 1rem 0 }
+  to { background-position: 0 0 }
+}
+
+@keyframes rainbow {
+  0% { background-color: var(--red) }
+  20% { background-color: var(--orange) }
+  40% { background-color: var(--yellow) }
+  60% { background-color: var(--green) }
+  80% { background-color: var(--blue) }
+  100% { background-color: var(--indigo) }
+}
+
+@keyframes grow {
+  from { width: 0% }
+  to { width: 100% }
+}
+
+.progress-wrapper {
+  padding-top: 25%;
+}
+
+.progress {
+  height: 5px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 5px;
+  width: 100%;
+
+  .loaded & {
+      animation: grow 3s ease,
+          stripes 1s linear infinite,
+          rainbow 3s ease infinite;
+  }
+}
+
+// .step-progress.shared_profile{
+  // #edit-profile-picture > div > input {
+  //   width: 15% !important;
+  //   height: 170px !important;
+  //   border-radius: 50% !important;
+  // }
+// }

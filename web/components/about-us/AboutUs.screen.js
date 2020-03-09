@@ -14,7 +14,7 @@ export default class IntroPageScreen extends Component {
               <section className="cart-area ptb-60">
                 <div className="cart-totals">
                   <AboutUs />
-                  <Testimonials />
+                  {/* <Testimonials /> */}
                 </div>
               </section>
             </div>

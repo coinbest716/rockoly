@@ -72,11 +72,13 @@
 //   margin-left: 3%;
 // }
 .imageStyle {
-    // height: 150px;
-    // width: 200px;
+    height: 171px;
+    padding-top: 4%;
+    padding-bottom: 4%;
     display: flex;
     cursor: pointer;
     border-radius: 5%;
+    object-fit: contain;
 }
 .nameText {
   font-weight: bold;
@@ -85,14 +87,18 @@
   cursor: pointer; 
   width:100%;
 }
-
+.totalCount{
+  font-size: 16px !important;
+  margin-left: 15px;
+  width:'100%'
+}
 .addressText {
   // font-size: 15px;
   cursor: pointer;
-  color: black !important;
+  color: gray !important;
   // display: flex;
   // justify-content: flex-start;
-  margin-top: 7%;
+  margin-top: 5%;
 }
 // #row-content{
 //   height: inherit;
@@ -154,7 +160,7 @@
 }
 #cancel-button-style{
   height: auto;
-  width: 120px;
+  width: fit-content;
   margin-right: 0px;
 }
 #buttonText-danger{
@@ -172,6 +178,7 @@
 .loadmore-view{
   display: flex;
   justify-content: center;
+  padding-bottom: 3%;
 }
 #date-format {
   display: flex;
@@ -188,6 +195,8 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  padding-bottom: 10px;
+  padding-top: 5px;
 }
 #button-type-list{
   display: flex;
@@ -215,7 +224,8 @@
 .bookingHistoryFilterView{
   display: flex;
     // justify-content: space-between;
-    width: 100%;
+    width: 99%;
+    padding-top: 2%;
 }
 
 @media(min-width:300px) and (max-width:620px){
@@ -387,7 +397,7 @@ margin-top: 2px;
 @media (min-width:576px) and (max-width:867px){
   #buttonTextCompleted{
     margin-left: 0% !important;
-    margin-top: 2% !important;
+    // margin-top: 2% !important;
   }
 }
 @media(max-width:575px){
@@ -449,6 +459,11 @@ margin-top: 2px;
   display: flex;
   flex-direction: column;
 }
+.infoText{
+  display: flex;
+  justify-content: center;
+  text-align: center;
+}
 #notification-status{
   margin-top: 8%;
 }
@@ -497,4 +512,24 @@ margin-top: 2px;
 #history-button-view{
   display: flex;
   align-items: center;
+}
+#bookingContainarView{
+  box-shadow: 0 2px 48px 0 rgba(0, 0, 0, 0.08) !important;
+}
+#history-button-view{
+  display: flex;
+  justify-content: center;
+}
+@media(max-width:767px){
+  #list-content{
+    padding-bottom:4%; 
+    padding-top: 4%;
+  }
+  .text-address-view{
+    display: flex; 
+    justify-content: center;
+  }
+  #address-modal-container{
+    text-align: center;
+  }
 }

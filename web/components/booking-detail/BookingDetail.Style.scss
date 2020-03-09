@@ -1,6 +1,7 @@
 .bookingDetail{
   #bookingLoopView {
     display: flex;
+    
     // justify-content: center;
   }
   // .bookingData {
@@ -12,10 +13,19 @@
   display: flex;
   justify-content: flex-start;
 }
+@media(max-width:767px){
+  .booking-button{
+    display: flex !important;
+    flex-direction: column !important;
+  }
+}
 ::ng-deep .product-page-gallery-main #imageStyle{
   border-radius: '5%'
 }
-
+// .datials-modal{
+//   display: flex;
+//   justify-content: flex-end;
+// }
 #list-button-style{
   display: flex;
   flex-direction: column;
@@ -46,9 +56,9 @@
   margin-right: 15px;
 }
 
-.booking-button{
-  margin-top: 10px;
-}
+// .booking-button{
+//   margin-top: 10px;
+// }
 #buttonTextWarning:hover{
   background-color: #fff;
   color: black;
@@ -93,3 +103,61 @@
 // #chat-icon-view:hover{
 //   background-image: url("../../images/mock-image/open-chat-hover.png") !important;
 // }
+@media(max-width:767px){
+#chef-request-name{
+  display: flex;
+  align-items: center;
+}
+}
+@media(max-width:1199px){
+  #bookingLoopView{
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+  }
+}
+@media(max-width:767px){
+  #booking-details-fullview{
+    display: flex;
+    flex-direction: column;
+    align-items: baseline;
+    padding-left: 0px !important;
+  }
+  #booking-row-view{
+    justify-content: center !important;
+  }
+  .product-details-content > h3{
+    display: flex !important;
+    justify-content: center !important;
+  }
+  #buttonText-danger{
+    margin-left: 6% !important;
+  }
+  #chat-button-view{
+    margin-left: 0PX !important;
+    margin-top: 10px !important;
+    margin-bottom: 10px !important;
+    width: 120px !important;
+    margin-right: 16px !important;
+  }
+  #cancel-button-styl{
+    width: 120px !important;
+  }
+  #booking-details-buttons{
+    display: flex;
+    // flex-direction: column;
+    // align-items: center; 
+    justify-content: center;
+  }
+}
+#booking-row-view{
+  justify-content: flex-start ;
+}
+#booking-details-fullview{
+  display: flex;
+  align-items: baseline;
+  padding-left: 30px;
+}
+#booking-details-buttons{
+  display: flex;
+  margin-bottom: 10px !important;
+}

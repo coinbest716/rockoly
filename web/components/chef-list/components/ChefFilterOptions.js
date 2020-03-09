@@ -72,7 +72,7 @@ const ChefFilterOptions = props => {
                 setFullAddress(place.formatted_address ? place.formatted_address : '');
                 filterByLocation(place);
               }}
-              types={['address']}
+              types={['(cities)']}
             />
             <Geolocation
               render={({
@@ -87,9 +87,11 @@ const ChefFilterOptions = props => {
                 //   aria-hidden="true"
                 // >
                 <div className="list-Icon-view">
-                  <i className="fa fa-crosshairs crossStyle" 
-                  onClick={() => getCurrentLocation(latitude, longitude)}
-                  id="current-locaton-view"></i>
+                  <i
+                    className="fa fa-crosshairs crossStyle"
+                    onClick={() => getCurrentLocation(latitude, longitude)}
+                    id="current-locaton-view"
+                  ></i>
                 </div>
                 // </button>
               )}

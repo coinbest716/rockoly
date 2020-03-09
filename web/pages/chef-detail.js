@@ -5,7 +5,6 @@ import ChefDetail from '../components/chef-detail/ChefDetail.Screen';
 
 const Index = () => {
   const router = useRouter();
-  // console.log('routerrouter', router);
   let id = router.query ? router.query : '';
   return <ChefDetail chefIdToDisplay={id} />;
 };

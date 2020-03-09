@@ -9,8 +9,6 @@ export const currentUserCheck = () => {
         if (user && user !== undefined && user !== null) {
           // User is signed in.
           // let currentUser = firebase.auth().currentUser;
-          // console.log('currentuser', user);
-          // console.log('currentuser email', currentUser.email);
           resolve(true);
         } else {
           // No user is signed in.

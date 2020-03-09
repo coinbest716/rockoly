@@ -7,11 +7,16 @@ const developmentConfig = {
     MESSAGINGSENDERID: '51537762972',
     APPID: '1:51537762972:web:490557f63f011a2ad72b59',
 
-    GQL_ENDPOINT_URI: 'https://gqldev.neosme.com/graphql',
+    // GQL_ENDPOINT_URI: 'https://gqldev.neosme.com/graphql',
+
+    // // GQL_ENDPOINT_URI: 'http://172.105.48.206:7002/graphql',
+
+    // WSS_ENDPOINT_URI: 'wss://gqldev.neosme.com/graphql',
+    GQL_ENDPOINT_URI: 'https://gql.rockoly.com:7002/graphql',
 
     // GQL_ENDPOINT_URI: 'http://172.105.48.206:7002/graphql',
 
-    WSS_ENDPOINT_URI : 'wss://gqldev.neosme.com/graphql',
+    WSS_ENDPOINT_URI: 'https://gql.rockoly.com:7002/graphql',
 
     MAPAPIKEY: 'AIzaSyCcjRqgAT1OhVMHTPXwYk2IbR6pYQwFOTI',
     FACEBOOK_APP_ID: '499226790899527',

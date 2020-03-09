@@ -9,6 +9,7 @@ import '../assets/styles/custom.scss';
 import '../components/home-page/HomePage.Style.scss';
 import '../components/contact-us/Contact.Style.scss';
 import '../components/auth/Auth.Style.scss';
+import '../components/shared-profile/Sharedprofile.Style.scss';
 import '../components/booking-request/BookingRequest.Style.scss';
 import '../components/booking-history/BookingHistory.Style.scss';
 import '../components/booking-detail/BookingDetail.Style.scss';
@@ -26,6 +27,8 @@ import '../components/chef-detail/ChefDetail.Style.scss';
 import '../components/notification/Notification.Style.scss';
 import '../components/intro/IntroPage.Style.scss';
 import '../components/shared/mobile-number-verification/VerificationStyle.scss';
+import '../components/shared/chef-profile/pricing-page/PriceCalculator.scss';
+
 import { Provider } from 'react-redux';
 import App, { Container } from 'next/app';
 import withRedux from 'next-redux-wrapper';
@@ -34,6 +37,7 @@ import { DefaultSeo } from 'next-seo';
 import GoTop from '../components/shared/go-top/GoTop';
 import getConfig from 'next/config';
 import { AppProvider } from '../context/appContext';
+import Router from 'next/router';
 
 const { publicRuntimeConfig } = getConfig();
 const { MAPAPIKEY } = publicRuntimeConfig;

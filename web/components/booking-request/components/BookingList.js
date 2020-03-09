@@ -19,11 +19,15 @@ const BookingList = props => {
   const [state, setState] = useContext(AppContext);
   const [userRole, setUserRole] = useState(state.role);
   const [requestList, setRequestList] = useState();
+  const [selectedDateValue, setSelectedDateValue] = useState('');
 
   function onClickBookingDetail(data) {
+    let newData = {};
     let bookingType = S.UPCOMING;
     data.bookingType = bookingType;
-    NavigateToBookongDetail(data);
+    newData.chefBookingHistId = data.chefBookingHistId;
+    newData.bookingType = data.bookingType;
+    NavigateToBookongDetail(newData);
   }
 
   function triggerSubscription() {
@@ -32,30 +36,45 @@ const BookingList = props => {
     }
   }
 
-  useEffect(() =>{
-    if(isObjectEmpty(props.requestDetails)){
+  useEffect(() => {
+    if (isObjectEmpty(props.requestDetails)) {
       setRequestList(props.requestDetails);
-    }else{
-      setRequestList([])
+    } else {
+      setRequestList([]);
     }
-  },[props])
+  }, [props]);
+
+  useEffect(() => {
+    if (isStringEmpty(props.SelectedDateValue)) {
+      setSelectedDateValue(props.SelectedDateValue);
+    } else if (isArrayEmpty(requestList)) {
+      setSelectedDateValue(getLocalTime(requestList[0].chefBookingFromTime));
+    }
+  }, [props.SelectedDateValue, requestList]);
 
   try {
     return (
       <React.Fragment>
-        <div className="list-group">
-          <div style={{ display: 'flex' }}>
-            <p style={{ color: '#08AB93' }} class="date-view">
+        <div className="list-group bookingRequest">
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <p
+              style={{ color: '#08AB93', paddingRight: '15px', paddingLeft: '15px' }}
+              className="date-view"
+            >
               <b>
-                {props.SelectedDateValue}
+                {selectedDateValue && moment(selectedDateValue, 'DD-MM-YYYY').format('MM-DD-YYYY')}
+                {/* {moment(SelectedDateValue).format('mm/dd/yyyy')} */}
                 {/* <div style={{ display: 'flex', justifyContent: 'center' }}></div> */}
               </b>
             </p>
             <div
+              className="show-result"
               style={{
                 display: 'flex',
-                justifyContent: 'center',
-                width: '75%',
+                justifyContent: 'flex-start',
+                paddingRight: '15px',
+                paddingLeft: '15px',
+                // marginLeft: '120px',
                 fontWeight: 'bolder',
               }}
             >
@@ -66,7 +85,7 @@ const BookingList = props => {
             </div>
           </div>
           {isObjectEmpty(requestList) &&
-           requestList.map(res => {
+            requestList.map(res => {
               return (
                 <div
                   className="woocommerce-sidebar-area"
@@ -90,7 +109,7 @@ const BookingList = props => {
                                 src={
                                   res.customerProfileByCustomerId.customerPicId
                                     ? res.customerProfileByCustomerId.customerPicId
-                                    : require('../../../images/mock-image/sample_user.png')
+                                    : require('../../../images/mock-image/rockoly-logo.png')
                                 }
                                 alt="image"
                                 width="200"
@@ -170,9 +189,19 @@ const BookingList = props => {
                             </div>
                           </div>
                         )}
-                      <div className="col-lg-5 col-md-12 col-sm-12" id="request-status-view">
-                        <ChefBookingStatus bookingDetails={res} />
-                        <ChefBookingButton bookingDetails={res} userRole={'chef'} triggerSubscription={triggerSubscription}/>
+                      <div
+                        className="col-lg-5 col-md-12 col-sm-12"
+                        id="request-status-view"
+                        style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+                      >
+                        <diV className="statusAlign">
+                          <ChefBookingStatus bookingDetails={res} />
+                        </diV>
+                        {/* <ChefBookingButton
+                          bookingDetails={res}
+                          userRole={'chef'}
+                          triggerSubscription={triggerSubscription}
+                        /> */}
                       </div>
                     </div>
                   </div>
@@ -181,7 +210,7 @@ const BookingList = props => {
             })}
           {!isObjectEmpty(props.requestDetails) && (
             <div>
-              <p className="noRequest">Currently You have no request on this date</p>
+              <p className="noRequest">There are currently no requests for this date.</p>
             </div>
           )}
         </div>

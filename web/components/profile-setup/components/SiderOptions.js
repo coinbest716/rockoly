@@ -2,35 +2,57 @@ export const profileSetupMenu = [
   {
     title: 'Basic Profile',
     key: 0,
-  },{
-    title: 'Home Address',
+  },
+  {
+    title: 'Mobile Number',
     key: 1,
-  },{
-    title : 'Booking Price',
-    key : 2
-  },{
-    title : 'Services',
-    key : 3
-  },{
-    title : 'Complexity',
-    key : 4
-  },{
-    title: 'Work Details',
+  },
+  {
+    title: 'Email Address',
+    key: 2,
+  },
+  {
+    title: 'Home Address',
+    key: 3,
+  },
+  {
+    title: 'Price Calculator',
+    key: 4,
+  },
+  {
+    title: 'Booking Price',
     key: 5,
-  },{
-    title : 'Experience Details',
-    key : 6
-  },{
-    title: 'Availability',
+  },
+  {
+    title: 'Services',
+    key: 6,
+  },
+  {
+    title: 'Complexity',
     key: 7,
-  },{
-    title: 'Work Gallery',
+  },
+  {
+    title: 'Work Details',
     key: 8,
-  },{
-    title: 'Upload Documents',
+  },
+  {
+    title: 'Experience Details',
     key: 9,
-  },{
-    title: 'Chef Profile',
+  },
+  {
+    title: 'Availability',
     key: 10,
   },
+  {
+    title: 'Work Gallery',
+    key: 11,
+  },
+  {
+    title: 'Upload Documents',
+    key: 12,
+  },
+  // {
+  //   title: 'Chef Profile',
+  //   key: 10,
+  // },
 ];

@@ -15,13 +15,11 @@ export const loginUser = (email, password) => dispatch => {
     .auth()
     .signInWithEmailAndPassword(email, password)
     .then(user => {
-      // console.log('loginnnn action', user);
       firebase
         .auth()
         .currentUser.getIdToken()
         .then(responseToken => {
           const currentUser = firebase.auth().currentUser;
-          // console.log('currentUser', firebase, currentUser, responseToken);
           if (currentUser != null) {
             loginUserSuccess(dispatch, user);
           } else {

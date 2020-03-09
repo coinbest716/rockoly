@@ -43,7 +43,7 @@ const CardForm = props => {
   const [cardName, setCardName] = useState(null);
   const [state, setState] = useContext(AppContext);
   const [emailId, setEmailId] = useState('');
-  const [stripeId, setStripeId] = useState('');
+  const [stripeId, setStripeId] = useState(null);
   // const paymentRequest = props.stripe.paymentRequest({
   //   country: 'US',
   //   currency: 'usd',
@@ -53,24 +53,28 @@ const CardForm = props => {
   //   },
   // });
 
-  const [updateChefSpecialization, { data, loading,error}] = useMutation(UPDATE_CHEF_SPECIALIZATION, {
-    onCompleted: data => {
-      // console.log('handleSubmit123 payload data', data);
-      toastMessage(success, 'Card Added successfully');
-      //For closing modal
-      if (props.closeAddCardModal) {
-        props.closeAddCardModal();
-      } else {
-        Back();
-      }
-    },
-    onError: err => {
-      // console.log('handleSubmit123 payload err', err);
-      toastMessage(renderError, err.message);
-    },
-  });
-  if(error){
-    toastMessage('error',error)
+  const [updateChefSpecialization, { data, loading, error }] = useMutation(
+    UPDATE_CHEF_SPECIALIZATION,
+    {
+      onCompleted: data => {
+        // console.log('handleSubmit123 payload data', data);
+        console.log('dsakjhkjhkhkjh123123', data.stripeAttachCardToCustomer.data.customer);
+        toastMessage(success, 'Card Added successfully');
+        //For closing modal
+        if (props.closeAddCardModal) {
+          props.closeAddCardModal(data.stripeAttachCardToCustomer.data.customer);
+        } else {
+          Back();
+        }
+      },
+      onError: err => {
+        // console.log('handleSubmit123 payload err', err);
+        toastMessage(renderError, err.message);
+      },
+    }
+  );
+  if (error) {
+    toastMessage('error', error);
   }
   //set email and strip data
   useEffect(() => {
@@ -98,8 +102,7 @@ const CardForm = props => {
     ev.preventDefault();
     if (props.stripe) {
       props.stripe.createToken().then(payload => {
-      
-        if (payload && payload.token && payload.token.id && stripeId) {
+        if (payload && payload.token && payload.token.id) {
           updateChefSpecialization({
             variables: {
               email: emailId,

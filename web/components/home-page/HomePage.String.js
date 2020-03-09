@@ -16,7 +16,7 @@ export default {
   ENTER_ZIPCODE: 'Enter Zipcode',
   PLEASE_ENTER_ZIPCODE: 'Please enter Zipcode',
   ZIPCODE: 'zipcode',
-  ENTER_DISTANCE: 'How much distance you can travel to provide service?(KM)',
+  ENTER_DISTANCE: 'How much distance can you travel to provide service?(KM)',
   PLEASE_ENTER_DISTANCE: 'Please enter distance',
   DISTANCE: 'distance',
 };

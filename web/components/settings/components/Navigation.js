@@ -9,10 +9,16 @@ export function NavigateToProfileSetup(props) {
   });
 }
 
-//Navigate to home
+//Navigate to homeNavigateToBookingRequest
 export function NavigateToHome() {
   Router.push({
     pathname: n.HOME,
+  });
+}
+
+export function NavigateToBookingRequest() {
+  Router.push({
+    pathname: n.BOOKING_REQUEST,
   });
 }
 

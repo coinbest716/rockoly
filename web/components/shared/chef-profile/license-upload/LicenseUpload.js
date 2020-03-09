@@ -15,7 +15,6 @@ import {
 } from '../../../../utils/checkEmptycondition';
 import { getChefId, chefId } from '../../../../utils/UserType';
 
-
 // Create a root reference
 const storageRef = firebase.storage().ref();
 
@@ -35,7 +34,6 @@ const attachmentSubscriptionGQL = gql`
 `;
 
 const LicenseUpload = props => {
-
   let attachmentSectionArray = ['LICENSE', 'CERTIFICATION', 'OTHERS', 'GALLERY'];
   // chef Id
   const [chefIdValue, setChefId] = useState();
@@ -97,7 +95,7 @@ const LicenseUpload = props => {
         setChefId(res);
         getChefProfile();
       })
-      .catch(err => { });
+      .catch(err => {});
   }, []);
 
   useEffect(() => {
@@ -112,7 +110,7 @@ const LicenseUpload = props => {
       let attachementsLicense = profile.attachementsLicense
         ? JSON.parse(profile.attachementsLicense)
         : [];
-     
+
       if (attachementsLicense.length != 0) {
         setLicenseFiles(attachementsLicense);
       }
@@ -122,7 +120,7 @@ const LicenseUpload = props => {
   function removeItems(url, type) {
     let licenseArray = [];
     licenseArray = licenseArray.concat(licenseFiles);
-    
+
     //remove license
     if (type == 'LICENSE') {
       licenseArray.forEach((data, i) => {
@@ -151,7 +149,7 @@ const LicenseUpload = props => {
     if (canUploadYn == true) {
       if (type === 'LICENSE') {
         setLicenseLoader(true);
-      } 
+      }
 
       let files = Array.from(event.target.files);
 
@@ -168,12 +166,12 @@ const LicenseUpload = props => {
                 type: base64File.indexOf('data:image') >= 0 ? 'IMAGE' : 'DOCUMENT',
                 url: base64File,
               };
-              const randNo = Math.floor(Math.random() * 9000000000) + 1000000000
+              const randNo = Math.floor(Math.random() * 9000000000) + 1000000000;
               const dateTime = new Date().getTime();
               // ref/chef_id/{CERITIFICATION/GALLERY/}/rand_datetime.format
 
               // const imageFileName = chefIdValue+ '/' + type + '/' + dateTime;
-              const imageFileName = `${chefIdValue}/${type}/${dateTime}_${randNo}              `
+              const imageFileName = `${chefIdValue}/${type}/${dateTime}_${randNo}              `;
               // console.log("imageFileName",imageFileName)
               firebase
                 .storage()
@@ -191,7 +189,6 @@ const LicenseUpload = props => {
                         setLicenseFiles(data => [...data, newFile]);
                         setLicenseLoader(false);
                       }
-
                     });
                 });
 
@@ -202,7 +199,7 @@ const LicenseUpload = props => {
           });
         })
       )
-        .then(base64Files => { })
+        .then(base64Files => {})
         .catch(error => {
           console.error(error);
         });
@@ -281,9 +278,10 @@ const LicenseUpload = props => {
                           className="fa fa-times close"
                           aria-hidden="true"
                         ></i>
-                        <div className="imgResponsiveMax">
+                        <div className="">
                           <img
-                            className="imgResponsiveMax"
+                            // className="imgResponsiveMax"
+                            id="license-image-view"
                             src={licenseFile.url}
                             alt="image"
                             onClick={() => {
@@ -317,8 +315,8 @@ const LicenseUpload = props => {
                 ))}
               </div>
             ) : (
-                <div> No License</div>
-              )}
+              <div> No License</div>
+            )}
             <br />
           </div>
         </form>

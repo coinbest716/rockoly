@@ -37,6 +37,9 @@ const CustomerBookingStatus = props => {
           <div className="infoText">{S.REFUND_AMOUNT_FAILED_TEXT}</div>
         )}
         {status === S.CUSTOMER_REQUESTED && <div className="infoText">{S.YOU_HAVE_REQUESTED}</div>}
+        {status === S.CHEF_REQUESTED_AMOUNT && (
+          <div className="infoText">{S.CHEF_REQUESTED_AMOUNT_TEXT}</div>
+        )}
         {status === S.CHEF_ACCEPTED && (
           <div className="infoText">
             {fullName} {S.ACCEPTED_BOOKING}

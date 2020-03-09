@@ -7,6 +7,8 @@ import * as gqlTag from '../../../common/gql';
 import * as util from '../../../utils/checkEmptycondition';
 import s from '../ChefDetail.Strings';
 import 'react-toastify/dist/ReactToastify.css';
+import PricingModal from '../../shared/modal/PricingModal';
+import ChatModal from '../../shared/modal/ChatModal';
 import {
   getChefId,
   getCustomerId,
@@ -17,6 +19,7 @@ import {
   customerId,
 } from '../../../utils/UserType';
 import BookingForms from '../../shared/modal/BookingForm';
+import { toastMessage } from '../../../utils/Toast';
 
 //chef
 const chefDataTag = gqlTag.query.chef.profileByIdGQLTAG;
@@ -36,24 +39,30 @@ const CHEF_LOCATION_SUBS = gql`
 `;
 
 const ChefContent = props => {
+  const [isUIRendered, setIsUIRendered] = useState(false);
   const [chefIdValue, setChefId] = useState(null);
   const [customerIdValue, setCustomerId] = useState(null);
   const [userRole, setUserRole] = useState('');
   const [ProfileDetails, setProfileDetails] = useState([]);
+  const [showChatPage, setShowChatPage] = useState(false);
+
   let NoReview = 'No Review';
 
-  const [getChefDataByProfile, { data,error}] = useLazyQuery(GET_CHEF_DATA, {
-    variables: { chefId: props.chefId },
+  const [getChefDataByProfile, { data, error }] = useLazyQuery(GET_CHEF_DATA, {
+    variables: {
+      chefId: props.chefId,
+      pCustomerId: customerIdValue ? customerIdValue : null,
+    },
     fetchPolicy: 'network-only',
     onError: err => {
       toastMessage('renderError', err);
     },
   });
 
-  if(error){
-    toastMessage('error',error)
+  if (error) {
+    toastMessage('error', error);
   }
-  
+
   useEffect(() => {
     //get user role
     getUserTypeRole()
@@ -83,7 +92,7 @@ const ChefContent = props => {
     }
   }, customerIdValue);
 
-  const { chefProfileSubsdata} = useSubscription(CHEF_SUBSCRIPTION_TAG, {
+  const { chefProfileSubsdata } = useSubscription(CHEF_SUBSCRIPTION_TAG, {
     variables: { chefId: props.chefId },
     onSubscriptionData: res => {
       if (res.subscriptionData.data.chefProfile) {
@@ -112,6 +121,7 @@ const ChefContent = props => {
     } else {
       setProfileDetails(null);
     }
+    setIsUIRendered(true);
   });
 
   useEffect(() => {
@@ -132,12 +142,21 @@ const ChefContent = props => {
       props.onClickBooking(event, true);
     }
   }
+
+  function closeModal() {
+    setShowChatPage(false);
+  }
+
   return (
     <React.Fragment>
       {/* {open === true && <BookingForms openModal={openModal} open={open} />} */}
-      <div className="col-lg-6 col-md-6 chefDetail">
-        {ProfileDetails && (
-          <div className="product-details-content" id="chef-info-content">
+      <div className="col-lg-6 col-md-6 col-sm-6 chefDetail">
+        {isUIRendered === true && ProfileDetails && (
+          <div
+            className="product-details-content"
+            id="chef-info-content"
+            style={{ paddingRight: '10%' }}
+          >
             {ProfileDetails && util.isStringEmpty(ProfileDetails.fullName) && (
               <h3 className="chef-content-fullname">{ProfileDetails.fullName}</h3>
             )}
@@ -150,25 +169,25 @@ const ChefContent = props => {
                       <p className="chef-content-fullname" style={{ fontWeight: 500 }}>
                         <i className="fas fa-map-marker-alt iconColor"></i>
                         <span className="location">
-                          {userRole === chef ? node.chefLocationAddress : node.chefAddrLine2}
+                          {userRole === chef ? node.chefCity : node.chefCity}
                         </span>
                       </p>
                     </div>
                     {/* {console.log(ProfileDetails)} */}
-                    <div className="price">
+                    <div className="price" id="price-valu-view">
                       <span className="new-price">
                         {node.chefPriceUnit &&
                           util.isStringEmpty(node.chefPricePerHour) &&
                           node.chefPricePerHour > 0 &&
                           node.chefPriceUnit.toUpperCase() === 'USD' && (
-                            <div>$ {node.chefPricePerHour} / Hour</div>
+                            <div>$ {node.chefPricePerHour} </div>
                           )}
                         {node.chefPriceUnit &&
                           util.isStringEmpty(node.chefPricePerHour) &&
                           node.chefPricePerHour > 0 &&
                           node.chefPriceUnit.toUpperCase() !== 'USD' && (
                             <div>
-                              {node.chefPriceUnit} {node.chefPricePerHour} / Hour
+                              {node.chefPriceUnit} {node.chefPricePerHour} 
                             </div>
                           )}
                         {/* {node.chefPricePerHour &&
@@ -183,36 +202,68 @@ const ChefContent = props => {
               })}
             {/* </div> */}
 
-            <div className="product-review review-comments">
-              <div className="rating" id="ratingContainer-items">
+            <div
+              className="product-review review-comments"
+              id="review-text"
+              style={{ margin: '0px', padding: '0px' }}
+            >
+              <div
+                className="rating"
+                id="ratingContainer-items"
+                style={{ width: 'max-content', display: 'flex', alignItems: 'center' }}
+              >
                 <div className="review-item"></div>
-                <Rating
-                  initialRating={ProfileDetails.averageRating}
-                  className="ratingView"
-                  id="chef-content-rating"
-                  emptySymbol={<img src={s.EMPTY_STAR} id="emptyStarContent" className="rating" />}
-                  fullSymbol="fa fa-star"
-                  fractions={2}
-                  readonly={true}
-                />
-                <span>
-                  ({ProfileDetails.averageRating > 0 ? Math.round(ProfileDetails.averageRating) : 0}
-                  ){' '}
-                </span>{' '}
-                {util.isStringEmpty(ProfileDetails.totalReviewCount) &&
-                  ProfileDetails.totalReviewCount > 0 && (
-                    <span className="chefReviewCount">
-                      {ProfileDetails.totalReviewCount} Reviews
-                    </span>
-                  )}
-                {(!util.isStringEmpty(ProfileDetails.totalReviewCount) ||
-                  ProfileDetails.totalReviewCount === 0) && (
-                  <span className="chefReviewCount">No Reviews</span>
+                {ProfileDetails.averageRating > 0 && (
+                  <Rating
+                    initialRating={ProfileDetails.averageRating}
+                    className="ratingView"
+                    id="chef-content-rating"
+                    emptySymbol={
+                      <img src={s.EMPTY_STAR} id="empty-star-content" className="rating" />
+                    }
+                    fullSymbol="fa fa-star color-star-view"
+                    // id=""
+                    fractions={2}
+                    readonly={true}
+                  />
                 )}
+
+                <div className="review-text-view">
+                  <span>
+                    {ProfileDetails.averageRating > 0 && Math.round(ProfileDetails.averageRating)}{' '}
+                  </span>{' '}
+                  {util.isStringEmpty(ProfileDetails.totalReviewCount) &&
+                    ProfileDetails.totalReviewCount > 0 && (
+                      <span className="chefReviewCount">
+                        {ProfileDetails.totalReviewCount} Reviews
+                      </span>
+                    )}
+                  {(!util.isStringEmpty(ProfileDetails.totalReviewCount) ||
+                    ProfileDetails.totalReviewCount === 0) && (
+                    <span className="chefReviewCount">New Chef</span>
+                  )}
+                </div>
+                <div className="chat-btn">
+                  <button
+                    className="btn btn-primary"
+                    id="chef-details-chat"
+                    onClick={() => setShowChatPage(true)}
+                    style={{ width: '100%' }}
+                  >
+                    Ask Questions
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         )}
+        {/* Show the chat window */}
+        {showChatPage === true && (
+          <div>
+            <ChatModal closeModal={closeModal} chefDetails={ProfileDetails} />
+          </div>
+        )}
+
         <div className="reward-style">
           {/* {ProfileDetails && util.hasProperty(ProfileDetails, 'bookingCompletedCount') && (
             <div>
@@ -236,7 +287,8 @@ const ChefContent = props => {
               </div>
             </div>
           )} */}
-          {ProfileDetails &&
+          {isUIRendered === true &&
+            ProfileDetails &&
             util.hasProperty(ProfileDetails, 'bookingCompletedCount') &&
             util.isStringEmpty(ProfileDetails.bookingCompletedCount) && (
               <div>
@@ -245,7 +297,7 @@ const ChefContent = props => {
                   id="pro-border-style"
                   style={{ borderRightStyle: 'groove' }}
                 >
-                  <div class="top-pro-view" style={{ width: 'maxContent' }}>
+                  <div className="top-pro-view" style={{ width: 'maxContent' }}>
                     <span>
                       <img
                         src={require('../../../images/mock-image/shield-icon.png')}
@@ -263,24 +315,27 @@ const ChefContent = props => {
                 </div>
               </div>
             )}
-          <div
-            className="description-name"
-            id="pro-border-style"
-            style={{ borderRightStyle: 'groove' }}
-          >
-            <div class="top-pro-view">
-              <div className="dsmds">
-                <img
-                  src={require('../../../images/mock-image/trophy-icon.png')}
-                  alt="image"
-                  className="icon-images"
-                />
-                {/* <i class="fa fa-trophy" aria-hidden="true" id="description-icon"></i> */}
-                <span style={{ padding: '3px', paddingRight: '8px' }}>High in Demand</span>
+          {/* {isUIRendered === true && (
+            <div
+              className="description-name"
+              id="pro-border-style"
+              style={{ borderRightStyle: 'groove' }}
+            >
+              <div className="top-pro-view">
+                <div className="dsmds">
+                  <img
+                    src={require('../../../images/mock-image/trophy-icon.png')}
+                    alt="image"
+                    className="icon-images"
+                  />
+                  <i class="fa fa-trophy" aria-hidden="true" id="description-icon"></i>
+                  <span style={{ padding: '3px', paddingRight: '8px' }}>High in Demand</span>
+                </div>
               </div>
             </div>
-          </div>
-          {ProfileDetails &&
+          )} */}
+
+          {/* {ProfileDetails &&
             util.isStringEmpty(ProfileDetails.chefId) &&
             util.hasProperty(ProfileDetails, 'chefProfileExtendedsByChefId') &&
             util.hasProperty(ProfileDetails.chefProfileExtendedsByChefId, 'nodes') &&
@@ -292,7 +347,7 @@ const ChefContent = props => {
                   key={ProfileDetails.chefId}
                 >
                   {util.isStringEmpty(node.chefExperience) && (
-                    <div class="top-pro-view">
+                    <div className="top-pro-view">
                       <div className="description-name">
                         <div>
                           <img
@@ -304,7 +359,6 @@ const ChefContent = props => {
                           <span
                             style={{
                               padding: '3px',
-                              // borderRightStyle: 'groove',
                               paddingRight: '8px',
                             }}
                           >
@@ -316,30 +370,33 @@ const ChefContent = props => {
                   )}
                 </div>
               );
-            })}
-          {ProfileDetails &&
+            })} */}
+
+          {/* {isUIRendered === true &&
+            ProfileDetails &&
             util.hasProperty(ProfileDetails, 'bookingCompletedCount') &&
             util.isStringEmpty(ProfileDetails.bookingCompletedCount) && (
               <div className="description-name" style={{}}>
-                <div class="top-pro-view">
+                <div className="top-pro-view">
                   <div className="dsmds">
                     <img
                       src={require('../../../images/mock-image/trophy-icon.png')}
                       alt="image"
                       className="icon-images"
                     />
-                    {/* <i class="fa fa-trophy" aria-hidden="true" id="description-icon"></i> */}
+                    <i class="fa fa-trophy" aria-hidden="true" id="description-icon"></i>
                     {ProfileDetails.bookingCompletedCount} <span> Hires</span>
                   </div>
                 </div>
-                {/* <p id="description-date">{props.chefDetails.bookingCompletedCount}</p> */}
+                <p id="description-date">{props.chefDetails.bookingCompletedCount}</p>
               </div>
-            )}
-          {ProfileDetails &&
+            )} */}
+          {/* {isUIRendered === true &&
+            ProfileDetails &&
             util.hasProperty(ProfileDetails, 'bookingCompletedCount') &&
             !util.isStringEmpty(ProfileDetails.bookingCompletedCount) && (
               <div className="description-name" style={{}}>
-                <div class="top-pro-view">
+                <div className="top-pro-view">
                   <img
                     src={require('../../../images/mock-image/trophy-icon.png')}
                     alt="image"
@@ -348,9 +405,8 @@ const ChefContent = props => {
 
                   <span> No Hired</span>
                 </div>
-                {/* <p id="description-date">{props.chefDetails.bookingCompletedCount}</p> */}
               </div>
-            )}
+            )} */}
         </div>
       </div>
       {/* <div className="col-lg-2 col-md-6 row" id="cheflist-image">
@@ -385,6 +441,7 @@ const ChefContent = props => {
             );
           })}
       </div> */}
+      {/* <PricingModal ProfileDetails={ProfileDetails} chefId = {props.chefId}/> */}
       {/* {userRole === 'customer' && (
         <div className="col-lg-2 col-md-6 row" id="cheflist-image">
           {ProfileDetails &&
@@ -398,7 +455,7 @@ const ChefContent = props => {
                       onClick={event => onClickBooking(event)}
                       id="submit-button"
                     >
-                      Book Now
+                      Check Availability
                     </button>
                   </a>
                 </div>

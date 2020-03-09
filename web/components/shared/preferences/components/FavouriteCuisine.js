@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
-import { useLazyQuery, useMutation } from '@apollo/react-hooks';
+import { useLazyQuery, useMutation, useSubscription } from '@apollo/react-hooks';
 import { toastMessage, renderError, success, error } from '../../../../utils/Toast';
 import * as util from '../../../../utils/checkEmptycondition';
 import {
@@ -18,20 +18,29 @@ import s from '../../../profile-setup/ProfileSetup.String';
 const cuisineDataTag = gqlTag.query.master.allCuisinesByStatusGQLTAG;
 const savePreferenceTag = gqlTag.mutation.customer.updatePreferencesGQLTAG;
 
-
 //for getting cuisine data
 const GET_CUISINE_DATA = gql`
   ${cuisineDataTag}
 `;
 
-
 const SAVE_PREFERENCE = gql`
   ${savePreferenceTag}
 `;
 
+// for customer preference
+const customerpreference = gqlTag.subscription.customer.preferenceGQLTAG;
+const CUTOMER_PREFERENCE_SUBS = gql`
+  ${customerpreference}
+`;
+
+//customer
+const customerDataTag = gqlTag.query.customer.profileByIdGQLTAG;
+//for getting customer data
+const GET_CUSTOMER_DATA = gql`
+  ${customerDataTag}
+`;
 
 const FavoriteCuisine = props => {
-
   const [customerPreferenceIdValue, setCustomerPreferenceId] = useState('');
 
   const [selectedFavouriteCuisine, setSelectedFavouriteCuisine] = useState('');
@@ -42,16 +51,34 @@ const FavoriteCuisine = props => {
   const [typedCuisine, setTypedCuisine] = useState('');
 
   const [getCuisineDataQuery, getCusineData] = useLazyQuery(GET_CUISINE_DATA, {
-    variables: { statusId: "APPROVED" },
+    variables: { statusId: 'APPROVED' },
     fetchPolicy: 'network-only',
     onError: err => {
       toastMessage('renderError', err);
     },
   }); //get cuisine data
 
-  const [updatePreferenceValues, { data }] = useMutation(SAVE_PREFERENCE, {
+  const [getCustomerData, customerData] = useLazyQuery(GET_CUSTOMER_DATA, {
+    variables: { customerId: props.customerId },
+    fetchPolicy: 'network-only',
+    onError: err => {
+      toastMessage('renderError', err);
+    },
+  });
+
+  const { SubscriptionCustomerdata } = useSubscription(CUTOMER_PREFERENCE_SUBS, {
+    variables: { customerId: props.customerId },
+    onSubscriptionData: res => {
+      if (res) {
+        getCustomerData();
+      }
+    },
+  });
+
+  const [updateFavouritePreferenceValues, { data }] = useMutation(SAVE_PREFERENCE, {
     onCompleted: data => {
-      toastMessage(success, 'Values updated successfully')
+      toastMessage(success, 'Favorite cuisines updated successfully');
+      if (props.nextStep) props.nextStep();
     },
     onError: err => {
       toastMessage('error', err);
@@ -61,6 +88,7 @@ const FavoriteCuisine = props => {
   useEffect(() => {
     if (props.customerId) {
       getCuisineDataQuery();
+      getCustomerData();
     }
   }, [props.customerId]);
 
@@ -69,30 +97,41 @@ const FavoriteCuisine = props => {
       .then(res => {
         setCustomerPreferenceId(res);
       })
-      .catch(err => { });
-  })
+      .catch(err => {});
+  });
 
   useEffect(() => {
-    let customerData = props.details;
+    // let customerData = props.details;
     if (
       util.isObjectEmpty(customerData) &&
-      util.hasProperty(customerData, 'customerProfileByCustomerId') &&
-      util.isObjectEmpty(customerData.customerProfileByCustomerId)
-      &&
-      util.hasProperty(customerData.customerProfileByCustomerId, 'customerPreferenceProfilesByCustomerId')
-      &&
-      util.isObjectEmpty(customerData.customerProfileByCustomerId.customerPreferenceProfilesByCustomerId)
-      &&
-      util.isArrayEmpty(customerData.customerProfileByCustomerId.customerPreferenceProfilesByCustomerId.nodes)
-      &&
-      util.isObjectEmpty(customerData.customerProfileByCustomerId.customerPreferenceProfilesByCustomerId.nodes[0])
+      util.hasProperty(customerData, 'data') &&
+      util.isObjectEmpty(customerData.data) &&
+      util.hasProperty(customerData.data, 'customerProfileByCustomerId') &&
+      util.isObjectEmpty(customerData.data.customerProfileByCustomerId) &&
+      util.hasProperty(
+        customerData.data.customerProfileByCustomerId,
+        'customerPreferenceProfilesByCustomerId'
+      ) &&
+      util.isObjectEmpty(
+        customerData.data.customerProfileByCustomerId.customerPreferenceProfilesByCustomerId
+      ) &&
+      util.isArrayEmpty(
+        customerData.data.customerProfileByCustomerId.customerPreferenceProfilesByCustomerId.nodes
+      ) &&
+      util.isObjectEmpty(
+        customerData.data.customerProfileByCustomerId.customerPreferenceProfilesByCustomerId
+          .nodes[0]
+      )
     ) {
-      let propsData = customerData.customerProfileByCustomerId.customerPreferenceProfilesByCustomerId.nodes[0];
-      setSelectedCuisinesId(propsData.customerCuisineTypeId)
-      setTypedCuisine(propsData.customerOtherCuisineTypes ? JSON.parse(propsData.customerOtherCuisineTypes) : "");
+      let propsData =
+        customerData.data.customerProfileByCustomerId.customerPreferenceProfilesByCustomerId
+          .nodes[0];
+      setSelectedCuisinesId(propsData.customerCuisineTypeId);
+      setTypedCuisine(
+        propsData.customerOtherCuisineTypes ? JSON.parse(propsData.customerOtherCuisineTypes) : ''
+      );
     }
-
-  }, [props.details])
+  }, [props.details, customerData]);
 
   //getting cuisnes list from master table getAllergyData
   useEffect(() => {
@@ -121,7 +160,6 @@ const FavoriteCuisine = props => {
 
   useEffect(() => {
     if (util.isArrayEmpty(cusinesMasterList) && util.isArrayEmpty(selectedCuisinesId)) {
-
       let data = selectedCuisinesId;
       let dishData = [];
 
@@ -135,28 +173,22 @@ const FavoriteCuisine = props => {
           dishData.push(option);
         }
       });
-      setSelectedFavouriteCuisine(dishData)
-      setCuisineCount(dishData.length)
+      setSelectedFavouriteCuisine(dishData);
+      setCuisineCount(dishData.length);
     } else {
       setSelectedFavouriteCuisine([]);
     }
   }, [cusinesMasterList, selectedCuisinesId]);
 
-  function updatePreference(event) {
+  function saveFavourite(event) {
     event.preventDefault();
-    updatePreferenceValues({
+    updateFavouritePreferenceValues({
       variables: {
         customerPreferenceId: customerPreferenceIdValue,
         customerCuisineTypeId: selectedCuisinesId ? selectedCuisinesId : [],
         customerOtherCuisineTypes: typedCuisine ? JSON.stringify(typedCuisine) : null,
-        customerAllergyTypeId: [],
-        customerOtherAllergyTypes: null,
-        customerDietaryRestrictionsTypeId: [],
-        customerOtherDietaryRestrictionsTypes: null,
-        customerKitchenEquipmentTypeId: [],
-        customerOtherKitchenEquipmentTypes: null
       },
-    })
+    });
   }
   function handleChange(value, stateAssign, stateAssignForId, type) {
     let data = [];
@@ -165,7 +197,7 @@ const FavoriteCuisine = props => {
         data.push(res.value);
       });
       if (props.uploadingData) {
-        props.uploadingData(data, 'array', 'favourite')
+        props.uploadingData(data, 'array', 'favourite');
       }
       stateAssign(value);
       stateAssignForId(data);
@@ -181,14 +213,17 @@ const FavoriteCuisine = props => {
     }
   }
   function onTypingCuisine(event) {
-    setTypedCuisine(event.target.value)
-    if (props.uploadingData) {
-      props.uploadingData(event.target.value, 'string', 'favourite')
-    }
+    setTypedCuisine(event.target.value);
+    // if (props.uploadingData) {
+    //   props.uploadingData(event.target.value, 'string', 'favourite')
+    // }
   }
   return (
-    <section className="products-collections-area ptb-6 ProfileSetup">
+    <section className="products-collections-area ptb-60 ProfileSetup">
       <form className="login-form">
+        <div className="section-title" id="title-content">
+          <h2>Favorite Cuisine</h2>
+        </div>
         <div className="main-margin" style={{ marginTop: '20px', marginBottom: '100px' }}>
           <div className="card">
             <div className="card-body">
@@ -218,13 +253,13 @@ const FavoriteCuisine = props => {
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    marginTop: '10px'
+                    marginTop: '10px',
+                    border: '1px solid',
                   }}
                   id="comment"
                   className="form-control"
                   rows="8"
                   placeholder="Enter any new cuisine"
-                  required={true}
                   value={typedCuisine}
                   data-error="Please enter your experience"
                   onChange={event => onTypingCuisine(event)}
@@ -233,9 +268,15 @@ const FavoriteCuisine = props => {
             </div>
           </div>
         </div>
-        {/* <button className = "btn btn-primary" onClick={() => updatePreference(event)}>
-        SAVE
-      </button> */}
+        <div className="save-button-modal">
+          <button
+            className="btn btn-primary"
+            id="submit-modal-button"
+            onClick={() => saveFavourite(event)}
+          >
+            Save
+          </button>
+        </div>
       </form>
     </section>
   );

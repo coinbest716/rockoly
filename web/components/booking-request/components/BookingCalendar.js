@@ -7,7 +7,6 @@ import { convertDateandTime } from '../../../utils/DateTimeFormat';
 const localizer = momentLocalizer(moment);
 const now = new Date();
 
-
 let clickValue = 0;
 
 // Appointment title view(text inside appt)
@@ -37,7 +36,6 @@ const BookingCalendar = props => {
     }
   }, [props.RequestAvailableDate]);
 
-  // console.log("props",props.RequestAvailableDate)
   function selectedTimeSlot(slotInfo) {
     let SelectedDate = moment(slotInfo.start).format('YYYY-MM-DD');
     if (props.onChangeCalendar) {
@@ -45,12 +43,17 @@ const BookingCalendar = props => {
     }
   }
 
+  //Callback function for month change
+  function monthChange(date) {
+    props.onChangeMonth(date);
+  }
+
   try {
     return (
       <React.Fragment>
         <div className="card-body">
           <Calendar
-          selectable
+            selectable
             className="bookingRequestCalendar calendarHeigth"
             style={{ width: '100%' }}
             events={myEventsList}
@@ -59,6 +62,7 @@ const BookingCalendar = props => {
             defaultDate={moment().toDate()}
             localizer={localizer}
             views={{ month: true }}
+            onNavigate={res => monthChange(res)}
             onSelectSlot={slotInfo => selectedTimeSlot(slotInfo)}
             selectable={true}
             components={{
@@ -68,7 +72,7 @@ const BookingCalendar = props => {
             }}
             min={new Date('2017, 1, 7, 08:00')}
             max={new Date('2017, 1, 7, 20:00')}
-            onSelectEvent={(slotInfo) => selectedTimeSlot(slotInfo)}
+            onSelectEvent={slotInfo => selectedTimeSlot(slotInfo)}
           />
         </div>
       </React.Fragment>

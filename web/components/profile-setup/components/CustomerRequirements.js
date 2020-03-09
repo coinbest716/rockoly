@@ -115,7 +115,6 @@ const CustomerRequirements = props => {
 
   const [insertNewDietary, { dietaryData }] = useMutation(CREATE_ALLERGY, {
     onCompleted: dietaryData => {
-      console.log('dietaryData', dietaryData);
       // let masterValue = dietaryData.dietaryData.allergyTypeMaster;
       // let cuisineList = [];
       // cuisineList = cusinesMasterList;
@@ -473,7 +472,7 @@ const CustomerRequirements = props => {
                   handleChange(value, setSelectedFavouriteCuisine, setSelectedCuisinesId, 'cuisine')
                 }
                 options={cusinesMasterList}
-                placeholder="Select favourite cuisine"
+                placeholder="Select favorite cuisine"
               />
             </div>
           </div>

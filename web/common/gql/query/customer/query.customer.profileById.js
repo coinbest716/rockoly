@@ -11,6 +11,7 @@ export const profileByIdGQLTAG = `query customerProfileByCustomerId($customerId:
     totalUnreadCount
     customerSalutation
     customerUpdatedScreens
+    isRegistrationCompletedYn
     customerFirstName
     customerLastName
     customerGender
@@ -23,6 +24,8 @@ export const profileByIdGQLTAG = `query customerProfileByCustomerId($customerId:
     averageRating
     totalReviewCount
     isNotificationYn
+    isEmailVerifiedYn
+    isMobileNoVerifiedYn
     entityId
     createdAt
     customerPreferenceProfilesByCustomerId {

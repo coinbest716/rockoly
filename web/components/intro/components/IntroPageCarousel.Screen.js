@@ -325,7 +325,7 @@ const IntroPageCarousel = props => {
                 </div>
               </div>
               <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 15 }}>
-                <button type="submit" className="btn btn-primary" id="saveButton">
+                <button type="submit" className="btn btn-primary" id="submit-modal-button">
                   {'SUBMIT'}
                 </button>
               </div>

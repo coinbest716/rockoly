@@ -16,9 +16,27 @@ export function NavigateToHome() {
   });
 }
 
-//Navigate to home
+//Navigate to home NavigateToRequest
 export function NavigateToIntro() {
   Router.push({
     pathname: n.INTRO,
+  });
+}
+
+export function NavigateToRequest() {
+  Router.push({
+    pathname: '/booking-request',
+  });
+}
+
+export function NavigateToRegisterScreen() {
+  Router.push({
+    pathname: '/shared-profile',
+  });
+}
+
+export function NavigateToLogin() {
+  Router.push({
+    pathname: n.LOGIN,
   });
 }

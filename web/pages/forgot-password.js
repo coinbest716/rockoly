@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { toastMessage } from '../utils/Toast';
 import ForgotPassword from '../components/auth/forgot-password/ForgotPassword.screen';
 
 export default function Index() {
+
   try {
     return <ForgotPassword />;
   } catch (error) {

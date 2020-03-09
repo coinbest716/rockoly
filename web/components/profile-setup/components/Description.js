@@ -312,7 +312,7 @@ const Description = props => {
                           data-error="Please enter amount"
                           onChange={event => onChangeValue(event, setPrice)}
                         />
-                        <p>(Example : $20 / hour)</p>
+                        <p>(Example : $20)</p>
                       </div>
 
                       <div className="form-group">

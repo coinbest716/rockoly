@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import Link from 'next/link';
 import gql from 'graphql-tag';
 import moment from 'moment';
+import TimePicker from 'react-times';
 import { useQuery, useMutation, useLazyQuery } from '@apollo/react-hooks';
 import * as gqlTag from '../../../common/gql';
 import S from './Modal.String';
@@ -17,8 +18,27 @@ import {
 import { chef, customer } from '../../../utils/UserType';
 import { NavigateToFeedbackPage, NavigateToLoginPage } from './Navigation';
 import { AppContext } from '../../../context/appContext';
-import { getLocalTime } from '../../../utils/DateTimeFormat';
+import {
+  getLocalTime,
+  alterTime,
+  getDateWithTimeLocalWithoutFormat,
+} from '../../../utils/DateTimeFormat';
 import Loader from '../../Common/loader';
+import {
+  initialStartTime,
+  endTimeLimit,
+  getTimestamp,
+  getTimeOnly,
+  getDate,
+  getIsoDate,
+  convert12to24Hours,
+  convert12to24Format,
+  getDateFormat,
+  getTimeFormat,
+  getHourFormat,
+  initialBlockStartTime,
+  initialBlockEndTime,
+} from '../../../utils/DateTimeFormat';
 
 //Get mins for booking cancel option
 const minsTag = gqlTag.query.setting.getSettingValueGQLTAG;
@@ -49,8 +69,14 @@ const COMPLETE_PAYMENT = gql`
   ${paymentComplete}
 `;
 
+// save from and to time
+
+const setTimes = gqlTag.mutation.booking.acceptBookingGQLTAG;
+
+const SET_FROM_TO_TIME = gql`
+  ${setTimes}
+`;
 const RequestStatusModal = props => {
-  // console.log('propsprops', props);
   //Initial set value
   const [open, setOpen] = useState(false);
   const [content, setContent] = useState('');
@@ -72,13 +98,38 @@ const RequestStatusModal = props => {
   const [tablePkId, setTablePkId] = useState('');
   const [dishes, setDishes] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [isDisabled,setIsDisabled] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(false);
+  const [fixedStartTime, setFixedStartTime] = useState(initialStartTime);
+  let blockedStart;
+  let blockedEnd;
+  const [fixedEndTime, setFixedEndTime] = useState(endTimeLimit);
+  const [fromTime, setFromTime] = useState(initialStartTime);
+  const [toTime, setToTime] = useState(endTimeLimit);
+  const [startMin, setStartMin] = useState(1);
+  const [endMin, setEndMin] = useState(2);
+  const [bookedDate, setBookedDate] = useState();
+  const [saveFromTime, setSaveFromTime] = useState(null);
+  const [saveToTime, setSaveToTime] = useState(null);
+  const [initalTimeInterval, setInitalTimeInterval] = useState(2);
+  const [initialTime, setInitialTime] = useState(2);
+  const [endTime, setEndTime] = useState(2);
+  const [startTimeWithoutFormat, setStartTimeWithoutFormat] = useState(null);
+  const [endTimeWithoutFormat, setEndTimeWithoutFormat] = useState(null);
   const [paymentComplete, { paymentData }] = useMutation(COMPLETE_PAYMENT, {
     onCompleted: paymentData => {
       toastMessage(success, S.BOOKING_COMPLETED);
     },
     onError: err => {
       toastMessage(renderError, err.message);
+    },
+  });
+
+  const [setTimeGql, { setTime }] = useMutation(SET_FROM_TO_TIME, {
+    onCompleted: paymentData => {
+      toastMessage(success, toastContent);
+    },
+    onError: err => {
+      // toastMessage(renderError, err.message);
     },
   });
 
@@ -95,7 +146,6 @@ const RequestStatusModal = props => {
   //updateBookingInfo
   const [updateBookingInfo, { chefBookingHistory }] = useMutation(UPDATE_BOOKING_DETAILS, {
     onCompleted: chefBookingHistory => {
-      toastMessage(success, toastContent);
       // if (props.type === S.Complete) {
       //   let data = {
       //     historyId,
@@ -125,6 +175,16 @@ const RequestStatusModal = props => {
       closeModal();
     },
   });
+
+  useEffect(() => {
+    calculateTime();
+  }, []);
+
+  useEffect(() => {
+    if (initalTimeInterval) {
+      calculateTime();
+    }
+  }, [initalTimeInterval]);
 
   //Calculate the mins for cancel option
   useEffect(() => {
@@ -195,11 +255,17 @@ const RequestStatusModal = props => {
       );
       if (isStringEmpty(props.userRole)) {
         setUserRole(props.userRole);
-        // console.log("props",props.userRole,data.chefBookingStatusId,props.type);
         if (props.userRole === chef) {
           if (data.chefBookingStatusId.trim() === S.CUSTOMER_REQUESTED && props.type === S.ACCEPT) {
-            setUpdatedStatus(S.CHEF_ACCEPTED);
-            setToastContent('You accepted the request');
+            let bookingDate = getLocalTime(data.chefBookingFromTime);
+            let currentDate = getLocalTime(new Date());
+            const diffValue = moment(bookingDate).diff(moment(currentDate), 'minutes');
+            if (diffValue >= 0) {
+              setUpdatedStatus(S.CHEF_ACCEPTED);
+              setToastContent('You accepted the request');
+            } else {
+              toastMessage(renderError, "You can't accept previous date booking");
+            }
           } else if (props.type === S.Reject) {
             setUpdatedStatus(S.CHEF_REJECTED);
           }
@@ -242,8 +308,16 @@ const RequestStatusModal = props => {
       let notesData = props.bookingDetail.bookingNotes.nodes[0].notesDescription;
       let notesValue = notesData ? JSON.parse(notesData) : '';
       setCustomerNotes(notesValue);
+
       // let tableId = props.bookingDetail.bookingNotes.nodes[0].tablePkId;
       // setTablePkId(tableId);
+    }
+    if (
+      isObjectEmpty(props) &&
+      isObjectEmpty(props.bookingDetail) &&
+      isStringEmpty(props.bookingDetail.chefBookingFromTime)
+    ) {
+      setBookedDate(props.bookingDetail.chefBookingFromTime);
     }
   }, [props]);
 
@@ -260,36 +334,96 @@ const RequestStatusModal = props => {
     });
   }
 
+  function calculateTime() {
+    if (props && props.bookingDetail && props.bookingDetail.chefBookingFromTime) {
+      if (props && props.bookingDetail && props.bookingDetail.chefBookingFromTime) {
+        let fromTime = getDateWithTimeLocalWithoutFormat(props.bookingDetail.chefBookingFromTime);
+        fromTime = alterTime(fromTime, initalTimeInterval, 'sub');
+        // fromTime = getTimeOnly(fromTime);
+        setInitialTime(fromTime);
+
+        let toTime = getDateWithTimeLocalWithoutFormat(props.bookingDetail.chefBookingToTime);
+        toTime = alterTime(toTime, initalTimeInterval, 'add');
+        setEndTime(toTime);
+        // toTime = getTimeOnly(toTime);
+      }
+      // toTime = getTimeOnly(toTime);
+    }
+  }
+
   //On submit update function
   async function onSubmitBooking() {
-    const variables = {
-      chefBookingHistId: historyId,
-      chefBookingStatusId: updatedStatus,
-      chefBookingCompletedByCustomerYn: completedByCustomer,
-      chefBookingCompletedByChefYn: completedByChef,
-      chefBookingChefRejectOrCancelReason: reasonByChef,
-      chefBookingCustomerRejectOrCancelReason: reasonByCustomer,
-    };
-    // console.log('onSubmitBookingonSubmitBooking', variables);
-    await updateBookingInfo({
-      variables,
-    });
+    if (
+      initialTime &&
+      endTime &&
+      new Date(endTime) > new Date(initialTime) &&
+      updatedStatus === 'CHEF_ACCEPTED'
+    ) {
+      let variables = {
+        chefBookingHistId: historyId,
+        chefBookingStatusId: updatedStatus,
+        chefBookingCompletedByCustomerYn: completedByCustomer,
+        chefBookingCompletedByChefYn: completedByChef,
+        chefBookingChefRejectOrCancelReason: reasonByChef,
+        chefBookingCustomerRejectOrCancelReason: reasonByCustomer,
+      };
+      await updateBookingInfo({
+        variables,
+      });
+      // setTime({
+
+      variables = {
+        chefBookingHistId: historyId,
+        chefBookingStatusId: 'CHEF_ACCEPTED',
+        chefBookingBlockFromTime: moment(initialTime)
+          .utc()
+          .format(),
+        chefBookingBlockToTime: moment(endTime)
+          .utc()
+          .format(),
+      };
+      await setTimeGql({
+        variables,
+      }).then(data => {});
+    } else {
+      setLoading(false);
+      if (new Date(fromTime) > new Date(toTime) && updatedStatus === 'CHEF_ACCEPTED') {
+        toastMessage('error', 'To time should be greater');
+      } else if ((fromTime === null || toTime === null) && updatedStatus === 'CHEF_ACCEPTED') {
+        toastMessage('error', 'Select both from and to time');
+      } else if (updatedStatus !== 'CHEF_ACCEPTED') {
+        let variables = {
+          chefBookingHistId: historyId,
+          chefBookingStatusId: updatedStatus,
+          chefBookingCompletedByCustomerYn: completedByCustomer,
+          chefBookingCompletedByChefYn: completedByChef,
+          chefBookingChefRejectOrCancelReason: reasonByChef,
+          chefBookingCustomerRejectOrCancelReason: reasonByCustomer,
+        };
+        await updateBookingInfo({
+          variables,
+        });
+      }
+    }
   }
 
   //To get value fro alert modal
   function completeFunction() {
-    if (isStringEmpty(props.bookingDetail.chefProfileByChefId.defaultStripeUserId)) {
-      // let bookingDate = getLocalTime(props.bookingDetail.chefBookingFromTime);
-      // let currentDate = getLocalTime(new Date());
-      // const diffValue = moment(bookingDate).diff(moment(currentDate), 'minutes');
-      // if (diffValue <= 0) {
-      completeBooking();
-      // } else {
-      //   toastMessage(renderError, S.COMPLETED_VALIDATION);
-      // }
-    } else {
-      toastMessage(renderError, S.STRIPEID_MISSING_MSG);
-    }
+    // if (
+    //   isObjectEmpty(props.bookingDetail) &&
+    //   isStringEmpty(props.bookingDetail.chefProfileByChefId.defaultStripeUserId)
+    // ) {
+    //   let bookingDate = getLocalTime(props.bookingDetail.chefBookingFromTime);
+    //   let currentDate = getLocalTime(new Date());
+    //   const diffValue = moment(bookingDate).diff(moment(currentDate), 'minutes');
+    //   if (diffValue <= 0) {
+    completeBooking();
+    //   } else {
+    //     toastMessage(renderError, S.COMPLETED_VALIDATION);
+    //   }
+    // } else {
+    //   toastMessage(renderError, S.STRIPEID_MISSING_MSG);
+    // }
   }
   //check validation for chef complete the booking
   function completeBooking() {
@@ -304,7 +438,7 @@ const RequestStatusModal = props => {
   }
   function onClickYes() {
     setLoading(true);
-   
+
     if (isObjectEmpty(state) && state.currentUser === true) {
       if (props.type === S.Complete) {
         if (props.onCloseModal) {
@@ -376,6 +510,94 @@ const RequestStatusModal = props => {
     }
   }
 
+  function renderTimePicker(value, stateAssign, type) {
+    try {
+      return (
+        <TimePicker
+          theme="classic"
+          time={value}
+          withoutIcon={true}
+          timeConfig={{
+            from: blockedStart,
+            to: blockedEnd,
+            step: 30,
+          }}
+          timeMode="12"
+          timeFormatter={({ hour, minute, meridiem }) => {
+            if (hour == '00') {
+              return `12:${minute} ${meridiem}`;
+            } else {
+              return `${hour}:${minute} ${meridiem}`;
+            }
+          }}
+          onTimeChange={event => onChangeAvailabilityTime(event, stateAssign, type)}
+        />
+      );
+    } catch (error) {
+      toastMessage(renderError, error.message);
+    }
+  }
+
+  function calcluateMin(value) {
+    let hour = convert12to24Hours(value, 'Hours');
+    let min = convert12to24Hours(value, 'Mins');
+    let totalMins = parseInt(hour) * 60 + parseInt(min);
+    return totalMins;
+  }
+
+  //when changing times in picker
+  function onChangeAvailabilityTime(event, stateValue, type) {
+    try {
+      const { hour, minute, meridiem } = event;
+      //convert 12 hours format time to 24 hours format
+      let fromTime = convert12to24Format(`${hour}:${minute} ${meridiem}`);
+      let startMin = calcluateMin(`${hour}:${minute} ${meridiem}`);
+
+      //if start time
+      if (type === 'start') {
+        let toTime = null;
+        let endMin = null;
+        if (minute == '30') {
+          if (hour == '11' && meridiem == 'AM') {
+            toTime = convert12to24Format(`${parseInt(hour) + 1}:${parseInt(minute) - 30} PM`);
+            endMin = calcluateMin(`${parseInt(hour) + 1}:${parseInt(minute) - 30} PM`);
+          } else if (hour == '11' && meridiem == 'PM') {
+            toTime = convert12to24Format(`${parseInt(hour) + 1}:${parseInt(minute) - 30} AM`);
+            endMin = calcluateMin(`${parseInt(hour) + 1}:${parseInt(minute) - 30} AM`);
+          } else {
+            toTime = convert12to24Format(
+              `${parseInt(hour) + 1}:${parseInt(minute) - 30} ${meridiem}`
+            );
+            endMin = calcluateMin(`${parseInt(hour) + 1}:${parseInt(minute) - 30} ${meridiem}`);
+          }
+        } else {
+          toTime = convert12to24Format(`${parseInt(hour)}:${parseInt(minute) + 30} ${meridiem}`);
+          endMin = calcluateMin(`${parseInt(hour)}:${parseInt(minute) + 30} ${meridiem}`);
+        }
+
+        stateValue(fromTime);
+        setToTime(toTime);
+        setStartMin(startMin);
+        setEndMin(endMin);
+        let date = getDateFormat(new Date(bookedDate));
+        let gmtDate = getIsoDate(date, fromTime);
+        let dateFormaat = new Date(gmtDate);
+        setSaveFromTime(dateFormaat);
+      }
+      //if end time
+      else if (type === 'end') {
+        stateValue(fromTime);
+        setEndMin(startMin);
+        let date = getDateFormat(new Date(bookedDate));
+        let gmtDate = getIsoDate(date, fromTime);
+        let dateFormaat = new Date(gmtDate);
+        setSaveToTime(dateFormaat);
+      }
+    } catch (err) {
+      toastMessage(renderError, err.message);
+    }
+  }
+
   function notesAdd() {
     return (
       <div>
@@ -385,9 +607,7 @@ const RequestStatusModal = props => {
             <div>
               {isObjectEmpty(state) && state.role === chef ? (
                 <div>
-                  {loading &&
-                    <Loader />
-                  }
+                  {loading && <Loader />}
                   <label className="comment" id="labelStyle">
                     {S.DISHES}
                   </label>
@@ -401,8 +621,33 @@ const RequestStatusModal = props => {
                         );
                       })
                     ) : (
-                        <a id="price-details">---</a>
-                      )}
+                      <a id="price-details">---</a>
+                    )}
+                  </div>
+                  <div className="form-group">
+                    <label className="label">
+                      How many hours do you want to block on your calendar before and after booking?
+                    </label>
+                    <div>
+                      <div className="col-sm-12">
+                        {/* {renderTimePicker(fromTime, setFromTime, 'start')} */}
+                        <input
+                          style={{ width: '20%', textAlign: 'center' }}
+                          value={initalTimeInterval}
+                          onChange={event => setInitalTimeInterval(event.target.value)}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <label className="label">BLOCK BOOKINGS</label>
+                    <div className="row">
+                      <div className="col-sm-6">
+                        {/* {renderTimePicker(fromTime, setFromTime, 'start')} */}
+                        {getTimeOnly(initialTime)}
+                      </div>
+                      <div className="col-sm-6">{getTimeOnly(endTime)}</div>
+                    </div>
                   </div>
                   <label className="comment" id="labelStyle">
                     {S.CUSTOMER_NOTES}
@@ -413,6 +658,7 @@ const RequestStatusModal = props => {
                       {S.ENTER_NOTES}
                     </label>
                     <textarea
+                      style={{ border: '1px solid' }}
                       className="form-control booking_notes"
                       rows="6"
                       placeholder={S.GIVE_YOUR_NOTES}
@@ -423,18 +669,19 @@ const RequestStatusModal = props => {
                   </div>
                 </div>
               ) : (
-                  <div className="form-group">
-                    <label className="comment">{S.ENTER_NOTES}</label>
-                    <textarea
-                      className="form-control booking_notes"
-                      rows="6"
-                      placeholder={S.GIVE_YOUR_NOTES}
-                      required={true}
-                      value={notes}
-                      onChange={event => setNotes(event.target.value)}
-                    />
-                  </div>
-                )}
+                <div className="form-group">
+                  <label className="comment">{S.ENTER_NOTES}</label>
+                  <textarea
+                    style={{ border: '1px solid' }}
+                    className="form-control booking_notes"
+                    rows="6"
+                    placeholder={S.GIVE_YOUR_NOTES}
+                    required={true}
+                    value={notes}
+                    onChange={event => setNotes(event.target.value)}
+                  />
+                </div>
+              )}
             </div>
           )}
       </div>
@@ -449,6 +696,7 @@ const RequestStatusModal = props => {
           <div className="form-group">
             <label className="comment">{S.REASON}</label>
             <textarea
+              style={{ border: '1px solid' }}
               className="form-control"
               rows="6"
               placeholder={S.REASON_PLACE_HOLDER}
@@ -458,15 +706,25 @@ const RequestStatusModal = props => {
             />
           </div>
         ) : (
-            <div>{notesAdd()}</div>
-          )}
+          <div>{notesAdd()}</div>
+        )}
         <div className="row" id="buttonContainer">
-          <button type="submit" className="btn btn-success" disabled={isDisabled} onClick={onClickYes}>
+          <button
+            type="submit"
+            className="btn btn-success"
+            disabled={isDisabled}
+            onClick={onClickYes}
+          >
             {isObjectEmpty(state) && state.currentUser === false ? S.CONTINUE_LOGIN : S.YES}
           </button>{' '}
           {isObjectEmpty(state) && state.currentUser === true && (
             <div>
-              <button type="button" className="btn btn-danger" disabled={isDisabled} onClick={closeModal}>
+              <button
+                type="button"
+                className="btn btn-danger"
+                disabled={isDisabled}
+                onClick={closeModal}
+              >
                 {S.NO}
               </button>
               {/* <Link href="#"> */}

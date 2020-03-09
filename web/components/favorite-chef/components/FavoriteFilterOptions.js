@@ -16,16 +16,13 @@ const FavoriteFilterOptions = props => {
       console.log(error.message);
     }
   }
-
-  function filterByOptions(filterOption) {
-    console.log('Clicked me', filterOption);
-  }
-
   return (
     <div className="products-filter-options col-lg-2 col-md-2">
-      {props.resultCount && props.resultCount > 0 && props.totalCount && props.totalCount > 0 &&
-      <p>Showing {props.totalCount} of {props.resultCount} reults</p>
-      }
+      {props.resultCount && props.resultCount > 0 && props.totalCount && props.totalCount > 0 && (
+        <p style={{ fontSize: '16px', fontWeight: 'bolder', color: '#08AB93' }}>
+          Showing {props.totalCount} of {props.resultCount} reults
+        </p>
+      )}
       {/* <div className="row align-items-center">
         <div className="col d-flex">
         

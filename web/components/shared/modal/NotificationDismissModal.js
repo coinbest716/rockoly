@@ -46,12 +46,10 @@ const NotificationDismissModal = props => {
             pNotificationId: props.notificationData.notificationHistId
           },
         }).then((data) => {
-          console.log("DismissSingleData", data)
         });
       }
     }
     else { // dismiss all chef's notification
-      console.log("props.chefId", props.chefId)
       dismissnotifications({ // storing files in db
         variables: {
           pChefId: props.chefId,
@@ -61,12 +59,10 @@ const NotificationDismissModal = props => {
           pNotificationId: null
         },
       }).then((data) => {
-        console.log("dismissAllNotifications", data)
       });
     }
   }
 
-  // console.log("props", props.notificationData)
   function closeModal() {
     if (props.onCloseModal) {
       props.onCloseModal();

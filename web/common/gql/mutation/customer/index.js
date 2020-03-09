@@ -8,5 +8,7 @@ import {updatePreferencesGQLTAG} from './mutation.customer.updatePreferences';
 import {updateCustomerProfilePicGQLTAG} from './mutation.customer.updateCustomerProfilePic';
 import {updateRegistrationGQLTAG} from './mutation.customer.updateRegistration';
 import {updateScreensGQLTAG} from './mutation.customer.updateScreens';
+import {updateIsEmailVerifiedYnGQLTAG} from './mutation.customer.updateIsEmailVerifiedYn';
+import {updateIsMobileNoVerifiedYnGQLTAG} from './mutation.customer.updateIsMobileNoVerifiedYn';
 
-export {changeMobileNoGQLTag,changeLocationGQLTag,updateBasicInfoGQLTag,updateStatusByCustomerIdGQLTAG,updateAllGQLTAG,updateNotificationGQLTAG,updatePreferencesGQLTAG,updateCustomerProfilePicGQLTAG,updateRegistrationGQLTAG,updateScreensGQLTAG};
+export {changeMobileNoGQLTag,changeLocationGQLTag,updateBasicInfoGQLTag,updateStatusByCustomerIdGQLTAG,updateAllGQLTAG,updateNotificationGQLTAG,updatePreferencesGQLTAG,updateCustomerProfilePicGQLTAG,updateRegistrationGQLTAG,updateScreensGQLTAG,updateIsEmailVerifiedYnGQLTAG,updateIsMobileNoVerifiedYnGQLTAG};

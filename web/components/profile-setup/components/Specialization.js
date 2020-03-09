@@ -5,13 +5,19 @@ import { useLazyQuery, useMutation } from '@apollo/react-hooks';
 import gql from 'graphql-tag';
 import * as util from '../../../utils/checkEmptycondition';
 import s from '../ProfileSetup.String';
-import { specializationId,getChefId,profileExtendId,getUserTypeRole} from '../../../utils/UserType';
+import {
+  specializationId,
+  getChefId,
+  profileExtendId,
+  getUserTypeRole,
+} from '../../../utils/UserType';
 import { cloneDeep } from 'lodash';
 import Select from 'react-select';
 import CreatableSelect from 'react-select/creatable';
 import { AppContext } from '../../../context/appContext';
 import Loader from '../../Common/loader';
-import Experience  from '../../shared/chef-profile/personal-info/components/Experience';
+import Experience from '../../shared/chef-profile/personal-info/components/Experience';
+import { StoreInLocal, GetValueFromLocal } from '../../../utils/LocalStorage';
 
 const cuisineDataTag = gqlTag.query.master.cuisineByChefIdGQLTAG;
 const dishDataTag = gqlTag.query.master.dishByChefIdGQLTAG;
@@ -49,6 +55,14 @@ const INSERT_DISH = gql`
 const EXPERIENCE = gql`
   ${saveExperience}
 `;
+
+//update screen
+const updateScreens = gqlTag.mutation.chef.updateScreensGQLTAG;
+
+const UPDATE_SCREENS = gql`
+  ${updateScreens}
+`;
+
 const Specialization = props => {
   const dishesRef = useRef();
   const cuisinesRef = useRef();
@@ -70,10 +84,18 @@ const Specialization = props => {
   const [cuisineCount, setCuisineCount] = useState(0);
   const [loadingYn, setLoadingYn] = useState(false);
   const [dishLoadingYn, setDishLoadingYn] = useState(false);
-  const [experience,setExperience] = useState('');
+  const [experience, setExperience] = useState('');
+  const [chefProfileextId, setChefProfileextId] = useState(null);
 
   // const [ingredients, setIngredients] = useState('');
   const [specializationId, setSpecializationId] = useState('');
+
+  const [updateScrrenTag, { loading, error }] = useMutation(UPDATE_SCREENS, {
+    onCompleted: data => {
+      // toastMessage(success, 'Favourite cuisines updated successfully');
+    },
+    onError: err => {},
+  });
 
   const [getCuisineDataQuery, getCusineData] = useLazyQuery(GET_CUISINE_DATA, {
     // getting image gallery based on chef id
@@ -104,13 +126,12 @@ const Specialization = props => {
 
   const [updateExperience, { dataValue }] = useMutation(EXPERIENCE, {
     onCompleted: dataValue => {
-      toastMessage(success, s.SUCCESS_MSG);
+      // toastMessage(success, s.SUCCESS_MSG);
     },
     onError: err => {
       toastMessage(renderError, err.message);
     },
   });
-
 
   // const [updateChefSpecialization, { data }] = useMutation(UPDATE_CHEF_SPECIALIZATION, {
   //   onCompleted: data => {
@@ -132,30 +153,40 @@ const Specialization = props => {
       util.isObjectEmpty(chefData.chefProfileExtendedsByChefId.nodes[0])
     ) {
       let data = chefData.chefProfileExtendedsByChefId.nodes[0];
+      let chefDetails = chefData.chefProfileExtendedsByChefId;
+      let ids = chefDetails.nodes[0].chefProfileExtendedId;
+      setChefProfileextId(ids);
       setExperience(data.chefDesc);
     }
   }, [props]);
 
   useEffect(() => {
-    if(state.chefId){
+    if (state.chefId) {
       getCuisineDataQuery();
       getDishDataQuery();
     }
-  }, [props,state.chefId]);
+  }, [state]);
+
+  // useEffect(() => {
+  //   if (state.chefId) {
+  //   }
+  // }, [props, state.chefId]);
 
   useEffect(() => {
     //get user role
     getUserTypeRole()
       .then(async res => {
-        if (res === "chef") {
+        if (res === 'chef') {
           getChefId(profileExtendId)
             .then(chefResult => {
               setExtendeId(chefResult);
             })
-            .catch(err => { console.log("error", error) });
+            .catch(err => {
+              console.log('error', error);
+            });
         }
       })
-      .catch(err => { });
+      .catch(err => {});
   }, [extendedId]);
 
   const [insertNewCusine, { cusineData }] = useMutation(INSERT_CUSINE, {
@@ -271,10 +302,8 @@ const Specialization = props => {
 
   //getting cuisnes list from master table
   useEffect(() => {
-    if(util.hasProperty(getCusineData,'error')&&
-      util.isStringEmpty(getCusineData.error)
-    ){
-      toastMessage('error',getCusineData.error)
+    if (util.hasProperty(getCusineData, 'error') && util.isStringEmpty(getCusineData.error)) {
+      toastMessage('error', getCusineData.error);
     }
     if (
       util.isObjectEmpty(getCusineData) &&
@@ -344,9 +373,11 @@ const Specialization = props => {
         }
       });
       setSelectedCuisines(cuisineData);
-      setCuisineCount(chefSavedCuisines.length - 1);
+      setCuisineCount(chefSavedCuisines.length);
+      // console.log('chefSavedCuisines', chefSavedCuisines, cuisineData);
     } else {
       setSelectedCuisines([]);
+      setCuisineCount(0);
     }
   }, [cusinesMasterList, chefSavedCuisines]);
 
@@ -367,7 +398,7 @@ const Specialization = props => {
         }
       });
       setSelectedDishes(dishData);
-      setDishCount(chefSavedDishes.length - 1);
+      setDishCount(chefSavedDishes.length);
     } else {
       setSelectedDishes([]);
     }
@@ -396,13 +427,13 @@ const Specialization = props => {
       stateAssignForId([]);
     }
   }
-  function valueChange(value){
+  function valueChange(value) {
     setExperience(value);
   }
   //when saving data
   function onSaveData() {
     // let temp = [];
-    // temp.push(ingredients); 
+    // temp.push(ingredients);
     updateChefSpecialization({
       variables: {
         chefSpecializationId: specializationId,
@@ -412,13 +443,39 @@ const Specialization = props => {
       },
     });
     updateExperience({
-      variables : {
-        chefProfileExtendedId : extendedId,
-        chefDesc : experience,
-        chefSpecializationId : specializationId,
-        chefCuisineTypeId : selectedCuisinesId,
-      }
-    })
+      variables: {
+        chefProfileExtendedId: chefProfileextId,
+        chefDesc: experience,
+        chefSpecializationId: specializationId,
+        chefCuisineTypeId: selectedCuisinesId,
+      },
+    });
+
+    toastMessage(success, 'Updated Successfully');
+    if (props.screen && props.screen === 'register') {
+      // To get the updated screens value
+      let screensValue = [];
+      GetValueFromLocal('SharedProfileScreens')
+        .then(result => {
+          if (result && result.length > 0) {
+            screensValue = result;
+          }
+          screensValue.push('CUISINE_SPEC');
+          screensValue = _.uniq(screensValue);
+          let variables = {
+            chefId: props.chefId,
+            chefUpdatedScreens: screensValue,
+          };
+          updateScrrenTag({ variables });
+          if (props.nextStep) {
+            props.nextStep();
+          }
+          StoreInLocal('SharedProfileScreens', screensValue);
+        })
+        .catch(err => {
+          console.log('err', err);
+        });
+    }
   }
 
   function handleCreateOption(value) {
@@ -433,7 +490,9 @@ const Specialization = props => {
     }).then(data => {
       setLoadingYn(false);
       toastMessage(success, 'Cuisine added to list');
-      getCuisineDataQuery();
+      let savedDishCount = cuisineCount;
+      savedDishCount = savedDishCount + 1;
+      setCuisineCount(savedDishCount);
     });
   }
 
@@ -449,7 +508,9 @@ const Specialization = props => {
     }).then(data => {
       setDishLoadingYn(false);
       toastMessage(success, 'Dish added to list');
-      getDishDataQuery();
+      let savedDishCount = dishCount;
+      savedDishCount = savedDishCount + 1;
+      setDishCount(savedDishCount);
     });
   }
 
@@ -474,45 +535,69 @@ const Specialization = props => {
   try {
     return (
       <section className="products-collections-area">
-        <div className="section-title" id="sectionTitle">
-          <h2>{s.SPECIALIZATION}</h2>
-        </div>
+        {props.screen !== 'register' && (
+          <div className="section-title" id="sectionTitle">
+            <h2>{s.SPECIALIZATION}</h2>
+          </div>
+        )}
         <div>
           <form className="login-form">
-            <div className="card">
+            <div className="card" id="cuisine-specialization">
               <div className="card-body">
                 {/* cuisines */}
                 <div className="displayDishCuisine">
-                  <h4 className="card-title" id="headerTitle">
+                  <h4
+                    className="card-title"
+                    id="headerTitle"
+                    style={{
+                      color: '#08AB93',
+                      fontSize: '20px',
+                      textDecoration: 'underline',
+                      fontWeight: 400,
+                      paddingBottom: '1%',
+                    }}
+                  >
                     {s.CUISINE}
                   </h4>
                   <p className="cuisine">({cuisineCount} items selected)</p>
                 </div>
                 {loadingYn && <Loader />}
-                <CreatableSelect
-                  isMulti={true}
-                  isSearchable={true}
-                  value={selectedCuisines}
-                  onChange={value =>
-                    handleChange(value, setSelectedCuisines, setSelectedCuisinesId, 'cuisine')
-                  }
-                  options={cusinesMasterList}
-                  onCreateOption={value => handleCreateOption(value)}
-                  placeholder="Select Cuisine"
-                />
+                {cusinesMasterList.length > 0 && (
+                  <CreatableSelect
+                    isMulti={true}
+                    ref={cuisinesRef}
+                    isSearchable={true}
+                    value={selectedCuisines}
+                    onChange={value =>
+                      handleChange(value, setSelectedCuisines, setSelectedCuisinesId, 'cuisine')
+                    }
+                    options={cusinesMasterList}
+                    onCreateOption={value => handleCreateOption(value)}
+                    placeholder="Select Cuisine"
+                  />
+                )}
               </div>
             </div>
-            {/* dishes */}
-            <div className="main-margin">
-              <div className="card">
-                <div className="card-body">
-                  <div className="displayDishCuisine">
-                    <h4 className="card-title" id="headerTitle">
-                      {s.DISHES}
-                    </h4>
-                    <p className="cuisine">({dishCount} items selected)</p>
-                  </div>
-                  {dishLoadingYn && <Loader />}
+            <div className="card" id="cuisine-specialization">
+              <div className="card-body">
+                <div className="displayDishCuisine">
+                  <h4
+                    className="card-title"
+                    id="headerTitle"
+                    style={{
+                      color: '#08AB93',
+                      fontSize: '20px',
+                      textDecoration: 'underline',
+                      fontWeight: 400,
+                      paddingBottom: '1%',
+                    }}
+                  >
+                    {s.DISH_SPECIALTY}
+                  </h4>
+                  <p className="cuisine">({dishCount} items selected)</p>
+                </div>
+                {dishLoadingYn && <Loader />}
+                {dishesMasterList.length > 0 && (
                   <CreatableSelect
                     ref={dishesRef}
                     isMulti={true}
@@ -525,7 +610,7 @@ const Specialization = props => {
                     onCreateOption={value => handleDishCreateOption(value)}
                     placeholder="Select Dish"
                   />
-                </div>
+                )}
               </div>
             </div>
             {/* Ingredients*/}
@@ -550,7 +635,9 @@ const Specialization = props => {
             </div> */}
           </form>
         </div>
-        <Experience valueChange={valueChange} experience={experience}/>
+        <div id="experience-specialization">
+          <Experience valueChange={valueChange} experience={experience} />
+        </div>
         <div className="container">
           <div className="saveButton" id="save-button-view">
             <button type="button" className="btn btn-primary" onClick={() => onSaveData()}>

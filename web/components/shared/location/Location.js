@@ -13,7 +13,7 @@ const { publicRuntimeConfig } = getConfig();
 const { MAPAPIKEY } = publicRuntimeConfig;
 
 const Location = forwardRef((props, ref) => {
-  const [houseNo, setHouseNo] = useState('');
+  const [houseNo, setHouseNo] = useState(null);
   const [streetAddress, setStreetAddress] = useState('');
   const [latitude, setLatitude] = useState('');
   const [longitude, setLongitude] = useState('');
@@ -23,8 +23,10 @@ const Location = forwardRef((props, ref) => {
   const [state, setState] = useState('');
   const [country, setCountry] = useState('');
   const [city, setCity] = useState('');
+  const [intialState, setInitialState] = useState(true);
 
   //set cuisine list data
+
   useEffect(() => {
     if (props.props.role === customer) {
       let customerData = props.props.details;
@@ -49,7 +51,81 @@ const Location = forwardRef((props, ref) => {
       ) {
         let data =
           customerData.customerProfileByCustomerId.customerProfileExtendedsByCustomerId.nodes[0];
-        setHouseNo(util.isStringEmpty(data.customerAddrLine1) ? data.customerAddrLine1 : '');
+        if (
+          util.isStringEmpty(data.customerAddrLine1) &&
+          util.isStringEmpty(data.customerAddrLine2) &&
+          util.isStringEmpty(data.customerLocationAddress) &&
+          util.isStringEmpty(data.customerPostalCode) &&
+          util.isStringEmpty(data.customerCity) &&
+          util.isStringEmpty(data.customerState)
+        ) {
+          setInitialState(false);
+        }
+      }
+    } else if (props.props.role === chef) {
+      let chefData = props.props.chefDetails;
+      if (
+        util.isObjectEmpty(chefData) &&
+        util.hasProperty(chefData, 'chefProfileExtendedsByChefId') &&
+        util.isObjectEmpty(chefData.chefProfileExtendedsByChefId) &&
+        util.hasProperty(chefData.chefProfileExtendedsByChefId, 'nodes') &&
+        util.isObjectEmpty(chefData.chefProfileExtendedsByChefId.nodes[0])
+      ) {
+        let data = chefData.chefProfileExtendedsByChefId.nodes[0];
+        setHouseNo(util.isStringEmpty(data.chefAddrLine1) ? data.chefAddrLine1 : null);
+        setStreetAddress(util.isStringEmpty(data.chefAddrLine2) ? data.chefAddrLine2 : '');
+        setFullAddress(
+          util.isStringEmpty(data.chefLocationAddress) ? data.chefLocationAddress : ''
+        );
+        setLatitude(util.isStringEmpty(data.chefLocationLat) ? data.chefLocationLat : '');
+        setLongitude(util.isStringEmpty(data.chefLocationLng) ? data.chefLocationLng : '');
+        setZipCode(util.isStringEmpty(data.chefPostalCode) ? data.chefPostalCode : '');
+        setDistance(
+          util.isStringEmpty(data.chefAvailableAroundRadiusInValue)
+            ? data.chefAvailableAroundRadiusInValue
+            : ''
+        );
+        setCity(data.chefCity);
+        setState(data.chefState);
+        if (
+          util.isStringEmpty(data.chefAddrLine1) &&
+          util.isStringEmpty(data.chefAddrLine2) &&
+          util.isStringEmpty(data.chefLocationAddress) &&
+          util.isStringEmpty(data.chefPostalCode) &&
+          util.isStringEmpty(data.chefCity) &&
+          util.isStringEmpty(data.chefState)
+        ) {
+          setInitialState(false);
+        }
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (props.props.role === customer) {
+      let customerData = props.props.details;
+      if (
+        util.isObjectEmpty(customerData) &&
+        util.hasProperty(customerData, 'customerProfileByCustomerId') &&
+        util.isObjectEmpty(customerData.customerProfileByCustomerId) &&
+        util.hasProperty(
+          customerData.customerProfileByCustomerId,
+          'customerProfileExtendedsByCustomerId'
+        ) &&
+        util.isObjectEmpty(
+          customerData.customerProfileByCustomerId.customerProfileExtendedsByCustomerId
+        ) &&
+        util.hasProperty(
+          customerData.customerProfileByCustomerId.customerProfileExtendedsByCustomerId,
+          'nodes'
+        ) &&
+        util.isObjectEmpty(
+          customerData.customerProfileByCustomerId.customerProfileExtendedsByCustomerId.nodes[0]
+        )
+      ) {
+        let data =
+          customerData.customerProfileByCustomerId.customerProfileExtendedsByCustomerId.nodes[0];
+        setHouseNo(util.isStringEmpty(data.customerAddrLine1) ? data.customerAddrLine1 : null);
         setStreetAddress(util.isStringEmpty(data.customerAddrLine2) ? data.customerAddrLine2 : '');
         setFullAddress(
           util.isStringEmpty(data.customerLocationAddress) ? data.customerLocationAddress : ''
@@ -70,7 +146,7 @@ const Location = forwardRef((props, ref) => {
         util.isObjectEmpty(chefData.chefProfileExtendedsByChefId.nodes[0])
       ) {
         let data = chefData.chefProfileExtendedsByChefId.nodes[0];
-        setHouseNo(util.isStringEmpty(data.chefAddrLine1) ? data.chefAddrLine1 : '');
+        setHouseNo(util.isStringEmpty(data.chefAddrLine1) ? data.chefAddrLine1 : null);
         setStreetAddress(util.isStringEmpty(data.chefAddrLine2) ? data.chefAddrLine2 : '');
         setFullAddress(
           util.isStringEmpty(data.chefLocationAddress) ? data.chefLocationAddress : ''
@@ -85,9 +161,29 @@ const Location = forwardRef((props, ref) => {
         );
         setCity(data.chefCity);
         setState(data.chefState);
+        setCountry(data.chefCountry);
       }
     }
-  }, [props.details]);
+    if (props.bookingDetail && util.isObjectEmpty(props.bookingDetail)) {
+      let data = props.bookingDetail;
+      setHouseNo(util.isStringEmpty(data.chefBookingAddrLine1) ? data.chefBookingAddrLine1 : null);
+      setStreetAddress(
+        util.isStringEmpty(data.chefBookingAddrLine2) ? data.chefBookingAddrLine2 : ''
+      );
+      setFullAddress(
+        util.isStringEmpty(data.chefBookingLocationAddress) ? data.chefBookingLocationAddress : ''
+      );
+      setLatitude(
+        util.isStringEmpty(data.chefBookingLocationLat) ? data.chefBookingLocationLat : ''
+      );
+      setLongitude(
+        util.isStringEmpty(data.chefBookingLocationLng) ? data.chefBookingLocationLng : ''
+      );
+      setZipCode(util.isStringEmpty(data.chefBookingPostalCode) ? data.chefBookingPostalCode : '');
+      setCity(data.chefBookingCity);
+      setState(data.chefBookingState);
+    }
+  }, [props.details, props.bookingDetail]);
 
   //when saving data
   try {
@@ -100,7 +196,7 @@ const Location = forwardRef((props, ref) => {
           util.isStringEmpty(fullAddress) &&
           util.isStringEmpty(latitude) &&
           util.isStringEmpty(longitude) &&
-          util.isStringEmpty(houseNo) &&
+          // util.isStringEmpty(houseNo) &&
           util.isStringEmpty(streetAddress) &&
           util.isStringEmpty(zipCode) &&
           util.isStringEmpty(distance) &&
@@ -117,13 +213,15 @@ const Location = forwardRef((props, ref) => {
             city,
             country,
             state,
+            intialState,
           };
+
           return variables;
         } else if (
           util.isStringEmpty(fullAddress) &&
           util.isStringEmpty(latitude) &&
           util.isStringEmpty(longitude) &&
-          util.isStringEmpty(houseNo) &&
+          // util.isStringEmpty(houseNo) &&
           util.isStringEmpty(streetAddress) &&
           util.isStringEmpty(zipCode) &&
           props.props.role === customer
@@ -138,19 +236,22 @@ const Location = forwardRef((props, ref) => {
             city,
             country,
             state,
+            intialState,
           };
+
           return variables;
         } else {
           toastMessage('error', 'Please fill the all fields');
-          const variables = {
-            fullAddress,
-            latitude,
-            longitude,
-            houseNo,
-            streetAddress,
-            zipCode,
-          };
-          return variables;
+          // const variables = {
+          //   fullAddress,
+          //   latitude,
+          //   longitude,
+          //   houseNo,
+          //   streetAddress,
+          //   zipCode,
+          // };
+          // return variables;
+          return null;
         }
       },
     }));
@@ -215,9 +316,8 @@ const Location = forwardRef((props, ref) => {
         addressLine1 = `${address1}`;
       }
       if (!util.isStringEmpty(city)) {
-        city = city1;
+        setCity(city1);
       }
-      console.log('state', state, 'city', city, 'city1', city1);
       setHouseNo(addressLine1);
       setStreetAddress(address);
       setZipCode(postalCode ? postalCode.toString() : '');
@@ -265,15 +365,43 @@ const Location = forwardRef((props, ref) => {
     }
   }
 
+  function onChangeDistance(event, stateAssign) {
+    try {
+      if (event.target.value >= 0) {
+        if (util.isObjectEmpty(event)) {
+          stateAssign(event.target.value);
+        }
+      } else {
+        toastMessage(renderError, 'Miles should not be a negative value');
+      }
+    } catch (error) {
+      toastMessage(renderError, error.message);
+    }
+  }
+
   try {
     return (
       <React.Fragment>
         <form className="signup-form">
           <div className="form-group">
-            <label className="locationView">{s.LOCATION}</label>
-            <div style={{ display: 'flex' }}>
+            {/* <label> */}
+            <h5
+              // className="locationView"
+              style={{
+                color: '#08AB93',
+                fontSize: '15px',
+                textDecoration: 'underline',
+                fontWeight: 400,
+                paddingBottom: '1%',
+              }}
+            >
+              {props.screen === 'booking' ? 'EVENT ADDRESS' : s.LOCATION}{' '}
+            </h5>
+            {/* </label> */}
+            <div style={{ display: 'flex', paddingBottom: '2%' }}>
               <Autocomplete
                 className="form-control inputView"
+                id="location-containar-view"
                 placeholder={s.ENTER_FULL_ADDRESS}
                 required
                 value={fullAddress}
@@ -294,30 +422,45 @@ const Location = forwardRef((props, ref) => {
                   <div className="locationIconView">
                     <i
                       className="fas fa-crosshairs"
+                      style={{ fontSize: '17px', paddingRight: '10px' }}
                       onClick={() => getLocation(latitude, longitude)}
                     ></i>
                   </div>
                 )}
               />
             </div>
-            <input
-              type={s.TEXT}
-              className="form-control inputView"
-              placeholder={s.ENTER_APARTMENT_NAME}
-              id={s.HOUSE_NO}
-              name={s.HOUSE_NO}
-              required
-              data-error={s.PLEASE_ENTER_HOUSE_NO}
-              value={houseNo}
-              onChange={event => onChangeValue(event, setHouseNo)}
-            />
+            <div style={{ display: 'flex', paddingBottom: '2%' }}>
+              <input
+                type={s.TEXT}
+                className="form-control inputView"
+                placeholder="Apartment,Suite (optional)"
+                id={s.HOUSE_NO}
+                name={s.HOUSE_NO}
+                required
+                data-error={s.PLEASE_ENTER_HOUSE_NO}
+                value={houseNo}
+                onChange={event => onChangeValue(event, setHouseNo)}
+              />
+            </div>
             {props.props.role === chef && (
-              <label>This will be shown to customer after the booking</label>
+              // <label>
+              <h5
+                style={{
+                  color: '#08AB93',
+                  fontSize: '20px',
+                  textDecoration: 'underline',
+                  fontWeight: 400,
+                  paddingBottom: '1%',
+                }}
+              >
+                This will be shown to customer after the booking{' '}
+              </h5>
+              // </label>
             )}
             <input
               type={s.TEXT}
               className="form-control  inputView"
-              placeholder={s.ENTER_HOUSE_NO}
+              placeholder="Street Address"
               id={s.STREET_ADDRESS}
               name={s.STREET_ADDRESS}
               required
@@ -325,17 +468,30 @@ const Location = forwardRef((props, ref) => {
               value={streetAddress}
               onChange={event => onChangeValue(event, setStreetAddress)}
             />
+          </div>
+          <div style={{ marginBottom: '2%' }}>
             {props.props.role === chef && (
-              <label>This will be shown to customer even before booking</label>
+              // <label>
+              //   {' '}
+              <h5 style={{ color: '#08AB93', fontSize: '20px', textDecoration: 'underline' }}>
+                This will be shown to customer even before booking{' '}
+              </h5>
+              // </label>
             )}
+          </div>
+          <div style={{ marginBottom: '2%' }}>
             {city !== null && city !== '' && (
               <input
                 type={s.TEXT}
                 className="form-control  inputView"
                 placeholder="City,State"
+                // value=""
                 value={`${city},${state}`}
               />
             )}
+          </div>
+
+          <div style={{ marginBottom: '2%' }}>
             <input
               type={s.TEXT}
               className="form-control  inputView"
@@ -349,7 +505,17 @@ const Location = forwardRef((props, ref) => {
             />
             {props.props.role === chef && (
               <div>
-                <p>How much distance you can travel to provide service?</p>
+                <h5
+                  style={{
+                    color: '#08AB93',
+                    fontSize: '20px',
+                    textDecoration: 'underline',
+                    fontWeight: 400,
+                    paddingBottom: '1%',
+                  }}
+                >
+                  How much distance can you travel to provide service?
+                </h5>
                 <input
                   type={s.TEXT}
                   className="form-control  inputView"
@@ -359,7 +525,7 @@ const Location = forwardRef((props, ref) => {
                   required
                   data-error={s.PLEASE_ENTER_DISTANCE}
                   value={distance}
-                  onChange={event => onChangeValue(event, setDistance)}
+                  onChange={event => onChangeDistance(event, setDistance)}
                 />
               </div>
             )}

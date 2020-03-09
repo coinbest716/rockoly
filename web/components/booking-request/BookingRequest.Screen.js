@@ -23,7 +23,12 @@ import {
   chef,
 } from '../../utils/UserType';
 import S from './BookingRequest.String';
-import { fromDateReversed, NotificationconvertDateandTime, fromDate } from '../../utils/DateTimeFormat';
+import {
+  fromDateReversed,
+  NotificationconvertDateandTime,
+  fromDate,
+  getCurrentMonth,
+} from '../../utils/DateTimeFormat';
 import { futureMonth } from '../../utils/DateTimeFormat';
 import { StoreInLocal, GetValueFromLocal } from '../../utils/LocalStorage';
 
@@ -82,6 +87,8 @@ const BookingRequestScreen = () => {
       isArrayEmpty(data.listBookingByDateRange.nodes)
     ) {
       let bookingData = data.listBookingByDateRange.nodes;
+      console.log('jjjjjjjjjjjjjjjj', fromDate(), bookingData);
+
       let bookingValue = [];
       bookingData.map(res => {
         if (
@@ -106,36 +113,53 @@ const BookingRequestScreen = () => {
             .then(async chefResult => {
               await setChefId(chefResult);
             })
-            .catch(err => { });
+            .catch(err => {});
         }
       })
-      .catch(err => { });
+      .catch(err => {});
   }, []);
 
   useEffect(() => {
     if (chefIdValue) {
       getBookingData();
       if (localStorage.getItem('value') !== null) {
-      localStorage.removeItem('value');
+        localStorage.removeItem('value');
       }
     }
   }, chefIdValue);
 
   useEffect(() => {
+    bookingRequestForMonth(new Date());
+  }, [data, allBookingDetails]);
+
+  //set the current all booking request
+  function bookingRequestForMonth(date) {
     let details = [];
     if (allBookingDetails.length >= 1) {
       allBookingDetails.map(bookingDetail => {
-        if (moment(bookingDetail.chefBookingFromTime).format('YYYY-MM-DD') === fromDateReversed() &&
-          (bookingDetail.chefBookingStatusId.trim() === "CUSTOMER_REQUESTED" ||
-            bookingDetail.chefBookingStatusId.trim() === "CHEF_ACCEPTED")) {
+        let bookingData = moment(bookingDetail.chefBookingFromTime).format('YYYY-MM-DD');
+        let monthStartDate = moment(getCurrentMonth(date).fromDate).format('YYYY-MM-DD');
+        let monthEndDate = moment(getCurrentMonth(date).toDate).format('YYYY-MM-DD');
+        if (
+          bookingData >= monthStartDate &&
+          bookingData <= monthEndDate &&
+          (bookingDetail.chefBookingStatusId.trim() === 'CUSTOMER_REQUESTED' ||
+            bookingDetail.chefBookingStatusId.trim() === 'CHEF_ACCEPTED')
+        ) {
           details.push(bookingDetail);
         }
       });
       setBookingCount(details.length);
       setBookingDetails(details);
     }
+  }
 
-  }, [data,allBookingDetails]);
+  //Callback function for month change
+  function onChangeMonth(value) {
+    if (value) {
+      bookingRequestForMonth(value);
+    }
+  }
 
   useEffect(() => {
     if (localStorage.getItem('value') !== null) {
@@ -145,9 +169,11 @@ const BookingRequestScreen = () => {
             let details = [];
             if (allBookingDetails.length >= 1) {
               allBookingDetails.map(bookingDetail => {
-                if (moment(bookingDetail.chefBookingFromTime).format('YYYY-MM-DD') === result
-                  && (bookingDetail.chefBookingStatusId.trim() === "CUSTOMER_REQUESTED" ||
-                    bookingDetail.chefBookingStatusId.trim() === "CHEF_ACCEPTED")) {
+                if (
+                  (moment(bookingDetail.chefBookingFromTime).format('YYYY-MM-DD') === result &&
+                    bookingDetail.chefBookingStatusId.trim() === 'CUSTOMER_REQUESTED') ||
+                  bookingDetail.chefBookingStatusId.trim() === 'CHEF_ACCEPTED'
+                ) {
                   details.push(bookingDetail);
                 }
               });
@@ -161,35 +187,37 @@ const BookingRequestScreen = () => {
           // console.log('err', err)
         });
     }
-  },[data,allBookingDetails]);
+  }, [data, allBookingDetails]);
 
   function onChangeCalendar(value, UnformatedValue) {
-
     setBookingDetails();
     let details = [];
     StoreInLocal('value', value);
-    setDateValue(value)
+    setDateValue(value);
     let SelectedDate = moment(UnformatedValue.start).format('DD-MM-YYYY');
     setSelectedDateValue(SelectedDate);
 
     if (allBookingDetails.length >= 1) {
       allBookingDetails.map(bookingDetail => {
-        if (moment(bookingDetail.chefBookingFromTime).format('YYYY-MM-DD') === value &&
-          (bookingDetail.chefBookingStatusId.trim() === "CUSTOMER_REQUESTED" ||
-            bookingDetail.chefBookingStatusId.trim() === "CHEF_ACCEPTED")) {
+        if (
+          moment(bookingDetail.chefBookingFromTime).format('YYYY-MM-DD') === value &&
+          (bookingDetail.chefBookingStatusId.trim() === 'CUSTOMER_REQUESTED' ||
+            bookingDetail.chefBookingStatusId.trim() === 'CHEF_ACCEPTED')
+        ) {
           details.push(bookingDetail);
         }
       });
       setBookingCount(details.length);
       setBookingDetails(details);
     }
-
   }
   function RequestAvailableDateValue() {
     if (allBookingDetails.length >= 1) {
       allBookingDetails.map(dateValue => {
-        if (dateValue.chefBookingStatusId.trim() === "CUSTOMER_REQUESTED" ||
-          dateValue.chefBookingStatusId.trim() === "CHEF_ACCEPTED") {
+        if (
+          dateValue.chefBookingStatusId.trim() === 'CUSTOMER_REQUESTED' ||
+          dateValue.chefBookingStatusId.trim() === 'CHEF_ACCEPTED'
+        ) {
           var startTime = NotificationconvertDateandTime(dateValue.chefBookingFromTime);
           let fromTime = startTime.split(',');
 
@@ -204,18 +232,14 @@ const BookingRequestScreen = () => {
   }
 
   function triggerHistorySubscription() {
-
     // getBookingData();
     // // setSelectedDateValue();
-
     // if (allBookingDetails.length >= 1) {
     //   allBookingDetails.map(bookingDetail => {
     //     if (moment(bookingDetail.chefBookingFromTime).format('YYYY-MM-DD') === dateValue) {
-
     //       details.push(bookingDetail);
     //     }
     //   });
-
     //   setBookingCount(details.length);
     //   setBookingDetails(details);
     // }
@@ -228,17 +252,18 @@ const BookingRequestScreen = () => {
           <div className="bookingRequest">
             <section className="cart-area ptb-60">
               <div className="cart-totals">
-                <div className="card">
+                <div className="card" id="bookingChef-containar">
                   <div className="cardContainer cardHeight" id="overall-cardview">
                     <div className="row" style={{ width: '100%' }}>
-                      <div className="col-sm-6">
+                      <div className="col-sm-6" style={{ paddingRight: '0px' }}>
                         <BookingCalendar
                           className="bookingCalender"
                           onChangeCalendar={onChangeCalendar}
+                          onChangeMonth={onChangeMonth}
                           RequestAvailableDate={RequestAvailableDateValue()}
                         />
                       </div>
-                      <div className="col-sm-6 listScroll">
+                      <div className="col-sm-6 listScroll" style={{ padding: '0px' }}>
                         <BookingList
                           requestDetails={bookingDetails}
                           SelectedDateValue={SelectedDateValue}

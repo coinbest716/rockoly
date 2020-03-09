@@ -17,18 +17,15 @@ export const socialAuthUser = (data, type) => {
       // create a new firebase credential with the token
       credential = provider.credential(data.tokenId, data.accessToken);
     }
-    console.log('credentialcredential', credential);
     firebase
       .auth()
       .signInWithCredential(credential)
       .then(async user => {
-        console.log('loginnnn action', user);
         firebase
           .auth()
           .currentUser.getIdToken()
           .then(responseToken => {
             const currentUser = firebase.auth().currentUser;
-            console.log('currentUser', firebase, currentUser, responseToken);
             if (currentUser != null) {
               socialAuthSuccess(dispatch, user);
             } else {
@@ -37,7 +34,7 @@ export const socialAuthUser = (data, type) => {
           });
       })
       .catch(error => {
-        console.log('errorerrorerrorerror', error);
+        console.log('error', error);
         const errorCode = error.code;
         const errorMessage = error.message;
         switch (errorCode) {

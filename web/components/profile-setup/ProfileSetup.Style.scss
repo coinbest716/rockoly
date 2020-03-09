@@ -30,6 +30,7 @@
     #headerTitle{
       display: flex;
       justify-content: center;
+      font-size: 18px;
     }
     #checkBoxView{
       margin-bottom: 10px;
@@ -38,6 +39,7 @@
     .saveButton{
       display: flex;
       justify-content: flex-end;
+      padding-bottom: 2%;
     }
     #sectionTitle{
       margin-top: 10px;
@@ -98,12 +100,13 @@
 .image {
   opacity: 1;
   display: block;
-  max-width: 57%;
   transition: .5s ease;
   backface-visibility: hidden;
   margin-bottom: 29px;
   margin-top: 20px;
   margin-left: 61px;
+  width: 50%;
+  height: 150px;
 }
 .middle {
   transition: .5s ease;
@@ -124,6 +127,7 @@
   color: white;
   font-size: 16px;
   padding: 16px 32px;
+  text-align: center;
 }
 #file-input
 {
@@ -163,6 +167,10 @@
 #availabilityRow{
   margin-bottom: 15px;
 }
+.complexity_availability_row{
+  border: 1px solid black;
+  margin-left: 10px;
+}
 #unAvailabilityRow{
   height: 150px;
   overflow-y: scroll;
@@ -174,6 +182,13 @@
     text-decoration: underline;
     cursor: pointer;
     // width: 810px;
+}
+.nonAvailability-shared{
+  color: #007bff;
+  // display: flex;
+  // justify-content: center;
+  text-decoration: underline;
+  cursor: pointer;
 }
 a {
   text-decoration: none;
@@ -296,10 +311,11 @@ a:hover {
   flex-direction: column;
   margin-top: 2%;
 }
-#status-full-view{
+#status-content-view{
   box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
     transition: 0.3s;
     height: 40px;
+    padding: 20px;
 }
 #status-content-view{
   display: flex;
@@ -352,8 +368,15 @@ a:hover {
 }
 }
 #title-content{
-  margin-bottom: 0px !important;
+  margin-bottom: 15px !important;
 }
 #save-button-view{
   margin-top: 2%;
+}
+@media(max-width:991px){
+  #sidebar{
+    padding-right: 30px !important;
+    padding-left: 30px !important;
+    margin-top: 20px;
+  }
 }

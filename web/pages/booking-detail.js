@@ -6,6 +6,7 @@ import { withApollo } from '../apollo/apollo';
 const BookingDetail = () => {
   const router = useRouter();
   let details = router.query ? router.query : '';
+  let bookingId = details.chefBookingHistId;
   return (
     <div>
       <BookingDetails BookingDetails={details} />

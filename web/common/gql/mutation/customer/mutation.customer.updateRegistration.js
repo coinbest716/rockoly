@@ -1,10 +1,10 @@
 export const updateRegistrationGQLTAG = `mutation updateRegistrationFlag(
-  $customrerId: String!
+  $customerId: String!
   $isRegistrationCompletedYn: Boolean
 ) {
   updateCustomerProfileByCustomerId(
     input: {
-      customerId: $customrerId
+      customerId: $customerId
       customerProfilePatch: {
         isRegistrationCompletedYn: $isRegistrationCompletedYn
       }

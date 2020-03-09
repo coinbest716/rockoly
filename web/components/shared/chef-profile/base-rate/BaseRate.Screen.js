@@ -11,10 +11,11 @@ import {
   chefId,
   chef,
   getUserTypeRole,
-  profileExtendId
+  profileExtendId,
 } from '../../../../utils/UserType';
 import * as util from '../../../../utils/checkEmptycondition';
 import { toastMessage } from '../../../../utils/Toast';
+import { StoreInLocal, GetValueFromLocal } from '../../../../utils/LocalStorage';
 
 const baseRateGqlTag = gqlTag.mutation.chef.updatePriceForBookingGQLTAG;
 
@@ -36,7 +37,15 @@ const CHEF_SUBS = gql`
   ${chefSubscription}
 `;
 
-const BaserateScreen = () => {
+//update screen
+const updateScreens = gqlTag.mutation.chef.updateScreensGQLTAG;
+
+const UPDATE_SCREENS = gql`
+  ${updateScreens}
+`;
+
+const BaserateScreen = props => {
+  // console.log("props",props)
 
   const [extendedId, setExtendeId] = useState('');
   const [chefIdValue, setChefIdValue] = useState('');
@@ -46,20 +55,47 @@ const BaserateScreen = () => {
   const [minGuests, setMinGuests] = useState(0);
   const [maxGuests, setMaxGuests] = useState(0);
   const [noCanServe, setNoCanServe] = useState(0);
-  const [discountValue,setDiscountValue] = useState(0);
-  const [personsCountValue,setPersonCountValue] = useState(0);
+  const [discountValue, setDiscountValue] = useState(0);
+  const [personsCountValue, setPersonCountValue] = useState(0);
+  const [chefProfileextId, setChefProfileextId] = useState(null);
 
-  const [updatebaseRateValues, values] = useMutation(
-    baseRateTag,
-    {
-      onCompleted: responseForSubmit => {
-        toastMessage('success', 'Values saved successfully');
-      },
-      onError: err => {
-        toastMessage('error', err);
-      },
-    }
-  );
+  const [updatebaseRateValues, values] = useMutation(baseRateTag, {
+    onCompleted: responseForSubmit => {
+      toastMessage('success', 'Values saved successfully');
+      if (props.screen && props.screen === 'register') {
+        // To get the updated screens value
+        let screensValue = [];
+        GetValueFromLocal('SharedProfileScreens')
+          .then(result => {
+            if (result && result.length > 0) {
+              screensValue = result;
+            }
+            screensValue.push('BASE_RATE');
+            screensValue = _.uniq(screensValue);
+            if (props.nextStep) props.nextStep();
+            let variables = {
+              chefId: props.chefId,
+              chefUpdatedScreens: screensValue,
+            };
+            updateScrrenTag({ variables });
+            StoreInLocal('SharedProfileScreens', screensValue);
+          })
+          .catch(err => {
+            console.log('err', err);
+          });
+      }
+    },
+    onError: err => {
+      toastMessage('error', err);
+    },
+  });
+
+  const [updateScrrenTag, { data, loading, error }] = useMutation(UPDATE_SCREENS, {
+    onCompleted: data => {
+      // toastMessage(success, 'Favourite cuisines updated successfully');
+    },
+    onError: err => {},
+  });
 
   const [getChefDataByProfile, chefData] = useLazyQuery(GET_CHEF_DATA, {
     variables: { chefId: chefIdValue },
@@ -83,18 +119,19 @@ const BaserateScreen = () => {
     getUserTypeRole()
       .then(async res => {
         if (res === chef) {
-          getChefId(chefId)
-            .then(async res => {
-              await setChefIdValue(res);
-            })
+          getChefId(chefId).then(async res => {
+            await setChefIdValue(res);
+          });
           getChefId(profileExtendId)
             .then(chefResult => {
               setExtendeId(chefResult);
             })
-            .catch(err => { console.log("error", error) });
+            .catch(err => {
+              console.log('error', error);
+            });
         }
       })
-      .catch(err => { });
+      .catch(err => {});
   }, [extendedId, chefIdValue]);
 
   useEffect(() => {
@@ -115,98 +152,108 @@ const BaserateScreen = () => {
       util.isObjectEmpty(chefData.data.chefProfileByChefId.chefProfileExtendedsByChefId)
     ) {
       let chefDetails = chefData.data.chefProfileByChefId.chefProfileExtendedsByChefId;
-      if (util.hasProperty(chefDetails, "nodes") &&
-        util.isArrayEmpty(chefDetails.nodes)
-      ) {
-        let extendedData = chefDetails.nodes[0]
-        setBaseRateValue(extendedData.chefPricePerHour ? parseInt(extendedData.chefPricePerHour) : 0)
-        setChefGratuityValue(extendedData.chefGratuity ? parseInt(extendedData.chefGratuity) : 0)
-        setMinGuests(extendedData.noOfGuestsMin ? extendedData.noOfGuestsMin : 0)
-        setMaxGuests(extendedData.noOfGuestsMax ? extendedData.noOfGuestsMax : 0)
-        setNoCanServe(extendedData.noOfGuestsCanServe ? extendedData.noOfGuestsCanServe : 0)
-        setDiscountValue(extendedData.discount ? parseInt(extendedData.discount) : 0)
-        setPersonCountValue(extendedData.personsCount ? extendedData.personsCount : 0)
+      let ids = chefDetails.nodes[0].chefProfileExtendedId;
+      setChefProfileextId(ids);
+      if (util.hasProperty(chefDetails, 'nodes') && util.isArrayEmpty(chefDetails.nodes)) {
+        let extendedData = chefDetails.nodes[0];
+        setBaseRateValue(
+          extendedData.chefPricePerHour ? parseInt(extendedData.chefPricePerHour) : 0
+        );
+        setChefGratuityValue(extendedData.chefGratuity ? parseInt(extendedData.chefGratuity) : 0);
+        setMinGuests(extendedData.noOfGuestsMin ? extendedData.noOfGuestsMin : 0);
+        setMaxGuests(extendedData.noOfGuestsMax ? extendedData.noOfGuestsMax : 0);
+        setNoCanServe(extendedData.noOfGuestsCanServe ? extendedData.noOfGuestsCanServe : 0);
+        setDiscountValue(extendedData.discount ? parseInt(extendedData.discount) : 0);
+        setPersonCountValue(extendedData.personsCount ? extendedData.personsCount : 0);
       }
     } else {
-
     }
   }, [chefData]);
 
   function onChangingValue(value, type) {
     if (type === 'baserate') {
-      setBaseRateValue(value)
+      setBaseRateValue(value);
     } else if (type === 'gratuity') {
-      setChefGratuityValue(value)
+      setChefGratuityValue(value);
     } else if (type === 'minGuests') {
-      setMinGuests(value)
+      setMinGuests(value);
     } else if (type === 'maxGuests') {
-      setMaxGuests(value)
+      setMaxGuests(value);
     } else if (type === 'serve') {
-      setNoCanServe(value)
+      setNoCanServe(value);
     } else if (type === 'discount') {
-      setDiscountValue(value)
-    } else if(type === 'count'){
-      setPersonCountValue(value)
+      setDiscountValue(value);
+    } else if (type === 'count') {
+      setPersonCountValue(value);
     }
   }
 
   function onSavingValues() {
-    if (minGuests > maxGuests) {
-      toastMessage('error', 'Maximum no of guests should be greater')
-    } else {
+    if (parseInt(minGuests) > parseInt(maxGuests) || parseInt(minGuests) == parseInt(maxGuests)) {
+      toastMessage('error', 'Maximum no of guests should be greater');
+    } else if (baseRateValue == 0) {
+      toastMessage('error', 'Please enter base rate');
+    } else if (parseInt(minGuests) == 0 && parseInt(maxGuests) == 0) {
+      toastMessage('error', 'Guest count should be greater than 0');
+    } else if (parseInt(minGuests) !== 0 && parseInt(maxGuests) !== 0) {
       updatebaseRateValues({
         variables: {
-          chefProfileExtendedId: extendedId,
+          chefProfileExtendedId: chefProfileextId,
           chefPricePerHour: parseFloat(baseRateValue),
           chefGratuity: parseFloat(chefGratuityValue),
           noOfGuestsMin: parseInt(minGuests),
           noOfGuestsMax: parseInt(maxGuests),
           noOfGuestsCanServe: parseInt(noCanServe),
-          discount : parseFloat(discountValue),
-          personsCount : parseInt(personsCountValue)
-        }
-      })
+          discount: parseFloat(discountValue),
+          personsCount: parseInt(personsCountValue),
+        },
+      });
+    } else if (parseInt(minGuests) === 0 || parseInt(maxGuests) === 0) {
+      toastMessage('error', 'Minimum/Maximum no of guests should be greater than 0');
     }
   }
   try {
     return (
       <React.Fragment>
-        <section className="products-collections-area ptb-60 ">
-          <div className="section-title">
-            <h2>Base Rate & Gratuity</h2>
-          </div>
-
+        {/* <div className="Awards-card"> */}
+        <section
+          className={`products-collections-area ptb-40 
+        ${props.screen === 'register' ? 'base-rate-info' : ''}`}
+        >
+          {props.screen !== 'register' && (
+            <div className="section-title">
+              <h2>Base Rate & Gratuity</h2>
+            </div>
+          )}
           <form className="login-form">
             <div className="form-group">
-              <BaseRate onChangingValue={onChangingValue}
-                baseRateValue={baseRateValue} />
-              <Gratuity onChangingValue={onChangingValue}
-                chefGratuityValue={chefGratuityValue} />
-              <NumberOfGuestes onChangingValue={onChangingValue}
-                minGuests={minGuests} maxGuests={maxGuests} 
-                noCanServe={noCanServe} discountValue={discountValue}
-                personsCountValue = {personsCountValue}/>
+              <BaseRate onChangingValue={onChangingValue} baseRateValue={baseRateValue} />
+              <Gratuity onChangingValue={onChangingValue} chefGratuityValue={chefGratuityValue} />
+              <NumberOfGuestes
+                onChangingValue={onChangingValue}
+                minGuests={minGuests}
+                maxGuests={maxGuests}
+                noCanServe={noCanServe}
+                discountValue={discountValue}
+                personsCountValue={personsCountValue}
+              />
             </div>
           </form>
 
           <div className="container">
             <div className="saveButton">
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={() => onSavingValues()}
-              >
+              <button type="button" className="btn btn-primary" onClick={() => onSavingValues()}>
                 Save
-            </button>
+              </button>
             </div>
           </div>
-
         </section>
+        {/* </div> */}
       </React.Fragment>
-    )
+    );
   } catch (error) {
-    console.log("error", error)
-  };
-}
+    console.log('error', error);
+  }
+};
 
 export default BaserateScreen;

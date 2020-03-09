@@ -8,7 +8,7 @@ const Navbar = () => {
   try {
     return (
       <React.Fragment>
-        <TopPanel />
+        {/* <TopPanel /> */}
         <MegaMenu />
       </React.Fragment>
     );

@@ -61,7 +61,6 @@ const AppProvider = props => {
   //Set token id to local storage
   useEffect(() => {
     if (utils.isStringEmpty(tokenId)) {
-      // console.log('currentUser getIdToken', tokenId);
       StoreInLocal('current_user_token', tokenId);
     }
   }, [tokenId]);
@@ -193,7 +192,6 @@ const AppProvider = props => {
   //     variables: { customerId: state.customerId ? state.customerId : '' },
   //     onSubscriptionData: (res) => {
   //       if (res.subscriptionData.data.customerProfileExtended) {
-  //         console.log("res",res.subscriptionData.data.customerProfileExtended)
   //         fetchData();
   //       }
   //     },

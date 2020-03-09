@@ -100,6 +100,7 @@ const CustomerHistoryList = () => {
   //get payment data
 
   useEffect(() => {
+    console.log('chefData', chefData);
     if (
       util.isObjectEmpty(chefData) &&
       util.hasProperty(chefData, 'data') &&
@@ -135,8 +136,11 @@ const CustomerHistoryList = () => {
 
   //Navigate to booking detail page
   function onClickPaymentDetail(data) {
+    let newData = {};
     data.chefBookingHistId = data.chefBookingHistoryByBookingHistId.chefBookingHistId;
-    NavigateToBookongDetail(data);
+    newData.chefBookingHistId = data.chefBookingHistId;
+    newData.bookingType = '';
+    NavigateToBookongDetail(newData);
   }
 
   //loader
@@ -151,7 +155,7 @@ const CustomerHistoryList = () => {
   }
 
   function formatCreatedDate(date) {
-    return NotificationconvertDateandTime(date)+ " " + getTimeOnly(getLocalTime(date));
+    return NotificationconvertDateandTime(date) + ' ' + getTimeOnly(getLocalTime(date));
   }
 
   function formatBookingDate(payment) {
@@ -177,7 +181,9 @@ const CustomerHistoryList = () => {
       util.hasProperty(payment.chefBookingHistoryByBookingHistId, 'chefBookingFromTime') &&
       util.isStringEmpty(payment.chefBookingHistoryByBookingHistId.chefBookingFromTime)
     ) {
-      let bookingFromTime = getTimeOnly(getLocalTime(payment.chefBookingHistoryByBookingHistId.chefBookingFromTime))
+      let bookingFromTime = getTimeOnly(
+        getLocalTime(payment.chefBookingHistoryByBookingHistId.chefBookingFromTime)
+      );
       return bookingFromTime;
     } else {
       return '-';
@@ -196,7 +202,9 @@ const CustomerHistoryList = () => {
       util.hasProperty(payment.chefBookingHistoryByBookingHistId, 'chefBookingToTime') &&
       util.isStringEmpty(payment.chefBookingHistoryByBookingHistId.chefBookingToTime)
     ) {
-      let bookingToTime = getTimeOnly(getLocalTime(payment.chefBookingHistoryByBookingHistId.chefBookingToTime))
+      let bookingToTime = getTimeOnly(
+        getLocalTime(payment.chefBookingHistoryByBookingHistId.chefBookingToTime)
+      );
       return bookingToTime;
     } else {
       return '-';
@@ -206,11 +214,11 @@ const CustomerHistoryList = () => {
   try {
     return (
       <React.Fragment>
-        <div>
+        <div className="payment-containar">
           {renderLoader()}
           <div className="payment">
             {customerCount > 0 && customerPaymentCount > 0 && (
-              <p>
+              <p className="totalCount" style={{ paddingTop: '1%' }}>
                 Showing {customerCount} of {customerPaymentCount} results
               </p>
             )}
@@ -222,7 +230,7 @@ const CustomerHistoryList = () => {
                   <div className="container">
                     <div id={payment.paymentHistId} className="contentView">
                       <div className="payment-common-content row" key={payment.paymentHistId}>
-                        <div className="col-md-2" id="image-view">
+                        <div className="col-lg-2 col-md-2 col-sm-12" id="image-view">
                           <img
                             src={
                               util.isObjectEmpty(payment.chefProfileByPaymentDoneForChefId) &&
@@ -236,15 +244,21 @@ const CustomerHistoryList = () => {
                             className="payment-user-image"
                           />
                         </div>
-                        <div className="col-md-3 products-content " id="chef-info-list">
+                        <div
+                          className="col-lg-3 col-md-3 col-sm-12 products-content "
+                          id="chef-info-list"
+                        >
                           <span>
-                            <a className="chefname">
+                            <a
+                              className="chefname"
+                              style={{ display: 'flex', justifyContent: 'center' }}
+                            >
                               {util.isObjectEmpty(payment.chefProfileByPaymentDoneForChefId) &&
                               util.isStringEmpty(payment.chefProfileByPaymentDoneForChefId.fullName)
                                 ? payment.chefProfileByPaymentDoneForChefId.fullName
                                 : ''}
                             </a>
-                            <p>
+                            <p className="payment-text">
                               {util.isStringEmpty(payment.paymentStatusId) ? (
                                 payment.paymentStatusId.trim() === 'REFUND' ? (
                                   <p>{S.REFUND_STATUS}</p>
@@ -263,7 +277,7 @@ const CustomerHistoryList = () => {
 
                           <a></a>
                         </div>
-                        <div className="col-md-3" id="payment-status">
+                        <div className="col-lg-3 col-md-3 col-sm-12" id="payment-status">
                           <p>
                             <b>Starts On: </b>
                             {formatBookingFromTimeDate(payment)}
@@ -274,10 +288,14 @@ const CustomerHistoryList = () => {
                           </p>
                           <p>
                             <b>Price: </b>$
-                            {payment.chefBookingHistoryByBookingHistId.chefBookingTotalPriceValue}
+                            {payment.chefBookingHistoryByBookingHistId.chefBookingPriceValue
+                              ? payment.chefBookingHistoryByBookingHistId.chefBookingPriceValue.toFixed(
+                                  2
+                                )
+                              : null}
                           </p>
                         </div>
-                        <div className="col-md-2" id="payment-buttons">
+                        <div className="col-lg-2 col-md-2 col-sm-12" id="payment-buttons">
                           <button
                             className="btn btn-primary ViewDetail"
                             onClick={() => {
@@ -287,7 +305,7 @@ const CustomerHistoryList = () => {
                             View
                           </button>
                         </div>
-                        <div className="col-md-2" id="date-format">
+                        <div className="col-lg-2 col-md-2 col-sm-12" id="date-format">
                           <h5 className="date">
                             <a> {formatCreatedDate(payment.createdAt)}</a>
                           </h5>

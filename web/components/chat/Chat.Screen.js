@@ -9,8 +9,11 @@ export default function ChatScreen(props) {
       <React.Fragment>
         <Page>
           <div id="chat-fullscreen-view">
-            <section className="products-details-area " style={{ paddingTop: '30px' }}>
-              <div style={{ display: 'flex', justifyContent: 'center', paddingBottom: '2%' }}>
+            <section
+              className="products-details-area "
+              style={{ paddingTop: '10px', paddingBottom: '10px' }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
                 <ChatViewScreen conversationId={props} />
               </div>
             </section>

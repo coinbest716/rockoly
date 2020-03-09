@@ -21,8 +21,16 @@ const BOOKING_SUBS_GQL = gql`
   ${bookingSubsGQLTag}
 `;
 
+const bookingRequestSubs = gqlTag.query.booking.requestedBookingByIdGQLTAG;
+
+const BOOKING_REQUEST_GQL = gql`
+  ${bookingRequestSubs}
+`;
+
 export default function BookingDetails(props) {
+  const [isUIRendered, setIsUIRendered] = useState(false);
   const [bookingDetails, setBookingDetails] = useState(null);
+  const [requestedData, setRequestedData] = useState([]);
 
   const [getBookingData, { data }] = useLazyQuery(BOOKING_DATA, {
     variables: {
@@ -35,6 +43,19 @@ export default function BookingDetails(props) {
       toastMessage('renderError', err);
     },
   });
+
+  const [getBookingRequestData, Requestdata] = useLazyQuery(BOOKING_REQUEST_GQL, {
+    variables: {
+      bookingHistId: props.BookingDetails.chefBookingHistId
+        ? props.BookingDetails.chefBookingHistId
+        : props.BookingDetails.chef_booking_hist_id,
+    },
+    fetchPolicy: 'network-only',
+    onError: err => {
+      toastMessage('renderError', err);
+    },
+  });
+
   const { bookingSubsData } = useSubscription(BOOKING_SUBS_GQL, {
     variables: {
       chefBookingHistId: props.BookingDetails.chefBookingHistId
@@ -49,33 +70,75 @@ export default function BookingDetails(props) {
   });
   useEffect(() => {
     getBookingData();
+    // console.log('props', props);
   }, [props]);
 
   useEffect(() => {
-    setBookingDetails(data);
+    if (data) {
+      setBookingDetails(data);
+    }
   }, [data]);
 
+  useEffect(() => {
+    getBookingRequestData();
+    // console.log('bookingDetails', bookingDetails);
+    if (
+      utils.isObjectEmpty(bookingDetails) &&
+      utils.hasProperty(bookingDetails, 'chefBookingHistoryByChefBookingHistId') &&
+      utils.isObjectEmpty(bookingDetails.chefBookingHistoryByChefBookingHistId) &&
+      utils.hasProperty(bookingDetails.chefBookingHistoryByChefBookingHistId, 'chefBookingStatusId')
+    ) {
+      let status = bookingDetails.chefBookingHistoryByChefBookingHistId.chefBookingStatusId.trim();
+      if (status) {
+      }
+    }
+    setIsUIRendered(true);
+  }, [bookingDetails]);
+
+  useEffect(() => {
+    if (
+      utils.isObjectEmpty(Requestdata) &&
+      utils.hasProperty(Requestdata, 'data') &&
+      utils.isObjectEmpty(Requestdata.data) &&
+      utils.hasProperty(Requestdata.data, 'allChefBookingRequestHistories') &&
+      utils.isObjectEmpty(Requestdata.data.allChefBookingRequestHistories) &&
+      utils.hasProperty(Requestdata.data.allChefBookingRequestHistories, 'nodes') &&
+      utils.isArrayEmpty(Requestdata.data.allChefBookingRequestHistories.nodes)
+    ) {
+      setRequestedData(Requestdata.data.allChefBookingRequestHistories.nodes[0]);
+    }
+  }, [Requestdata]);
   try {
     return (
       <React.Fragment>
         <Page>
-          <div className="bookingDetail">
-            <section className="products-details-area pt-60">
-              <div className="container">
-                <BookingDetail
-                  BookingDetails={utils.isObjectEmpty(bookingDetails) ? bookingDetails : {}}
-                  BookingHistory={
-                    props.BookingDetails.chefBookingHistId
-                      ? props.BookingDetails.chefBookingHistId
-                      : props.BookingDetails.chef_booking_hist_id
-                  }
-                  bookingType={
-                    props.BookingDetails.bookingType ? props.BookingDetails.bookingType : 'All'
-                  }
-                />
-              </div>
-            </section>
-          </div>
+          {isUIRendered === true && (
+            <div className="bookingDetail">
+              <section
+                className="products-details-area ptb-30"
+                style={{ paddingTop: '30px', paddingBottom: '30px' }}
+              >
+                <div
+                  className="container"
+                  id="booking-detail-card"
+                  style={{ paddingBottom: '30px' }}
+                >
+                  <BookingDetail
+                    requestedData={requestedData ? requestedData : []}
+                    BookingDetails={utils.isObjectEmpty(bookingDetails) ? bookingDetails : {}}
+                    BookingHistory={
+                      props.BookingDetails.chefBookingHistId
+                        ? props.BookingDetails.chefBookingHistId
+                        : props.BookingDetails.chef_booking_hist_id
+                    }
+                    bookingType={
+                      props.BookingDetails.bookingType ? props.BookingDetails.bookingType : 'All'
+                    }
+                  />
+                </div>
+              </section>
+            </div>
+          )}
         </Page>
       </React.Fragment>
     );

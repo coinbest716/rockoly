@@ -68,7 +68,6 @@ const UnAvailabiltyModal = props => {
   //update chef availability
   const [updateChefAvailability] = useMutation(UPDATE_CHEF_AVAILABILITY, {
     onCompleted: data => {
-      // console.log('ddddddddddd', data);
       setAddedDate('');
       toastMessage(success, S.UPDATE_MSG);
     },
@@ -76,7 +75,6 @@ const UnAvailabiltyModal = props => {
       toastMessage(renderError, err.message);
     },
   });
-  console.log('futureMonth', futureMonthReversed());
   const { chefUnAvailabilitySubs } = useSubscription(UNAVAILABILITY_SUBSCRIPTION, {
     variables: { chefId: chefIdValue },
     onSubscriptionData: res => {
@@ -263,7 +261,7 @@ const UnAvailabiltyModal = props => {
         <div className="login-content">
           <div className="section-title">
             <h2>{S.SET_UNAVAIALABILITY}</h2>
-            <p>Please add your unavailability days here</p>
+            <p>Please add your unavailable days here</p>
           </div>
 
           <div className="form-group">

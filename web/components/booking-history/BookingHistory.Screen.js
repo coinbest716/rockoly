@@ -59,10 +59,10 @@ export default function BookingHistory() {
   const [type, setType] = useState(S.ALL);
 
   // set dates
-  const [startDate, setStartDate] = useState(getCurrentMonth().fromDate);
-  const [endDate, setEndDate] = useState(getCurrentMonth().toDate);
-  const [bookingFromDate, setBookingFromDate] = useState(getCurrentMonth().fromDate);
-  const [bookingToDate, setBookingToDate] = useState(getCurrentMonth().toDate);
+  const [startDate, setStartDate] = useState(getCurrentMonth(new Date()).fromDate);
+  const [endDate, setEndDate] = useState(getCurrentMonth(new Date()).toDate);
+  const [bookingFromDate, setBookingFromDate] = useState(getCurrentMonth(new Date()).fromDate);
+  const [bookingToDate, setBookingToDate] = useState(getCurrentMonth(new Date()).toDate);
   // option values
   const [optionValue, setOptionValue] = useState();
 
@@ -137,6 +137,7 @@ export default function BookingHistory() {
         '"AMOUNT_TRANSFER_FAILED"',
         '"REFUND_AMOUNT_SUCCESS"',
         '"REFUND_AMOUNT_FAILED"',
+        '"CHEF_REQUESTED_AMOUNT"',
       ],
       totalCountValue: `{CUSTOMER_REQUESTED,CHEF_ACCEPTED,CHEF_REJECTED,COMPLETED,CANCELLED_BY_CHEF,CANCELLED_BY_CUSTOMER,AMOUNT_TRANSFER_SUCCESS,AMOUNT_TRANSFER_FAILED,REFUND_AMOUNT_SUCCESS,REFUND_AMOUNT_FAILED}`,
     },
@@ -170,6 +171,11 @@ export default function BookingHistory() {
       value: ['"COMPLETED"', '"AMOUNT_TRANSFER_FAILED"'],
       totalCountValue: `{COMPLETED,AMOUNT_TRANSFER_FAILED}`,
     },
+    {
+      label: S.CHEF_REQUESTED_AMOUNT,
+      value: ['"CHEF_REQUESTED_AMOUNT"'],
+      totalCountValue: '{CHEF_REQUESTED_AMOUNT}',
+    },
   ];
 
   //select options  for customer
@@ -189,6 +195,7 @@ export default function BookingHistory() {
         '"AMOUNT_TRANSFER_SUCCESS"',
         '"REFUND_AMOUNT_SUCCESS"',
         '"REFUND_AMOUNT_FAILED"',
+        '"CHEF_REQUESTED_AMOUNT"',
       ],
       totalCountValue: `{PAYMENT_PENDING,PAYMENT_FAILED,CUSTOMER_REQUESTED,CHEF_ACCEPTED,CHEF_REJECTED,CANCELLED_BY_CHEF,CANCELLED_BY_CUSTOMER,COMPLETED,AMOUNT_TRANSFER_FAILED,AMOUNT_TRANSFER_SUCCESS,REFUND_AMOUNT_SUCCESS,REFUND_AMOUNT_FAILED}`,
     },
@@ -219,8 +226,13 @@ export default function BookingHistory() {
     },
     {
       label: S.PAYMENT_OPTION,
-      value: ['"PAYMENT_PENDING"', '"PAYMENT_FAILED"'],
-      totalCountValue: `{PAYMENT_PENDING, PAYMENT_FAILED}`,
+      value: ['"PAYMENT_PENDING"'],
+      totalCountValue: `{PAYMENT_PENDING}`,
+    },
+    {
+      label: S.PAYMENT_FAILED_OPTION,
+      value: ['"PAYMENT_FAILED"'],
+      totalCountValue: `{PAYMENT_FAILED}`,
     },
     {
       label: S.REFUND_AMOUNT_SUCCESS_TAB,
@@ -232,6 +244,11 @@ export default function BookingHistory() {
       value: ['"REFUND_AMOUNT_FAILED"'],
       totalCountValue: `{REFUND_AMOUNT_FAILED}`,
     },
+    {
+      label: S.CHEF_REQUESTED_AMOUNT,
+      value: ['"CHEF_REQUESTED_AMOUNT"'],
+      totalCountValue: '{CHEF_REQUESTED_AMOUNT}',
+    },
   ];
 
   useEffect(() => {
@@ -242,7 +259,7 @@ export default function BookingHistory() {
       hasProperty(data.listBookingByDateRange, 'nodes') &&
       isArrayEmpty(data.listBookingByDateRange.nodes)
     ) {
-  
+      console.log('dsakjkjkjhkjh123123', data);
       setResultBookingData(data.listBookingByDateRange.nodes);
     } else {
       setResultBookingData([]);
@@ -256,7 +273,6 @@ export default function BookingHistory() {
       isObjectEmpty(totalCountValue.data) &&
       hasProperty(totalCountValue.data, 'totalCountByParams')
     ) {
-
       setbookingCount(totalCountValue.data.totalCountByParams);
     }
   }, [totalCountValue]);
@@ -312,8 +328,8 @@ export default function BookingHistory() {
     getBookingData();
   }
   function selectStartDate(event) {
-    setStartDate(event+ ' ' + '00:00:00');
-    setEndDate(event+ ' ' + '23:59:59');
+    setStartDate(event + ' ' + '00:00:00');
+    setEndDate(event + ' ' + '23:59:59');
   }
 
   function triggerHistorySubscription() {
@@ -327,7 +343,7 @@ export default function BookingHistory() {
           <div className="bookingHistory">
             <section className="cart-area ptb-60">
               <div className="cart-totals">
-                <div className="col-lg-12 col-md-12">
+                <div className="col-lg-12 col-md-12" id="bookingContainarView">
                   <div className="tab products-details-tab">
                     <div className="row">
                       <div className="bookingHistoryFilterView">
@@ -367,7 +383,7 @@ export default function BookingHistory() {
                             showBorder
                             required
                             minDate={startDate}
-                            onChange={event => setEndDate(event+ ' ' + '23:59:59')}
+                            onChange={event => setEndDate(event + ' ' + '23:59:59')}
                             placeholder={S.ADD_TO_DATE}
                             color={'#d9b44a'}
                           />

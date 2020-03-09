@@ -4,7 +4,12 @@ import { useMutation, useLazyQuery } from '@apollo/react-hooks';
 import gql from 'graphql-tag';
 import n from '../../routings/routings';
 import Link from 'next/link';
-import { NavigateToProfileSetup, NavigateToHome, NavigateToIntro } from './Navigation';
+import {
+  NavigateToProfileSetup,
+  NavigateToHome,
+  NavigateToIntro,
+  NavigateToBookingRequest,
+} from './Navigation';
 import {
   chef,
   CHEF,
@@ -113,17 +118,17 @@ const Settings = () => {
 
   //update state values
   useEffect(() => {
-    if(chefData && chefData.error){
-      toastMessage('error',error)
+    if (chefData && chefData.error) {
+      toastMessage('error', error);
     }
     if (chefData && chefData.data) {
       if (
         chefData.data.chefProfileByChefId.chefProfileExtendedsByChefId.nodes[0]
           .isIntroSlidesSeenYn === false
       ) {
-        NavigateToIntro();
+        // NavigateToIntro();
       } else {
-        NavigateToHome();
+        NavigateToBookingRequest();
       }
     }
   }, [chefData]);
@@ -209,7 +214,7 @@ const Settings = () => {
   function onSelectAvailability(response) {
     if (response) {
       let details = {
-        key: response,
+        key: 10,
       };
       NavigateToProfileSetup(details);
     }
@@ -300,7 +305,10 @@ const Settings = () => {
                           onClick={() => onChangeNotification()}
                           checked={notification}
                         />
-                        <span className="slider round"></span>
+                        <span
+                          className="slider round"
+                          style={{ width: '100%', height: '91%' }}
+                        ></span>
                       </label>
                     </span>
                   </li>

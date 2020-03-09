@@ -28,7 +28,6 @@ const TopPanel = () => {
 
   //set userdata
   useEffect(() => {
-    // console.log('SUBMITTED_FOR_REVIEW', state);
     if (
       util.isObjectEmpty(state) &&
       util.hasProperty(state, 'chefProfile') &&

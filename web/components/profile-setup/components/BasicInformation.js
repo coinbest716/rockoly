@@ -54,7 +54,9 @@ const BasicInformation = props => {
   const [mobileNumberExist, setMobileNumberExist] = useState(false);
   const [gender, setGender] = useState('');
   const [userId, setUserId] = useState();
-  const [mobileDate,seMobileData] = useState();
+  const [mobileDate, setMobileData] = useState();
+  const [invalidDate, setInvalidDate] = useState(false);
+
   //Customer
   const [updateCustomerBasicInfo, { customerData }] = useMutation(UPDATE_CUSTOMER_BASIC_INFO, {
     onCompleted: customerData => {
@@ -62,7 +64,6 @@ const BasicInformation = props => {
     },
     onError: err => {
       toastMessage(error, err.message);
-
     },
   });
 
@@ -221,76 +222,80 @@ const BasicInformation = props => {
   //when saving data
   async function handleSubmit(e) {
     e.preventDefault();
-    let sliceDate = moment(dob).format('YYYY');
-    let dobSlice = moment(new Date()).format('YYYY');
-    if (parseInt(dobSlice) - parseInt(sliceDate) >= 18) {
-      try {
-        e.preventDefault();
+    if (invalidDate === false) {
+      let sliceDate = moment(dob).format('YYYY');
+      let dobSlice = moment(new Date()).format('YYYY');
+      if (parseInt(dobSlice) - parseInt(sliceDate) >= 18) {
+        try {
+          e.preventDefault();
 
-        const mobileData = await childRef.current.getMobileNumberValue();
+          // const mobileData = await childRef.current.getMobileNumberValue();
 
-        //setMobileNumber(mobileData.mobileNumberValue);
+          //setMobileNumber(mobileData.mobileNumberValue);
 
-        if (gender !== '') {
+          // if (gender !== '') {
           // if (salutationValue !== 0) {
-          if (mobileData.mobileNumber === mobileData.mobileCallBackValue) {
-            const checkMobileNumberAndEmail = await checkMobileAndEmailDataExistsOrNot(
-              email,
-              mobileData.countryCode + ' ' + mobileData.mobileNumberValue,
-              userId
-            );
-            if (props.role === customer) {
-              customerUserSubmit(mobileData);
-              // customerUserSubmit()
-            } else if (props.role === chef) {
-              updateChefBasicInfo({
-                variables: {
-                  chefId: props.id,
-                  chefSalutation: salutation !== '' && salutation !== null ? salutation : null,
-                  chefFirstName: firstName,
-                  chefLastName: lastName ? lastName : null,
-                  chefGender: gender.toUpperCase(),
-                  chefDob: util.isStringEmpty(dob) ? moment(dob, 'MM-DD-YYYY').format() : null,
-                  chefMobileNumber: mobileData.mobileNumberValue,
-                  chefMobileCountryCode: mobileData.countryCode,
-                },
-              });
-            } else {
-              toastMessage(error, 'MOBILE_NO_IS_ALREADY_EXISTS');
-            }
+          // if (mobileData.mobileNumber === mobileData.mobileCallBackValue) {
+          // const checkMobileNumberAndEmail = await checkMobileAndEmailDataExistsOrNot(
+          //   email,
+          //   mobileData.countryCode + ' ' + mobileData.mobileNumberValue,
+          //   userId
+          // );
+          if (props.role === customer) {
+            customerUserSubmit();
+            // customerUserSubmit()
+          } else if (props.role === chef) {
+            updateChefBasicInfo({
+              variables: {
+                chefId: props.id,
+                chefSalutation: null,
+                chefFirstName: firstName,
+                chefLastName: lastName ? lastName : null,
+                chefGender: null,
+                chefDob: util.isStringEmpty(dob) ? moment(dob, 'MM-DD-YYYY').format() : null,
+                // chefMobileNumber: mobileData.mobileNumberValue,
+                // chefMobileCountryCode: mobileData.countryCode,
+              },
+            });
           } else {
-            toastMessage(error, 'Please verify your phone number');
+            toastMessage(error, 'MOBILE_NO_IS_ALREADY_EXISTS');
           }
-        } else {
-          toastMessage('error', 'Enter gender to submit');
+          // } else {
+          //   toastMessage(error, 'Please verify your phone number');
+          // }
+          // } else {
+          //   toastMessage('error', 'Enter gender to submit');
+          // }
+        } catch (error) {
+          // console.log('toastMessage', error);
+          toastMessage(error, error);
         }
-      } catch (error) {
-        // console.log('toastMessage', error);
-        toastMessage(error, error);
+        //
+      } else {
+        toastMessage('error', 'AGE_LIMIT');
       }
-      //
     } else {
-      toastMessage('error', 'AGE_LIMIT');
+      toastMessage(error, 'Please enter valid date format');
     }
   }
   //mobileData
-  async function customerUserSubmit(mobileData) {
+  async function customerUserSubmit() {
     try {
       await updateCustomerBasicInfo({
         variables: {
           customerId: props.id,
-          customerSalutation: salutation !== '' && salutation !== null ? salutation : null,
+          customerSalutation: null,
           customerFirstName: firstName,
           customerLastName: lastName ? lastName : null,
-          customerGender: gender.toUpperCase(),
+          customerGender: null,
           customerDob: util.isStringEmpty(dob) ? moment(dob, 'MM-DD-YYYY').format() : null,
-          customerMobileNumber: mobileData.mobileNumberValue,
-          customerMobileCountryCode: mobileData.countryCode,
+          // customerMobileNumber: mobileData.mobileNumberValue,
+          // customerMobileCountryCode: mobileData.countryCode,
         },
       });
     } catch (error) {
       toastMessage(renderError, error.message);
-      console.log( error.message)
+      console.log(error.message);
     }
   }
   function onSelectSalutation(event) {
@@ -309,6 +314,23 @@ const BasicInformation = props => {
     setGender(selectedValue);
   }
 
+  //Check the dob format
+  useEffect(() => {
+    let dobDateValue = new Date(dob);
+    if (dobDateValue && dob) {
+      if (dob.match(/^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/)) {
+        const dateStr = dobDateValue.toString().split('/');
+        if (dateStr && dateStr[0] === 'Invalid Date') {
+          setInvalidDate(true);
+        } else {
+          setInvalidDate(false);
+        }
+      } else if (!dob.match(/^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/)) {
+        setInvalidDate(true);
+      }
+    }
+  }, [dob]);
+
   try {
     return (
       <React.Fragment>
@@ -322,61 +344,62 @@ const BasicInformation = props => {
                       <div className="section-title" id="title-content">
                         <h2>Basic Profile</h2>
                       </div>
-                      {/* <form className="signup-form"> */}
-                      <div className="form-group">
-                        <label>Salutation</label>
-                        <div>
-                          {salutation === 'MR' && (
-                            <select
-                              id="selectID"
-                              className="form-control-radio"
-                              onChange={() => onSelectSalutation(event)}
-                            >
-                              <option value="Mr">Mr</option>
-                              <option value="Ms">Ms</option>
-                              <option value="Mrs">Mrs</option>
-                            </select>
-                          )}
-                          {salutation === 'MISS' && (
-                            <select
-                              id="selectID"
-                              className="form-control-radio"
-                              onChange={() => onSelectSalutation(event)}
-                            >
-                              <option value="Mr">Mr</option>
-                              <option value="Ms" selected="selected">
-                                Ms
-                              </option>
-                              <option value="Mrs">Mrs</option>
-                            </select>
-                          )}
-                          {salutation === 'MRS' && (
-                            <select
-                              id="selectID"
-                              className="form-control-radio"
-                              onChange={() => onSelectSalutation(event)}
-                            >
-                              <option value="Mr">Mr</option>
-                              <option value="Ms">Ms</option>
-                              <option value="Mrs" selected="selected">
-                                Mrs
-                              </option>
-                            </select>
-                          )}
-                          {(salutation === '' || salutation === null) && (
-                            <select
-                              id="selectID"
-                              className="form-control-radio"
-                              onChange={() => onSelectSalutation(event)}
-                            >
-                              <option value="Select Salutation">Select Salutation</option>
-                              <option value="Mr">Mr</option>
-                              <option value="Ms">Ms</option>
-                              <option value="Mrs">Mrs</option>
-                            </select>
-                          )}
+                      {/* {props.role === chef && (
+                        <div className="form-group">
+                          <label>Salutation</label>
+                          <div>
+                            {salutation === 'MR' && (
+                              <select
+                                id="selectID"
+                                className="form-control-radio"
+                                onChange={() => onSelectSalutation(event)}
+                              >
+                                <option value="Mr">Mr</option>
+                                <option value="Ms">Ms</option>
+                                <option value="Mrs">Mrs</option>
+                              </select>
+                            )}
+                            {salutation === 'MISS' && (
+                              <select
+                                id="selectID"
+                                className="form-control-radio"
+                                onChange={() => onSelectSalutation(event)}
+                              >
+                                <option value="Mr">Mr</option>
+                                <option value="Ms" selected="selected">
+                                  Ms
+                                </option>
+                                <option value="Mrs">Mrs</option>
+                              </select>
+                            )}
+                            {salutation === 'MRS' && (
+                              <select
+                                id="selectID"
+                                className="form-control-radio"
+                                onChange={() => onSelectSalutation(event)}
+                              >
+                                <option value="Mr">Mr</option>
+                                <option value="Ms">Ms</option>
+                                <option value="Mrs" selected="selected">
+                                  Mrs
+                                </option>
+                              </select>
+                            )}
+                            {(salutation === '' || salutation === null) && (
+                              <select
+                                id="selectID"
+                                className="form-control-radio"
+                                onChange={() => onSelectSalutation(event)}
+                              >
+                                <option value="Select Salutation">Select Salutation</option>
+                                <option value="Mr">Mr</option>
+                                <option value="Ms">Ms</option>
+                                <option value="Mrs">Mrs</option>
+                              </select>
+                            )}
+                          </div>
                         </div>
-                      </div>
+                      )} */}
                       <div className="form-group">
                         <label>First Name</label>
                         <input
@@ -406,76 +429,76 @@ const BasicInformation = props => {
                           onChange={event => onChangeValue(event, setLastName)}
                         />
                       </div>
-
-                      <div className="gender">
-                        <div>
-                          <label>GENDER</label>
-                          {gender === 'MALE' && (
-                            <div className="radiobuttons">
-                              <p>
-                                <input
-                                  type="radio"
-                                  checked
-                                  name="radio-group"
-                                  onClick={() => selectGender('MALE')}
-                                />
-                                MALE
-                              </p>
-                              <p>
-                                <input
-                                  type="radio"
-                                  name="radio-group"
-                                  onClick={() => selectGender('FEMALE')}
-                                />
-                                FEMALE
-                              </p>
-                            </div>
-                          )}
-                          {gender === 'FEMALE' && (
-                            <div className="radiobuttons">
-                              <p>
-                                <input
-                                  type="radio"
-                                  name="radio-group"
-                                  onClick={() => selectGender('MALE')}
-                                />
-                                MALE
-                              </p>
-                              <p>
-                                <input
-                                  type="radio"
-                                  checked
-                                  name="radio-group"
-                                  onClick={() => selectGender('FEMALE')}
-                                />
-                                FEMALE
-                              </p>
-                            </div>
-                          )}
-                          {gender === '' && (
-                            <div className="radiobuttons">
-                              <p>
-                                <input
-                                  type="radio"
-                                  name="radio-group"
-                                  onClick={() => selectGender('MALE')}
-                                />
-                                MALE
-                              </p>
-                              <p>
-                                <input
-                                  type="radio"
-                                  name="radio-group"
-                                  onClick={() => selectGender('FEMALE')}
-                                />
-                                FEMALE
-                              </p>
-                            </div>
-                          )}
+                      {/* {props.role === chef && (
+                        <div className="gender">
+                          <div>
+                            <label>GENDER</label>
+                            {gender === 'MALE' && (
+                              <div className="radiobuttons">
+                                <p>
+                                  <input
+                                    type="radio"
+                                    checked
+                                    name="radio-group"
+                                    onClick={() => selectGender('MALE')}
+                                  />
+                                  MALE
+                                </p>
+                                <p>
+                                  <input
+                                    type="radio"
+                                    name="radio-group"
+                                    onClick={() => selectGender('FEMALE')}
+                                  />
+                                  FEMALE
+                                </p>
+                              </div>
+                            )}
+                            {gender === 'FEMALE' && (
+                              <div className="radiobuttons">
+                                <p>
+                                  <input
+                                    type="radio"
+                                    name="radio-group"
+                                    onClick={() => selectGender('MALE')}
+                                  />
+                                  MALE
+                                </p>
+                                <p>
+                                  <input
+                                    type="radio"
+                                    checked
+                                    name="radio-group"
+                                    onClick={() => selectGender('FEMALE')}
+                                  />
+                                  FEMALE
+                                </p>
+                              </div>
+                            )}
+                            {gender === '' && (
+                              <div className="radiobuttons">
+                                <p>
+                                  <input
+                                    type="radio"
+                                    name="radio-group"
+                                    onClick={() => selectGender('MALE')}
+                                  />
+                                  MALE
+                                </p>
+                                <p>
+                                  <input
+                                    type="radio"
+                                    name="radio-group"
+                                    onClick={() => selectGender('FEMALE')}
+                                  />
+                                  FEMALE
+                                </p>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-
-                      <div className="form-group">
+                      )} */}
+                      {/* <div className="form-group">
                         <label>Email</label>
                         <input
                           disabled={true}
@@ -490,12 +513,22 @@ const BasicInformation = props => {
                           onChange={event => onChangeValue(event, setEmail)}
                         />
                         <div className="help-block with-errors"></div>
-                      </div>
+                      </div> */}
 
                       <div className="form-group">
                         <label>Date Of Birth</label>
                         <br />
-                        <ModernDatepicker
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder="Enter your data of birth"
+                          id="dob"
+                          name="dob"
+                          data-error="Please enter your dob"
+                          value={dob}
+                          onChange={date => onChangeDate(date.target.value, setDob)}
+                        />
+                        {/* <ModernDatepicker
                           date={dob}
                           format={'MM-DD-YYYY'}
                           showBorder
@@ -504,16 +537,16 @@ const BasicInformation = props => {
                           placeholder={'Select a date'}
                           color={'#d9b44a'}
                           data-error="Please enter your email"
-                        />
+                        /> */}
                       </div>
-                      <MobileNumberVerification
+                      {/* <MobileNumberVerification
                         ref={childRef}
                         mobileNumber={mobileNumber}
                         countryCode={countryCode}
                         email = {email}
                         pageType={'Basic Informatiom'}
                         userId = {userId}
-                      />
+                      /> */}
                       {/* {props.role === customer && <CommonLocation ref={childRef} props={props} />} */}
                       {/* </form> */}
                     </div>
@@ -525,7 +558,7 @@ const BasicInformation = props => {
             <div className="basicInfoSave col-sm-2">
               <button
                 type="submit"
-                // onClick={() => handleSubmit()}
+                onClick={event => handleSubmit(event)}
                 className="btn btn-primary"
                 style={{ width: 'fit-content' }}
               >

@@ -8,4 +8,9 @@ export default {
   unselectedMenuStyle: {
     backgroundColor: 'white',
   },
+  tickIcon: {
+    fontSize: 23,
+    paddingLeft: 10,
+    color: 'green',
+  },
 };
