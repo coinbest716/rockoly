@@ -166,7 +166,7 @@ export default class ChefSetupProfile extends PureComponent {
         }
       )
     }
-    this.goToSetAvailability()
+    this.goToProfileStack()
   }
 
   setUpdateDetails = ({updateProfileDetails}) => {
@@ -392,6 +392,11 @@ export default class ChefSetupProfile extends PureComponent {
     })
   }
 
+  goToProfileStack = () => {
+    const {navigation} = this.props
+    navigation.navigate(RouteNames.CHEF_PROFILE_STACK)
+  }
+
   goToSetAvailability = () => {
     const {navigation} = this.props
     navigation.navigate(RouteNames.SET_AVAILABILITY_SCREEN)
@@ -587,6 +592,7 @@ export default class ChefSetupProfile extends PureComponent {
       displaySelectedDishItems,
       profile,
     } = this.state
+    console.log('description', description)
     const {isChef, isLoggedIn} = this.context
     let status = ``
     if (isChef && isLoggedIn && profile) {
@@ -727,7 +733,14 @@ export default class ChefSetupProfile extends PureComponent {
                 <Text style={Styles.timeinputStyle}>{displayBusinessToTime}</Text>
               </Button>
             </View>
-
+            <Button
+              iconLeft
+              onPress={() => this.goToSetAvailability()}
+              style={Styles.checkAvailablity}>
+              <Icon name="calendar" />
+              <Text> {Languages.chefProfile.labels.set_availability}</Text>
+              <Icon name="arrow-forward" />
+            </Button>
             <Text style={Styles.body}>
               {Languages.chef_profile.chef_profile_lable.choose_specialization}
             </Text>
@@ -857,25 +870,11 @@ export default class ChefSetupProfile extends PureComponent {
               />
             </Item>
 
-            <View style={{flexDirection: 'row', width: '100%', justifyContent: 'space-between'}}>
-              <Icon
-                style={Styles.arrowLeft}
-                type="MaterialCommunityIcons"
-                name="arrow-left"
-                onPress={this.onBack}
-              />
-              <Button style={Styles.locationBtn} onPress={() => this.onComplete()}>
-                <Text style={Styles.locationText}>
-                  {Languages.chef_profile.chef_profile_lable.complete}
-                </Text>
-              </Button>
-              <Icon
-                style={Styles.arrowRight}
-                type="MaterialCommunityIcons"
-                name="arrow-right"
-                onPress={this.onComplete}
-              />
-            </View>
+            <Button style={Styles.locationBtn} onPress={() => this.onComplete()}>
+              <Text style={Styles.locationText}>
+                {Languages.chef_profile.chef_profile_lable.complete}
+              </Text>
+            </Button>
           </KeyboardAwareScrollView>
         )}
 

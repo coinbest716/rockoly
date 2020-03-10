@@ -53,6 +53,7 @@ const createApolloClient = () => {
     try {
       if (firebase.auth().currentUser) {
         token = await firebase.auth().currentUser.getIdToken()
+        console.log('token', token)
       }
     } catch (e) {
       // TODO hari handle error later

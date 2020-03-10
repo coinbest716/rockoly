@@ -201,9 +201,12 @@ class SetAvailabilty extends Component {
     }
 
     // checking min should be 0,30 min
-    const min = moment(date).format('mm')
-    const timeSlot = [0, 30]
-    if (timeSlot.indexOf(parseInt(min)) === -1 || !moment(frmTime).isBefore(totime)) {
+    // const min = moment(date).format('mm')
+    // const timeSlot = [0, 30]
+    if (
+      // timeSlot.indexOf(parseInt(min)) === -1 ||
+      !moment(frmTime).isBefore(totime)
+    ) {
       temp[currentIndex].isInvalid = true
     } else {
       temp[currentIndex].isInvalid = false
@@ -275,9 +278,9 @@ class SetAvailabilty extends Component {
     }
     return (
       <ScrollView style={Styles.viewContainer}>
-        <Text style={Styles.infoText}>
+        {/* <Text style={Styles.infoText}>
           {Languages.set_availability.set_availability_lable.info_text}
-        </Text>
+        </Text> */}
         <View
           style={{
             flexDirection: 'row',
@@ -339,7 +342,7 @@ class SetAvailabilty extends Component {
                     <View style={{flexDirection: 'row'}}>
                       <Text style={{alignSelf: 'center', width: '50%'}} />
                       <Text style={{color: Theme.Colors.error, alignSelf: 'center', width: '50%'}}>
-                        {Languages.set_availability.set_availability_lable.select_valid_time}
+                        {Languages.set_availability.set_availability_alrt_msg.vaild_time}
                       </Text>
                     </View>
                   ) : null}

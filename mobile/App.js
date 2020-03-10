@@ -40,14 +40,14 @@ export default class App extends Component {
 
     NetInfo.fetch().then(state => {
       if (!state.isConnected) {
-        this.showNetworkAlert()
+        // this.showNetworkAlert()
       }
     })
 
     // Subscribe
     NetInfo.addEventListener(state => {
       if (!state.isConnected) {
-        this.showNetworkAlert()
+        // this.showNetworkAlert()
       }
     })
     // notifications

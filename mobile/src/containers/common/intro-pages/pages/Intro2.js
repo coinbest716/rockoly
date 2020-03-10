@@ -6,10 +6,6 @@ import {Images} from '@images'
 import IntroData from '../../../../utils/IntroData'
 import Styles from './styles'
 
-// TODO:boopathi
-// 1. why class name is different from file name.
-// 2. Import the text from const
-// 3. Fix eslint error
 export default class Home1 extends Component {
   constructor(props) {
     super(props)

@@ -208,40 +208,42 @@ export default class Feedback extends Component {
           </View>
           <View style={styles.labelView}>
             <Text style={styles.label}>{Languages.feedback.label.compliment}</Text>
-            <View style={styles.tagView}>
-              {compliment && compliment.length > 0
-                ? compliment.map(val => {
-                    // if (
-                    //   val === 'Professional' ||
-                    //   val === 'Expertise' ||
-                    //   val === 'Quality Service'
-                    // ) {
-                    return (
-                      <View style={styles.tagButton}>
-                        <Text style={styles.review}>{val}</Text>
-                        <TouchableOpacity
-                          onPress={() => {
-                            this.onSelectCompliment(val)
-                          }}>
-                          <Icon name="times-circle" style={styles.closeIcon} size={15} />
-                        </TouchableOpacity>
-                      </View>
-                    )
-                    // }
-                    // return (
-                    //   <View style={styles.noTagButton}>
-                    //     <Text style={styles.review}>{val}</Text>
-                    //     <TouchableOpacity
-                    //       onPress={() => {
-                    //         this.onSelectCompliment(val)
-                    //       }}>
-                    //       <Icon name="times-circle" style={styles.closeIcon} size={15} />
-                    //     </TouchableOpacity>
-                    //   </View>
-                    // )
-                  })
-                : null}
-            </View>
+            {role === 'CUSTOMER' ? (
+              <View style={styles.tagView}>
+                {compliment && compliment.length > 0
+                  ? compliment.map(val => {
+                      // if (
+                      //   val === 'Professional' ||
+                      //   val === 'Expertise' ||
+                      //   val === 'Quality Service'
+                      // ) {
+                      return (
+                        <View style={styles.tagButton}>
+                          <Text style={styles.review}>{val}</Text>
+                          <TouchableOpacity
+                            onPress={() => {
+                              this.onSelectCompliment(val)
+                            }}>
+                            <Icon name="times-circle" style={styles.closeIcon} size={15} />
+                          </TouchableOpacity>
+                        </View>
+                      )
+                      // }
+                      // return (
+                      //   <View style={styles.noTagButton}>
+                      //     <Text style={styles.review}>{val}</Text>
+                      //     <TouchableOpacity
+                      //       onPress={() => {
+                      //         this.onSelectCompliment(val)
+                      //       }}>
+                      //       <Icon name="times-circle" style={styles.closeIcon} size={15} />
+                      //     </TouchableOpacity>
+                      //   </View>
+                      // )
+                    })
+                  : null}
+              </View>
+            ) : null}
           </View>
           {/* <View style={styles.inputView}>
               <TextInput

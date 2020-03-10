@@ -20,6 +20,7 @@ export default class CommonList extends PureComponent {
       isFetching: props.isFetching,
       isFetchingMore: props.isFetchingMore,
       canLoadMore: props.canLoadMore,
+      hideNoDataMessage: props.hideNoDataMessage,
     }
   }
 
@@ -29,6 +30,7 @@ export default class CommonList extends PureComponent {
       isFetching: nextProps.isFetching,
       isFetchingMore: nextProps.isFetchingMore,
       canLoadMore: nextProps.canLoadMore,
+      hideNoDataMessage: nextProps.hideNoDataMessage,
     })
   }
 
@@ -61,7 +63,15 @@ export default class CommonList extends PureComponent {
   }
 
   render() {
-    const {data, renderItem, isFetching, isFetchingMore, canLoadMore, emptyDataMessage} = this.state
+    const {
+      data,
+      renderItem,
+      isFetching,
+      isFetchingMore,
+      canLoadMore,
+      emptyDataMessage,
+      hideNoDataMessage,
+    } = this.state
 
     if (isFetching) {
       return (
@@ -91,7 +101,7 @@ export default class CommonList extends PureComponent {
         }}>
         <FlatList keyExtractor={() => this.keyExtractor()} data={data} renderItem={renderItem} />
         {isFetchingMore ? <Spinner mode="full" /> : null}
-        {!canLoadMore ? (
+        {!canLoadMore && !hideNoDataMessage ? (
           <Text style={{alignSelf: 'center', marginVertical: 5, fontSize: 12}}>
             No more data to load.
           </Text>

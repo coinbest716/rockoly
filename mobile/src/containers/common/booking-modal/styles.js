@@ -115,6 +115,7 @@ const styles = StyleSheet.create({
     color: 'black',
     fontSize: 16,
     marginTop: 25,
+    textAlign: 'center',
   },
   destext: {
     color: '#B9BFBB',
@@ -140,6 +141,34 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     marginVertical: 10,
+  },
+  availableTime: {
+    // marginTop: 10,
+    flexDirection: 'column',
+    // flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  labelTitle: {
+    marginTop: 10,
+    marginHorizontal: 20,
+    textAlign: 'center',
+    // textDecorationLine: 'underline',
+  },
+  timeinputStyle: {
+    height: 40,
+    width: 110,
+    justifyContent: 'center',
+    alignItems: 'center',
+    textAlign: 'center',
+    alignSelf: 'center',
+    backgroundColor: '#F1F1F1',
+    borderRadius: 20,
+    marginTop: 10,
+  },
+  timeTextSelect: {
+    color: Theme.Colors.primary,
+    fontSize: 16,
+    textAlign: 'center',
   },
 })
 

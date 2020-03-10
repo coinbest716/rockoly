@@ -17,6 +17,7 @@ class ChefListService extends BaseService {
   }
 
   getChefList = async filterParams => {
+    console.log('debugging filterParams', filterParams)
     try {
       const obj = {
         data: JSON.stringify(JSON.stringify(filterParams.data)),
@@ -33,12 +34,15 @@ class ChefListService extends BaseService {
 
       const gqlValue = GQL.query.chef.filterByParamsGQLTAG(obj)
 
+      console.log('debugging CHEF LIST gqlValue', gqlValue, filterParams)
+
       const query = gql`
         ${gqlValue}
       `
       this.client
         .query({query, fetchPolicy: 'network-only'})
         .then(({data}) => {
+          console.log('filterdata', data)
           if (
             data &&
             data.filterChefByParams &&

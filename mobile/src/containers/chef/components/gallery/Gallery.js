@@ -156,133 +156,6 @@ export default class Gallery extends PureComponent {
     }
   }
 
-  confirmReviewSubmit = async () => {
-    const {getProfile} = this.context
-
-    const profile = await getProfile()
-    console.log('debugging profile', profile)
-    let isFilledYn = false
-    let notFilledItems = []
-    // const notFilledItems = [
-    //   'FIRST_NAME',
-    //   'DOB',
-    //   'EMAIL',
-    //   'MOBILE_NO',
-    //   'LOCATION_ADDRESS',
-    //   'LOCATION_LAT',
-    //   'LOCATION_LNG',
-    //   'CHEF_PRICE',
-    //   'CHEF_PRICE_UNIT',
-    //   'ATTACHMENT_TYPE',
-    //   'CHEF_AVAILABILITY',
-    //   'CUISINE_TYPE',
-    //   'DISH_TYPE',
-    // ]
-    try {
-      const res = JSON.parse(profile.isDetailsFilledYn)
-      isFilledYn = res.isFilledYn
-      notFilledItems = res.notFilledItems
-    } catch (e) {}
-
-    if (isFilledYn === true) {
-      Alert.alert(
-        Languages.customerProfile.alert.submit_profile_title,
-        Languages.customerProfile.alert.make_sure_details,
-        [
-          {
-            text: 'Cancel',
-            onPress: () => console.log('Cancel Pressed'),
-            style: 'cancel',
-          },
-          {text: 'OK', onPress: () => this.submitForReview()},
-        ],
-        {cancelable: false}
-      )
-    } else {
-      let str = ``
-      notFilledItems.forEach(item => {
-        let message = item
-
-        message = message === 'ATTACHMENT_TYPE' ? 'GALLERY_IMAGES' : message
-
-        if (message !== 'CHEF_PRICE_UNIT') {
-          message = message.toLowerCase()
-          message = message.replace(/_/g, ' ')
-          str += `${message}, `
-        }
-      })
-
-      console.log('debugging str', str)
-      Alert.alert(
-        Languages.customerProfile.alert.complete_profile_title,
-        `${Languages.customerProfile.alert.complete_profile_alert} ${str}`
-      )
-    }
-  }
-
-  renderStatus = () => {
-    const {isChef, isLoggedIn} = this.context
-    const {profile} = this.state
-    console.log('profile', profile)
-    if (isChef && isLoggedIn && profile) {
-      let status = ``
-      try {
-        status = profile.chefStatusId && profile.chefStatusId.trim()
-
-        const button = (
-          <CommonButton
-            btnText={Languages.customerProfile.label.submit_profile}
-            containerStyle={Styles.changeMOBButton}
-            onPress={this.confirmReviewSubmit}
-          />
-        )
-
-        if (status === 'SUBMITTED_FOR_REVIEW') {
-          return (
-            <View style={Styles.statusView}>
-              <Button transparent>
-                <Text style={Styles.statusTextColor}>
-                  {Languages.customerProfile.label.submitted_for_review}
-                </Text>
-              </Button>
-              <Text style={{textAlign: 'center'}}>
-                {Languages.customerProfile.messages.submited_for_review_msg}
-              </Text>
-            </View>
-          )
-        }
-
-        if (status === 'PENDING') {
-          return <View style={Styles.statusView}>{button}</View>
-        }
-        if (status === 'REJECTED') {
-          return (
-            <View style={Styles.statusView}>
-              {button}
-              <Text style={Styles.statusTextColorReject}>
-                {Languages.customerProfile.messages.review_rejected_msg}{' '}
-              </Text>
-              <Text style={Styles.reasonText}>Reason: {profile.chefRejectOrBlockReason}</Text>
-            </View>
-          )
-        }
-        if (status === 'APPROVED') {
-          return (
-            <View style={Styles.statusView}>
-              <Text style={Styles.statusTextColor}>
-                {Languages.customerProfile.label.profile_verified}
-              </Text>
-            </View>
-          )
-        }
-      } catch (e) {
-        return null
-      }
-    } else {
-      return null
-    }
-  }
-
   updatedProfileInfo = ({data}) => {
     const {isLoggedIn, currentUser} = this.context
     if (isLoggedIn && currentUser) {
@@ -407,6 +280,7 @@ export default class Gallery extends PureComponent {
               }
               // if(images1.length + count <= limit) {
               imageArray.push(temp)
+              console.log('imageTemp', temp)
               // }
             } else {
               Alert.alert(
@@ -868,6 +742,22 @@ export default class Gallery extends PureComponent {
     }
   }
 
+  onNext = () => {
+    const {attachementsGallery} = this.state
+    if (!attachementsGallery || attachementsGallery.length === 0) {
+      Alert.alert('Please upload pictures to showcase in your gallery')
+      return
+    }
+    const {onNext} = this.props
+    Toast.show({
+      text: 'Gallery saved.',
+      duration: 3000,
+    })
+    if (onNext) {
+      onNext()
+    }
+  }
+
   renderGallery = galleryAttachments => {
     if (galleryAttachments && galleryAttachments.length > 0) {
       return galleryAttachments.map((item, key) => {
@@ -909,42 +799,53 @@ export default class Gallery extends PureComponent {
     } = this.state
     const galleryAttachments = attachementsGallery
 
+    if (isFetching) {
+      return (
+        <View style={Styles.alignScreenCenter}>
+          <Spinner animating mode="full" />
+        </View>
+      )
+    }
+
     return (
-      <ScrollView>
-        {isFetching ? (
-          <Spinner mode="full" />
+      <ScrollView style={{flex: 1}}>
+        {isGalleryLoading ? (
+          <View style={{paddingTop: '5%'}}>
+            <Spinner animating mode="full" />
+          </View>
         ) : (
-          <View style={Styles.viewStyle}>
-            {isGalleryLoading ? (
-              <Spinner mode="full" />
-            ) : (
-              <View style={Styles.iconBody}>
-                <TouchableOpacity
-                  onPress={() => {
-                    this.setState(
-                      {
-                        selectedSectionType: SECTION_TYPE.GALLERY,
-                      },
-                      () => {
-                        this.openActionSheet()
-                      }
-                    )
-                  }}>
-                  <Icon type="FontAwesome" name="plus-square" style={Styles.imageIconStyle2} />
-                </TouchableOpacity>
-                <View style={Styles.iconText}>
-                  <Text style={Styles.text}>
-                    {Languages.chef_profile.chef_profile_lable.upload_gallery}
-                  </Text>
-                  <Text style={Styles.text2}>
-                    {Languages.chef_profile.chef_profile_lable.show_gallery}
-                  </Text>
-                </View>
-              </View>
-            )}
-            <View style={Styles.documentsImage}>{this.renderGallery(galleryAttachments)}</View>
+          <View style={Styles.iconBody}>
+            <TouchableOpacity
+              onPress={() => {
+                this.setState(
+                  {
+                    selectedSectionType: SECTION_TYPE.GALLERY,
+                  },
+                  () => {
+                    this.openActionSheet()
+                  }
+                )
+              }}>
+              <Icon type="FontAwesome" name="plus-square" style={Styles.imageIconStyle2} />
+            </TouchableOpacity>
+            <View style={Styles.iconText}>
+              <Text style={Styles.text}>
+                {Languages.chef_profile.chef_profile_lable.upload_gallery}
+              </Text>
+              <Text style={Styles.text2}>
+                {Languages.chef_profile.chef_profile_lable.show_gallery}
+              </Text>
+            </View>
           </View>
         )}
+
+        <View style={Styles.documentsImage}>{this.renderGallery(galleryAttachments)}</View>
+        <CommonButton
+          btnText={Languages.complexity.btnLabel.save}
+          containerStyle={Styles.saveBtn}
+          onPress={this.onNext}
+        />
+
         <ActionSheet
           ref={o => (this.ActionSheet = o)}
           title={

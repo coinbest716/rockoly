@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
   locationBtn: {
-    width: '50%',
+    width: 'auto',
     alignSelf: 'center',
     marginVertical: 15,
   },
@@ -55,5 +55,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0,
     borderColor: Theme.Colors.primary,
   },
+  label: {fontSize: 16, color: 'black', marginVertical: 5},
+  desStyle: {color: 'gray', fontSize: 14},
+  noteText: {fontSize: 14, marginVertical: 10, color: 'gray'},
 })
 export default styles

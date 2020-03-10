@@ -21,6 +21,7 @@ class ChangePassword extends PureComponent {
       currentPassword: '',
       newPassword: '',
       confirmPassword: '',
+      passwordLengthError: false,
       isLoading: false,
       isChef: false,
       eyeIconNewPasswordShow: false,
@@ -37,7 +38,11 @@ class ChangePassword extends PureComponent {
   }
 
   onPasswordEditHandle = newPassword => {
-    this.setState({newPassword})
+    let passwordLengthError = false
+    if (!newPassword || (newPassword && newPassword.length < 6)) {
+      passwordLengthError = true
+    }
+    this.setState({newPassword, passwordLengthError})
   }
 
   onConfirmPasswordEditHandle = confirmPassword => {
@@ -55,8 +60,34 @@ class ChangePassword extends PureComponent {
 
   onResetPress = () => {
     const user = firebase.auth().currentUser
-    const {currentPassword, newPassword} = this.state
+    const {
+      currentPassword,
+      newPassword,
+      confirmPassword,
+      passwordLengthError,
+      showPasswordError,
+    } = this.state
     // const newpass = newPassword
+
+    if (currentPassword === '' || newPassword === '' || confirmPassword === '') {
+      Alert.alert('Info', 'Please fill the form')
+      return
+    }
+    if (passwordLengthError) {
+      Alert.alert('Info', 'Password must contain atleast 6 characters')
+      return
+    }
+    if (showPasswordError) {
+      Alert.alert('Info', 'Password and confirm password does not match')
+      return
+    }
+    if (currentPassword === newPassword) {
+      Alert.alert(
+        'Info',
+        'Your current password and new password is same.Please select different password'
+      )
+      return
+    }
     if (currentPassword && newPassword) {
       try {
         this.setState(
@@ -133,6 +164,7 @@ class ChangePassword extends PureComponent {
       confirmPassword,
       currentPassword,
       newPassword,
+      passwordLengthError,
       isChef,
       isLoading,
       showPasswordError,
@@ -237,8 +269,9 @@ class ChangePassword extends PureComponent {
                 {Languages.changePassword.reg_form_label.password_not_match}
               </Text>
             )}
-            {!showPasswordError && (
-              <Text style={styles.passwordInfo}>
+
+            {passwordLengthError && (
+              <Text style={styles.passwordError}>
                 {Languages.changePassword.reg_form_label.password_info}
               </Text>
             )}

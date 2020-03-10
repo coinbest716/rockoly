@@ -15,6 +15,17 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginVertical: 10,
   },
+  cardStyle: {
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    marginTop: 20,
+    borderRadius: 10,
+  },
+  border: {
+    borderBottomColor: '#B9BFBB',
+    borderBottomWidth: 1,
+    marginTop: 10,
+  },
   label: {
     fontSize: 20,
     marginVertical: 10,

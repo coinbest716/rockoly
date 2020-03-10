@@ -24,8 +24,15 @@ import {Theme} from '@theme'
 import {Images} from '@images'
 import {Spinner, CommonButton} from '@components'
 import {Languages} from '@translations'
-import {RouteNames} from '@navigation'
-import {GMTToLocal, fetchDate, DATE_TYPE, commonDateFormat, displayDateFormat} from '@utils'
+import {RouteNames, ResetStack} from '@navigation'
+import {
+  GMTToLocal,
+  fetchDate,
+  DATE_TYPE,
+  commonDateFormat,
+  displayDateFormat,
+  displayDateTimeFormat,
+} from '@utils'
 import {
   BookingHistoryService,
   LoginService,
@@ -46,6 +53,7 @@ class BookingRequest extends Component {
   constructor(props) {
     super(props)
     this.state = {
+      showInitalLoader: true,
       userRole: '',
       bookingRequest: [],
       group: [],
@@ -66,104 +74,116 @@ class BookingRequest extends Component {
 
   componentDidMount = async () => {
     const {currentUser, isLoggedIn, isChef, getProfile} = this.context
-
-    if (true) {
-      // reset to chef reg profile
-    }
-
     const {navigation} = this.props
-    BookingHistoryService.on(
-      BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_LIST,
-      this.setBookingRequestList
-    )
-    BookingHistoryService.on(
-      BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_STATUS_UPDATED,
-      this.loadInitialData
-    )
-    // NotificationListService.on(NOTIFICATION_LIST_EVENT.UPDATING_NOTIFICATION_LIST, this.updatedList)
-    // Subscription call
-    BookingHistoryService.on(BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_UPDATING, this.updatedList)
-    NotificationListService.on(
-      NOTIFICATION_LIST_EVENT.UPDATING_NOTIFICATION_LIST,
-      this.loadNotification()
-    )
 
-    this.onAddBackHandler()
-    this.loadInitialData()
-    this.checkProfileApproved()
-    this.fetchBookingCancelTime()
+    if (isLoggedIn) {
+      const profile = await getProfile()
+      if (!profile.isRegistrationCompletedYn) {
+        ResetStack(navigation, RouteNames.CHEF_REG_PROFILE)
+      } else {
+        this.setState({
+          showInitalLoader: false,
+        })
+        BookingHistoryService.on(
+          BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_LIST,
+          this.setBookingRequestList
+        )
+        BookingHistoryService.on(
+          BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_STATUS_UPDATED,
+          this.loadInitialData
+        )
+        // NotificationListService.on(NOTIFICATION_LIST_EVENT.UPDATING_NOTIFICATION_LIST, this.updatedList)
+        // Subscription call
+        BookingHistoryService.on(
+          BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_UPDATING,
+          this.updatedList
+        )
+        NotificationListService.on(
+          NOTIFICATION_LIST_EVENT.UPDATING_NOTIFICATION_LIST,
+          this.loadNotification()
+        )
 
-    // opening notification
-    await firebase
-      .notifications()
-      .getInitialNotification()
-      .then(async notificationOpen => {
-        if (notificationOpen) {
-          const {notification} = notificationOpen
-          try {
-            // get last seen notification
-            const lastSeenNotificationId = await AsyncStorage.getItem('notificationId')
+        this.onAddBackHandler()
+        this.loadInitialData()
+        this.checkProfileApproved()
+        this.fetchBookingCancelTime()
 
-            // if some notification seen already
-            if (lastSeenNotificationId !== null) {
-              // check if old notification see to new notification
-              if (lastSeenNotificationId === notification.notificationId) {
-                console.log('same notification id')
-                const notificationData = await AsyncStorage.getItem('notificationData')
-                if (notificationData !== null) {
-                  const value = JSON.parse(notificationData)
-                  console.log('value11111', value)
-                  if (value) {
-                    console.log('if notification id')
-                    if (value.bookingHistId) {
-                      NotificationListService.navigateAndMarkBookingNotification(
-                        navigation,
-                        value.bookingHistId,
-                        value.seen,
-                        value.data
-                      )
-                      await AsyncStorage.removeItem('notificationData')
-                    } else if (value.conversationHistId) {
-                      NotificationListService.navigateAndMarkMessageNotification(
-                        navigation,
-                        value.conversationHistId,
-                        value.seen,
-                        value.data,
-                        value.name,
-                        value.pic,
-                        value.statusId
-                      )
+        // opening notification
+        await firebase
+          .notifications()
+          .getInitialNotification()
+          .then(async notificationOpen => {
+            if (notificationOpen) {
+              const {notification} = notificationOpen
+              try {
+                // get last seen notification
+                const lastSeenNotificationId = await AsyncStorage.getItem('notificationId')
+
+                // if some notification seen already
+                if (lastSeenNotificationId !== null) {
+                  // check if old notification see to new notification
+                  if (lastSeenNotificationId === notification.notificationId) {
+                    console.log('same notification id')
+                    const notificationData = await AsyncStorage.getItem('notificationData')
+                    if (notificationData !== null) {
+                      const value = JSON.parse(notificationData)
+                      console.log('value11111', value)
+                      if (value) {
+                        console.log('if notification id')
+                        if (value.bookingHistId) {
+                          NotificationListService.navigateAndMarkBookingNotification(
+                            navigation,
+                            value.bookingHistId,
+                            value.seen,
+                            value.data
+                          )
+                          await AsyncStorage.removeItem('notificationData')
+                        } else if (value.conversationHistId) {
+                          NotificationListService.navigateAndMarkMessageNotification(
+                            navigation,
+                            value.conversationHistId,
+                            value.seen,
+                            value.data,
+                            value.name,
+                            value.pic,
+                            value.statusId,
+                            value.bookingHistId,
+                            value.fromTime,
+                            value.toTime
+                          )
+                        }
+                        await AsyncStorage.removeItem('notificationData')
+                      }
+                    } else {
+                      console.log('else notification id')
+                      return
                     }
-                    await AsyncStorage.removeItem('notificationData')
                   }
-                } else {
-                  console.log('else notification id')
-                  return
+                  await AsyncStorage.setItem('notificationId', notification.data.notificationHistId)
+                  this.navigateToNotification(notification)
                 }
+                // if no notification is seen last and this is 1st notification
+                else {
+                  await AsyncStorage.setItem('notificationId', notification.data.notificationHistId)
+                  this.navigateToNotification(notification)
+                }
+              } catch (e) {
+                // don't mind, this is a problem only if the current RN instance has been reloaded by a CP mandatory update
               }
-              await AsyncStorage.setItem('notificationId', notification.data.notificationHistId)
-              this.navigateToNotification(notification)
-            }
-            // if no notification is seen last and this is 1st notification
-            else {
-              await AsyncStorage.setItem('notificationId', notification.data.notificationHistId)
-              this.navigateToNotification(notification)
-            }
-          } catch (e) {
-            // don't mind, this is a problem only if the current RN instance has been reloaded by a CP mandatory update
-          }
 
-          console.log('notification booking request', notification, notification.data.role)
-          await AsyncStorage.setItem('notificationId', notification.notificationId)
-        }
-      })
-    // if (isLoggedIn) {
-    //   const profile = await getProfile()
-    //   if (isChef && profile.totalUnreadCount >= 0) {
-    //     firebase.notifications().setBadge(profile.totalUnreadCount)
-    //   }
-    // }
-    BookingHistoryService.bookingSubsByChef(currentUser.chefId)
+              console.log('notification booking request', notification, notification.data.role)
+              await AsyncStorage.setItem('notificationId', notification.notificationId)
+            }
+          })
+        // if (isLoggedIn) {
+        //   const profile = await getProfile()
+        //   if (isChef && profile.totalUnreadCount >= 0) {
+        //     firebase.notifications().setBadge(profile.totalUnreadCount)
+        //   }
+        // }
+        BookingHistoryService.bookingSubsByChef(currentUser.chefId)
+      }
+    }
   }
 
   componentWillUnmount() {
@@ -190,9 +210,9 @@ class BookingRequest extends Component {
 
     this.setState({})
 
-    let switchTo = ``
-    let email = ``
-    let switchFrom = ``
+    let switchTo = ''
+    let email = ''
+    let switchFrom = ''
     if (isChef) {
       email = profile.chefEmail
       switchFrom = CONSTANTS.ROLE.CHEF
@@ -203,17 +223,19 @@ class BookingRequest extends Component {
       switchTo = CONSTANTS.ROLE.CHEF
     }
 
-    LoginService.gqlSwitchRole({email, switchFrom, switchTo})
-      .then(async gqlRes => {
-        LoginService.onLogin({role: switchTo, gqlRes, updateCurrentUser, navigation})
-      })
-      .catch(e => {
-        console.log('debugging e', e)
-        Alert.alert(
-          Languages.customerProfile.alert.could_not_switch_account,
-          Languages.customerProfile.alert.try_again_to_switch
-        )
-      })
+    if (email !== '' && switchFrom !== '' && switchTo !== '') {
+      LoginService.gqlSwitchRole({email, switchFrom, switchTo})
+        .then(async gqlRes => {
+          LoginService.onLogin({role: switchTo, gqlRes, updateCurrentUser, navigation})
+        })
+        .catch(e => {
+          console.log('debugging e', e)
+          Alert.alert(
+            Languages.customerProfile.alert.could_not_switch_account,
+            Languages.customerProfile.alert.try_again_to_switch
+          )
+        })
+    }
   }
 
   loadNotification = () => {
@@ -233,23 +255,26 @@ class BookingRequest extends Component {
   }
 
   onLoadNotificationTotalCount = (type, filter) => {
-    CommonService.getTotalCount(type, filter)
-      .then(totalCount => {
-        this.setState(
-          {
-            notificationCount: totalCount,
-          },
-          async () => {
-            await firebase.notifications().setBadge(this.state.notificationCount)
-          }
-        )
-      })
-      .catch(e => {
-        console.log('debugging error on setting the total count in notification screen', e)
-        this.setState({
-          notificationCount: 0,
+    const {isLoggedIn} = this.context
+    if (isLoggedIn) {
+      CommonService.getTotalCount(type, filter)
+        .then(totalCount => {
+          this.setState(
+            {
+              notificationCount: totalCount,
+            },
+            async () => {
+              await firebase.notifications().setBadge(this.state.notificationCount)
+            }
+          )
         })
-      })
+        .catch(e => {
+          console.log('debugging error on setting the total count in notification screen', e)
+          this.setState({
+            notificationCount: 0,
+          })
+        })
+    }
   }
 
   fetchBookingCancelTime = () => {
@@ -368,7 +393,7 @@ class BookingRequest extends Component {
             pFromTime: fromTime,
             pToTime: toTime,
             chefId: currentUser.chefId,
-            statusId: ['"CUSTOMER_REQUESTED"', '"CHEF_ACCEPTED"'],
+            // statusId: ['"CUSTOMER_REQUESTED"', '"CHEF_ACCEPTED"'],
           })
 
           BookingHistoryService.getBookingHistoryList(gqlValue)
@@ -634,28 +659,19 @@ class BookingRequest extends Component {
       'minutes'
     )
 
-    if (details.hasOwnProperty('chefProfileByChefId') && details.chefProfileByChefId) {
-      if (
-        details.chefProfileByChefId.hasOwnProperty('defaultStripeUserId') &&
-        details.chefProfileByChefId.defaultStripeUserId &&
-        details.chefProfileByChefId.defaultStripeUserId !== null
-      ) {
-        stripeId = details.chefProfileByChefId.defaultStripeUserId
-        this.setState({
-          defaultStripeId: stripeId,
-        })
-      }
-    }
-
     // if (diffValue <= 0) {
-    if (stripeId !== undefined && stripeId) {
-      this.onShowModal('completeModal', details)
-    } else {
-      Alert.alert(
-        Languages.bookingHistory.booking_his_alrt_msg.info,
-        Languages.bookingHistory.booking_his_alrt_msg.add_bank
-      )
-    }
+
+    Alert.alert(
+      Languages.bookingDetail.alerts.info,
+      Languages.bookingDetail.alerts.price_calculation,
+      [
+        {text: 'Yes', onPress: () => this.seePriceCalculation(details)},
+        {text: 'No', onPress: () => this.onCompleteBooking(details)},
+      ],
+      {
+        cancelable: false,
+      }
+    )
     // } else {
     //   this.setState(
     //     {
@@ -665,6 +681,53 @@ class BookingRequest extends Component {
     //     () => {}
     //   )
     // }
+  }
+
+  seePriceCalculation = details => {
+    const {navigation} = this.props
+    const from = moment(details.chefBookingFromTime, displayDateTimeFormat)
+    const to = moment(details.chefBookingToTime, displayDateTimeFormat)
+
+    const obj = {
+      chefId: details.chefId,
+      customerId: details.customerId,
+      chefBookingFromTime: from,
+      chefBookingToTime: to,
+      chefProfile: details.chefProfileByChefId,
+      summary: details.chefBookingSummary,
+      bookingHistId: details.chefBookingHistId,
+    }
+    console.log('seePriceCalculation', obj, details)
+
+    navigation.navigate(RouteNames.BOOK_PRICE, {bookingData: obj})
+  }
+
+  onCompleteBooking = async details => {
+    const {getProfile} = this.context
+    const profile = await getProfile()
+
+    console.log('onCompleteBooking', profile)
+    let stripeId
+
+    if (
+      profile.hasOwnProperty('defaultStripeUserId') &&
+      profile.defaultStripeUserId &&
+      profile.defaultStripeUserId !== null
+    ) {
+      stripeId = profile.defaultStripeUserId
+      this.setState({
+        defaultStripeId: stripeId,
+      })
+    }
+
+    if (stripeId !== undefined && stripeId) {
+      this.onShowModal('completeModal', details)
+    } else {
+      Alert.alert(
+        Languages.booking_History.alerts.info_title,
+        Languages.booking_History.alerts.add_account_details
+      )
+    }
   }
 
   onCheckCancel = (details, cancelTime) => {
@@ -699,69 +762,35 @@ class BookingRequest extends Component {
     if (userRole === 'CHEF') {
       if (bookingStatus.trim() === 'CUSTOMER_REQUESTED') {
         return (
-          <View>
-            <Button
-              transparent
-              style={styles.successBtn}
-              onPress={() => this.onShowModal('acceptModal', details)}>
-              <Icon
-                name="check"
-                type="MaterialCommunityIcons"
-                style={{color: Theme.Colors.white}}
-              />
-            </Button>
-            <Button
-              transparent
-              style={styles.cancelBtn}
-              onPress={() => this.onShowModal('rejectModal', details)}>
-              <Icon
-                name="close"
-                type="MaterialCommunityIcons"
-                style={{color: Theme.Colors.white}}
-              />
-            </Button>
-          </View>
+          <Text style={styles.textStyle}>
+            {'Status: '}
+            {Languages.bookingHistory.tabs.request}
+          </Text>
         )
       }
       if (bookingStatus.trim() === 'CHEF_ACCEPTED') {
         return (
-          <View>
-            {/* {customerCompleteStatus === true ? (
-              <Button
-                style={styles.successBtn}
-                onPress={() => this.onShowModal('completeModal', details)}>
-                <Icon name="message-draw" type="MaterialCommunityIcons" />
-              </Button>
-            ) : (
-              chefCompleteStatus === true && <Text>You Completed</Text>
-            )} */}
-            {/* {chefCompleteStatus === true && <Text>You Completed</Text>} */}
-            {chefCompleteStatus === false && (
-              // customerCompleteStatus === false &&
-              <View>
-                <Button style={styles.successBtn} onPress={() => this.onCheckComplete(details)}>
-                  <Icon name="message-draw" type="MaterialCommunityIcons" />
-                </Button>
-                <Button
-                  style={styles.cancelBtn}
-                  // onPress={() => this.onShowModal('cancelModal', details)}
-                  onPress={() => this.onCheckCancel(details, bookingCancelTime)}>
-                  <Icon name="close" type="MaterialCommunityIcons" style={{color: '#fff'}} />
-                </Button>
-              </View>
-            )}
-          </View>
+          <Text style={styles.textStyle}>
+            {'Status: '}
+            {Languages.bookingHistory.tabs.accept}
+          </Text>
         )
       }
 
       if (bookingStatus.trim() === 'AMOUNT_TRANSFER_SUCCESS') {
-        return <Text style={styles.textStyle}>{Languages.bookingHistory.tabs.completed}</Text>
+        return (
+          <Text style={styles.textStyle}>
+            {'Status: '}
+            {Languages.bookingHistory.tabs.completed}
+          </Text>
+        )
       }
 
       if (bookingStatus.trim() === 'CHEF_REJECTED') {
         return (
           <View style={{justifyContent: 'center'}}>
             <Text adjustsFontSizeToFit style={styles.textStyle}>
+              {'Status: '}
               {Languages.bookingHistory.tabs.rejected}
             </Text>
           </View>
@@ -775,6 +804,7 @@ class BookingRequest extends Component {
         return (
           <View style={{justifyContent: 'center'}}>
             <Text adjustsFontSizeToFit style={styles.textStyle}>
+              {'Status: '}
               {Languages.bookingHistory.tabs.canceled}
             </Text>
           </View>
@@ -788,19 +818,50 @@ class BookingRequest extends Component {
         return (
           <View style={{justifyContent: 'center'}}>
             <Text adjustsFontSizeToFit style={styles.textStyle}>
+              {'Status: '}
               Cancelled / Rejected Booking
             </Text>
           </View>
         )
       }
 
-      if (
-        bookingStatus.trim() === 'COMPLETED' ||
-        bookingStatus.trim() === 'AMOUNT_TRANSFER_FAILED'
-      ) {
+      if (bookingStatus.trim() === 'COMPLETED') {
         return (
           <View>
-            <Text style={styles.textStyle}>{Languages.bookingHistory.transfer_failed}</Text>
+            {chefCompleteStatus === false && (
+              <Text style={styles.textStyle}>
+                {'Status: '}
+                {Languages.bookingHistory.tabs.completed}
+              </Text>
+            )}
+            {chefCompleteStatus === true && (
+              <Text style={styles.textStyle}>
+                {'Status: '}
+                {Languages.bookingHistory.tabs.reviewed}
+              </Text>
+            )}
+          </View>
+        )
+      }
+
+      if (bookingStatus.trim() === 'AMOUNT_TRANSFER_FAILED') {
+        return (
+          <View>
+            <Text style={styles.textStyle}>
+              {'Status: '}
+              {Languages.bookingHistory.transfer_failed}
+            </Text>
+          </View>
+        )
+      }
+
+      if (bookingStatus.trim() === 'CHEF_REQUESTED_AMOUNT') {
+        return (
+          <View>
+            <Text style={styles.textStyle}>
+              {'Status: '}
+              {Languages.booking_History.buttonLabels.requested_amount}
+            </Text>
           </View>
         )
       }
@@ -904,58 +965,36 @@ class BookingRequest extends Component {
     }
 
     return (
-      <View style={styles.item}>
-        <TouchableOpacity onPress={() => this.itemPressed(item)} style={styles.infoView}>
-          <View style={styles.nameViewWrap}>
-            <View style={styles.nameView}>
+      <View style={styles.parentItem}>
+        <View style={styles.item}>
+          <TouchableOpacity onPress={() => this.itemPressed(item)} style={styles.infoView}>
+            <View style={{flex: 1}}>
               <Image
                 style={styles.userImage}
                 source={picId ? {uri: picId} : Images.common.defaultAvatar}
               />
-              <View style={styles.nameSpacing}>
-                <Text style={styles.itemTitleText}>{this.showName(item)}</Text>
-
-                <View style={{flexDirection: 'row'}}>
-                  <Icon
-                    name="map-marker"
-                    type="MaterialCommunityIcons"
-                    style={{color: Theme.Colors.primary, fontSize: 18}}
-                  />
-                  <Text numberOfLines={2} style={styles.messageDescription}>
-                    {location}
-                  </Text>
-                </View>
-                <View style={{flexDirection: 'row'}}>
-                  <Icon name="calendar" style={{color: Theme.Colors.primary, fontSize: 18}} />
-                  <Text style={styles.dateStyling}>
-                    {GMTToLocal(item.chefBookingFromTime, DATE_TYPE.DATE)}
-                  </Text>
-                </View>
-                <View style={{flexDirection: 'row'}}>
-                  <Icon name="clock" style={{color: Theme.Colors.primary, fontSize: 18}} />
-                  <Text style={styles.itemHourText}>
-                    {' '}
-                    {GMTToLocal(item.chefBookingFromTime, DATE_TYPE.TIME)} {'-'}
-                    {GMTToLocal(item.chefBookingToTime, DATE_TYPE.TIME)}
-                  </Text>
-                  {/* <Text>-</Text>
-                  <Text style={styles.itemDurationText}>
-                    {this.showToTime(item.chefBookingToTime)}
-                  </Text> */}
-                </View>
-              </View>
-
-              {/* <View style={{flexDirection: 'row'}}>
-            <Text style={styles.itemHourText}>{this.showFromTime(item.chefBookingFromTime)}</Text>
-            <Text style={styles.itemDurationText}>{this.showToTime(item.chefBookingToTime)}</Text>
-          </View> */}
             </View>
-          </View>
-        </TouchableOpacity>
+            <View style={styles.nameSpacing}>
+              <Text style={styles.itemTitleText}>{this.showName(item)}</Text>
+
+              <View style={{flexDirection: 'row'}}>
+                <Icon name="calendar" style={{color: Theme.Colors.primary, fontSize: 18}} />
+                <Text style={styles.dateStyling}>
+                  {GMTToLocal(item.chefBookingFromTime, DATE_TYPE.DATE)}
+                </Text>
+              </View>
+              <View style={{flexDirection: 'row'}}>
+                <Icon name="clock" style={{color: Theme.Colors.primary, fontSize: 18}} />
+                <Text style={styles.itemHourText}>
+                  {' '}
+                  {GMTToLocal(item.chefBookingFromTime, DATE_TYPE.TIME)} {'-'}
+                  {GMTToLocal(item.chefBookingToTime, DATE_TYPE.TIME)}
+                </Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+        </View>
         <View style={styles.itemButtonContainer}>
-          {/* <Button transparent onPress={this.buttonPressed}>
-            <Text style={styles.buttonInfo}>Info</Text>
-          </Button> */}
           {this.showStatus(
             statusId,
             item.chefBookingCompletedByCustomerYn,
@@ -963,6 +1002,16 @@ class BookingRequest extends Component {
             item,
             bookingCancelTime
           )}
+        </View>
+        <View style={{flexDirection: 'row', paddingHorizontal: 20}}>
+          <Icon
+            name="map-marker"
+            type="MaterialCommunityIcons"
+            style={{color: Theme.Colors.primary, fontSize: 18}}
+          />
+          <Text numberOfLines={2} style={styles.messageDescription}>
+            {location}
+          </Text>
         </View>
       </View>
     )
@@ -1016,6 +1065,7 @@ class BookingRequest extends Component {
   }
 
   navigateToNotification = async notification => {
+    console.log('navigateToNotification', notification)
     const {currentUser, isLoggedIn, isChef} = this.context
     const {navigation} = this.props
 
@@ -1047,7 +1097,10 @@ class BookingRequest extends Component {
           data,
           notification.data.name,
           notification.data.pic,
-          notification.data.statusId
+          notification.data.statusId,
+          notification.data.bookingHistId,
+          notification.data.fromTime,
+          notification.data.toTime
         )
       }
     } else {
@@ -1109,8 +1162,18 @@ class BookingRequest extends Component {
       defaultStripeId,
       completeMsgModal,
       bookingStartTime,
+      showInitalLoader,
     } = this.state
     const {navigation} = this.props
+
+    if (showInitalLoader) {
+      return (
+        <View style={styles.alignScreenCenter}>
+          <Spinner mode="full" animating />
+        </View>
+      )
+    }
+
     return (
       <CalendarProvider
         date={moment().format(commonDateFormat)}

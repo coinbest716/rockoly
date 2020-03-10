@@ -1,0 +1,194 @@
+3.One + 5T Rockoly mobile app clicking current location kills internet connection. Reproducible every time. 3 hrs
+11.Inbox first message can be summary of order - back-end
+
+===============================
+About us 
+     - Need to display about us in Account tab - refer bottom of file
+Janani
+  9.Select location in booking flow - 5hrs
+  - by default it will customer location
+  - add After tell about you event
+  - Show location from booking details object instead customer location  
+
+  Billing details display as given format (Price calculation) 8 hrs
+      - refer bottom of file
+      - Create a new booking (Book Now)
+      - Booking details 
+      - Request extra amount (Book price) - last
+      - Pay Extra amount (payment)
+
+  Chef accept	gql - 3 hrs
+    Completed
+	  	- pass chef block from time/ chef block to time
+  		- janani- UI - added from/to time picker
+    Pending - 
+     - How many hours you wanna to block from your calendar before and after booking ?
+     - show defaultly subtract 2 hrs in fromTime and add 2 hrs in toTime
+     - if any changes in from/to time, check minimum one hour has been blocked	or not ??  and also bloced time is mandatory while chef accept booking
+
+  Book Price - 4hrs 
+      - Re-payment issue
+      - Even selected the store, display alert select store - not completed
+      - Add validation on only selected next value and previous values not to be edit
+  
+  10.message - 10 min - completed
+  - After completing the process admin will review and send the amount to chef
+  - For chef show message; You have completed the booking. admin will review and send you the booking amount
+
+  7.Booking flow - 15min - completed
+  Some wording changes:
+    Desired Dishes 
+    Between 1-2 menu items 
+
+  Booking details - completed
+     - check Event notes
+     - In chef  -> check the payment detail card(amount)
+     - Need to add loader
+     - UI -> Booking Notes -> From Chef 
+                              From customer
+  Check availbaility
+     - Can't be book...even select after 2 hrs (2 -4)
+  
+  Payment history - check only - completed
+      - Need to display failed payment also 
+
+  
+  Notification - boopathi/janani
+	 - check for notificaiton new booking flow
+	 - check push notificaiton to open the screen
+
+  Remove console all the screens
+
+Boopathi
+ Location change labels - 15 min
+  - Country / Region
+  - Street Address
+  - Apt, Suite. (optional)
+  - City, State
+  - Zip Code
+  - Customer Profile Enhancements
+    Take away salutation, gender as displays
+  Mobile: After switching to customer from chef, profile picture should carry over automatically. - 30min 
+  
+  change/Verify email, change/verify mobile options
+     If my mobile number is already verified. 
+     It should be displayed with a check mark mobile verified and an icon 
+     to change mobile with new verification if that occurs.  - 30 mins
+  Submit for review
+  Account tab - 4 hrs
+	 - email verification
+  Chat - boopathi - 2 hrs
+		- show booking status
+		-> chat details to booking details
+ 
+IOS Issue - boopathi
+  Complexity radio button fix - 2 hrs
+  booking history select date overlapping each other - 30 min
+ 
+===============================================
+baseRate = 50
+no.of guests = 8
+complexity = 1.5
+additional services = cleaning = 10
+Chef charge = (50 * 5 + ((8-5) * (50/2)) * 1.5 + 10 = 497.5 
+Total charge = 497.5 + (2.5 % of 497.5) = 510
+--------------------------------------------------------------
+Bill details if no of guests more than 5
+Chef charge for first 5 guests  = $250
+Chef charge for after 5 guests  = $75
+Complexity charge				= $162.5 ((250 + 75) * 1.5) - (250 + 75))  = 162.5
+Additional services 			= $10
+Chef charge 					= $497.5
+Rockoly charge					= $12.5
+Total amount to pay				= $510
+===============================================
+baseRate = 40
+no.of guests = 3
+complexity = 2
+additional services = cleaning = 20
+Chef charge = (40 * 3 * 2 ) + 20 = 260
+Total charge = 260 + (2.5 % of 260) = 266.5
+-------------------------------------------------
+Bill details if no of guests less than or equal 5
+Chef charge  				= $120
+Complexity charge			= $120 (120 * 2) - 120 = 120
+Additional services 		= $20
+Chef charge 				= $260
+Rockoly charge				= $6.5
+Total amount to pay			= $266.5
+=================================================
+
+
+About us
+Started by two Boston guys, Rockoly is a platform connecting private chefs 
+to hungry customers. We seek to demystify private chef industry by providing 
+clear transparent pricing based on our unique pricing model and easy booking process. 
+No longer will customers be overcharged for having a "wedding" vs "anything but the wedding". No longer will customers be overcharged for having lobster instead of chicken and rice because of 3x ingredients cost pricing model. Join the revolution and let's bring healthy gourmet cooking to your home.
+
+==============================================================================
+
+
+Task
+
+  - Even selected the store, display alert select store - not needed
+
+  
+completed
+   - show booking status in conversation list  
+   - once Register number and its verified but once change mobile number its not verified
+   - location field
+   - remove cusine in acccount tab
+   - complexity 1-> 1X
+   - PAID -> paid
+   - Css alignment on Billing details (right alignment) and text color - completed
+
+Blocker:- - completed
+	-For customer when pay for additional services. The fields details are not showing it just shows lables.
+	-When we pay for the additional payment page keep on loading.
+Known Issues:-
+	-Notification page subscription not working occationally.
+	-Notification opens the past booking detail page.
+
+Checked
+  - if a chef and customer completed or canceled a booking, and they again create new booking the message icon link in detailpage opens the last closed conversation detail.
+
+Pending
+  - flag update of both mobile and email
+  - dob, input edit (Need to add input for dob)
+
+Later
+  - booking hours -> 07:00 -> 7hrs 
+  
+Known issue
+   - Without edit any price, requested payment 
+
+New Task 
+   - Booking history, request and detail screen
+      - First we show  edit price calculation alert,
+        if no -> check added bank detail or not 
+          -> if not display alert
+            -> if added -> display model 
+
+   - Bank payment 
+       - default acccount as only one, Need to show delete option or not ??
+
+   - default block hours shows 2, if we change value based on we update
+
+
+  
+
+
+
+ 
+ 
+
+
+
+
+
+
+    
+
+
+
+

@@ -27,6 +27,7 @@ class CustomerProfile extends Component {
       isMobileVerified: false,
       showchangePassword: true,
       profile: {},
+      isEmailVerified: false,
     }
   }
 
@@ -66,7 +67,7 @@ class CustomerProfile extends Component {
   }
 
   loadData = async () => {
-    const {isLoggedIn, getProfile} = this.context
+    const {isLoggedIn, getProfile, currentUser} = this.context
 
     if (isLoggedIn) {
       const profile = await getProfile()
@@ -74,14 +75,94 @@ class CustomerProfile extends Component {
       this.setState({
         profile,
       })
-      this.checkMobileVerified()
+      const loginUser = currentUser
+      this.checkMobileVerified(loginUser)
+      this.checkEmailVerified()
     }
   }
 
-  checkMobileVerified = () => {
+  checkEmailVerified = () => {
+    const {profile} = this.state
+    const {isChef, currentUser} = this.context
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        if (profile && profile.isEmailVerifiedYn === false && user.emailVerified === true) {
+          if (isChef) {
+            BasicProfileService.updatEmailVerificationFlag(true, currentUser.chefId)
+              .then(res => {
+                if (res) {
+                  console.log('update email flag', res)
+                  this.setState({
+                    isEmailVerified: user.emailVerified,
+                  })
+                }
+              })
+              .catch(e => {
+                console.log('debuggging error on update email flag', e)
+              })
+          } else if (!isChef) {
+            BasicProfileService.updatEmailVerificationFlag(false, currentUser.customerId)
+              .then(res => {
+                if (res) {
+                  console.log('update email flag', res)
+                  this.setState({
+                    isEmailVerified: user.emailVerified,
+                  })
+                }
+              })
+              .catch(e => {
+                console.log('debuggging error on update email flag', e)
+              })
+          }
+        } else {
+          this.setState({
+            isEmailVerified: user.emailVerified,
+          })
+        }
+      }
+    })
+  }
+
+  checkMobileVerified = loginUser => {
+    console.log('loginUser', loginUser)
     const {currentUser} = firebase.auth()
-    if (currentUser && currentUser.phoneNumber) {
-      this.setState({isMobileVerified: true})
+    const {profile} = this.state
+    const {isChef} = this.context
+
+    if (currentUser && loginUser) {
+      if (profile && profile.isMobileNoVerifiedYn === false && currentUser.phoneNumber) {
+        if (isChef) {
+          BasicProfileService.updateMobileVerifyFlag(true, loginUser.chefId)
+            .then(res => {
+              if (res) {
+                console.log('update mobile flag', res)
+                this.setState({
+                  isMobileVerified: true,
+                })
+              }
+            })
+            .catch(e => {
+              console.log('debuggging error on update mobile flag', e)
+            })
+        } else if (!isChef) {
+          BasicProfileService.updateMobileVerifyFlag(false, loginUser.customerId)
+            .then(res => {
+              if (res) {
+                console.log('update mobile flag', res)
+                this.setState({
+                  isMobileVerified: true,
+                })
+              }
+            })
+            .catch(e => {
+              console.log('debuggging error on update mobile flag', e)
+            })
+        }
+      } else if (currentUser && currentUser.phoneNumber) {
+        this.setState({
+          isMobileVerified: true,
+        })
+      }
     }
   }
 
@@ -105,7 +186,7 @@ class CustomerProfile extends Component {
   loginContent = () => {
     return (
       <View style={styles.text}>
-        <Text>Welcome to Rockoly. Please click login/register to get started</Text>
+        <Text>Welcome to Rockoly. Please click login/register to get started.</Text>
         <View style={styles.loginBtnView}>
           <CommonButton
             textStyle={styles.loginBtnText}
@@ -129,54 +210,84 @@ class CustomerProfile extends Component {
     navigation.navigate(RouteNames.CUSTOMER_PREFERENCE)
   }
 
+  onEmailVerification = () => {
+    const {navigation} = this.props
+    navigation.navigate(RouteNames.REG_EMAIL_VERIFICATION)
+  }
+
   onAllergiesPress = () => {
     const {navigation} = this.props
-    navigation.navigate(RouteNames.ALLERGIES)
+    navigation.navigate(RouteNames.CUSTOMER_EDIT_PROFILE, {screen: RouteNames.ALLERGIES})
   }
 
   onDietaryPress = () => {
     const {navigation} = this.props
-    navigation.navigate(RouteNames.DIETARY)
+    navigation.navigate(RouteNames.CUSTOMER_EDIT_PROFILE, {screen: RouteNames.DIETARY})
   }
 
   onEquipmentPress = () => {
     const {navigation} = this.props
-    navigation.navigate(RouteNames.KITCHEN_EQUIPMENT)
+    navigation.navigate(RouteNames.CUSTOMER_EDIT_PROFILE, {screen: RouteNames.KITCHEN_EQUIPMENT})
   }
 
   onCuisinePress = () => {
     const {navigation} = this.props
-    navigation.navigate(RouteNames.FAVOURITE_CUISINE)
+    navigation.navigate(RouteNames.CUSTOMER_EDIT_PROFILE, {screen: RouteNames.FAVOURITE_CUISINE})
   }
 
   onIntroMessage = () => {
     const {navigation} = this.props
-    navigation.navigate(RouteNames.INTRO_MESSAGE)
+    navigation.navigate(RouteNames.CHEF_EDIT_PROFILE, {screen: RouteNames.INTRO_MESSAGE})
   }
 
-  onRateService = () => {
+  onRate = () => {
     const {navigation} = this.props
-    navigation.navigate(RouteNames.RATE_SERVICE)
+    navigation.navigate(RouteNames.CHEF_EDIT_PROFILE, {screen: 'RATE'})
+  }
+
+  onService = () => {
+    const {navigation} = this.props
+    navigation.navigate(RouteNames.CHEF_EDIT_PROFILE, {screen: 'NUMBER_OF_GUESTS'})
   }
 
   onOptionList = () => {
     const {navigation} = this.props
-    navigation.navigate(RouteNames.OPTION_LIST)
+    navigation.navigate(RouteNames.CHEF_EDIT_PROFILE, {screen: RouteNames.OPTION_LIST})
   }
 
   onChefExperience = () => {
     const {navigation} = this.props
-    navigation.navigate(RouteNames.CHEF_EXPERIENCE)
+    navigation.navigate(RouteNames.CHEF_EDIT_PROFILE, {screen: RouteNames.CHEF_EXPERIENCE})
+  }
+
+  onProfilePic = () => {
+    const {navigation} = this.props
+    navigation.navigate(RouteNames.CHEF_EDIT_PROFILE, {screen: RouteNames.DISPLAY_PICTURE})
+  }
+
+  onGallery = () => {
+    const {navigation} = this.props
+    navigation.navigate(RouteNames.CHEF_EDIT_PROFILE, {screen: RouteNames.GALLERY})
+  }
+
+  onAttachment = () => {
+    const {navigation} = this.props
+    navigation.navigate(RouteNames.CHEF_EDIT_PROFILE, {screen: RouteNames.ATTACHMENT})
   }
 
   onComplexity = () => {
     const {navigation} = this.props
-    navigation.navigate(RouteNames.COMPLEXITY)
+    navigation.navigate(RouteNames.CHEF_EDIT_PROFILE, {screen: RouteNames.COMPLEXITY})
   }
 
   onAwards = () => {
     const {navigation} = this.props
-    navigation.navigate(RouteNames.AWARDS)
+    navigation.navigate(RouteNames.CHEF_EDIT_PROFILE, {screen: RouteNames.AWARDS})
+  }
+
+  onBookingStepOnePress = () => {
+    const {navigation} = this.props
+    navigation.navigate(RouteNames.BOOK_ALLERGY)
   }
 
   itemOnPress = () => {
@@ -195,6 +306,11 @@ class CustomerProfile extends Component {
   onBookingHistory = () => {
     const {navigation} = this.props
     navigation.navigate(RouteNames.BOOKING_HISTORY)
+  }
+
+  onPayments = () => {
+    const {navigation} = this.props
+    navigation.navigate(RouteNames.CHEF_PAYMENT_HISTORY)
   }
 
   onPaymentHistory = () => {
@@ -237,65 +353,56 @@ class CustomerProfile extends Component {
   }
 
   confirmReviewSubmit = async () => {
-    const {getProfile} = this.context
+    const {getProfile, isEmailVerified, isMobileVerified} = this.context
 
     const profile = await getProfile()
     console.log('debugging profile', profile)
+
+    let mailAndMobileVerify = false
+
+    const {currentUser} = firebase.auth()
+    if (currentUser) {
+      firebase.auth().currentUser.reload()
+
+      const user = firebase.auth().currentUser
+      if (user) {
+        if (user.emailVerified && currentUser.phoneNumber) {
+          mailAndMobileVerify = true
+        }
+      }
+    }
+
     let isFilledYn = false
-    let notFilledItems = []
-    // const notFilledItems = [
-    //   'FIRST_NAME',
-    //   'DOB',
-    //   'EMAIL',
-    //   'MOBILE_NO',
-    //   'LOCATION_ADDRESS',
-    //   'LOCATION_LAT',
-    //   'LOCATION_LNG',
-    //   'CHEF_PRICE',
-    //   'CHEF_PRICE_UNIT',
-    //   'ATTACHMENT_TYPE',
-    //   'CHEF_AVAILABILITY',
-    //   'CUISINE_TYPE',
-    //   'DISH_TYPE',
-    // ]
+
     try {
-      const res = JSON.parse(profile.isDetailsFilledYn)
-      isFilledYn = res.isFilledYn
-      notFilledItems = res.notFilledItems
+      isFilledYn = profile.isRegistrationCompletedYn
     } catch (e) {}
 
     if (isFilledYn === true) {
-      Alert.alert(
-        Languages.customerProfile.alert.submit_profile_title,
-        Languages.customerProfile.alert.make_sure_details,
-        [
-          {
-            text: 'Cancel',
-            onPress: () => console.log('Cancel Pressed'),
-            style: 'cancel',
-          },
-          {text: 'OK', onPress: () => this.submitForReview()},
-        ],
-        {cancelable: false}
-      )
+      if (mailAndMobileVerify === true) {
+        Alert.alert(
+          Languages.customerProfile.alert.submit_profile_title,
+          Languages.customerProfile.alert.make_sure_details,
+          [
+            {
+              text: 'Cancel',
+              onPress: () => console.log('Cancel Pressed'),
+              style: 'cancel',
+            },
+            {text: 'OK', onPress: () => this.submitForReview()},
+          ],
+          {cancelable: false}
+        )
+      } else {
+        Alert.alert(
+          Languages.customerProfile.alert.email_or_mobile_veriified_title,
+          `${Languages.customerProfile.alert.email_or_mobile_veriified_error} `
+        )
+      }
     } else {
-      let str = ``
-      notFilledItems.forEach(item => {
-        let message = item
-
-        message = message === 'ATTACHMENT_TYPE' ? 'GALLERY_IMAGES' : message
-
-        if (message !== 'CHEF_PRICE_UNIT') {
-          message = message.toLowerCase()
-          message = message.replace(/_/g, ' ')
-          str += `${message}, `
-        }
-      })
-
-      console.log('debugging str', str)
       Alert.alert(
         Languages.customerProfile.alert.complete_profile_title,
-        `${Languages.customerProfile.alert.complete_profile_alert} ${str}`
+        `${Languages.customerProfile.alert.complete_profile_alert} `
       )
     }
   }
@@ -387,8 +494,7 @@ class CustomerProfile extends Component {
 
   goToVerifyMobileNumber = () => {
     const {navigation} = this.props
-    const {isMobileVerified} = this.state
-    navigation.navigate(RouteNames.OTP_VERIFICATION_SCREEN, {isMobileVerified})
+    navigation.navigate(RouteNames.REG_MOBILE_VERIFICATION)
   }
 
   logout = () => {
@@ -407,6 +513,7 @@ class CustomerProfile extends Component {
           text: 'OK',
           onPress: () => {
             logout(() => {
+              firebase.notifications().setBadge(0)
               ResetAction(navigation, RouteNames.CUSTOMER_SWITCH)
             })
           },
@@ -429,6 +536,10 @@ class CustomerProfile extends Component {
   onSetLocationPress = () => {
     const {navigation} = this.props
     navigation.navigate(RouteNames.SET_LOCATION_SCREEN)
+  }
+
+  onEmailPress = () => {
+    console.log('email')
   }
 
   onNotificationSettings = () => {
@@ -489,13 +600,15 @@ class CustomerProfile extends Component {
         status = profile.chefStatusId && profile.chefStatusId.trim()
 
         const button = (
-          <CommonButton
-            style={styles.submitProfileBtn}
-            btnText={Languages.customerProfile.label.submit_profile}
-            onPress={() => {
-              this.confirmReviewSubmit()
-            }}
-          />
+          <View style={{marginBottom: '1%'}}>
+            <CommonButton
+              style={styles.submitProfileBtn}
+              btnText={Languages.customerProfile.label.submit_profile}
+              onPress={() => {
+                this.confirmReviewSubmit()
+              }}
+            />
+          </View>
         )
 
         if (status === 'SUBMITTED_FOR_REVIEW') {
@@ -547,6 +660,246 @@ class CustomerProfile extends Component {
     }
   }
 
+  renderCustomerContent = () => {
+    const {isMobileVerified, isEmailVerified} = this.state
+    return (
+      <View style={styles.contentContainer}>
+        <ListItem itemDivider>
+          <Text>Verification </Text>
+        </ListItem>
+        <CustomListItem
+          iconName={isMobileVerified === false ? 'cellphone' : 'check-decagram'}
+          label={
+            isMobileVerified === false
+              ? Languages.customerProfile.options.verify_mob
+              : Languages.customerProfile.options.verified
+          }
+          onPress={this.goToVerifyMobileNumber}
+          type="MaterialCommunityIcons"
+        />
+        <CustomListItem
+          iconName={isEmailVerified === true ? 'email-check' : 'email'}
+          label={
+            isEmailVerified === true
+              ? Languages.customerProfile.options.emailVerified
+              : Languages.customerProfile.options.emailVerification
+          }
+          onPress={this.onEmailVerification}
+          type="MaterialCommunityIcons"
+        />
+
+        {/* <CustomListItem
+          iconName="gmail"
+          type="MaterialCommunityIcons"
+          label={Languages.customerProfile.options.email}
+          onPress={this.onEmailPress}
+        /> */}
+        <ListItem itemDivider>
+          <Text>Basic details </Text>
+        </ListItem>
+        <CustomListItem
+          iconName="account"
+          type="MaterialCommunityIcons"
+          label={Languages.customerProfile.options.basic_profile}
+          onPress={this.onBasicProfile}
+        />
+        {/* <CustomListItem
+          iconName="shield-account"
+          label={Languages.customerProfile.options.profile_Pic}
+          onPress={this.onProfilePic}
+          type="MaterialCommunityIcons"
+        /> */}
+        {/* <ListItem itemDivider>
+          <Text>Booking</Text>
+        </ListItem>
+        <CustomListItem
+          iconName="shield-account"
+          label="Booking Step1"
+          onPress={this.onBookingStepOnePress}
+          type="MaterialCommunityIcons"
+        /> */}
+        <ListItem itemDivider>
+          <Text>Food</Text>
+        </ListItem>
+        <CustomListItem
+          type="MaterialCommunityIcons"
+          iconName="food-off"
+          label={Languages.customerProfile.options.allergies}
+          onPress={this.onAllergiesPress}
+        />
+        <CustomListItem
+          type="MaterialCommunityIcons"
+          iconName="food-apple"
+          label={Languages.customerProfile.options.dietary}
+          onPress={this.onDietaryPress}
+        />
+        <CustomListItem
+          type="MaterialCommunityIcons"
+          iconName="microwave"
+          label={Languages.customerProfile.options.equipment}
+          onPress={this.onEquipmentPress}
+        />
+        {/* <CustomListItem
+          type="MaterialCommunityIcons"
+          iconName="food"
+          label={Languages.customerProfile.options.cuisine}
+          onPress={this.onCuisinePress}
+        /> */}
+        <ListItem itemDivider>
+          <Text>Address</Text>
+        </ListItem>
+        <CustomListItem
+          iconName="map-marker"
+          type="MaterialCommunityIcons"
+          label={Languages.customerProfile.options.set_location}
+          onPress={this.onSetLocationPress}
+        />
+      </View>
+    )
+  }
+
+  renderChefContent = () => {
+    const {isMobileVerified, isEmailVerified} = this.state
+    return (
+      <View style={styles.contentContainer}>
+        <ListItem itemDivider>
+          <Text>Verification </Text>
+        </ListItem>
+        <CustomListItem
+          iconName={isMobileVerified === false ? 'cellphone' : 'check-decagram'}
+          label={
+            isMobileVerified === false
+              ? Languages.customerProfile.options.verify_mob
+              : Languages.customerProfile.options.verified
+          }
+          onPress={this.goToVerifyMobileNumber}
+          type="MaterialCommunityIcons"
+        />
+        <CustomListItem
+          iconName={isEmailVerified === true ? 'email-check' : 'email'}
+          label={
+            isEmailVerified === true
+              ? Languages.customerProfile.options.emailVerified
+              : Languages.customerProfile.options.emailVerification
+          }
+          onPress={this.onEmailVerification}
+          type="MaterialCommunityIcons"
+        />
+        {/* <CustomListItem
+          iconName="gmail"
+          type="MaterialCommunityIcons"
+          label={Languages.customerProfile.options.email}
+          onPress={this.onSetLocationPress}
+        /> */}
+        <ListItem itemDivider>
+          <Text>Basic details </Text>
+        </ListItem>
+        <CustomListItem
+          iconName="account"
+          type="MaterialCommunityIcons"
+          label={Languages.customerProfile.options.basic_profile}
+          onPress={this.onBasicProfile}
+        />
+        {/* <CustomListItem
+          iconName="shield-account"
+          label={Languages.customerProfile.options.profile_Pic}
+          onPress={this.onProfilePic}
+          type="MaterialCommunityIcons"
+        /> */}
+        {/* <ListItem itemDivider>
+          <Text>General </Text>
+        </ListItem>
+        <CustomListItem
+          iconName="information"
+          label={Languages.customerProfile.options.intro_message}
+          onPress={this.onIntroMessage}
+          type="MaterialCommunityIcons"
+        /> */}
+        <ListItem itemDivider>
+          <Text>Price </Text>
+        </ListItem>
+        <CustomListItem
+          iconName="currency-usd"
+          label={Languages.customerProfile.options.rate}
+          onPress={this.onRate}
+          type="MaterialCommunityIcons"
+        />
+
+        <CustomListItem
+          iconName="account-group"
+          label={Languages.customerProfile.options.number_of_guests}
+          onPress={this.onService}
+          type="MaterialCommunityIcons"
+        />
+
+        <CustomListItem
+          iconName="room-service"
+          label={Languages.customerProfile.options.option_list}
+          onPress={this.onOptionList}
+          type="MaterialCommunityIcons"
+        />
+        <CustomListItem
+          iconName="chevron-triple-up"
+          label={Languages.customerProfile.options.complexity}
+          onPress={this.onComplexity}
+          type="MaterialCommunityIcons"
+        />
+        <ListItem itemDivider>
+          <Text>Profile setup </Text>
+        </ListItem>
+        <CustomListItem
+          iconName="text"
+          label={Languages.customerProfile.options.chef_experience}
+          onPress={this.onChefExperience}
+          type="MaterialCommunityIcons"
+        />
+        <CustomListItem
+          iconName="trophy-award"
+          label={Languages.customerProfile.options.awards}
+          onPress={this.onAwards}
+          type="MaterialCommunityIcons"
+        />
+
+        <CustomListItem
+          iconName="image"
+          label={Languages.customerProfile.options.gallery}
+          onPress={this.onGallery}
+          type="MaterialCommunityIcons"
+        />
+        {/* <CustomListItem
+          iconName="image"
+          label={Languages.customerProfile.options.gallery_Attachment}
+          onPress={this.onGalleryAttach}
+          type="MaterialCommunityIcons"
+        /> */}
+        <CustomListItem
+          iconName="file-document-edit"
+          label={Languages.customerProfile.options.license}
+          onPress={this.onAttachment}
+          type="MaterialCommunityIcons"
+        />
+        <CustomListItem
+          iconName="calendar"
+          label={Languages.customerProfile.options.set_availability}
+          onPress={this.goToSetAvailability}
+          type="MaterialCommunityIcons"
+        />
+        <CustomListItem
+          iconName="map-marker"
+          type="MaterialCommunityIcons"
+          label={Languages.customerProfile.options.set_location}
+          onPress={this.onSetLocationPress}
+        />
+        {/* <CustomListItem
+          iconName="chef-hat"
+          label={Languages.customerProfile.options.profile_setup}
+          onPress={this.onProfileSetup}
+          type="MaterialCommunityIcons"
+        /> */}
+      </View>
+    )
+  }
+
   goToSetAvailability = () => {
     const {navigation} = this.props
     navigation.navigate(RouteNames.SET_AVAILABILITY_SCREEN)
@@ -567,167 +920,28 @@ class CustomerProfile extends Component {
     } else if (!isChef && profile) {
       picId = profile.customerPicId
     }
-
+    console.log('picid', picId)
     return (
       <View style={styles.container}>
         <Header showBack={false} title={Languages.customerProfile.title} showBell />
         <ScrollView>
+          {isLoggedIn && isChef && <Text style={styles.accountNameLabel}>I'm a chef</Text>}
+          {isLoggedIn && !isChef && <Text style={styles.accountNameLabel}>I'm a customer</Text>}
           <View style={styles.topContainer}>
-            <Image
-              style={styles.profileImage}
-              source={picId ? {uri: picId} : Images.common.defaultAvatar}
-            />
+            {isLoggedIn ? (
+              <Image source={{uri: picId}} style={styles.profileImage} resizeMode="contain" />
+            ) : (
+              <Image source={Images.logo.mainLogo} style={styles.logo} resizeMode="contain" />
+            )}
+
             {isLoggedIn ? this.userContent() : this.loginContent()}
           </View>
           {isLoggedIn && (
-            <View style={styles.contentContainer}>
+            <View>
               {this.userInfoContent()}
-              <ListItem itemDivider>
-                <Text>Complete Profile Setup</Text>
-              </ListItem>
-              {isMobileVerified === false && (
-                <CustomListItem
-                  iconName="cellphone"
-                  label={Languages.customerProfile.options.verify_mob}
-                  onPress={this.goToVerifyMobileNumber}
-                  type="MaterialCommunityIcons"
-                />
-              )}
-              {isMobileVerified === true && (
-                <CustomListItem
-                  iconName="cellphone"
-                  label={Languages.customerProfile.options.verified}
-                  type="MaterialCommunityIcons"
-                  onPress={this.goToVerifyMobileNumber}
-                />
-              )}
-              <CustomListItem
-                iconName="map-marker"
-                type="MaterialCommunityIcons"
-                label={Languages.customerProfile.options.set_location}
-                onPress={this.onSetLocationPress}
-              />
-              <CustomListItem
-                iconName="account"
-                type="MaterialCommunityIcons"
-                label={Languages.customerProfile.options.basic_profile}
-                onPress={this.onBasicProfile}
-              />
-              {isChef === false && (
-                <View>
-                  {/* <CustomListItem
-                    type="MaterialCommunityIcons"
-                    iconName="account-edit"
-                    label={Languages.customerProfile.options.customer_profile}
-                    onPress={this.onPreferncePress}
-                  /> */}
-                  <CustomListItem
-                    type="MaterialCommunityIcons"
-                    iconName="account-edit"
-                    label={Languages.customerProfile.options.allergies}
-                    onPress={this.onAllergiesPress}
-                  />
-                  <CustomListItem
-                    type="MaterialCommunityIcons"
-                    iconName="account-edit"
-                    label={Languages.customerProfile.options.dietary}
-                    onPress={this.onDietaryPress}
-                  />
-                  <CustomListItem
-                    type="MaterialCommunityIcons"
-                    iconName="account-edit"
-                    label={Languages.customerProfile.options.equipment}
-                    onPress={this.onEquipmentPress}
-                  />
-                  <CustomListItem
-                    type="MaterialCommunityIcons"
-                    iconName="account-edit"
-                    label={Languages.customerProfile.options.cuisine}
-                    onPress={this.onCuisinePress}
-                  />
-                </View>
-              )}
-
-              {/* <CustomListItem
-              iconName="account"
-              type="MaterialCommunityIcons"
-              label={Languages.customerProfile.options.filter}
-              onPress={this.onFliter}
-            /> */}
-              {isChef && (
-                <CustomListItem
-                  iconName="chef-hat"
-                  label={Languages.customerProfile.options.profile_setup}
-                  onPress={this.onProfileSetup}
-                  type="MaterialCommunityIcons"
-                />
-              )}
-              {isChef && (
-                <CustomListItem
-                  iconName="calendar"
-                  label={Languages.customerProfile.options.set_availability}
-                  onPress={this.goToSetAvailability}
-                  type="MaterialCommunityIcons"
-                />
-              )}
-              {isChef && (
-                <CustomListItem
-                  iconName="image"
-                  label={Languages.customerProfile.options.gallery_Attachment}
-                  onPress={this.onGalleryAttach}
-                  type="MaterialCommunityIcons"
-                />
-              )}
-              {isChef && (
-                <CustomListItem
-                  iconName="image"
-                  label={Languages.customerProfile.options.intro_message}
-                  onPress={this.onIntroMessage}
-                  type="MaterialCommunityIcons"
-                />
-              )}
-              {isChef && (
-                <CustomListItem
-                  iconName="image"
-                  label={Languages.customerProfile.options.rate_service}
-                  onPress={this.onRateService}
-                  type="MaterialCommunityIcons"
-                />
-              )}
-              {isChef && (
-                <CustomListItem
-                  iconName="image"
-                  label={Languages.customerProfile.options.option_list}
-                  onPress={this.onOptionList}
-                  type="MaterialCommunityIcons"
-                />
-              )}
-              {isChef && (
-                <CustomListItem
-                  iconName="image"
-                  label={Languages.customerProfile.options.chef_experience}
-                  onPress={this.onChefExperience}
-                  type="MaterialCommunityIcons"
-                />
-              )}
-              {isChef && (
-                <CustomListItem
-                  iconName="image"
-                  label={Languages.customerProfile.options.complexity}
-                  onPress={this.onComplexity}
-                  type="MaterialCommunityIcons"
-                />
-              )}
-              {isChef && (
-                <CustomListItem
-                  iconName="image"
-                  label={Languages.customerProfile.options.awards}
-                  onPress={this.onAwards}
-                  type="MaterialCommunityIcons"
-                />
-              )}
               {this.renderStatus()}
-
+              {isChef && this.renderChefContent()}
+              {isChef === false && this.renderCustomerContent()}
               <ListItem itemDivider>
                 <Text>Payment details</Text>
               </ListItem>
@@ -746,6 +960,13 @@ class CustomerProfile extends Component {
               )}
               {isChef && (
                 <CustomListItem
+                  iconName="card"
+                  label={Languages.chefTab.payments}
+                  onPress={this.onPayments}
+                />
+              )}
+              {isChef && (
+                <CustomListItem
                   type="MaterialCommunityIcons"
                   iconName="history"
                   label={Languages.customerProfile.options.booking_history}
@@ -753,19 +974,7 @@ class CustomerProfile extends Component {
                 />
               )}
 
-              {isChef ? (
-                <View>
-                  <ListItem itemDivider>
-                    <Text>Messaging</Text>
-                  </ListItem>
-                  <CustomListItem
-                    type="MaterialCommunityIcons"
-                    iconName="message-text"
-                    label={Languages.customerProfile.options.inbox}
-                    onPress={this.onInboxpress}
-                  />
-                </View>
-              ) : (
+              {!isChef && (
                 <View>
                   <ListItem itemDivider>
                     <Text>Others</Text>
@@ -806,13 +1015,13 @@ class CustomerProfile extends Component {
                 />
               )}
 
-              {/* <CustomListItem
+              <CustomListItem
                 type="MaterialCommunityIcons"
                 iconName="information-variant"
                 label={Languages.customerProfile.options.aboutus}
                 onPress={this.onAboutUs}
               />
-              <CustomListItem
+              {/* <CustomListItem
                 type="MaterialCommunityIcons"
                 iconName="account-box"
                 label={Languages.customerProfile.options.contactus}

@@ -9,6 +9,11 @@ const styles = StyleSheet.create({
     flex: 1,
     height: '100%',
   },
+  titleText: {
+    textAlign: 'center',
+    fontSize: 20,
+    marginVertical: 10,
+  },
 })
 
 export default styles

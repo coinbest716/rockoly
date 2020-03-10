@@ -21,7 +21,9 @@ import firebase from 'react-native-firebase'
 
 import StarRating from 'react-native-star-rating'
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete'
-import Geolocation from 'react-native-geolocation-service'
+import Geolocation from '@react-native-community/geolocation'
+// import Geolocation from 'react-native-geolocation-service'
+import moment from 'moment'
 import axios from 'axios'
 import _ from 'lodash'
 import {CONSTANTS} from '@common'
@@ -73,29 +75,13 @@ class ChefList extends PureComponent {
 
   componentDidMount = async () => {
     const {navigation} = this.props
-    const {isLoggedIn, currentUser, isChef, getProfile, userRole} = this.context
+    const {isLoggedIn, getProfile, currentUser, isChef, userRole} = this.context
 
     if (isLoggedIn) {
-      AsyncStorage.getItem('customerRegSetupProfile')
-        .then(res => {
-          if (res) {
-            const flag = JSON.parse(res)
-            if (flag && this.onGetBoolean(flag)) {
-              // ResetStack(navigation, RouteNames.COUSTUMER_REG_PROFILE)
-              // don't navigate
-            } else {
-              // reset to customer reg profile
-              ResetStack(navigation, RouteNames.COUSTUMER_REG_PROFILE)
-            }
-          } else {
-            // reset to customer reg profile
-            ResetStack(navigation, RouteNames.COUSTUMER_REG_PROFILE)
-          }
-        })
-        .catch(e => {
-          // reset to customer reg profile
-          ResetStack(navigation, RouteNames.COUSTUMER_REG_PROFILE)
-        })
+      const profile = await getProfile()
+      if (!profile.isRegistrationCompletedYn) {
+        ResetStack(navigation, RouteNames.COUSTUMER_REG_PROFILE)
+      }
     }
 
     ChefListService.on(CHEF_LIST_EVENT.CHEF_LIST, this.setList)
@@ -156,7 +142,10 @@ class ChefList extends PureComponent {
                         value.data,
                         value.name,
                         value.pic,
-                        value.statusId
+                        value.statusId,
+                        value.bookingHistId,
+                        value.fromTime,
+                        value.toTime
                       )
                       await AsyncStorage.removeItem('notificationData')
                     }
@@ -216,9 +205,9 @@ class ChefList extends PureComponent {
 
     this.setState({})
 
-    let switchTo = ``
-    let email = ``
-    let switchFrom = ``
+    let switchTo = ''
+    let email = ''
+    let switchFrom = ''
     if (isChef) {
       email = profile.chefEmail
       switchFrom = CONSTANTS.ROLE.CHEF
@@ -229,17 +218,19 @@ class ChefList extends PureComponent {
       switchTo = CONSTANTS.ROLE.CHEF
     }
 
-    LoginService.gqlSwitchRole({email, switchFrom, switchTo})
-      .then(async gqlRes => {
-        LoginService.onLogin({role: switchTo, gqlRes, updateCurrentUser, navigation})
-      })
-      .catch(e => {
-        console.log('debugging e', e)
-        Alert.alert(
-          Languages.customerProfile.alert.could_not_switch_account,
-          Languages.customerProfile.alert.try_again_to_switch
-        )
-      })
+    if (email !== '' && switchFrom !== '' && switchTo !== '') {
+      LoginService.gqlSwitchRole({email, switchFrom, switchTo})
+        .then(async gqlRes => {
+          LoginService.onLogin({role: switchTo, gqlRes, updateCurrentUser, navigation})
+        })
+        .catch(e => {
+          console.log('debugging e', e)
+          Alert.alert(
+            Languages.customerProfile.alert.could_not_switch_account,
+            Languages.customerProfile.alert.try_again_to_switch
+          )
+        })
+    }
   }
 
   onAddBackHandler = () => {
@@ -299,6 +290,7 @@ class ChefList extends PureComponent {
     const {first, offset} = this.state
     const {userRole, currentUser, isLoggedIn} = this.context
     const filter = this.onLocationFilter()
+    console.log('filter', filter)
     const filterParams = {
       data: filter || {},
       first,
@@ -311,6 +303,7 @@ class ChefList extends PureComponent {
 
   onLoadTotalCount = () => {
     const filter = this.onLocationFilter()
+    console.log('filter', filter)
     CommonService.getTotalCount(COMMON_LIST_NAME.CHEF_LIST, filter)
       .then(totalCount => {
         this.setState(
@@ -456,6 +449,7 @@ class ChefList extends PureComponent {
 
   onLocationFilter = () => {
     const {latitude, longitude, location, filterValues} = this.state
+    console.log('filterValuesextra', filterValues)
     let locationObj = {}
     let val1 = {}
     let value = {}
@@ -467,9 +461,11 @@ class ChefList extends PureComponent {
         filterValues.filterListValue.latitude === latitude &&
         filterValues.filterListValue.longitude === longitude
       ) {
+        console.log('filterValues.filterListValue.', filterValues.filterListValue.filterOption)
         return filterValues.filterListValue.filterOption
       }
       val1 = filterValues.filterListValue.filterOption
+
       if (
         filterValues.filterListValue.latitude !== latitude &&
         filterValues.filterListValue.longitude !== longitude
@@ -482,6 +478,8 @@ class ChefList extends PureComponent {
           max_price: val1.max_price !== '' ? val1.max_price : undefined,
           cuisine: val1.cuisine !== '' ? val1.cuisine : undefined,
           dish: val1.dish !== '' ? val1.dish : undefined,
+          event_from_time: val1.formDate !== '' ? val1.formDate : undefined,
+          event_to_time: val1.toDate !== '' ? val1.toDate : undefined,
           experience: val1.experience !== 0 ? val1.experience : undefined,
         }
         return value
@@ -556,7 +554,7 @@ class ChefList extends PureComponent {
             },
             error =>
               Alert.alert(Languages.ChefList.alerts.info_title, JSON.stringify(error.message)),
-            {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000}
+            {enableHighAccuracy: true, timeout: 60000, maximumAge: 1000}
           )
         } else {
           Alert.alert(
@@ -565,7 +563,7 @@ class ChefList extends PureComponent {
           )
         }
       } catch (err) {
-        Alert.alert(Languages.ChefList.alerts.info_title, err)
+        Alert.alert(Languages.ChefList.alerts.info_title, Languages.ChefList.alerts.userDined)
       }
     } else {
       this.setState({
@@ -607,12 +605,16 @@ class ChefList extends PureComponent {
               )
             })
         },
-        error => Alert.alert(Languages.ChefList.alerts.info_title, JSON.stringify(error.message))
+        error => {
+          this.setState({isLoading: false})
+          Alert.alert(Languages.ChefList.alerts.info_title, Languages.ChefList.alerts.userDined)
+        }
       )
     }
   }
 
   navigateToNotification = async notification => {
+    console.log('navigateToNotification', notification)
     const {navigation} = this.props
     const {isLoggedIn, currentUser, isChef} = this.context
     if (
@@ -643,7 +645,10 @@ class ChefList extends PureComponent {
           data,
           notification.data.name,
           notification.data.pic,
-          notification.data.statusId
+          notification.data.statusId,
+          notification.data.bookingHistId,
+          notification.data.fromTime,
+          notification.data.toTime
         )
       }
     } else {
@@ -708,28 +713,34 @@ class ChefList extends PureComponent {
   }
 
   onLoadNotificationTotalCount = (type, filter) => {
-    CommonService.getTotalCount(type, filter)
-      .then(totalCount => {
-        this.setState(
-          {
-            notificationCount: totalCount,
-          },
-          async () => {
-            await firebase.notifications().setBadge(this.state.notificationCount)
-          }
-        )
-      })
-      .catch(e => {
-        console.log('debugging error on setting the total count in notification screen', e)
-        this.setState({
-          notificationCount: 0,
+    const {isLoggedIn} = this.context
+
+    if (isLoggedIn) {
+      CommonService.getTotalCount(type, filter)
+        .then(totalCount => {
+          this.setState(
+            {
+              notificationCount: totalCount,
+            },
+            async () => {
+              await firebase.notifications().setBadge(this.state.notificationCount)
+            }
+          )
         })
-      })
+        .catch(e => {
+          console.log('debugging error on setting the total count in notification screen', e)
+          this.setState({
+            notificationCount: 0,
+          })
+        })
+    }
   }
 
   selectLocation = (data, details) => {
     const {first, offset} = this.state
     const {userRole, isLoggedIn, currentUser} = this.context
+
+    console.log('debugging location', details)
     const obj = {
       location: details.formatted_address,
       latitude: details.geometry.location.lat,
@@ -767,12 +778,15 @@ class ChefList extends PureComponent {
 
   setList = ({chefList}) => {
     const {totalCount} = this.state
-    this.setState({
-      chefList,
-      isFetching: false,
-      isFetchingMore: false,
-      canLoadMore: chefList.length < totalCount,
-    })
+    this.setState(
+      {
+        chefList,
+        isFetching: false,
+        isFetchingMore: false,
+        canLoadMore: chefList.length < totalCount,
+      },
+      console.log('chefListvalue', chefList)
+    )
   }
 
   loadData = () => {
@@ -809,7 +823,7 @@ class ChefList extends PureComponent {
     let distance
     let units
     const {isLoggedIn} = this.context
-
+    console.log('details', details)
     if (
       details &&
       details.chefProfileExtendedsByChefId &&
@@ -820,8 +834,8 @@ class ChefList extends PureComponent {
       if (details.fullName) {
         fullName = details.fullName
       }
-      if (chefProfile && chefProfile.chefAddrLine2 && chefProfile.chefAddrLine2 !== null) {
-        address = chefProfile.chefAddrLine2
+      if (chefProfile && chefProfile.chefCity && chefProfile.chefCity !== null) {
+        address = chefProfile.chefCity
       }
       if (details.pricePerHour) {
         price = details.pricePerHour
@@ -866,12 +880,14 @@ class ChefList extends PureComponent {
           </View>
           <Text style={styles.messageDescription}>
             {price
-              ? `${Languages.ChefList.buttonLabels.dollar}${price}${Languages.ChefList.buttonLabels.per_hour}`
+              ? `${Languages.ChefList.buttonLabels.dollar}${price}`
               : Languages.ChefList.buttonLabels.no_price}
           </Text>
           {distance && distance !== ' ' && (
             <Text style={styles.messageDescription}>
-              {`${Languages.ChefList.buttonLabels.distance_statement} ${distance}${' '}${units}`}
+              {`${
+                Languages.ChefList.buttonLabels.distance_statement
+              } ${fullName} ${'can travel up to '} ${distance}${' '}${units} ${'from'} ${address}`}
             </Text>
           )}
           {details && details.averageRating !== null ? (
@@ -952,10 +968,13 @@ class ChefList extends PureComponent {
     let count = 1
     let text = ``
     if (cuisineItems) {
-      cuisineItems.map(item => {
+      cuisineItems.map((item, index) => {
         const temp = _.find(cuisineTypes, {cuisineTypeId: item})
         if (limit >= count) {
-          text += `${temp.cuisineTypeDesc}, `
+          text += `${temp.cuisineTypeDesc} `
+          if (cuisineItems.length !== 1 && limit - 1 !== index) {
+            text += `, `
+          }
           count += 1
         }
       })
@@ -979,10 +998,13 @@ class ChefList extends PureComponent {
     let text = ``
 
     if (dishItems) {
-      dishItems.map((item, key) => {
+      dishItems.map((item, index) => {
         const temp = _.find(dishTypes, {dishTypeId: item})
         if (limit >= count) {
-          text += `${temp.dishTypeDesc}, `
+          text += `${temp.dishTypeDesc} `
+          if (dishItems.length !== 1 && limit - 1 !== index) {
+            text += `, `
+          }
           count += 1
         }
       })
@@ -993,7 +1015,7 @@ class ChefList extends PureComponent {
       return (
         <Button rounded light style={styles.chipItem}>
           <Text style={styles.locationText}>
-            {Languages.ChefList.buttonLabels.dish} : {text}{' '}
+            {Languages.chefProfile.labels.dish_types} : {text}{' '}
           </Text>
         </Button>
       )
@@ -1016,7 +1038,7 @@ class ChefList extends PureComponent {
       latitude,
       longitude,
     } = this.state
-
+    console.log('chefList', chefList)
     let filterValue = {}
     if (filterValues !== {}) {
       if (
@@ -1026,7 +1048,7 @@ class ChefList extends PureComponent {
         filterValue = filterValues.filterListValue
       }
     }
-
+    console.log('filterValue', filterValue)
     if (isLoading === true) {
       return (
         <View style={styles.container}>
@@ -1061,8 +1083,9 @@ class ChefList extends PureComponent {
                   // available options: https://developers.google.com/places/web-service/autocomplete
                   key: mapApiKey,
                   language: 'en', // language of the results
-                  types: 'address', // default: 'geocode'
+                  types: ['address', '(cities)'], // default: 'geocode'
                   components: 'country:us|country:in',
+                  // radius: 5000,
                 }}
                 suppressDefaultStyles
                 styles={{
@@ -1168,29 +1191,122 @@ class ChefList extends PureComponent {
             }}>
             {filterValue !== {} ? (
               <View style={styles.cusineBody}>
-                {filterValue.maxPrice && filterValue.minPrice ? (
+                {filterValue.priceValue && filterValue.priceValue ? (
                   <Button rounded light style={styles.chipItem}>
-                    <Text style={styles.locationText}>
-                      {filterValue.minPrice} - {filterValue.maxPrice}
-                    </Text>
+                    {filterValue.priceValue === 1 && (
+                      <Text style={styles.locationText}>0 - 20$</Text>
+                    )}
+                    {filterValue.priceValue === 2 && (
+                      <Text style={styles.locationText}>20$ - 40$</Text>
+                    )}
+                    {filterValue.priceValue === 3 && (
+                      <Text style={styles.locationText}>40$ - 60$</Text>
+                    )}
+                    {filterValue.priceValue === 4 && <Text style={styles.locationText}>60$+</Text>}
                   </Button>
                 ) : null}
               </View>
             ) : null}
-            {filterValue !== {} ? (
+            {filterValue !== null ? (
               <View style={styles.cusineBody}>
-                {filterValue.ratingMaxValue !== 0 && filterValue.ratingMaxValue ? (
+                {filterValue.ratingValue !== null && filterValue.ratingValue !== undefined ? (
                   <Button rounded light style={styles.chipItem}>
-                    <Text style={styles.locationText}>
-                      {filterValue.ratingMaxValue}
-                      <Icon
-                        name="star"
-                        color={Theme.Colors.primary}
-                        type="MaterialCommunityIcons"
-                        style={{fontSize: 12, color: Theme.Colors.primary}}
-                      />
-                      {Languages.ChefList.buttonLabels.above}
-                    </Text>
+                    {filterValue.ratingValue === 0 && (
+                      <Text style={{color: Theme.Colors.primary, fontSize: 14}}>New Chef</Text>
+                    )}
+                    {filterValue.ratingValue === 3 && (
+                      <View style={{flexDirection: 'row'}}>
+                        <Text style={styles.locationText}>
+                          <Icon
+                            name="star"
+                            color={Theme.Colors.primary}
+                            type="MaterialCommunityIcons"
+                            style={{fontSize: 12, color: Theme.Colors.primary}}
+                          />
+                          <Icon
+                            name="star"
+                            color={Theme.Colors.primary}
+                            type="MaterialCommunityIcons"
+                            style={{fontSize: 12, color: Theme.Colors.primary}}
+                          />
+                          <Icon
+                            name="star"
+                            color={Theme.Colors.primary}
+                            type="MaterialCommunityIcons"
+                            style={{fontSize: 12, color: Theme.Colors.primary}}
+                          />
+                          {'&above'}
+                        </Text>
+                      </View>
+                    )}
+                    {filterValue.ratingValue === 4 && (
+                      <View style={{flexDirection: 'row'}}>
+                        <Text style={styles.locationText}>
+                          <Icon
+                            name="star"
+                            color={Theme.Colors.primary}
+                            type="MaterialCommunityIcons"
+                            style={{fontSize: 12, color: Theme.Colors.primary}}
+                          />
+                          <Icon
+                            name="star"
+                            color={Theme.Colors.primary}
+                            type="MaterialCommunityIcons"
+                            style={{fontSize: 12, color: Theme.Colors.primary}}
+                          />
+                          <Icon
+                            name="star"
+                            color={Theme.Colors.primary}
+                            type="MaterialCommunityIcons"
+                            style={{fontSize: 12, color: Theme.Colors.primary}}
+                          />
+                          <Icon
+                            name="star"
+                            color={Theme.Colors.primary}
+                            type="MaterialCommunityIcons"
+                            style={{fontSize: 12, color: Theme.Colors.primary}}
+                          />
+                          {'&above'}
+                        </Text>
+                      </View>
+                    )}
+                    {filterValue.ratingValue === 5 && (
+                      <View style={{flexDirection: 'row'}}>
+                        <Text style={styles.locationText}>
+                          <Icon
+                            name="star"
+                            color={Theme.Colors.primary}
+                            type="MaterialCommunityIcons"
+                            style={{fontSize: 12, color: Theme.Colors.primary}}
+                          />
+                          <Icon
+                            name="star"
+                            color={Theme.Colors.primary}
+                            type="MaterialCommunityIcons"
+                            style={{fontSize: 12, color: Theme.Colors.primary}}
+                          />
+                          <Icon
+                            name="star"
+                            color={Theme.Colors.primary}
+                            type="MaterialCommunityIcons"
+                            style={{fontSize: 12, color: Theme.Colors.primary}}
+                          />
+                          <Icon
+                            name="star"
+                            color={Theme.Colors.primary}
+                            type="MaterialCommunityIcons"
+                            style={{fontSize: 12, color: Theme.Colors.primary}}
+                          />
+                          <Icon
+                            name="star"
+                            color={Theme.Colors.primary}
+                            type="MaterialCommunityIcons"
+                            style={{fontSize: 12, color: Theme.Colors.primary}}
+                          />
+                        </Text>
+                      </View>
+                    )}
+                    {/* {Languages.ChefList.buttonLabels.above} */}
                   </Button>
                 ) : null}
               </View>
@@ -1216,12 +1332,35 @@ class ChefList extends PureComponent {
                   : null}
               </View>
             ) : null}
-            {filterValue !== {} ? (
+            {filterValue !== {} &&
+            filterValue.formDateFormat !== 'Invalid date' &&
+            filterValue.formDateFormat !== undefined ? (
               <View style={styles.cusineBody}>
-                {filterValue.experience ? (
+                {filterValue.formDateFormat ? (
                   <Button rounded light style={styles.chipItem}>
                     <Text style={styles.locationText}>
-                      {Languages.filter.labels.experience} : {filterValue.experience}
+                      {filterValue.formDateFormat
+                        ? moment(filterValue.formDateFormat, 'YYYY-MM-DDTHH:mm:SS').format(
+                            'MMMM D, YYYY h:mm A'
+                          )
+                        : 'No Date'}
+                    </Text>
+                  </Button>
+                ) : null}
+              </View>
+            ) : null}
+            {filterValue !== {} &&
+            filterValue.toDateFormat !== 'Invalid date' &&
+            filterValue.toDateFormat !== undefined ? (
+              <View style={styles.cusineBody}>
+                {filterValue.toDateFormat ? (
+                  <Button rounded light style={styles.chipItem}>
+                    <Text style={styles.locationText}>
+                      {filterValue.toDateFormat
+                        ? moment(filterValue.toDateFormat, 'YYYY-MM-DDTHH:mm:SS').format(
+                            'MMMM D, YYYY h:mm A'
+                          )
+                        : 'No Date'}
                     </Text>
                   </Button>
                 ) : null}

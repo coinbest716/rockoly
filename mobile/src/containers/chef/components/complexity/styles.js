@@ -9,7 +9,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   complexityView: {
-    marginHorizontal: 20,
+    marginHorizontal: 10,
     marginVertical: 10,
   },
   label: {
@@ -30,11 +30,62 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
+  cardStyle: {
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    marginTop: 20,
+    borderRadius: 10,
+  },
   colorGrey: {
     color: '#d3d3d3',
   },
   colorYellow: {
     color: Theme.Colors.primary,
+  },
+  border: {
+    borderBottomColor: '#B9BFBB',
+    borderBottomWidth: 1,
+    marginTop: 10,
+  },
+
+  gratuityText: {
+    height: 40,
+    // width: 80,
+    justifyContent: 'center',
+    alignItems: 'center',
+    textAlign: 'center',
+    alignSelf: 'center',
+    backgroundColor: '#F1F1F1',
+    borderRadius: 20,
+  },
+  baseRateText: {
+    borderBottomWidth: 1,
+    borderBottomColor: Theme.Colors.borderColor,
+    fontSize: 16,
+  },
+  to: {
+    marginHorizontal: '5%',
+    alignSelf: 'center',
+  },
+  rateLable: {
+    marginTop: '2%',
+  },
+  gratuityView: {
+    flexDirection: 'column',
+    marginTop: 10,
+  },
+
+  disText: {
+    borderBottomWidth: 1,
+    borderBottomColor: Theme.Colors.borderColor,
+    fontSize: 16,
+  },
+
+  bottomtextStyle: {
+    fontSize: 14,
+    marginLeft: 5,
+    marginTop: '2%',
+    lineHeight: 22,
   },
 })
 

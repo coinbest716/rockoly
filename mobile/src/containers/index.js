@@ -15,6 +15,14 @@ import Dietary from './customer/components/dietary/Dietary'
 import FavouriteCuisine from './customer/components/favorite-cuisine/FavouriteCuisine'
 import KitchenEquipment from './customer/components/kitchen-equipment/KitchenEquipment'
 import DisplayPicture from './customer/components/display-picture/DisplayPicture'
+import PricingModal from './customer/components/pricing-modal/PricingModal'
+import CustomerEditProfile from './customer/customer-edit-profile/CustomerEditProfile'
+import BookPrice from './customer/book-price/BookPrice'
+import BookDietary from './customer/book-dietary/BookDietary'
+import BookKitchenEquipment from './customer/book-kitchen-equipment/BookKitchenEquipment'
+import BookAllergy from './customer/book-allergy/BookAllergy'
+import ExtraPayment from './customer/extra-payment/ExtraPayment'
+import ChangeBookLocation from './customer/change-book-location/ChangeBookLocation'
 // customer
 
 // chef
@@ -36,6 +44,7 @@ import Awards from './chef/components/awards/Awards'
 import Gallery from './chef/components/gallery/Gallery'
 import Attachment from './chef/components/attachments/Attachments'
 import Availability from './chef/components/availablity/Availability'
+import ChefEditProfile from './chef/chef-edit-profile/ChefEditProfile'
 // chef
 
 // common
@@ -62,15 +71,19 @@ import ChatDetail from './common/chat-detail/ChatDetail'
 import Login from './auth/login/Login'
 import PreRegister from './auth/pre-register/PreRegister'
 import Register from './auth/register/Register'
-import CustomerRegPorofile from './auth/customer-reg-profile/CustomerRegPorofile'
+import CustomerRegProfile from './auth/customer-reg-profile/CustomerRegProfile'
 import ChefRegProfile from './auth/chef-reg-profile/ChefRegProfile'
 import ForgotPassword from './auth/forgot-password/ForgotPassword'
 import OTPVerification from './auth/otp-verification/OTPVerification'
+import EmailVerification from './auth/email-verification/EmailVerification'
 import ChangePassword from './auth/change-password/ChangePassword'
-
+import RegEmailVerification from './auth/reg-email-verification/RegEmailVerification'
+import RegMobileVerification from './auth/reg-mobile-verification/RegMobileVerification'
 // auth
 
 export {
+  CustomerEditProfile,
+  ChefEditProfile,
   BookNow,
   SetUnavailability,
   StripeWebView,
@@ -109,7 +122,7 @@ export {
   ConversationList,
   ChatDetail,
   PreRegister,
-  CustomerRegPorofile,
+  CustomerRegProfile,
   Allergies,
   DisplayPicture,
   Address,
@@ -121,10 +134,20 @@ export {
   RateService,
   IntroMessage,
   RegisterProfile,
+  PricingModal,
   ChefRegProfile,
   Complexity,
   Awards,
   Gallery,
   Attachment,
   Availability,
+  BookPrice,
+  BookDietary,
+  BookKitchenEquipment,
+  BookAllergy,
+  ExtraPayment,
+  EmailVerification,
+  ChangeBookLocation,
+  RegEmailVerification,
+  RegMobileVerification,
 }

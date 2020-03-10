@@ -18,6 +18,11 @@ const styles = StyleSheet.create({
     // width: SCREEN_WIDTH,
     flex: 1,
   },
+  saveBtn: {
+    width: '40%',
+    alignSelf: 'center',
+    marginVertical: 15,
+  },
   heading: {
     // marginLeft: 40,
     fontSize: 18,
@@ -225,6 +230,8 @@ const styles = StyleSheet.create({
   iconStyle: {
     fontSize: 90,
     color: Theme.Colors.primary,
+    marginLeft: 10,
+    marginTop: 10,
     // marginLeft: 30,
     // marginTop: 18,
   },

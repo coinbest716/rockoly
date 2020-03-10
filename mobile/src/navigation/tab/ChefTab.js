@@ -5,7 +5,7 @@ import {TabBar, TabBarIcon} from '@components'
 import {Languages} from '@translations'
 import {Images} from '@images'
 import {Theme} from '@theme'
-import {BookingRequest, ChefProfile, ChefPaymentHistory, CustomerProfile} from '@containers'
+import {BookingRequest, ChefProfile, CustomerProfile, ConversationList} from '@containers'
 import RouteNames from '../config/RouteNames'
 
 const ChefTabNavigator = createBottomTabNavigator(
@@ -18,20 +18,20 @@ const ChefTabNavigator = createBottomTabNavigator(
             css={{width: 30, height: 30}}
             icon={Images.chefTab.BookingRequestIcon}
             tintColor={tintColor}
-            name={Languages.chefTab.bookingRequest}
+            name={Languages.chefTab.booking}
           />
         ),
       },
     },
-    [RouteNames.CHEF_PAYMENT_HISTORY]: {
-      screen: ChefPaymentHistory,
+    [RouteNames.CONVERSATION_LIST]: {
+      screen: ConversationList,
       navigationOptions: {
         tabBarIcon: ({tintColor}) => (
           <TabBarIcon
             css={{width: 30, height: 30}}
-            icon={Images.chefTab.PaymentsIcon}
+            icon={Images.customerTab.InboxIcon}
             tintColor={tintColor}
-            name={Languages.chefTab.payments}
+            name={Languages.customerProfile.options.inbox}
           />
         ),
       },

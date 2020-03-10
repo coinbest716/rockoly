@@ -4,7 +4,7 @@ export const transferAmountGQLTAG = `mutation stripeTransferAmt(
     $adminId: String
     $chefId: String!
   ) {
-    stripeTransferAmt(
+    stripeTransferAmtTest(
       chefStripeUserId: $chefStripeUserId
       bookingHistId: $bookingHistId
       adminId: $adminId

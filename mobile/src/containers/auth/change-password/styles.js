@@ -56,6 +56,7 @@ const styles = StyleSheet.create({
   registerBtn: {
     width: '50%',
     alignSelf: 'center',
+    marginTop: '2%',
   },
   // TODO: remove later
   dontHaveView: {

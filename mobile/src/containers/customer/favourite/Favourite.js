@@ -184,8 +184,8 @@ class Favourite extends PureComponent {
         if (chefProfile.chefProfileExtendedsByChefId.nodes[0].chefAvailableAroundRadiusInUnit) {
           units = chefProfile.chefProfileExtendedsByChefId.nodes[0].chefAvailableAroundRadiusInUnit
         }
-        if (chefProfile.chefProfileExtendedsByChefId.nodes[0].chefAddrLine2) {
-          location = chefProfile.chefProfileExtendedsByChefId.nodes[0].chefAddrLine2
+        if (chefProfile.chefProfileExtendedsByChefId.nodes[0].chefCity) {
+          location = chefProfile.chefProfileExtendedsByChefId.nodes[0].chefCity
         }
         if (chefProfile.chefProfileExtendedsByChefId.nodes[0].chefPricePerHour) {
           price = chefProfile.chefProfileExtendedsByChefId.nodes[0].chefPricePerHour
@@ -219,7 +219,7 @@ class Favourite extends PureComponent {
           </View>
           <Text style={styles.messageDescription}>
             {price
-              ? `${Languages.ChefList.buttonLabels.dollar}${price}${Languages.ChefList.buttonLabels.per_hour}`
+              ? `${Languages.ChefList.buttonLabels.dollar}${price}`
               : Languages.ChefList.buttonLabels.no_price}
           </Text>
           {distance && (

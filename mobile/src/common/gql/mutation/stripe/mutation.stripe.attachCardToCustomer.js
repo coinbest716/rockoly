@@ -2,7 +2,7 @@ export const attachCardToCustomerTAG = `mutation stripeAttachCardToCustomer(
   $email: String
   $customerId: String, 
   $cardToken: String!
-  ) {
+  ) {     
   stripeAttachCardToCustomer(
     email:$email
     customerId: $customerId, 
@@ -11,7 +11,6 @@ export const attachCardToCustomerTAG = `mutation stripeAttachCardToCustomer(
     data
   }
 }`;
-
 
 /*
 {

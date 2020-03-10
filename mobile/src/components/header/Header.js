@@ -10,31 +10,65 @@ import {RouteNames, ResetStack} from '@navigation'
 import {NotificationListService, NOTIFICATION_LIST_EVENT, CommonService} from '@services'
 
 class Header extends React.PureComponent {
+  notificationSubs = null
+
   constructor(props) {
     super(props)
     this.state = {
       showBack: props.showBack,
+      showDetail: props.showDetail,
       showBell: props.showBell,
       title: props.title,
       navigateBackTo: props.navigateBackTo,
       notificationCount: 0,
       resetToStack: props.resetToStack,
+      bookingHisId: props.bookingHisId,
     }
   }
 
   async componentDidMount() {
     this.loadData()
+    NotificationListService.on(NOTIFICATION_LIST_EVENT.NOTIFICATION_LIST_SUBS, this.loadData)
     NotificationListService.on(NOTIFICATION_LIST_EVENT.UPDATING_NOTIFICATION_LIST, this.loadData)
+    this.subscribe()
   }
 
   componentWillReceiveProps(props) {
     this.setState({
       showBack: props.showBack,
       showBell: props.showBell,
+      showDetail: props.showDetail,
+      bookingHisId: props.bookingHisId,
       title: props.title,
       navigateBackTo: props.navigateBackTo,
       resetToStack: props.resetToStack,
     })
+  }
+
+  componentWillUnmount() {
+    this.unsubscribe()
+    NotificationListService.off(NOTIFICATION_LIST_EVENT.UPDATING_NOTIFICATION_LIST, this.loadData)
+  }
+
+  subscribe = () => {
+    const {userRole, currentUser} = this.context
+    if (userRole === 'CUSTOMER') {
+      if (currentUser && currentUser.customerId) {
+        this.notificationSubs = NotificationListService.notificationSubsForCustomer(
+          currentUser.customerId
+        )
+      }
+    } else if (userRole === 'CHEF') {
+      if (currentUser && currentUser.chefId) {
+        this.notificationSubs = NotificationListService.notificationSubsForChef(currentUser.chefId)
+      }
+    }
+  }
+
+  unsubscribe = () => {
+    this.notificationSubs &&
+      this.notificationSubs.unsubscribe &&
+      this.notificationSubs.unsubscribe()
   }
 
   renderTitle = () => {
@@ -68,9 +102,8 @@ class Header extends React.PureComponent {
   }
 
   renderBellIcon = () => {
-    const {showBell, notificationCount} = this.state
+    const {showBell, title, notificationCount} = this.state
     const {navigation} = this.props
-
     if (!showBell) {
       return <View style={styles.bellView} />
     }
@@ -82,7 +115,7 @@ class Header extends React.PureComponent {
 
     return (
       <TouchableOpacity
-        style={[styles.bellView]}
+        // style={[styles.bellView]}
         onPress={() => {
           navigation.navigate(RouteNames.NOTIFICATION_SCREEN)
         }}>
@@ -95,6 +128,36 @@ class Header extends React.PureComponent {
           }}
         />
         {notificationCount > 0 && numberWrap(notificationCount)}
+      </TouchableOpacity>
+    )
+  }
+
+  renderDetialIcon = () => {
+    const {showDetail, bookingHisId} = this.state
+    const {navigation} = this.props
+    console.log('bookingDetails', bookingHisId)
+    if (!showDetail) {
+      return <View style={styles.bellView} />
+    }
+
+    return (
+      <TouchableOpacity
+        // style={[styles.bellView]}
+        onPress={() => {
+          navigation.navigate(RouteNames.BOOKING_DETAIL_SCREEN, {
+            bookingHistId: bookingHisId,
+          })
+        }}>
+        <Icon
+          type="MaterialCommunityIcons"
+          name="information-outline"
+          style={[styles.bellContent, styles.iconColor]}
+          onPress={() => {
+            navigation.navigate(RouteNames.BOOKING_DETAIL_SCREEN, {
+              bookingHistId: bookingHisId,
+            })
+          }}
+        />
       </TouchableOpacity>
     )
   }
@@ -143,11 +206,16 @@ class Header extends React.PureComponent {
   }
 
   render() {
+    const {showBell, showDetail} = this.state
     return (
       <View style={styles.container}>
         {this.renderBack()}
         {this.renderTitle()}
-        {this.renderBellIcon()}
+        {showBell ? (
+          <View style={styles.bellView}>{this.renderBellIcon()}</View>
+        ) : (
+          <View style={styles.bellView}>{this.renderDetialIcon()}</View>
+        )}
       </View>
     )
   }
@@ -163,7 +231,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   backView: {
-    width: '25%',
+    width: '20%',
     flexDirection: 'row',
     justifyContent: 'flex-start',
   },
@@ -173,7 +241,7 @@ const styles = StyleSheet.create({
     fontSize: 40,
   },
   titleView: {
-    width: '50%',
+    width: '60%',
     flexDirection: 'row',
     justifyContent: 'center',
   },
@@ -181,7 +249,8 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   bellView: {
-    width: '25%',
+    width: '20%',
+    alignSelf: 'center',
     flexDirection: 'row',
     justifyContent: 'flex-end',
   },
@@ -194,7 +263,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     position: 'absolute',
-    top: 5,
     right: 12,
     height: 18,
     minWidth: 18,

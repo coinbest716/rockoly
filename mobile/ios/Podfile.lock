@@ -189,7 +189,7 @@ PODS:
   - react-native-fbsdk/Share (1.0.3):
     - FBSDKShareKit (~> 5.0)
     - React
-  - react-native-geolocation (1.4.2):
+  - react-native-geolocation (2.0.2):
     - React
   - react-native-netinfo (4.2.0):
     - React
@@ -463,7 +463,7 @@ SPEC CHECKSUMS:
   react-native-config: 55548054279d92e0e4566ea15a8b9b81028ec342
   react-native-document-picker: c36bf5f067a581657ecaf7124dcd921a8be19061
   react-native-fbsdk: 7bde3b84fc093d2c5e7fdccea03fe8fa9f112834
-  react-native-geolocation: 79c743ad7a2e86617811ef23f49308824e92520c
+  react-native-geolocation: cbd9d6bd06bac411eed2671810f454d4908484a8
   react-native-netinfo: 16a1f36248b920e43bc0de383381b463002ae434
   react-native-pdf: 34ac241e3a373da9d69a414fedfca58ec54dd9bc
   react-native-slider: e36b7de75b35323ee802dae723be8ebbab4c4a3d

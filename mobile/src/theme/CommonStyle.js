@@ -15,7 +15,7 @@ const CommonStyle = StyleSheet.create({
   },
   alignScreenCenter: {
     flexGrow: 1,
-    alignItems: 'center',
+    alignSelf: 'center',
     justifyContent: 'center',
   },
   // btnCommon: {

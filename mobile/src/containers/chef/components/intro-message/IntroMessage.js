@@ -17,6 +17,8 @@ import {
   Left,
   Radio,
 } from 'native-base'
+import {CommonButton} from '@components'
+import {Languages} from '@translations'
 import styles from './styles'
 
 export default class IntroMessage extends PureComponent {
@@ -25,41 +27,52 @@ export default class IntroMessage extends PureComponent {
     this.state = {}
   }
 
+  onNext = () => {
+    this.props.onNext()
+  }
+
   render() {
+    const {onNext} = this.props
     return (
-      <ScrollView style={{marginHorizontal: '5%'}}>
+      <ScrollView style={{marginHorizontal: 10, marginVertical: 5}}>
         <Label style={styles.label}>Pricing Model</Label>
         <Text style={styles.textStyle}>
-          Here at Rockoly our goal is to provide fair transparent pricing for the customer building
-          trust and increasing the private chef industry market share and getting you more money in
-          the long run.
+          At Rockoly, our goal is to provide fair, transparent pricing for the customer while
+          maintaining a trustworthy platform for consumer to chef interaction.
         </Text>
-        <Text style={styles.textStyle}>
-          In order to do so we have created a pricing model that is based on amount of work you do
-          and not on ingredients cost or a type of the event.{' '}
-        </Text>
-        <Text style={styles.label}>4 things drive the pricing model:</Text>
+        <Text style={styles.label}>Our customer pricing is driven by:</Text>
         <View style={styles.bodyContainer}>
           <Text style={styles.bullet}> {'\u2B24'}</Text>
-          <Text style={styles.pricingtextStyle}>Your base rate </Text>
+          <Text style={styles.pricingtextStyle}>Base rate </Text>
         </View>
         <View style={styles.bodyContainer}>
           <Text style={styles.bullet}> {'\u2B24'}</Text>
-          <Text style={styles.pricingtextStyle}>Number of people you are cooking for </Text>
+          <Text style={styles.pricingtextStyle}>Amount of people </Text>
         </View>
         <View style={styles.bodyContainer}>
           <Text style={styles.bullet}> {'\u2B24'}</Text>
-          <Text style={styles.pricingtextStyle}>Complexity of the preparation of the menu</Text>
+          <Text style={styles.pricingtextStyle}>Complexity of the menu</Text>
         </View>
         <View style={styles.bodyContainer}>
           <Text style={styles.bullet}> {'\u2B24'}</Text>
-          <Text style={styles.pricingtextStyle}>Additional services.</Text>
+          <Text style={styles.pricingtextStyle}>Additional services</Text>
         </View>
         <Text style={styles.textStyle}>
-          Let's tackle this one step at a time. Don't worry, you will be able to update the rates at
-          any point in your profile and play around with the Pricing Model Calculator the client
-          sees.{' '}
+          We have created a pricing model that is based on the skill and creativity of the chef, not
+          on the cost of ingredients or event type. Ingredient cost is a separate expense and is
+          paid by the customer once purchasing receipts are provided.
         </Text>
+        <Text style={styles.textStyle}>
+          By upholding the integrity of our unique pricing model and user friendly environment, we
+          strive to provide a gourmet, one of a kind experience for everyone involved.
+        </Text>
+        {onNext && (
+          <CommonButton
+            btnText={Languages.complexity.btnLabel.agree}
+            containerStyle={styles.saveBtn}
+            onPress={this.onNext}
+          />
+        )}
       </ScrollView>
     )
   }

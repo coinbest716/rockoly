@@ -44,12 +44,13 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   addressText: {
-    color: 'gray',
+    // color: 'gray',
     fontSize: 14,
     marginLeft: 5,
     width: '80%',
   },
   avgNumber: {
+    marginLeft: '1%',
     color: Theme.Colors.primary,
     fontWeight: 'bold',
   },
@@ -75,9 +76,9 @@ const styles = StyleSheet.create({
   },
   galleryImage: {
     alignItems: 'center',
-    justifyContent: 'center',
-    height: 100,
-    width: 100,
+    justifyContent: 'space-around',
+    height: 90,
+    width: 90,
     borderRadius: 50,
     marginHorizontal: 5,
     marginVertical: 10,
@@ -101,7 +102,6 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginVertical: 10,
   },
   chipItem: {
     padding: 0,
@@ -139,13 +139,12 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   heading: {
-    marginVertical: 5,
-    color: 'black',
+    fontWeight: '500',
     fontSize: 16,
+    color: 'black',
   },
   destext: {
-    marginTop: 10,
-    color: '#B9BFBB',
+    paddingVertical: 5,
     fontSize: 14,
   },
   ratingText: {
@@ -160,6 +159,12 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   locationText: {
+    // color: Theme.Colors.primary,
+    fontSize: 14,
+    textAlign: 'center',
+    alignItems: 'center',
+  },
+  cusineText: {
     color: Theme.Colors.primary,
     fontSize: 14,
     textAlign: 'center',
@@ -169,7 +174,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'flex-start',
-    marginVertical: 8,
+    marginVertical: 10,
   },
   checkAvailablity: {
     backgroundColor: Theme.Colors.primary,
@@ -181,9 +186,12 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
   },
   iconStyle3: {
-    fontSize: 20,
-    color: 'gray',
-    marginLeft: 30,
+    fontSize: 22,
+    color: Theme.Colors.primary,
+  },
+  messageIcon: {
+    fontSize: 30,
+    color: Theme.Colors.primary,
   },
   text: {
     color: 'black',
@@ -207,10 +215,35 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     alignItems: 'center',
     marginBottom: '4%',
-    // marginLeft: 10,
-    // marginRight: 10,
-    // paddingLeft: 10,
     marginTop: 10,
+  },
+  cardStyle: {
+    paddingHorizontal: 1,
+    paddingVertical: 5,
+    marginTop: 10,
+    borderRadius: 10,
+    marginHorizontal: 10,
+  },
+  complexityText: {
+    // color: Theme.Colors.primary,
+    fontSize: 14,
+    marginBottom: '1%',
+  },
+  cardViewStyle: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 10,
+    marginHorizontal: 10,
+  },
+  complexityView: {
+    display: 'flex',
+    flexDirection: 'column',
+    flexWrap: 'wrap',
+  },
+  serviceView: {
+    display: 'flex',
+    flexDirection: 'column',
+    flexWrap: 'wrap',
   },
 })
 export default styles

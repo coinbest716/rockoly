@@ -754,6 +754,7 @@ class ChefProfileService extends BaseService {
   }
 
   saveCuisineItem = cuisineObj => {
+    console.log('cuisineObj', cuisineObj)
     const gqlValue = GQL.mutation.master.createCuisineTypeGQLTAG
     console.log('gqlValue', gqlValue)
     const mutation = gql`
@@ -785,6 +786,7 @@ class ChefProfileService extends BaseService {
   }
 
   saveDishItem = dishObj => {
+    console.log('dishObj', dishObj)
     const gqlValue = GQL.mutation.master.createDishTypeGQLTAG
     console.log('gqlValue', gqlValue)
     const mutation = gql`

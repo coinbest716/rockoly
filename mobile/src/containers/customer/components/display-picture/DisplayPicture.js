@@ -29,8 +29,11 @@ class BasicEditProfile extends PureComponent {
   }
 
   async componentDidMount() {
+    const {getProfile} = this.context
+    const profile = await getProfile()
     BasicProfileService.on(UPDATE_BASIC_PROFILE_EVENT.GET_PROFILE_PIC_URL, this.setImage)
     this.onLoadProfileData()
+    console.log('profile', profile)
   }
 
   componentWillUnmount() {
@@ -225,10 +228,12 @@ class BasicEditProfile extends PureComponent {
   onUpdateProfilePic = async () => {
     const {profilePicUrl} = this.state
     const {currentUser, isLoggedIn, isChef} = this.context
-    const {onSave} = this.props
+    const {onSaveCallBack} = this.props
 
-    // Converting the date format
-    this.setFetching(true)
+    if (isChef && !profilePicUrl) {
+      Alert.alert('Please select profile picture')
+      return
+    }
 
     // Update profile for chef
     if (isLoggedIn === true && currentUser) {
@@ -238,21 +243,31 @@ class BasicEditProfile extends PureComponent {
       } else if (!isChef && currentUser.customerId) {
         id = currentUser.customerId
       }
-      BasicProfileService.updateProfilePic(isChef, id, profilePicUrl)
-        .then(res => {
-          if (res) {
-            this.onLoadProfileData()
-            this.showSuccess()
-            if (onSave) {
-              onSave()
+      if (profilePicUrl) {
+        this.setFetching(true)
+        BasicProfileService.updateProfilePic(isChef, id, profilePicUrl)
+          .then(res => {
+            if (res) {
+              this.onLoadProfileData()
+              this.showSuccess()
+              if (onSaveCallBack) {
+                onSaveCallBack()
+              }
+            } else {
+              this.showError()
             }
-          } else {
+          })
+          .catch(() => {
             this.showError()
-          }
-        })
-        .catch(() => {
-          this.showError()
-        })
+          })
+      } else {
+        // customer profile pic optional
+        if (onSaveCallBack) {
+          onSaveCallBack()
+        }
+        // this.setFetching(false)
+        // Alert.alert('Info', 'Please Upload a profile picture')
+      }
     }
   }
 
@@ -278,6 +293,7 @@ class BasicEditProfile extends PureComponent {
 
   renderContent = () => {
     const {isLoading, profilePicUrl} = this.state
+    const {isChef} = this.context
     let picId
 
     if (profilePicUrl !== '' && profilePicUrl !== undefined && profilePicUrl !== null) {
@@ -324,7 +340,11 @@ class BasicEditProfile extends PureComponent {
 
         <CommonButton
           containerStyle={Styles.updateBtn}
-          btnText={Languages.basicEditProfile.buttonLabels.finish}
+          btnText={
+            isChef
+              ? Languages.basicEditProfile.buttonLabels.save
+              : Languages.basicEditProfile.buttonLabels.finish
+          }
           onPress={this.onUpdateProfilePic}
         />
 

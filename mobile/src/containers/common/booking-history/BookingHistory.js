@@ -1,36 +1,10 @@
 /** @format */
 
 import React, {PureComponent} from 'react'
-import {
-  View,
-  Text,
-  Image,
-  Animated,
-  ScrollView,
-  FlatList,
-  TouchableOpacity,
-  Alert,
-  Dimensions,
-  Modal,
-  RefreshControl,
-  ActivityIndicator,
-} from 'react-native'
+import {View, Text, Image, TouchableOpacity, Alert, Dimensions, Modal} from 'react-native'
 import {Calendar} from 'react-native-calendars'
 // import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
-import {
-  Container,
-  Tab,
-  Tabs,
-  ScrollableTab,
-  ListItem,
-  Left,
-  Right,
-  Radio,
-  Button,
-  Icon,
-  Item,
-  Picker,
-} from 'native-base'
+import {ListItem, Button, Icon, Item, Picker} from 'native-base'
 import moment from 'moment'
 import _ from 'lodash'
 import {Images} from '@images'
@@ -40,16 +14,8 @@ import {RouteNames} from '@navigation'
 import styles from './styles'
 import {GQL} from '@common'
 import {Theme} from '@theme'
-import {
-  GMTToLocal,
-  DATE_TYPE,
-  displayTimeFormat,
-  displayDateFormat,
-  dbDateFormat,
-  fetchDate,
-} from '@utils'
+import {GMTToLocal, DATE_TYPE, displayDateFormat, displayDateTimeFormat} from '@utils'
 import {AuthContext} from '../../../AuthContext'
-import {UpcomingBooking, CancelBooking, CompletedBooking, RejectedBooking} from '@containers'
 import BookingHistoryService, {
   BOOKING_HISTORY_LIST_EVENT,
 } from '../../../services/BookingHistoryService'
@@ -72,6 +38,7 @@ const customerData = [
       '"PAYMENT_FAILED"',
       '"REFUND_AMOUNT_SUCCESS"',
       '"REFUND_AMOUNT_FAILED"',
+      '"CHEF_REQUESTED_AMOUNT"',
     ],
   },
   {
@@ -106,6 +73,10 @@ const customerData = [
     label: 'Refund Failed',
     value: ['"REFUND_AMOUNT_FAILED"'],
   },
+  {
+    label: 'Requested Amount',
+    value: ['"CHEF_REQUESTED_AMOUNT"'],
+  },
 ]
 
 const chefData = [
@@ -122,6 +93,7 @@ const chefData = [
       '"AMOUNT_TRANSFER_FAILED"',
       '"REFUND_AMOUNT_SUCCESS"',
       '"REFUND_AMOUNT_FAILED"',
+      '"CHEF_REQUESTED_AMOUNT',
     ],
   },
   {
@@ -147,6 +119,10 @@ const chefData = [
   {
     label: 'Transfer Failed',
     value: ['"COMPLETED"', '"AMOUNT_TRANSFER_FAILED"'],
+  },
+  {
+    label: 'Requested Amount',
+    value: ['"CHEF_REQUESTED_AMOUNT"'],
   },
 ]
 
@@ -333,7 +309,7 @@ class BookingHistory extends PureComponent {
 
   getCustomerStatus = index => {
     if (index === 0) {
-      return `{CUSTOMER_REQUESTED,CHEF_ACCEPTED, COMPLETED, AMOUNT_TRANSFER_FAILED, AMOUNT_TRANSFER_SUCCESS, CHEF_REJECTED, CANCELLED_BY_CHEF,CANCELLED_BY_CUSTOMER, PAYMENT_PENDING, PAYMENT_FAILED, REFUND_AMOUNT_SUCCESS, REFUND_AMOUNT_FAILED}`
+      return `{CUSTOMER_REQUESTED,CHEF_ACCEPTED, COMPLETED, AMOUNT_TRANSFER_FAILED, AMOUNT_TRANSFER_SUCCESS, CHEF_REJECTED, CANCELLED_BY_CHEF,CANCELLED_BY_CUSTOMER, PAYMENT_PENDING, PAYMENT_FAILED, REFUND_AMOUNT_SUCCESS, REFUND_AMOUNT_FAILED, CHEF_REQUESTED_AMOUNT}`
     }
     if (index === 1) {
       return `{CUSTOMER_REQUESTED}`
@@ -361,11 +337,14 @@ class BookingHistory extends PureComponent {
     if (index === 8) {
       return `{REFUND_AMOUNT_FAILED}`
     }
+    if (index === 9) {
+      return `{CHEF_REQUESTED_AMOUNT}`
+    }
   }
 
   getChefStatus = index => {
     if (index === 0) {
-      return `{CUSTOMER_REQUESTED,CHEF_ACCEPTED, COMPLETED, AMOUNT_TRANSFER_FAILED, AMOUNT_TRANSFER_SUCCESS, CHEF_REJECTED, CANCELLED_BY_CHEF,CANCELLED_BY_CUSTOMER, PAYMENT_PENDING, PAYMENT_FAILED, REFUND_AMOUNT_SUCCESS, REFUND_AMOUNT_FAILED}`
+      return `{CUSTOMER_REQUESTED,CHEF_ACCEPTED, COMPLETED, AMOUNT_TRANSFER_FAILED, AMOUNT_TRANSFER_SUCCESS, CHEF_REJECTED, CANCELLED_BY_CHEF,CANCELLED_BY_CUSTOMER, PAYMENT_PENDING, PAYMENT_FAILED, REFUND_AMOUNT_SUCCESS, REFUND_AMOUNT_FAILED, CHEF_REQUESTED_AMOUNT}`
     }
     if (index === 1) {
       return `{CUSTOMER_REQUESTED}`
@@ -386,6 +365,9 @@ class BookingHistory extends PureComponent {
 
     if (index === 6) {
       return `{COMPLETED, AMOUNT_TRANSFER_FAILED}`
+    }
+    if (index === 7) {
+      return `{CHEF_REQUESTED_AMOUNT}`
     }
   }
 
@@ -437,6 +419,7 @@ class BookingHistory extends PureComponent {
                     '"PAYMENT_FAILED"',
                     '"REFUND_AMOUNT_SUCCESS"',
                     '"REFUND_AMOUNT_FAILED"',
+                    '"CHEF_REQUESTED_AMOUNT"',
                   ]
                 : bookingStatusValue,
             // customerId: '5bc10769-c09e-4357-82dd-01bfafa5bfb8',
@@ -469,6 +452,7 @@ class BookingHistory extends PureComponent {
                     '"AMOUNT_TRANSFER_FAILED"',
                     '"REFUND_AMOUNT_SUCCESS"',
                     '"REFUND_AMOUNT_FAILED"',
+                    '"CHEF_REQUESTED_AMOUNT"',
                   ]
                 : bookingStatusValue,
             // chefId: '1e2e76da-3526-4fac-8b65-f31f7b1fc5ea',
@@ -631,7 +615,7 @@ class BookingHistory extends PureComponent {
 
   onCheckComplete = details => {
     const now = new Date()
-    let stripeId
+
     let date = ''
     let bookingTime = ''
     let bookingDate = ''
@@ -648,28 +632,18 @@ class BookingHistory extends PureComponent {
       'minutes'
     )
 
-    if (details.hasOwnProperty('chefProfileByChefId') && details.chefProfileByChefId) {
-      if (
-        details.chefProfileByChefId.hasOwnProperty('defaultStripeUserId') &&
-        details.chefProfileByChefId.defaultStripeUserId &&
-        details.chefProfileByChefId.defaultStripeUserId !== null
-      ) {
-        stripeId = details.chefProfileByChefId.defaultStripeUserId
-        this.setState({
-          defaultStripeId: stripeId,
-        })
-      }
-    }
-
     // if (diffValue <= 0) {
-    if (stripeId !== undefined && stripeId) {
-      this.onShowModal('completeModal', details)
-    } else {
-      Alert.alert(
-        Languages.booking_History.alerts.info_title,
-        Languages.booking_History.alerts.add_account_details
-      )
-    }
+    Alert.alert(
+      Languages.bookingDetail.alerts.info,
+      Languages.bookingDetail.alerts.price_calculation,
+      [
+        {text: 'Yes', onPress: () => this.seePriceCalculation(details)},
+        {text: 'No', onPress: () => this.onCompleteBooking(details)},
+      ],
+      {
+        cancelable: false,
+      }
+    )
     // } else {
     //   this.setState(
     //     {
@@ -679,6 +653,52 @@ class BookingHistory extends PureComponent {
     //     () => {}
     //   )
     // }
+  }
+
+  seePriceCalculation = details => {
+    const {navigation} = this.props
+    const from = moment(details.chefBookingFromTime, displayDateTimeFormat)
+    const to = moment(details.chefBookingToTime, displayDateTimeFormat)
+
+    const obj = {
+      chefId: details.chefId,
+      customerId: details.customerId,
+      chefBookingFromTime: from,
+      chefBookingToTime: to,
+      chefProfile: details.chefProfileByChefId,
+      summary: details.chefBookingSummary,
+      bookingHistId: details.chefBookingHistId,
+    }
+    console.log('seePriceCalculation', obj, details)
+
+    navigation.navigate(RouteNames.BOOK_PRICE, {bookingData: obj})
+  }
+
+  onCompleteBooking = async details => {
+    const {getProfile} = this.context
+    const profile = await getProfile()
+
+    let stripeId
+
+    if (
+      profile.hasOwnProperty('defaultStripeUserId') &&
+      profile.defaultStripeUserId &&
+      profile.defaultStripeUserId !== null
+    ) {
+      stripeId = profile.defaultStripeUserId
+      this.setState({
+        defaultStripeId: stripeId,
+      })
+    }
+
+    if (stripeId !== undefined && stripeId) {
+      this.onShowModal('completeModal', details)
+    } else {
+      Alert.alert(
+        Languages.booking_History.alerts.info_title,
+        Languages.booking_History.alerts.add_account_details
+      )
+    }
   }
 
   showStatus = (
@@ -692,75 +712,34 @@ class BookingHistory extends PureComponent {
     if (userRole === 'CHEF') {
       if (bookingStatus.trim() === 'CUSTOMER_REQUESTED') {
         return (
-          <View>
-            <Button
-              transparent
-              style={styles.successBtn}
-              onPress={() => this.onShowModal('acceptModal', details)}>
-              <Icon
-                name="check"
-                type="MaterialCommunityIcons"
-                style={{color: Theme.Colors.white}}
-              />
-            </Button>
-            <Button
-              transparent
-              style={styles.cancelBtn}
-              onPress={() => this.onShowModal('rejectModal', details)}>
-              <Icon
-                name="close"
-                type="MaterialCommunityIcons"
-                style={{color: Theme.Colors.white}}
-              />
-            </Button>
-          </View>
+          <Text style={styles.textStyle}>
+            {'Status: '}
+            {Languages.booking_History.buttonLabels.request}
+          </Text>
         )
       }
       if (bookingStatus.trim() === 'CHEF_ACCEPTED') {
         return (
-          <View>
-            {/* {customerCompleteStatus === true ? (
-              <Button
-                style={styles.successBtn}
-                onPress={() => this.onShowModal('completeModal', details)}>
-                <Icon name="message-draw" type="MaterialCommunityIcons" />
-              </Button>
-            ) : (
-              chefCompleteStatus === true && <Text>You Completed</Text>
-            )} */}
-            {/* {chefCompleteStatus === true && <Text>You Completed</Text>} */}
-
-            {chefCompleteStatus === false && (
-              // customerCompleteStatus === false &&
-              <View>
-                <Button style={styles.successBtn} onPress={() => this.onCheckComplete(details)}>
-                  <Icon name="message-draw" type="MaterialCommunityIcons" />
-                </Button>
-                <Button
-                  style={styles.cancelBtn}
-                  // onPress={() => this.onShowModal('cancelModal', details)}
-                  onPress={() => this.onCheckCancel(details, bookingCancelTime)}>
-                  <Icon
-                    name="close"
-                    type="MaterialCommunityIcons"
-                    style={{color: Theme.Colors.white}}
-                  />
-                </Button>
-              </View>
-            )}
-          </View>
+          <Text style={styles.textStyle}>
+            {'Status: '}
+            {Languages.booking_History.buttonLabels.accept}
+          </Text>
         )
       }
       if (bookingStatus.trim() === 'AMOUNT_TRANSFER_SUCCESS') {
         return (
-          <Text style={styles.textStyle}>{Languages.booking_History.buttonLabels.completed}</Text>
+          <Text style={styles.textStyle}>
+            {'Status: '}
+            {Languages.booking_History.buttonLabels.completed}
+          </Text>
         )
       }
 
       if (bookingStatus.trim() === 'CHEF_REJECTED') {
         return (
           <View style={{justifyContent: 'center'}}>
-            <Text adjustsFontSizeToFit style={styles.textStyle}>
+            <Text adjustsFontSizeToFit style={styles.fialedtextStyle}>
+              {'Status: '}
               {Languages.booking_History.buttonLabels.rejected}
             </Text>
           </View>
@@ -773,7 +752,8 @@ class BookingHistory extends PureComponent {
       ) {
         return (
           <View style={{justifyContent: 'center'}}>
-            <Text adjustsFontSizeToFit style={styles.textStyle}>
+            <Text adjustsFontSizeToFit style={styles.fialedtextStyle}>
+              {'Status: '}
               {Languages.booking_History.buttonLabels.cancelled}
             </Text>
           </View>
@@ -786,21 +766,60 @@ class BookingHistory extends PureComponent {
       ) {
         return (
           <View style={{justifyContent: 'center'}}>
-            <Text adjustsFontSizeToFit style={styles.textStyle}>
+            <Text adjustsFontSizeToFit style={styles.fialedtextStyle}>
+              {'Status: '}
               Cancelled / Rejected Booking
             </Text>
           </View>
         )
       }
 
-      if (
-        bookingStatus.trim() === 'COMPLETED' ||
-        bookingStatus.trim() === 'AMOUNT_TRANSFER_FAILED'
-      ) {
+      if (bookingStatus.trim() === 'COMPLETED') {
+        return (
+          <View>
+            {chefCompleteStatus === false && (
+              <Text style={styles.textStyle}>
+                {'Status: '}
+                {Languages.booking_History.buttonLabels.completed}
+              </Text>
+            )}
+            {chefCompleteStatus === true && (
+              <Text style={styles.textStyle}>
+                {'Status: '}
+                {Languages.booking_History.buttonLabels.reviewed}
+              </Text>
+            )}
+          </View>
+        )
+      }
+
+      if (bookingStatus.trim() === 'AMOUNT_TRANSFER_FAILED') {
+        return (
+          <View>
+            <Text style={styles.fialedtextStyle}>
+              {'Status: '}
+              {Languages.booking_History.buttonLabels.transfer_failed}
+            </Text>
+          </View>
+        )
+      }
+
+      if (bookingStatus.trim() === 'CHEF_REQUESTED_AMOUNT') {
         return (
           <View>
             <Text style={styles.textStyle}>
-              {Languages.booking_History.buttonLabels.transfer_failed}
+              {'Status: '}
+              {Languages.booking_History.buttonLabels.requested_amount}
+            </Text>
+          </View>
+        )
+      }
+      if (bookingStatus.trim() === 'PAYMENT_PENDING' || bookingStatus.trim() === 'PAYMENT_FAILED') {
+        return (
+          <View>
+            <Text style={styles.textStyle}>
+              {'Status: '}
+              {Languages.booking_History.buttonLabels.payment_pending}
             </Text>
           </View>
         )
@@ -811,66 +830,20 @@ class BookingHistory extends PureComponent {
           <View>
             <View style={{justifyContent: 'center'}}>
               <Text adjustsFontSizeToFit style={[styles.textStyle]}>
+                {'Status: '}
                 {Languages.booking_History.buttonLabels.awaiting}
               </Text>
             </View>
-            <Button
-              style={styles.cancelBtn}
-              onPress={() => this.onShowModal('cancelModal', details)}>
-              <Icon
-                name="close"
-                type="MaterialCommunityIcons"
-                style={{color: Theme.Colors.white}}
-              />
-            </Button>
           </View>
         )
       }
       if (bookingStatus.trim() === 'CHEF_ACCEPTED') {
         return (
           <View>
-            {/* {chefCompleteStatus === true ? (
-              <Button
-                style={styles.successBtn}
-                onPress={() => this.onShowModal('completeModal', details)}>
-                <Icon name="message-draw" type="MaterialCommunityIcons" />
-              </Button>
-            ) : (
-              customerCompleteStatus === true && <Text>You Completed</Text>
-            )} */}
-
-            {/* {chefCompleteStatus === true && customerCompleteStatus === false ? (
-              // feedback icon // pls confirm show modal or not
-              <Button
-                style={styles.successBtn}
-                // onPress={() => this.onShowModal('completeModal', details)}
-                onPress={() => this.onFeedBack(details)}>
-                <Icon name="comment-multiple-outline" type="MaterialCommunityIcons" />
-              </Button>
-            ) : (
-              customerCompleteStatus === true && <Text>Reviewed</Text>
-            )} */}
-
-            {chefCompleteStatus === false && (
-              // customerCompleteStatus === false &&
-              <View>
-                {/* <Button
-                  style={styles.successBtn}
-                  onPress={() => this.onShowModal('completeModal', details)}>
-                  <Icon name="message-draw" type="MaterialCommunityIcons" />
-                </Button> */}
-                <Button
-                  style={styles.cancelBtn}
-                  // onPress={() => this.onShowModal('cancelModal', details)}
-                  onPress={() => this.onCheckCancel(details, bookingCancelTime)}>
-                  <Icon
-                    name="close"
-                    type="MaterialCommunityIcons"
-                    style={{color: Theme.Colors.white}}
-                  />
-                </Button>
-              </View>
-            )}
+            <Text style={styles.textStyle}>
+              {'Status: '}
+              {Languages.booking_History.buttonLabels.customer_accept}
+            </Text>
           </View>
         )
       }
@@ -881,21 +854,19 @@ class BookingHistory extends PureComponent {
       ) {
         return (
           <View>
-            {chefCompleteStatus === true && customerCompleteStatus === false && (
+            {customerCompleteStatus === false && (
               <View>
                 <Text style={styles.textStyle}>
+                  {'Status: '}
                   {Languages.booking_History.buttonLabels.completed}
                 </Text>
-                <Button
-                  style={styles.successBtn}
-                  // onPress={() => this.onShowModal('completeModal', details)}
-                  onPress={() => this.onFeedBack(details)}>
-                  <Icon name="comment-multiple-outline" type="MaterialCommunityIcons" />
-                </Button>
               </View>
             )}
-            {chefCompleteStatus === true && customerCompleteStatus === true && (
-              <Text>Reviewed</Text>
+            {customerCompleteStatus === true && (
+              <Text style={styles.textStyle}>
+                {'Status: '}
+                Reviewed
+              </Text>
             )}
           </View>
         )
@@ -904,6 +875,7 @@ class BookingHistory extends PureComponent {
         return (
           <View style={{justifyContent: 'center'}}>
             <Text adjustsFontSizeToFit style={styles.textStyle}>
+              {'Status: '}
               Rejected
             </Text>
           </View>
@@ -913,6 +885,7 @@ class BookingHistory extends PureComponent {
         return (
           <View style={{justifyContent: 'center'}}>
             <Text adjustsFontSizeToFit style={styles.textStyle}>
+              {'Status: '}
               Refund Success
             </Text>
           </View>
@@ -922,17 +895,29 @@ class BookingHistory extends PureComponent {
         return (
           <View style={{justifyContent: 'center'}}>
             <Text adjustsFontSizeToFit style={styles.textStyle}>
+              {'Status: '}
               Refund Failed
             </Text>
           </View>
         )
       }
 
-      if (bookingStatus.trim() === 'PAYMENT_PENDING' || bookingStatus.trim() === 'PAYMENT_FAILED') {
+      if (bookingStatus.trim() === 'PAYMENT_FAILED') {
         return (
           <View>
             <Text style={styles.textStyle}>
+              {'Status: '}
               {Languages.booking_History.buttonLabels.payment_pending}
+            </Text>
+          </View>
+        )
+      }
+      if (bookingStatus.trim() === 'PAYMENT_PENDING') {
+        return (
+          <View>
+            <Text style={styles.textStyle}>
+              {'Status: '}
+              {Languages.booking_History.buttonLabels.draft}
             </Text>
           </View>
         )
@@ -950,8 +935,25 @@ class BookingHistory extends PureComponent {
                 textAlignVertical: 'center',
                 width: Dimensions.get('window').width - 290,
               }}>
+              {'Status: '}
               Cancelled
             </Text>
+          </View>
+        )
+      }
+
+      if (bookingStatus.trim() === 'CHEF_REQUESTED_AMOUNT') {
+        return (
+          <View style={{justifyContent: 'center'}}>
+            <Text adjustsFontSizeToFit style={styles.textStyle}>
+              {'Status: '}
+              Requested Amount
+            </Text>
+            {/* <Button style={styles.successBtn} onPress={() => this.onViewDetail(details)}> */}
+            {/* <TouchableOpacity onPress={() => this.onViewDetail(details)}>
+              <Icon name="cash" style={{textAlign: 'center'}} />
+            </TouchableOpacity> */}
+            {/* </Button> */}
           </View>
         )
       }
@@ -1059,7 +1061,7 @@ class BookingHistory extends PureComponent {
               value.chefProfileExtendedsByChefId.nodes.length !== 0 &&
               value.chefProfileExtendedsByChefId.nodes[0] !== null
             ) {
-              location = value.chefProfileExtendedsByChefId.nodes[0].chefLocationAddress
+              location = value.chefProfileExtendedsByChefId.nodes[0].chefCity
             }
           }
         }
@@ -1083,43 +1085,33 @@ class BookingHistory extends PureComponent {
             <Text>{Languages.booking_History.buttonLabels.past}</Text>
           </ListItem>
         ) : null}
-        <View style={styles.CardContainer}>
-          <TouchableOpacity onPress={() => this.onViewDetail(details)} style={styles.infoView}>
-            <View style={styles.nameViewWrap}>
-              <View style={styles.nameView}>
+        <View style={styles.parentItem}>
+          <View style={styles.item}>
+            <TouchableOpacity onPress={() => this.onViewDetail(details)} style={styles.infoView}>
+              <View style={{flex: 1}}>
                 <Image
                   style={styles.userImage}
                   source={picId ? {uri: picId} : Images.common.defaultAvatar}
                 />
+              </View>
 
-                <View style={styles.nameSpacing}>
-                  <Text style={styles.nameStyling}>{fullName}</Text>
-                  <View style={{flexDirection: 'row'}}>
-                    <Icon
-                      name="map-marker"
-                      type="MaterialCommunityIcons"
-                      style={{color: Theme.Colors.primary, fontSize: 18}}
-                    />
-                    <Text numberOfLines={1} style={styles.messageDescription}>
-                      {location}
-                    </Text>
-                  </View>
-                  <View style={{flexDirection: 'row'}}>
-                    <Icon name="calendar" style={{color: Theme.Colors.primary, fontSize: 18}} />
-                    <Text style={styles.dateStyling}>{bookingDate}</Text>
-                  </View>
-                  <View style={{flexDirection: 'row'}}>
-                    <Icon name="clock" style={{color: Theme.Colors.primary, fontSize: 18}} />
-                    <Text style={styles.itemHourText}>
-                      {' '}
-                      {GMTToLocal(details.chefBookingFromTime, DATE_TYPE.TIME)} {'-'}
-                      {GMTToLocal(details.chefBookingToTime, DATE_TYPE.TIME)}
-                    </Text>
-                  </View>
+              <View style={styles.nameSpacing}>
+                <Text style={styles.nameStyling}>{fullName}</Text>
+                <View style={{flexDirection: 'row', marginTop: 10}}>
+                  <Icon name="calendar" style={{color: Theme.Colors.primary, fontSize: 18}} />
+                  <Text style={styles.dateStyling}>{bookingDate}</Text>
+                </View>
+                <View style={{flexDirection: 'row', marginTop: 10}}>
+                  <Icon name="clock" style={{color: Theme.Colors.primary, fontSize: 18}} />
+                  <Text style={styles.itemHourText}>
+                    {' '}
+                    {GMTToLocal(details.chefBookingFromTime, DATE_TYPE.TIME)} {'-'}
+                    {GMTToLocal(details.chefBookingToTime, DATE_TYPE.TIME)}
+                  </Text>
                 </View>
               </View>
-            </View>
-          </TouchableOpacity>
+            </TouchableOpacity>
+          </View>
           <View style={styles.dateView}>
             {this.showStatus(
               statusId,
@@ -1128,6 +1120,16 @@ class BookingHistory extends PureComponent {
               details,
               bookingCancelTime
             )}
+          </View>
+          <View style={{flexDirection: 'row', paddingHorizontal: 20}}>
+            <Icon
+              name="map-marker"
+              type="MaterialCommunityIcons"
+              style={{color: Theme.Colors.primary, fontSize: 18}}
+            />
+            <Text numberOfLines={2} style={styles.messageDescription}>
+              {location}
+            </Text>
           </View>
         </View>
       </View>
@@ -1171,6 +1173,11 @@ class BookingHistory extends PureComponent {
       [dateValue]: false,
       [stateValue]: moment(day.dateString).toISOString(),
     })
+    if (stateValue === 'fromDate') {
+      this.setState({
+        toDate: moment(day.dateString).toISOString(),
+      })
+    }
   }
 
   onShowArrow = direction => {
@@ -1254,231 +1261,244 @@ class BookingHistory extends PureComponent {
             showBell
           />
         )}
-        {/* <Item picker> */}
-        {isLoggedIn && (
-          <Item
-            picker
-            style={{
-              width: 150,
-              justifyContent: 'flex-end',
-              alignSelf: 'flex-end',
-              borderBottomColor: 'white',
-            }}>
-            <Picker
-              note
-              mode="dropdown"
-              iosIcon={<Icon name="arrow-down" />}
-              // style={{width: 150, justifyContent: 'flex-end', alignSelf: 'flex-end'}}
-              placeholder={Languages.booking_History.buttonLabels.select_status}
-              placeholderStyle={{color: '#000000'}}
-              placeholderIconColor="#007aff"
-              selectedValue={bookingStatusValue}
-              onValueChange={(value, index) => this.onStatusChanged(value, index)}>
-              {value.map((item, index) => {
-                return <Picker.Item label={item.label} value={item.value} key={index} />
-              })}
-            </Picker>
-          </Item>
-        )}
+        {isLoggedIn ? (
+          <View style={{flex: 1}}>
+            {isLoggedIn && (
+              <Item
+                picker
+                style={{
+                  width: 150,
+                  justifyContent: 'flex-end',
+                  alignSelf: 'flex-end',
+                  borderBottomColor: 'white',
+                }}>
+                <Picker
+                  note
+                  mode="dropdown"
+                  iosIcon={<Icon name="arrow-down" />}
+                  // style={{width: 150, justifyContent: 'flex-end', alignSelf: 'flex-end'}}
+                  placeholder={Languages.booking_History.buttonLabels.selectStatus}
+                  placeholderStyle={{color: '#000000'}}
+                  placeholderIconColor="#007aff"
+                  selectedValue={bookingStatusValue}
+                  onValueChange={(value, index) => this.onStatusChanged(value, index)}>
+                  {value.map((item, index) => {
+                    return <Picker.Item label={item.label} value={item.value} key={index} />
+                  })}
+                </Picker>
+              </Item>
+            )}
 
-        {isLoggedIn && (
-          <View style={styles.dateViewStyle}>
-            <Button style={styles.timeinputStyle} onPress={() => this.onSelectFromDate()}>
-              <Text style={styles.timeTextSelect}>
-                {from || Languages.booking_History.buttonLabels.from_date}
-              </Text>
-            </Button>
-            <Button style={styles.timeinputStyle} onPress={() => this.onSelectToDate()}>
-              <Text style={styles.timeTextSelect}>
-                {to || Languages.booking_History.buttonLabels.to_Date}
-              </Text>
-            </Button>
-            <Button style={styles.locationBtn} onPress={() => this.onSubmit()}>
-              <Text style={styles.locationText}>
-                {Languages.booking_History.buttonLabels.submit}
-              </Text>
-            </Button>
-          </View>
-        )}
-        <CommonList
-          // data={all}
-          // renderItem={this.renderRow}
-          // extraData={this.state}
-          // emptyDataMessage="No Booking Items"
-          // reload={this.loadInitialData}
-
-          keyExtractor="chefBookingHistId"
-          data={all}
-          renderItem={this.renderRow}
-          isFetching={isFetching}
-          isFetchingMore={isFetchingMore}
-          canLoadMore={canLoadMore}
-          loadMore={this.onLoadMore}
-          reload={this.reload}
-          emptyDataMessage={Languages.booking_History.buttonLabels.empty_data_message}
-        />
-        {acceptModal === true && (
-          <BookingModal
-            modalVisible={acceptModal}
-            closeModal={() => this.closeModal('acceptModal')}
-            content={Languages.booking_History.questions.accept}
-            bookingDetail={bookingItem}
-            type={Languages.booking_History.types.booking_type_accept}
-            userRole={userRole}
-            navigation={navigation}
-            stripeId={defaultStripeId}
-          />
-        )}
-        {rejectModal === true && (
-          <BookingModal
-            modalVisible={rejectModal}
-            closeModal={() => this.closeModal('rejectModal')}
-            content={Languages.booking_History.questions.reject}
-            bookingDetail={bookingItem}
-            type={Languages.booking_History.types.booking_type_reject}
-            userRole={userRole}
-            navigation={navigation}
-            stripeId={defaultStripeId}
-          />
-        )}
-        {cancelModal === true && (
-          <BookingModal
-            modalVisible={cancelModal}
-            closeModal={() => this.closeModal('cancelModal')}
-            content={Languages.booking_History.questions.cancel}
-            bookingDetail={bookingItem}
-            type={Languages.booking_History.types.booking_type_cancel}
-            userRole={userRole}
-            navigation={navigation}
-            stripeId={defaultStripeId}
-          />
-        )}
-        {completeModal === true && (
-          <View>
-            <BookingModal
-              modalVisible={completeModal}
-              closeModal={() => this.closeModal('completeModal')}
-              content={Languages.booking_History.questions.complete}
-              bookingDetail={bookingItem}
-              type={Languages.booking_History.types.booking_type_complete}
-              userRole={userRole}
-              navigation={navigation}
-              stripeId={defaultStripeId}
-            />
-          </View>
-        )}
-        {completeMsgModal === true && (
-          <Modal
-            animationType="fade"
-            transparent
-            visible={completeMsgModal}
-            onRequestClose={() => this.closeCompleteModal()}>
-            <View style={styles.modelView}>
-              <View style={styles.completeModelContainer}>
-                <View style={{flexDirection: 'column'}}>
-                  <Text style={styles.contentTextStyle}>
-                    {Languages.booking_History.buttonLabels.complete_booking_after}{' '}
-                    {bookingStartTime}
+            {isLoggedIn && (
+              <View style={styles.dateViewStyle}>
+                <Button style={styles.timeinputStyle} onPress={() => this.onSelectFromDate()}>
+                  <Text style={styles.timeTextSelect}>
+                    {from || Languages.booking_History.buttonLabels.from_date}
                   </Text>
-                  <View style={styles.btnView}>
-                    <CommonButton
-                      btnText={Languages.booking_History.ok}
-                      textStyle={{fontSize: 12}}
-                      containerStyle={styles.okBtn}
-                      onPress={() => this.closeCompleteModal()}
-                    />
+                </Button>
+                <Button style={styles.timeinputStyle} onPress={() => this.onSelectToDate()}>
+                  <Text style={styles.timeTextSelect}>
+                    {to || Languages.booking_History.buttonLabels.to_Date}
+                  </Text>
+                </Button>
+                <Button style={styles.locationBtn} onPress={() => this.onSubmit()}>
+                  <Text style={styles.locationText}>
+                    {Languages.booking_History.buttonLabels.submit}
+                  </Text>
+                </Button>
+              </View>
+            )}
+            <CommonList
+              // data={all}
+              // renderItem={this.renderRow}
+              // extraData={this.state}
+              // emptyDataMessage="No Booking Items"
+              // reload={this.loadInitialData}
+
+              keyExtractor="chefBookingHistId"
+              data={all}
+              renderItem={this.renderRow}
+              isFetching={isFetching}
+              isFetchingMore={isFetchingMore}
+              canLoadMore={canLoadMore}
+              loadMore={this.onLoadMore}
+              reload={this.reload}
+              emptyDataMessage={Languages.booking_History.buttonLabels.empty_data_message}
+            />
+            {acceptModal === true && (
+              <BookingModal
+                modalVisible={acceptModal}
+                closeModal={() => this.closeModal('acceptModal')}
+                content={Languages.booking_History.questions.accept}
+                bookingDetail={bookingItem}
+                type={Languages.booking_History.types.booking_type_accept}
+                userRole={userRole}
+                navigation={navigation}
+                stripeId={defaultStripeId}
+              />
+            )}
+            {rejectModal === true && (
+              <BookingModal
+                modalVisible={rejectModal}
+                closeModal={() => this.closeModal('rejectModal')}
+                content={Languages.booking_History.questions.reject}
+                bookingDetail={bookingItem}
+                type={Languages.booking_History.types.booking_type_reject}
+                userRole={userRole}
+                navigation={navigation}
+                stripeId={defaultStripeId}
+              />
+            )}
+            {cancelModal === true && (
+              <BookingModal
+                modalVisible={cancelModal}
+                closeModal={() => this.closeModal('cancelModal')}
+                content={Languages.booking_History.questions.cancel}
+                bookingDetail={bookingItem}
+                type={Languages.booking_History.types.booking_type_cancel}
+                userRole={userRole}
+                navigation={navigation}
+                stripeId={defaultStripeId}
+              />
+            )}
+            {completeModal === true && (
+              <View>
+                <BookingModal
+                  modalVisible={completeModal}
+                  closeModal={() => this.closeModal('completeModal')}
+                  content={Languages.booking_History.questions.complete}
+                  bookingDetail={bookingItem}
+                  type={Languages.booking_History.types.booking_type_complete}
+                  userRole={userRole}
+                  navigation={navigation}
+                  stripeId={defaultStripeId}
+                />
+              </View>
+            )}
+            {completeMsgModal === true && (
+              <Modal
+                animationType="fade"
+                transparent
+                visible={completeMsgModal}
+                onRequestClose={() => this.closeCompleteModal()}>
+                <View style={styles.modelView}>
+                  <View style={styles.completeModelContainer}>
+                    <View style={{flexDirection: 'column'}}>
+                      <Text style={styles.contentTextStyle}>
+                        {Languages.booking_History.buttonLabels.complete_booking_after}{' '}
+                        {bookingStartTime}
+                      </Text>
+                      <View style={styles.btnView}>
+                        <CommonButton
+                          btnText={Languages.booking_History.ok}
+                          textStyle={{fontSize: 12}}
+                          containerStyle={styles.okBtn}
+                          onPress={() => this.closeCompleteModal()}
+                        />
+                      </View>
+                    </View>
                   </View>
                 </View>
-              </View>
-            </View>
-          </Modal>
-        )}
+              </Modal>
+            )}
 
-        {selectFromDate === true && (
-          <Calendar
-            // Initially visible month. Default = Date()
-            current={new Date()}
-            // Minimum date that can be selected, dates before minDate will be grayed out. Default = undefined
-            // minDate="2012-05-10"
-            // Maximum date that can be selected, dates after maxDate will be grayed out. Default = undefined
-            // maxDate="2012-05-30"
-            // Handler which gets executed on day press. Default = undefined
-            onDayPress={day => {
-              this.onDayChange(day, 'fromDate', 'selectFromDate')
-            }}
-            // Handler which gets executed on day long press. Default = undefined
-            onDayLongPress={day => {
-              console.log('selected day', day)
-            }}
-            // Month format in calendar title. Formatting values: http://arshaw.com/xdate/#Formatting
-            monthFormat="MMM yyyy"
-            // Handler which gets executed when visible month changes in calendar. Default = undefined
-            onMonthChange={month => {
-              console.log('month changed', month)
-            }}
-            // Hide month navigation arrows. Default = false
-            hideArrows={false}
-            // Replace default arrows with custom ones (direction can be 'left' or 'right')
-            renderArrow={direction => this.onShowArrow(direction)}
-            // Do not show days of other months in month page. Default = false
-            // hideExtraDays
-            // If hideArrows=false and hideExtraDays=false do not switch month when tapping on greyed out
-            // day from another month that is visible in calendar page. Default = false
-            // disableMonthChange
-            // If firstDay=1 week starts from Monday. Note that dayNames and dayNamesShort should still start from Sunday.
-            firstDay={1}
-            // Hide day names. Default = false
-            // hideDayNames
-            // Show week numbers to the left. Default = false
-            // showWeekNumbers
-            // Handler which gets executed when press arrow icon left. It receive a callback can go back month
-            onPressArrowLeft={substractMonth => substractMonth()}
-            // Handler which gets executed when press arrow icon left. It receive a callback can go next month
-            onPressArrowRight={addMonth => addMonth()}
-          />
-        )}
-        {selectToDate === true && (
-          <Calendar
-            // Initially visible month. Default = Date()
-            current={new Date()}
-            // Minimum date that can be selected, dates before minDate will be grayed out. Default = undefined
-            minDate={fromDate}
-            // Maximum date that can be selected, dates after maxDate will be grayed out. Default = undefined
-            // maxDate="2012-05-30"
-            // Handler which gets executed on day press. Default = undefined
-            onDayPress={day => {
-              this.onDayChange(day, 'toDate', 'selectToDate')
-            }}
-            // Handler which gets executed on day long press. Default = undefined
-            onDayLongPress={day => {
-              console.log('selected day', day)
-            }}
-            // Month format in calendar title. Formatting values: http://arshaw.com/xdate/#Formatting
-            monthFormat="MMM yyyy"
-            // Handler which gets executed when visible month changes in calendar. Default = undefined
-            onMonthChange={month => {
-              console.log('month changed', month)
-            }}
-            // Hide month navigation arrows. Default = false
-            hideArrows={false}
-            // Replace default arrows with custom ones (direction can be 'left' or 'right')
-            renderArrow={direction => this.onShowArrow(direction)}
-            // Do not show days of other months in month page. Default = false
-            // hideExtraDays
-            // If hideArrows=false and hideExtraDays=false do not switch month when tapping on greyed out
-            // day from another month that is visible in calendar page. Default = false
-            // disableMonthChange
-            // If firstDay=1 week starts from Monday. Note that dayNames and dayNamesShort should still start from Sunday.
-            firstDay={1}
-            // Hide day names. Default = false
-            // hideDayNames
-            // Show week numbers to the left. Default = false
-            // showWeekNumbers
-            // Handler which gets executed when press arrow icon left. It receive a callback can go back month
-            onPressArrowLeft={substractMonth => substractMonth()}
-            // Handler which gets executed when press arrow icon left. It receive a callback can go next month
-            onPressArrowRight={addMonth => addMonth()}
-          />
+            {selectFromDate === true && (
+              <Calendar
+                // Initially visible month. Default = Date()
+                current={new Date()}
+                // Minimum date that can be selected, dates before minDate will be grayed out. Default = undefined
+                // minDate="2012-05-10"
+                // Maximum date that can be selected, dates after maxDate will be grayed out. Default = undefined
+                // maxDate="2012-05-30"
+                // Handler which gets executed on day press. Default = undefined
+                onDayPress={day => {
+                  this.onDayChange(day, 'fromDate', 'selectFromDate')
+                }}
+                // Handler which gets executed on day long press. Default = undefined
+                onDayLongPress={day => {
+                  console.log('selected day', day)
+                }}
+                // Month format in calendar title. Formatting values: http://arshaw.com/xdate/#Formatting
+                monthFormat="MMM yyyy"
+                // Handler which gets executed when visible month changes in calendar. Default = undefined
+                onMonthChange={month => {
+                  console.log('month changed', month)
+                }}
+                // Hide month navigation arrows. Default = false
+                hideArrows={false}
+                // Replace default arrows with custom ones (direction can be 'left' or 'right')
+                renderArrow={direction => this.onShowArrow(direction)}
+                // Do not show days of other months in month page. Default = false
+                // hideExtraDays
+                // If hideArrows=false and hideExtraDays=false do not switch month when tapping on greyed out
+                // day from another month that is visible in calendar page. Default = false
+                // disableMonthChange
+                // If firstDay=1 week starts from Monday. Note that dayNames and dayNamesShort should still start from Sunday.
+                firstDay={1}
+                // Hide day names. Default = false
+                // hideDayNames
+                // Show week numbers to the left. Default = false
+                // showWeekNumbers
+                // Handler which gets executed when press arrow icon left. It receive a callback can go back month
+                onPressArrowLeft={substractMonth => substractMonth()}
+                // Handler which gets executed when press arrow icon left. It receive a callback can go next month
+                onPressArrowRight={addMonth => addMonth()}
+              />
+            )}
+            {selectToDate === true && (
+              <Calendar
+                // Initially visible month. Default = Date()
+                current={new Date()}
+                // Minimum date that can be selected, dates before minDate will be grayed out. Default = undefined
+                minDate={fromDate}
+                // Maximum date that can be selected, dates after maxDate will be grayed out. Default = undefined
+                // maxDate="2012-05-30"
+                // Handler which gets executed on day press. Default = undefined
+                onDayPress={day => {
+                  this.onDayChange(day, 'toDate', 'selectToDate')
+                }}
+                // Handler which gets executed on day long press. Default = undefined
+                onDayLongPress={day => {
+                  console.log('selected day', day)
+                }}
+                // Month format in calendar title. Formatting values: http://arshaw.com/xdate/#Formatting
+                monthFormat="MMM yyyy"
+                // Handler which gets executed when visible month changes in calendar. Default = undefined
+                onMonthChange={month => {
+                  console.log('month changed', month)
+                }}
+                // Hide month navigation arrows. Default = false
+                hideArrows={false}
+                // Replace default arrows with custom ones (direction can be 'left' or 'right')
+                renderArrow={direction => this.onShowArrow(direction)}
+                // Do not show days of other months in month page. Default = false
+                // hideExtraDays
+                // If hideArrows=false and hideExtraDays=false do not switch month when tapping on greyed out
+                // day from another month that is visible in calendar page. Default = false
+                // disableMonthChange
+                // If firstDay=1 week starts from Monday. Note that dayNames and dayNamesShort should still start from Sunday.
+                firstDay={1}
+                // Hide day names. Default = false
+                // hideDayNames
+                // Show week numbers to the left. Default = false
+                // showWeekNumbers
+                // Handler which gets executed when press arrow icon left. It receive a callback can go back month
+                onPressArrowLeft={substractMonth => substractMonth()}
+                // Handler which gets executed when press arrow icon left. It receive a callback can go next month
+                onPressArrowRight={addMonth => addMonth()}
+              />
+            )}
+          </View>
+        ) : (
+          <View
+            style={{
+              display: 'flex',
+              height: '80%',
+              justifyContent: 'center',
+              alignSelf: 'center',
+            }}>
+            <Text style={{fontSize: 16}}>Please login to see your Booking History.</Text>
+          </View>
         )}
       </View>
     )

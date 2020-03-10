@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
   },
   topContainer: {
     marginHorizontal: 20,
-    marginVertical: 20,
+    marginVertical: 10,
     flexDirection: 'column',
     alignItems: 'center',
   },
@@ -48,7 +48,6 @@ const styles = StyleSheet.create({
   loginBtnText: {
     fontSize: 16,
   },
-  contentContainer: {},
   card: {
     borderWidth: 0,
   },
@@ -64,19 +63,17 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     alignItems: 'center',
     flexDirection: 'column',
-    marginVertical: 10,
   },
   nameStyle: {
     fontSize: 18,
     color: Theme.Colors.primary,
-    marginBottom: 5,
   },
   emailStyle: {
     marginBottom: 5,
   },
   submitProfileBtn: {
-    width: '80%',
-    marginVertical: 10,
+    width: 'auto',
+    marginVertical: 5,
   },
   statusView: {
     marginHorizontal: 20,
@@ -96,6 +93,18 @@ const styles = StyleSheet.create({
   notificationSwitch: {
     marginVertical: 20,
     borderBottomWidth: 0,
+  },
+  // text: {
+  //   marginHorizontal: 20,
+  // },
+  logo: {
+    width: 100,
+    height: 100,
+  },
+  accountNameLabel: {
+    textAlign: 'center', 
+    marginTop: 10, 
+    color: Theme.Colors.primary,
   },
 })
 export default styles

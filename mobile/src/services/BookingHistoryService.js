@@ -74,6 +74,7 @@ class BookingHistoryService extends BaseService {
   }
 
   checkAvailablity = ({chefId, fromTime, toTime, gmtFromTime, gmtToTime}) => {
+    console.log('fromTime', chefId, fromTime, toTime, gmtFromTime, gmtToTime)
     return new Promise((resolve, reject) => {
       try {
         const gqlValue = GQL.query.booking.checkBookingByParamsGQLTAG
@@ -93,7 +94,7 @@ class BookingHistoryService extends BaseService {
             fetchPolicy: 'network-only',
           })
           .then(({data, errors}) => {
-            console.log('checkAvailablity errors', errors)
+            console.log('checkAvailablity errors', errors, data)
             if (errors) {
               reject(errors[0].message)
             } else if (
@@ -114,34 +115,67 @@ class BookingHistoryService extends BaseService {
   }
 
   bookNow = inputData => {
+    console.log('inputData', inputData)
     return new Promise((resolve, reject) => {
       try {
-        const gqlValue = GQL.mutation.booking.createGQLTAG
+        const gqlValue = GQL.mutation.booking.createOrSaveBookingGQLTAG
+
+        console.log('gqlValue', gqlValue)
         const mutation = gql`
           ${gqlValue}
         `
         this.client
           .mutate({
             mutation,
-            variables: inputData,
+            // variables: inputData,
+            variables: {
+              stripeCustomerId: inputData.stripeCustomerId,
+              cardId: inputData.cardId,
+              chefId: inputData.chefId,
+              customerId: inputData.customerId,
+              fromTime: inputData.fromTime,
+              toTime: inputData.toTime,
+              notes: inputData.notes,
+              dishTypeId: inputData.dishTypeId,
+              summary: inputData.summary,
+              allergyTypeIds: inputData.allergyTypeIds,
+              otherAllergyTypes: inputData.otherAllergyTypes,
+              dietaryRestrictionsTypesIds: inputData.dietaryRestrictionsTypesIds,
+              otherDietaryRestrictionsTypes: inputData.otherDietaryRestrictionsTypes,
+              kitchenEquipmentTypeIds: inputData.kitchenEquipmentTypeIds,
+              otherKitchenEquipmentTypes: inputData.otherKitchenEquipmentTypes,
+              storeTypeIds: inputData.storeTypeIds,
+              otherStoreTypes: inputData.otherStoreTypes,
+              noOfGuests: inputData.noOfGuests,
+              complexity: inputData.complexity,
+              additionalServices: inputData.additionalServices,
+              locationAddress: inputData.locationAddress,
+              locationLat: inputData.locationLat,
+              locationLng: inputData.locationLng,
+              addrLine1: inputData.addrLine1,
+              addrLine2: inputData.addrLine2,
+              state: inputData.state,
+              country: inputData.country,
+              city: inputData.city,
+              postalCode: inputData.postalCode,
+              isDraftYn: inputData.isDraftYn,
+              bookingHistId: inputData.bookingHistId,
+            },
           })
-          .then(({data}) => {
-            console.log('debugging data', data)
-            if (
-              data &&
-              data.createBooking &&
-              data.createBooking.data &&
-              data.createBooking.data.chef_booking_hist_id
-            ) {
-              resolve(data.createBooking.data.chef_booking_hist_id)
+          .then(({data, errors}) => {
+            console.log('debugging data', data, errors)
+            if (data && data.createOrSaveBooking && data.createOrSaveBooking) {
+              resolve(data.createOrSaveBooking)
             } else {
               reject(new Error('Booking failed'))
             }
           })
           .catch(e => {
+            console.log('err', e)
             reject(e)
           })
       } catch (e) {
+        console.log('e', e.message)
         reject(e)
       }
     })
@@ -260,6 +294,39 @@ class BookingHistoryService extends BaseService {
               chefBookingChefRejectOrCancelReason: items.bookingChefRejectOrCancelReason,
               chefBookingCustomerRejectOrCancelReason: items.bookingCustomerRejectOrCancelReason,
             },
+          })
+          .then(({data, errors}) => {
+            console.log('booking history status', data, errors)
+            if (errors) {
+              reject(errors[0].message)
+            } else if (data && data.updateChefBookingHistoryByChefBookingHistId) {
+              this.emit(BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_STATUS_UPDATED, {})
+              resolve(data)
+            }
+          })
+          .catch(error => {
+            console.log('error', error)
+            reject(error)
+          })
+      } catch (err) {
+        console.log('err', err)
+        reject(err)
+      }
+    })
+  }
+
+  updateAcceptBooking = items => {
+    console.log('updateAcceptBooking', items)
+    return new Promise((resolve, reject) => {
+      try {
+        const gqlValue = GQL.mutation.booking.acceptBookingGQLTAG
+        const mutation = gql`
+          ${gqlValue}
+        `
+        this.client
+          .mutate({
+            mutation,
+            variables: items,
           })
           .then(({data, errors}) => {
             console.log('booking history status', data, errors)

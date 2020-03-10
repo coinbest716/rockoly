@@ -26,13 +26,26 @@ import {
   ConversationList,
   ChatDetail,
   PreRegister,
-  CustomerRegPorofile,
+  CustomerRegProfile,
   Dietary,
   FavouriteCuisine,
   DisplayPicture,
   KitchenEquipment,
+  PricingModal,
   Allergies,
   Address,
+  CustomerEditProfile,
+  ChefRegProfile,
+  BookPrice,
+  BookDietary,
+  BookKitchenEquipment,
+  BookAllergy,
+  ExtraPayment,
+  EmailVerification,
+  RegEmailVerification,
+  RegMobileVerification,
+  ChangeBookLocation,
+  AboutUs,
 } from '@containers'
 import RouteNames from '../config/RouteNames'
 import {StackNavConfig} from '../helpers/NavHelper'
@@ -48,7 +61,19 @@ const CustomerStack = createStackNavigator(
       screen: Login,
     },
     [RouteNames.COUSTUMER_REG_PROFILE]: {
-      screen: CustomerRegPorofile,
+      screen: CustomerRegProfile,
+    },
+    [RouteNames.CHEF_REG_PROFILE]: {
+      screen: ChefRegProfile,
+    },
+    [RouteNames.EMAIL_VERIFICATION]: {
+      screen: EmailVerification,
+    },
+    [RouteNames.REG_EMAIL_VERIFICATION]: {
+      screen: RegEmailVerification,
+    },
+    [RouteNames.PRICING_MODAL]: {
+      screen: PricingModal,
     },
     [RouteNames.ALLERGIES]: {
       screen: Allergies,
@@ -82,6 +107,9 @@ const CustomerStack = createStackNavigator(
     },
     [RouteNames.OTP_VERIFICATION_SCREEN]: {
       screen: OTPVerification,
+    },
+    [RouteNames.REG_MOBILE_VERIFICATION]: {
+      screen: RegMobileVerification,
     },
     [RouteNames.CARD_MANAGEMENT]: CardManagement,
     [RouteNames.BOOKING_DETAIL_SCREEN]: {
@@ -123,10 +151,34 @@ const CustomerStack = createStackNavigator(
     [RouteNames.CHAT_DETAIL]: {
       screen: ChatDetail,
     },
+    [RouteNames.CUSTOMER_EDIT_PROFILE]: {
+      screen: CustomerEditProfile,
+    },
+    [RouteNames.BOOK_PRICE]: {
+      screen: BookPrice,
+    },
+    [RouteNames.BOOK_DIETARY]: {
+      screen: BookDietary,
+    },
+    [RouteNames.BOOK_KITCHEN_EQUIPMENT]: {
+      screen: BookKitchenEquipment,
+    },
+    [RouteNames.BOOK_ALLERGY]: {
+      screen: BookAllergy,
+    },
+    [RouteNames.EXTRA_PAYMENT]: {
+      screen: ExtraPayment,
+    },
+    [RouteNames.CHANGE_BOOK_LOCATION]: {
+      screen: ChangeBookLocation,
+    },
+    [RouteNames.ABOUT_US]: {
+      screen: AboutUs,
+    },
   },
   {
     ...StackNavConfig,
-    // initialRouteName: RouteNames.COUSTUMER_REG_PROFILE,
+    // initialRouteName: RouteNames.BOOK_PRICE,
   }
 )
 

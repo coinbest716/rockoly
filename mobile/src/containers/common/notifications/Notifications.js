@@ -34,25 +34,31 @@ class Notifications extends PureComponent {
   }
 
   async componentDidMount() {
+    const {userRole, currentUser} = this.context
     // NotificationListService.on(NOTIFICATION_LIST_EVENT.UPDATING_NOTIFICATION_LIST, this.reload)
     NotificationListService.on(NOTIFICATION_LIST_EVENT.NOTIFICATION_LIST, this.setList)
+    NotificationListService.on(NOTIFICATION_LIST_EVENT.NOTIFICATION_LIST_SUBS, this.getTotalCount)
+    if (userRole === 'CUSTOMER') {
+      NotificationListService.notificationSubsForCustomer(currentUser.customerId)
+    } else if (userRole === 'CHEF') {
+      NotificationListService.notificationSubsForChef(currentUser.chefId)
+    }
     this.getTotalCount()
   }
 
   componentWillUnmount = () => {
     // NotificationListService.off(NOTIFICATION_LIST_EVENT.UPDATING_NOTIFICATION_LIST, this.reload)
     NotificationListService.off(NOTIFICATION_LIST_EVENT.NOTIFICATION_LIST, this.setList)
+    NotificationListService.off(NOTIFICATION_LIST_EVENT.NOTIFICATION_LIST_SUBS, this.getTotalCount)
   }
 
   getTotalCount = () => {
     const {userRole, currentUser} = this.context
     if (userRole === 'CUSTOMER') {
-      NotificationListService.notificationSubsForCustomer(currentUser.customerId)
       this.onLoadTotalCount(COMMON_LIST_NAME.CUSTOMER_NOTIFICATION, {
         customerId: currentUser.customerId,
       })
     } else if (userRole === 'CHEF') {
-      NotificationListService.notificationSubsForChef(currentUser.chefId)
       this.onLoadTotalCount(COMMON_LIST_NAME.CHEF_NOTIFICATION, {chefId: currentUser.chefId})
     }
   }
@@ -275,7 +281,8 @@ class Notifications extends PureComponent {
       details.notificationAreaType === 'CUSTOMER_REFUND_AMOUNT_SUCCESS' ||
       details.notificationAreaType === 'CUSTOMER_REFUND_AMOUNT_FAILED' ||
       details.notificationAreaType === 'CHEF_AMOUNT_TRANSFER_SUCCESS' ||
-      details.notificationAreaType === 'CHEF_AMOUNT_TRANSFER_FAILED'
+      details.notificationAreaType === 'CHEF_AMOUNT_TRANSFER_FAILED' ||
+      details.notificationAreaType === 'CHEF_REQUESTED_BOOKING_AMOUNT'
     ) {
       // Service call
       NotificationListService.navigateAndMarkBookingNotification(
@@ -293,7 +300,10 @@ class Notifications extends PureComponent {
         markData,
         notificationData.details.name,
         notificationData.details.pic,
-        notificationData.booking.chef_booking_status_id
+        notificationData.booking.chef_booking_status_id,
+        bookingId,
+        notificationData.booking.chef_booking_from_time,
+        notificationData.booking.chef_booking_to_time
       )
     }
   }
@@ -371,6 +381,8 @@ class Notifications extends PureComponent {
           message = `${notificationDetails.chef.name} has refunded amount successfully`
         } else if (status === 'CUSTOMER_REFUND_AMOUNT_FAILED') {
           message = `${notificationDetails.chef.name} has refunded amount failed`
+        } else if (status === 'CHEF_REQUESTED_BOOKING_AMOUNT') {
+          message = `${notificationDetails.chef.name} has requested booking amount`
         }
       }
     } else if (notificationDetails && notificationDetails.message && notificationDetails.role) {
@@ -468,7 +480,7 @@ class Notifications extends PureComponent {
         <Header showBack showTitle title="Notifications" />
         {isLoggedIn === false ? (
           <View style={styles.alignScreenCenter}>
-            <Text style={styles.destext}>{Languages.notifications.labels.notification_empty}</Text>
+            <Text style={styles.destext}>{Languages.notifications.alert.login_alert}</Text>
           </View>
         ) : (
           <CommonList

@@ -52,6 +52,7 @@ export default StyleSheet.create({
     textAlign: 'center',
     alignSelf: 'center',
     borderRadius: 30,
+    marginVertical: 10,
   },
   arrowRight: {
     color: Theme.Colors.primary,
@@ -143,8 +144,37 @@ export default StyleSheet.create({
   },
   infoText: {
     alignSelf: 'center',
-    marginTop: 5,
-    marginHorizontal: 20,
+    marginTop: 10,
+    marginHorizontal: 10,
     fontSize: 16,
+  },
+  labelText: {
+    marginTop: 10,
+    marginHorizontal: 10,
+    fontSize: 16,
+    textAlign: 'center',
+    textDecorationLine: 'underline',
+  },
+  itemView: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    // borderBottomColor: 'grey',
+    // borderBottomWidth: 0.5,
+    marginHorizontal: 20,
+    marginVertical: 10,
+    // paddingVertical: 10,
+  },
+  deleteIcon: {
+    fontSize: 20,
+    color: Theme.Colors.error,
+  },
+  dateText: {
+    fontSize: 16,
+  },
+  cardStyle: {
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    marginTop: 10,
+    borderRadius: 10,
   },
 })

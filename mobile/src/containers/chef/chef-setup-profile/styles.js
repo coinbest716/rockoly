@@ -36,6 +36,11 @@ const styles = StyleSheet.create({
     marginTop: 30,
     width: SCREEN_WIDTH,
   },
+  checkAvailablity: {
+    backgroundColor: Theme.Colors.primary,
+    justifyContent: 'flex-start',
+    marginVertical: 20,
+  },
   dateSelection: {
     height: 50,
     display: 'flex',

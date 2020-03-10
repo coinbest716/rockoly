@@ -90,8 +90,21 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     textDecorationLine: 'underline',
   },
+  noteText: {
+    marginTop: 10,
+    marginHorizontal: 20,
+    textAlign: 'center',
+    color: 'gray',
+  },
   bookNowView: {
     marginVertical: 20,
+  },
+  textAreaStyle: {
+    borderRadius: 15,
+  },
+  textAreaContent: {
+    marginHorizontal: 10,
+    marginVertical: 10,
   },
 })
 
