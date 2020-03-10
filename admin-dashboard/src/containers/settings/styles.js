@@ -6,8 +6,23 @@ export default {
     justifyContent: 'center',
     padding: 10,
   },
+  stipeView: {
+    display: 'flex',
+    justifyContent: 'center',
+    padding: 10,
+  },
   innerCardWidth: {
     width: '95%',
+  },
+  stripeCardWidth: {
+    width: '45%',
+    marginLeft: '1%',
+    // marginRight: '8%'
+  },
+  stripeCardWidth1: {
+    width: '45%',
+    marginLeft: '3%',
+    marginRight: '1%',
   },
   fieldView: {
     display: 'flex',

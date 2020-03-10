@@ -8,6 +8,10 @@ export const FORGOT_PASSWORD = 'forgot_password_fail'
 export const FORGOT_PASSWORD_SUCCESS = 'forgot_password_success'
 export const FORGOT_PASSWORD_FAIL = 'forgot_password_fail'
 
+export const RESET_PASSWORD = 'reset_password_fail'
+export const RESET_PASSWORD_SUCCESS = 'reset_password_success'
+export const RESET_PASSWORD_FAIL = 'reset_password_fail'
+
 export const GET_CHEF = 'get_chef'
 export const GET_CHEF_SUCCESS = 'get_chef_success'
 export const GET_CHEF_FAIL = 'get_chef_fail'
@@ -39,6 +43,10 @@ export const GET_CHEF_FAIL_DETAILS = 'get_chef_fail_details'
 export const GET_BOOKING_DETAILS = 'get_booking_details'
 export const GET_BOOKING_SUCCESS_DETAILS = 'get_booking_success_details'
 export const GET_BOOKING_FAIL_DETAILS = 'get_booking_fail_details'
+
+export const GET_BOOKING_REQUESTED_DETAILS = 'get_booking_requested_details'
+export const GET_BOOKING_REQUESTED_SUCCESS_DETAILS = 'get_booking_requested_success_details'
+export const GET_BOOKING_REQUESTED_FAIL_DETAILS = 'get_booking_requested_fail_details'
 
 export const GET_CUSTOMER_DETAILS = 'get_customer_details'
 export const GET_CUSTOMER_SUCCESS_DETAILS = 'get_customer_success_details'
@@ -108,6 +116,10 @@ export const GET_CUISINES = 'get_cuisine'
 export const GET_CUISINES_SUCCESS = 'get_cuisine_success'
 export const GET_CUISINES_FAIL = 'get_cuisine_fail'
 
+export const GET_ADDITIONAL_SERVICE = 'get_additional_service'
+export const GET_ADDITIONAL_SERVICE_SUCCESS = 'get_additional_service_success'
+export const GET_ADDITIONAL_SERVICE_FAIL = 'get_additional_service_fail'
+
 export const GET_DISHES = 'get_dishes'
 export const GET_DISHES_SUCCESS = 'get_dishes_success'
 export const GET_DISHES_FAIL = 'get_dishes_fail'
@@ -116,6 +128,30 @@ export const GET_CANCELLATION_TIME = 'get_cancellation_time'
 export const GET_CANCELLATION_TIME_SUCCESS = 'get_cancellation_time_success'
 export const GET_CANCELLATION_TIME_FAIL = 'get_cancellation_time_fail'
 
+export const GET_STRIPE_CENTS = 'get_stripe_cents'
+export const GET_STRIPE_CENTS_SUCCESS = 'get_stripe_cents_success'
+export const GET_STRIPE_CENTS_FAIL = 'get_stripe_cents_fail'
+
+export const GET_STRIPE_PERCENTAGE = 'get_stripe_percentage'
+export const GET_STRIPE_PERCENTAGE_SUCCESS = 'get_stripe_percentage_success'
+export const GET_STRIPE_PERCENTAGE_FAIL = 'get_stripe_percentage_fail'
+
 export const UPDATE_CANCELLATION_TIME = 'update_cancellation_time'
 export const UPDATE_CANCELLATION_TIME_SUCCESS = 'update_cancellation_time_success'
 export const UPDATE_CANCELLATION_TIME_FAIL = 'update_cancellation_time_fail'
+
+export const UPDATE_STRIPE_CENTS = 'update_stripe_cents'
+export const UPDATE_STRIPE_CENTS_SUCCESS = 'update_stripe_cents_success'
+export const UPDATE_STRIPE_CENTS_FAIL = 'update_stripe_cents_fail'
+
+export const CREATE_ADDITIONAL_SERVICE = 'create_additional_service'
+export const CREATE_ADDITIONAL_SERVICE_SUCCESS = 'create_additional_service_success'
+export const CREATE_ADDITIONAL_SERVICE_FAIL = 'create_additional_service_fail'
+
+export const DELETE_ADDITIONAL_SERVICE = 'delete_additional_service'
+export const DELETE_ADDITIONAL_SERVICE_SUCCESS = 'delete_additional_service_success'
+export const DELETE_ADDITIONAL_SERVICE_FAIL = 'delete_additional_service_fail'
+
+export const UPDATE_ADDITIONAL_SERVICE = 'update_additional_service'
+export const UPDATE_ADDITIONAL_SERVICE_SUCCESS = 'update_additional_service_success'
+export const UPDATE_ADDITIONAL_SERVICE_FAIL = 'update_additional_service_fail'

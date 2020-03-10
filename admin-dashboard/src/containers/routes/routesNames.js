@@ -18,5 +18,6 @@ export default {
   BOOKINGDETAILS: '/bookingDetails',
   TESTSAMPLE: '/testSample',
   CUISINES_DISHES: '/cuisinesAndDishes',
+  EXTRA_SERVICE: '/extraService',
   SETTINGS: '/settings',
 }

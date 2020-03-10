@@ -92,6 +92,16 @@ export function listWithFiltersGQLTAG(params) {
             chefBookingTotalPriceUnit
             chefBookingCompletedByChefYn
             chefBookingCompletedByCustomerYn
+            chefBookingLocationAddress
+            chefBookingLocationLat
+            chefBookingLocationLng
+            chefBookingAddrLine1
+            chefBookingAddrLine2
+            chefBookingState
+            chefBookingCountry
+            chefBookingCity
+            chefBookingPostalCode
+            chefBookingSummary
             dishTypeDesc
             bookingNotes{
               totalCount
@@ -115,6 +125,7 @@ export function listWithFiltersGQLTAG(params) {
                 totalCount
                 nodes{
                   chefLocationAddress
+                  chefCity
                 }
               }
             }
@@ -131,6 +142,27 @@ export function listWithFiltersGQLTAG(params) {
             }
             statusTypeMasterByChefBookingStatusId {
               statusTypeName
+            }
+            paymentHistoriesByBookingHistId {
+              nodes {
+                paymentHistId
+                bookingHistId
+                paymentId
+                paymentStripeCustomerId
+                paymentCardId
+                paymentOrderId
+                paymentType
+                bookingHistId
+                paymentTransactionId
+                paymentStatusId
+                paymentMethod
+                paymentActualAmount
+                paymentTotalAmountUnit
+                paymentReceiptUrl
+                paymentDoneByCustomerId
+                paymentDoneForChefId
+                paymentDoneForType
+              }
             }
           }
         }

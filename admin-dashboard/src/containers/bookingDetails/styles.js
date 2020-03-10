@@ -4,18 +4,28 @@ export default {
   cardView: {
     display: 'flex',
     justifyContent: 'center',
+    fexDirection: 'row',
+    marginTop: 20,
+  },
+  tripleView: {
+    display: 'flex',
+    fexDirection: 'row',
     marginTop: 20,
   },
   userCardStyle: {
-    width: '33%',
-  },
-  userCardView: {
-    display: 'flex',
-    fexDirection: 'row',
+    width: '29.5%',
     marginLeft: 20,
-    marginTop: 20,
   },
 
+  innerCardView: {
+    display: 'flex',
+    // justifyContent: 'center',
+    marginTop: 20,
+    marginLeft: 20,
+  },
+  innerCardWidth: {
+    width: '95%',
+  },
   titleStyle: {
     color: 'black',
     fontWeight: '600',
@@ -29,8 +39,26 @@ export default {
     display: 'flex',
     flexDirection: 'row',
   },
+  summaryFieldView: {
+    display: 'flex',
+    flexDirection: 'Column',
+    marginBottom: '2%',
+    flex: 'flex-warp',
+  },
   valueStyle: {
     marginLeft: 20,
+    display: 'flex',
+    flex: 'flex-warp',
+  },
+  totalStyle: {
+    marginLeft: 20,
+    display: 'flex',
+    flex: 'flex-warp',
+  },
+  spetializationValueStyle: {
+    fontSize: 18,
+    marginLeft: 20,
+    width: 150,
   },
   backButtonStyle: {
     backgroundColor: '#515151',
@@ -75,9 +103,7 @@ export default {
     display: 'flex',
     justifyContent: 'flex-end',
   },
-  notesStyles: {
-    // width: '50%',
-  },
+
   trackActionView: {
     display: 'flex',
     fexDirection: 'row',

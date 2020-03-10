@@ -63,6 +63,10 @@ export default {
     marginLeft: 20,
     width: 150,
   },
+  additionalServiceValueStyle: {
+    fontSize: 18,
+    marginLeft: 20,
+  },
   arrValue: {
     fontSize: 18,
     marginLeft: 5,

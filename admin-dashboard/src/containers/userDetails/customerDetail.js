@@ -10,7 +10,7 @@ import CommonLabels from '../common/commonLabel'
 import {createdDate} from '../../utils/dateFormat'
 import {CONFIG} from '../../config/config'
 import {getENVConfig} from '../../utils/common'
-import {getCustomerDetails, adminForgotPassword} from '../../actions/index'
+import {getCustomerDetails, resetPassword} from '../../actions/index'
 import Loader from '../../components/loader/loader'
 import CommonStyles from '../common/commonStyles'
 import SendMail from '../../components/sendMail/sendMail'
@@ -23,6 +23,7 @@ export class CustomerDetail extends Component {
       uid: '',
       screen: '',
       extendedProfile: {},
+      customerPreference: {},
     }
   }
 
@@ -55,6 +56,16 @@ export class CustomerDetail extends Component {
             extendedProfile: this.state.userData.customerProfileExtendedsByCustomerId.nodes[0],
           })
         }
+        if (
+          this.state.userData &&
+          this.state.userData.customerPreferenceProfilesByCustomerId &&
+          this.state.userData.customerPreferenceProfilesByCustomerId.nodes &&
+          this.state.userData.customerPreferenceProfilesByCustomerId.nodes[0]
+        ) {
+          this.setState({
+            customerPreference: this.state.userData.customerPreferenceProfilesByCustomerId.nodes[0],
+          })
+        }
       })
     }
   }
@@ -72,7 +83,7 @@ export class CustomerDetail extends Component {
 
   onClickUpdate = email => {
     if (email) {
-      this.props.adminForgotPassword(email, CommonLabels.USER)
+      this.props.resetPassword(email, CommonLabels.USER)
     } else {
       message.error(CommonLabels.NO_MAIL)
     }
@@ -87,7 +98,33 @@ export class CustomerDetail extends Component {
   }
 
   render() {
-    const {userData, extendedProfile} = this.state
+    const {userData, extendedProfile, customerPreference} = this.state
+    let allergyTypes = []
+    let dietaryType = []
+    let kitchenEquipment = []
+
+    console.log('customerPreference', customerPreference)
+    if (
+      customerPreference &&
+      customerPreference.allergyTypes &&
+      customerPreference.allergyTypes.nodes
+    ) {
+      allergyTypes = customerPreference.allergyTypes.nodes
+    }
+    if (
+      customerPreference &&
+      customerPreference.dietaryRestrictionsTypes &&
+      customerPreference.dietaryRestrictionsTypes.nodes
+    ) {
+      dietaryType = customerPreference.dietaryRestrictionsTypes.nodes
+    }
+    if (
+      customerPreference &&
+      customerPreference.kitchenEquipmentTypes &&
+      customerPreference.kitchenEquipmentTypes.nodes
+    ) {
+      kitchenEquipment = customerPreference.kitchenEquipmentTypes.nodes
+    }
     return (
       <div style={Styles.cardView}>
         <div className="userDetailCard">
@@ -192,6 +229,85 @@ export class CustomerDetail extends Component {
               </div>
             </Card>
           </div>
+
+          {/* Allergy Types */}
+          <div style={Styles.innerCardView}>
+            <Card title={CommonLabels.ALLERGY_TYPE} style={Styles.innerCardWidth}>
+              <div
+                style={
+                  allergyTypes && allergyTypes.length > 0
+                    ? Styles.spetializationFieldView
+                    : Styles.fieldView
+                }>
+                <p style={Styles.titleStyle}>{CommonLabels.ALLERGY_LIST}</p>
+                {allergyTypes && allergyTypes.length > 0 ? (
+                  allergyTypes.map((val, index) => (
+                    <div style={Styles.dishView}>
+                      <p style={Styles.additionalServiceValueStyle}>
+                        {index + 1}
+                        {'.'}
+                        {val.allergyTypeName}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <p style={Styles.valueStyle}>{'-'}</p>
+                )}
+              </div>
+            </Card>
+          </div>
+          {/* Dietary Types */}
+          <div style={Styles.innerCardView}>
+            <Card title={CommonLabels.DIETARY_TYPE} style={Styles.innerCardWidth}>
+              <div
+                style={
+                  dietaryType && dietaryType.length > 0
+                    ? Styles.spetializationFieldView
+                    : Styles.fieldView
+                }>
+                <p style={Styles.titleStyle}>{CommonLabels.DIETARY_LIST}</p>
+                {dietaryType && dietaryType.length > 0 ? (
+                  dietaryType.map((val, index) => (
+                    <div style={Styles.dishView}>
+                      <p style={Styles.additionalServiceValueStyle}>
+                        {index + 1}
+                        {'.'}
+                        {val.dietaryRestrictionsTypeName}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <p style={Styles.valueStyle}>{'-'}</p>
+                )}
+              </div>
+            </Card>
+          </div>
+          {/* Kitchen Types */}
+          <div style={Styles.innerCardView}>
+            <Card title={CommonLabels.KITCHEN_TYPE} style={Styles.innerCardWidth}>
+              <div
+                style={
+                  kitchenEquipment && kitchenEquipment.length > 0
+                    ? Styles.spetializationFieldView
+                    : Styles.fieldView
+                }>
+                <p style={Styles.titleStyle}>{CommonLabels.KITCHEN_EQUIPMENT}</p>
+                {kitchenEquipment && kitchenEquipment.length > 0 ? (
+                  kitchenEquipment.map((val, index) => (
+                    <div style={Styles.dishView}>
+                      <p style={Styles.additionalServiceValueStyle}>
+                        {index + 1}
+                        {'.'}
+                        {val.kitchenEquipmentTypeName}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <p style={Styles.valueStyle}>{'-'}</p>
+                )}
+              </div>
+            </Card>
+          </div>
         </div>
       </div>
     )
@@ -200,19 +316,19 @@ export class CustomerDetail extends Component {
 
 const mapStateToProps = state => {
   const {customerDetails, customerDetailsLoading} = state.customerDetail
-  const {forgotpassword, forgotpasswordLoading, forgotpasswordError} = state.forgotPassWord
+  const {resetpassword, resetpasswordLoading, resetpasswordError} = state.resetPassword
   return {
     customerDetails,
     customerDetailsLoading,
-    forgotpassword,
-    forgotpasswordLoading,
-    forgotpasswordError,
+    resetpassword,
+    resetpasswordLoading,
+    resetpasswordError,
   }
 }
 
 const mapDispatchToProps = {
   getCustomerDetails,
-  adminForgotPassword,
+  resetPassword,
 }
 
 export default withApollo(

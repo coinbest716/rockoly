@@ -42,7 +42,7 @@ export class Customer extends Component {
   componentDidMount() {
     let val = fetchOffset
     const {client} = this.props
-    this.props.getCustomerList(client, val, this.state.startTime, this.state.endTime)
+    this.props.getCustomerList(client, val, null, null)
   }
 
   componentWillReceiveProps(nxtprops) {
@@ -146,24 +146,26 @@ export class Customer extends Component {
             </Popconfirm>
           </div>
         </Modal>
-        {customers.map(val => (
-          <div style={Styles.cardAlignment}>
-            <div style={Styles.cardView}>
-              <div style={Styles.nameImageView}>
-                <img
-                  style={CommonStyles.imageStyle}
-                  alt={CommonLables.ALTERNATE_PIC}
-                  src={val.customerPicId ? val.customerPicId : themes.default_user}
-                />
-                <p style={Styles.nameStyle}>{val.fullName ? val.fullName : '-'}</p>
-              </div>
-              <div style={Styles.dateButtonsView}>
-                <div style={Styles.dateView}>
-                  <p style={Styles.registerDateStyle}>{CommonLables.REGISTER_DATE}</p>
-                  <p style={Styles.nameStyle}>{createdDate(val.createdAt)}</p>
-                </div>
-                <div style={Styles.buttonsView}>
-                  {/* <Popconfirm
+        {customers ? (
+          <div>
+            {customers.map(val => (
+              <div style={Styles.cardAlignment}>
+                <div style={Styles.cardView}>
+                  <div style={Styles.nameImageView}>
+                    <img
+                      style={CommonStyles.imageStyle}
+                      alt={CommonLables.ALTERNATE_PIC}
+                      src={val.customerPicId ? val.customerPicId : themes.default_user}
+                    />
+                    <p style={Styles.nameStyle}>{val.fullName ? val.fullName : '-'}</p>
+                  </div>
+                  <div style={Styles.dateButtonsView}>
+                    <div style={Styles.dateView}>
+                      <p style={Styles.registerDateStyle}>{CommonLables.REGISTER_DATE}</p>
+                      <p style={Styles.nameStyle}>{createdDate(val.createdAt)}</p>
+                    </div>
+                    <div style={Styles.buttonsView}>
+                      {/* <Popconfirm
                     title={CommonLables.CUSTOMER_EDIT_ALERT}
                     onConfirm={() => this.editOnCick()}
                     okText={CommonLables.OKTEXT}
@@ -187,27 +189,36 @@ export class Customer extends Component {
                       style={CommonStyles.deleteIconStyle}
                     />
                   </Popconfirm> */}
-                  {val.customerStatusId.trim() === gqlStatus.BLOCKED ? (
-                    <Button
-                      style={CommonStyles.approveBotton}
-                      onClick={() => this.updateStatus(gqlStatus.UNBLOCKED, val.customerId, null)}>
-                      {CommonLabels.UNBLOCK}
-                    </Button>
-                  ) : (
-                    <Button
-                      style={CommonStyles.rejectBotton}
-                      onClick={() => this.openModal(CommonLabels.SINGLE_ACTION, val.customerId)}>
-                      {CommonLabels.BLOCK}
-                    </Button>
-                  )}
+                      {val.customerStatusId.trim() === gqlStatus.BLOCKED ? (
+                        <Button
+                          style={CommonStyles.approveBotton}
+                          onClick={() =>
+                            this.updateStatus(gqlStatus.UNBLOCKED, val.customerId, null)
+                          }>
+                          {CommonLabels.UNBLOCK}
+                        </Button>
+                      ) : (
+                        <Button
+                          style={CommonStyles.rejectBotton}
+                          onClick={() =>
+                            this.openModal(CommonLabels.SINGLE_ACTION, val.customerId)
+                          }>
+                          {CommonLabels.BLOCK}
+                        </Button>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
+            ))}
+            <p style={Styles.showMoreStyle} onClick={() => this.onClickShowMore()}>
+              {CommonLables.SHOW_MORE}
+            </p>
           </div>
-        ))}
-        <p style={Styles.showMoreStyle} onClick={() => this.onClickShowMore()}>
-          {CommonLables.SHOW_MORE}
-        </p>
+        ) : (
+          <p style={CommonStyles.emptyText}>{CommonLables.NO_NEW_CUSTOMER}</p>
+        )}
+
         <div style={CommonStyles.loaderStyle}>
           <Loader loader={this.props.customerListLoading} />
         </div>

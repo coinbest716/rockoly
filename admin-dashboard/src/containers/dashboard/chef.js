@@ -43,15 +43,10 @@ export class Chef extends Component {
   }
 
   componentDidMount() {
+    console.log('dashboard')
     let val = fetchOffset
     const {client} = this.props
-    this.props.getChefList(
-      client,
-      val,
-      this.state.startTime,
-      this.state.endTime,
-      this.state.statusFilter
-    )
+    this.props.getChefList(client, val, null, null, this.state.statusFilter)
   }
 
   componentWillReceiveProps(nxtprops) {
@@ -139,83 +134,95 @@ export class Chef extends Component {
   renderList() {
     const val = this.state.chefList
     const customers = val.slice(0, 3)
+
     return (
       <div>
-        {customers.map(val => (
-          <div style={Styles.cardAlignment}>
-            <div style={Styles.cardView}>
-              <div style={Styles.chefNameApproveBottonView}>
-                <div style={Styles.profileView}>
-                  <img
-                    style={CommonStyles.imageStyle}
-                    alt={CommonLables.ALTERNATE_PIC}
-                    src={val.chefPicId ? val.chefPicId : themes.default_user}
-                  />
-                  <p style={Styles.nameStyle}>{val.fullName ? val.fullName : '-'}</p>
-                </div>
-              </div>
-              <div style={Styles.dateButtonsView}>
-                <div style={Styles.dateView}>
-                  <p style={Styles.registerDateStyle}>{CommonLables.REGISTER_DATE}</p>
-                  <p style={Styles.nameStyle}>{createdDate(val.createdAt)}</p>
-                </div>
-                <div style={Styles.buttonsView}>
-                  <div style={CommonStyles.actionButtonView}>
-                    <div style={CommonStyles.alignActionButtons}>
-                      {(val.chefStatusId.trim() === gqlStatus.PENDING ||
-                        val.chefStatusId.trim() === gqlStatus.REJECTED ||
-                        val.chefStatusId.trim() === gqlStatus.UNBLOCKED) && (
-                        <Button
-                          style={CommonStyles.approveBotton}
-                          onClick={() => this.updateStatus(gqlStatus.APPROVED, val.chefId, null)}>
-                          {CommonLabels.APPROVE}
-                        </Button>
-                      )}
-                      {(val.chefStatusId.trim() === gqlStatus.PENDING ||
-                        val.chefStatusId.trim() === gqlStatus.APPROVED ||
-                        val.chefStatusId.trim() === gqlStatus.UNBLOCKED) && (
-                        <Button
-                          style={CommonStyles.rejectBotton}
-                          onClick={() =>
-                            this.openModal(
-                              CommonLabels.SINGLE_ACTION,
-                              val.chefId,
-                              gqlStatus.REJECTED
-                            )
-                          }>
-                          {CommonLabels.REJECT}
-                        </Button>
-                      )}
-                      {val.chefStatusId.trim() === gqlStatus.BLOCKED && (
-                        <Button
-                          style={CommonStyles.approveBotton}
-                          onClick={() => this.updateStatus(gqlStatus.UNBLOCKED, val.chefId, null)}>
-                          {CommonLabels.UNBLOCK}
-                        </Button>
-                      )}
-                      {val.chefStatusId.trim() === gqlStatus.APPROVED && (
-                        <Button
-                          style={CommonStyles.rejectBotton}
-                          onClick={() =>
-                            this.openModal(
-                              CommonLabels.SINGLE_ACTION,
-                              val.chefId,
-                              gqlStatus.BLOCKED
-                            )
-                          }>
-                          {CommonLabels.BLOCK}
-                        </Button>
-                      )}
+        {customers ? (
+          <div>
+            {customers.map(val => (
+              <div style={Styles.cardAlignment}>
+                <div style={Styles.cardView}>
+                  <div style={Styles.chefNameApproveBottonView}>
+                    <div style={Styles.profileView}>
+                      <img
+                        style={CommonStyles.imageStyle}
+                        alt={CommonLables.ALTERNATE_PIC}
+                        src={val.chefPicId ? val.chefPicId : themes.default_user}
+                      />
+                      <p style={Styles.nameStyle}>{val.fullName ? val.fullName : '-'}</p>
+                    </div>
+                  </div>
+                  <div style={Styles.dateButtonsView}>
+                    <div style={Styles.dateView}>
+                      <p style={Styles.registerDateStyle}>{CommonLables.REGISTER_DATE}</p>
+                      <p style={Styles.nameStyle}>{createdDate(val.createdAt)}</p>
+                    </div>
+                    <div style={Styles.buttonsView}>
+                      <div style={CommonStyles.actionButtonView}>
+                        <div style={CommonStyles.alignActionButtons}>
+                          {(val.chefStatusId.trim() === gqlStatus.PENDING ||
+                            val.chefStatusId.trim() === gqlStatus.REJECTED ||
+                            val.chefStatusId.trim() === gqlStatus.UNBLOCKED) && (
+                            <Button
+                              style={CommonStyles.approveBotton}
+                              onClick={() =>
+                                this.updateStatus(gqlStatus.APPROVED, val.chefId, null)
+                              }>
+                              {CommonLabels.APPROVE}
+                            </Button>
+                          )}
+                          {(val.chefStatusId.trim() === gqlStatus.PENDING ||
+                            val.chefStatusId.trim() === gqlStatus.APPROVED ||
+                            val.chefStatusId.trim() === gqlStatus.UNBLOCKED) && (
+                            <Button
+                              style={CommonStyles.rejectBotton}
+                              onClick={() =>
+                                this.openModal(
+                                  CommonLabels.SINGLE_ACTION,
+                                  val.chefId,
+                                  gqlStatus.REJECTED
+                                )
+                              }>
+                              {CommonLabels.REJECT}
+                            </Button>
+                          )}
+                          {val.chefStatusId.trim() === gqlStatus.BLOCKED && (
+                            <Button
+                              style={CommonStyles.approveBotton}
+                              onClick={() =>
+                                this.updateStatus(gqlStatus.UNBLOCKED, val.chefId, null)
+                              }>
+                              {CommonLabels.UNBLOCK}
+                            </Button>
+                          )}
+                          {val.chefStatusId.trim() === gqlStatus.APPROVED && (
+                            <Button
+                              style={CommonStyles.rejectBotton}
+                              onClick={() =>
+                                this.openModal(
+                                  CommonLabels.SINGLE_ACTION,
+                                  val.chefId,
+                                  gqlStatus.BLOCKED
+                                )
+                              }>
+                              {CommonLabels.BLOCK}
+                            </Button>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
+            ))}
+            <p style={Styles.showMoreStyle} onClick={() => this.onClickShowMore()}>
+              {CommonLables.SHOW_MORE}
+            </p>
           </div>
-        ))}
-        <p style={Styles.showMoreStyle} onClick={() => this.onClickShowMore()}>
-          {CommonLables.SHOW_MORE}
-        </p>
+        ) : (
+          <p style={CommonStyles.emptyText}>{CommonLables.NO_NEW_CHEF}</p>
+        )}
+
         <div style={CommonStyles.loaderStyle}>
           <Loader loader={this.props.chefListLoading} />
         </div>

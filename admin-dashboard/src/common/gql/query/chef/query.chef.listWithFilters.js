@@ -80,6 +80,7 @@ export function listWithFiltersGQLTAG(params){
         fullName
         averageRating
         totalReviewCount
+        chefUpdatedScreens
         isDetailsFilledYn
         chefGender
         chefPicId
@@ -137,6 +138,7 @@ export function listWithFiltersGQLTAG(params){
             discount
             personsCount
             isChefEnabledShoppingLocationYn
+            chefCertificateType
           }
         }
         statusTypeMasterByChefStatusId{

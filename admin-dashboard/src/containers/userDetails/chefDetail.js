@@ -14,7 +14,7 @@ import {availabilityTime} from '../../utils/timeFormat'
 import {
   getChefDetails,
   // updateDishStatus,
-  adminForgotPassword,
+  resetPassword,
   // updateCuisineStatus,
 } from '../../actions/index'
 import Loader from '../../components/loader/loader'
@@ -82,7 +82,6 @@ export class ChefDetail extends Component {
 
   componentWillReceiveProps(nxtprops) {
     if (nxtprops.chefDetails) {
-      console.log('nxtprops', nxtprops.chefDetails)
       // if (
       //   (nxtprops.cuisineStatusUpate === 'success' &&
       //     this.props.cuisineStatusUpate !== nxtprops.cuisineStatusUpate) ||
@@ -102,6 +101,8 @@ export class ChefDetail extends Component {
             this.modifyData(values.image, 'certicateGallery', 'certicateAttachementsGallery')
           })
         }
+        //Additional Service
+        console.log('this.userdata', this.state.chefExtended)
         //work gallery
         if (this.state.userData && this.state.userData.attachementsGallery) {
           const data = JSON.parse(this.state.userData.attachementsGallery)
@@ -208,7 +209,7 @@ export class ChefDetail extends Component {
 
   onClickUpdate = email => {
     if (email) {
-      this.props.adminForgotPassword(email, CommonLabels.USER)
+      this.props.resetPassword(email, CommonLabels.USER)
     } else {
       message.error(CommonLabels.NO_MAIL)
     }
@@ -276,7 +277,28 @@ export class ChefDetail extends Component {
       otherGallary,
       otherDocument,
     } = this.state
-
+    let additionalService = []
+    let awards = ''
+    let certificationType = []
+    let complexity = []
+    console.log('chefExtended', chefExtended)
+    if (chefExtended && chefExtended.additionalServiceDetails) {
+      additionalService = JSON.parse(chefExtended.additionalServiceDetails)
+    }
+    if (chefExtended && chefExtended.chefAwards) {
+      awards = JSON.parse(chefExtended.chefAwards)
+    }
+    if (chefExtended && chefExtended.chefComplexity) {
+      complexity = JSON.parse(chefExtended.chefComplexity)
+    }
+    if (
+      chefExtended &&
+      chefExtended.certificationsTypes &&
+      chefExtended.certificationsTypes.nodes
+    ) {
+      certificationType = chefExtended.certificationsTypes.nodes
+    }
+    console.log('complexity', complexity)
     return (
       <div style={Styles.cardView}>
         <div className="userDetailCard">
@@ -396,26 +418,67 @@ export class ChefDetail extends Component {
                 <p style={Styles.titleStyle}>{CommonLabels.GENDER_LABEL}</p>
                 <p style={Styles.valueStyle}>{userData.chefGender ? userData.chefGender : '-'}</p>
               </div>
-              <div style={Styles.fieldView}>
+              {/* <div style={Styles.fieldView}>
                 <p style={Styles.titleStyle}>{CommonLabels.DRIVIG_LICENSE_LABEL}</p>
                 <p style={Styles.valueStyle}>
                   {chefExtended.chefDrivingLicenseNo ? chefExtended.chefDrivingLicenseNo : '-'}
                 </p>
-              </div>
+              </div> */}
             </Card>
           </div>
 
           <div style={Styles.innerCardView}>
             <Card title={CommonLabels.BUSINESS_LABEL} style={Styles.innerCardWidth}>
               <div style={Styles.fieldView}>
-                <p style={Styles.titleStyle}>{CommonLabels.COST_LABEL}</p>
+                <p style={Styles.titleStyle}>{CommonLabels.BASE_RATE}</p>
                 <div style={Styles.valueStyle}>
-                  {chefExtended.chefPriceUnit ? chefExtended.chefPriceUnit : ''}{' '}
-                  {chefExtended.chefPricePerHour ? chefExtended.chefPricePerHour : '-'}{' '}
+                  {'$'} {chefExtended.chefPricePerHour ? chefExtended.chefPricePerHour : '-'}{' '}
                   {CommonLabels.HOUR_LABEL}
                 </div>
               </div>
+              {/* <div style={Styles.fieldView}>
+                <p style={Styles.titleStyle}>{CommonLabels.GRATUITY}</p>
+                <div style={Styles.valueStyle}>
+                  {'$'} {chefExtended.chefGratuity ? chefExtended.chefGratuity : '-'}
+                </div>
+              </div> */}
               <div style={Styles.fieldView}>
+                <p style={Styles.titleStyle}>{CommonLabels.NO_OF_GUESTS}</p>
+                <div style={Styles.valueStyle}>
+                  {CommonLabels.CHEF_COOK}{' '}
+                  {chefExtended.noOfGuestsMin ? chefExtended.noOfGuestsMin : '-'} {'to '}
+                  {chefExtended.noOfGuestsMax ? chefExtended.noOfGuestsMax : '-'}{' '}
+                  {CommonLabels.MEMBERS}
+                </div>
+              </div>
+              {/* <div style={Styles.fieldView}>
+                <p style={Styles.titleStyle}>{CommonLabels.ADDITIONAL_BASE_RATE}</p>
+                <div style={Styles.valueStyle}>
+                  {'$'} {chefExtended.noOfGuestsCanServe ? chefExtended.noOfGuestsCanServe : '-'}
+                </div>
+              </div> */}
+              {/* <div style={Styles.fieldView}>
+                <p style={Styles.titleStyle}>{CommonLabels.DISCOUNT_FOR_GUEST}</p>
+                <div style={Styles.valueStyle}>
+                  {chefExtended.discount ? chefExtended.discount : '-'}
+                  {'%'} {CommonLabels.FOR}{' '}
+                  {chefExtended.personsCount ? chefExtended.personsCount : '-'}{' '}
+                  {CommonLabels.PERSONS}
+                </div>
+              </div> */}
+              <div style={Styles.fieldView}>
+                <p style={Styles.titleStyle}>
+                  {CommonLabels.CHEF_TRAVEL}{' '}
+                  {chefExtended.chefAvailableAroundRadiusInValue
+                    ? chefExtended.chefAvailableAroundRadiusInValue
+                    : '-'}{' '}
+                  {chefExtended.chefAvailableAroundRadiusInUnit
+                    ? chefExtended.chefAvailableAroundRadiusInUnit
+                    : '-'}{' '}
+                  {CommonLabels.PROVIDE_SERVICE}
+                </p>
+              </div>
+              {/* <div style={Styles.fieldView}>
                 <p style={Styles.titleStyle}>{CommonLabels.BUSSINESS_TIME_LABEL}</p>
                 <div style={Styles.valueStyle}>
                   {chefExtended.chefBusinessHoursFromTime
@@ -426,10 +489,51 @@ export class ChefDetail extends Component {
                     ? availabilityTime(chefExtended.chefBusinessHoursToTime)
                     : '-'}
                 </div>
+              </div> */}
+            </Card>
+          </div>
+
+          {/* Additional Service */}
+          <div style={Styles.innerCardView}>
+            <Card title={CommonLabels.ADDITIONAL_SERVICE} style={Styles.innerCardWidth}>
+              <div
+                style={
+                  additionalService && additionalService.length > 0
+                    ? Styles.spetializationFieldView
+                    : Styles.fieldView
+                }>
+                <p style={Styles.titleStyle}>{CommonLabels.SERVICE_RATE}</p>
+                {additionalService && additionalService.length > 0 ? (
+                  additionalService.map((val, index) => (
+                    <div style={Styles.dishView}>
+                      <p style={Styles.additionalServiceValueStyle}>
+                        {index + 1}
+                        {'.'}
+                        {val.name}
+                        {':'}
+                        {' $'}
+                        {val.price}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <p style={Styles.valueStyle}>{'-'}</p>
+                )}
               </div>
             </Card>
           </div>
 
+          {/* Awards */}
+          <div style={Styles.innerCardView}>
+            <Card title={CommonLabels.AWARDS} style={Styles.innerCardWidth}>
+              <div style={Styles.spetializationFieldView}>
+                <p style={Styles.titleStyle}>{CommonLabels.AWARDS_DES}</p>
+                <div style={Styles.valueStyle}>{awards ? awards : '-'}</div>
+              </div>
+            </Card>
+          </div>
+
+          {/* Cuisine */}
           <div style={Styles.innerCardView}>
             <Card title={CommonLabels.SPECIALIZATION_LABEL} style={Styles.innerCardWidth}>
               <div
@@ -466,7 +570,41 @@ export class ChefDetail extends Component {
                   <p style={Styles.valueStyle}>{'-'}</p>
                 )}
               </div>
-
+              <div
+                style={
+                  dishTypes && dishTypes.length > 0
+                    ? Styles.spetializationFieldView
+                    : Styles.fieldView
+                }>
+                <p style={Styles.titleStyle}>{CommonLabels.DISHES_SPECIALITY}</p>
+                {dishTypes && dishTypes.length > 0 ? (
+                  dishTypes.map((val, index) => (
+                    <div style={Styles.dishView}>
+                      <p style={Styles.spetializationValueStyle}>
+                        {index + 1}
+                        {'.'}
+                        {val.dishTypeName}
+                        {'.'}
+                      </p>
+                      {/* {val.isAdminApprovedYn === false && (
+                        <Button
+                          style={Styles.approveBotton}
+                          onClick={() => this.onClickApproveCuisine(true, val.cuisineTypeId)}>
+                          {CommonLabels.APPROVE}
+                        </Button>
+                      )}
+                      <Button
+                        style={CommonStyles.rejectBotton}
+                        onClick={() => this.onClickApproveCuisine(false, val.cuisineTypeId)}>
+                        {CommonLabels.REJECT}
+                      </Button> */}
+                    </div>
+                  ))
+                ) : (
+                  <p style={Styles.valueStyle}>{'-'}</p>
+                )}
+              </div>
+              {/* 
               <div
                 style={
                   dishTypes && dishTypes.length > 0
@@ -482,8 +620,8 @@ export class ChefDetail extends Component {
                         {'.'}
                         {val.dishTypeName}
                         {'.'}
-                      </p>
-                      {/* {val.isAdminApprovedYn === false && (
+                      </p> */}
+              {/* {val.isAdminApprovedYn === false && (
                         <Button
                           style={Styles.approveBotton}
                           onClick={() => this.onClickApproveDish(true, val.dishTypeId)}>
@@ -495,13 +633,13 @@ export class ChefDetail extends Component {
                         onClick={() => this.onClickApproveDish(false, val.dishTypeId)}>
                         {CommonLabels.REJECT}
                       </Button> */}
-                    </div>
+              {/* </div>
                   ))
                 ) : (
                   <p style={Styles.valueStyle}>{'-'}</p>
                 )}
-              </div>
-              <div style={Styles.fieldView}>
+              </div> */}
+              {/* <div style={Styles.fieldView}>
                 <p style={Styles.titleStyle}>{CommonLabels.EXPERIANCE_LABEL}</p>
                 <p style={Styles.valueStyle}>
                   {chefExtended.chefExperience
@@ -510,7 +648,66 @@ export class ChefDetail extends Component {
                       }`
                     : '-'}
                 </p>
+              </div> */}
+            </Card>
+          </div>
+
+          {/* Certification Types */}
+          <div style={Styles.innerCardView}>
+            <Card title={CommonLabels.CERTIFICATION_TYPE} style={Styles.innerCardWidth}>
+              <div
+                style={
+                  certificationType && certificationType.length > 0
+                    ? Styles.spetializationFieldView
+                    : Styles.fieldView
+                }>
+                <p style={Styles.titleStyle}>{CommonLabels.CERTIFICATION_LIST}</p>
+                {certificationType && certificationType.length > 0 ? (
+                  certificationType.map((val, index) => (
+                    <div style={Styles.dishView}>
+                      <p style={Styles.additionalServiceValueStyle}>
+                        {index + 1}
+                        {'.'}
+                        {val.certificateTypeName}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <p style={Styles.valueStyle}>{'-'}</p>
+                )}
               </div>
+            </Card>
+          </div>
+          {/* complexity */}
+          <div style={Styles.innerCardView}>
+            <Card title={CommonLabels.COMPLEXITY} style={Styles.innerCardWidth}>
+              {complexity && complexity.length > 0 ? (
+                complexity.map((val, index) => (
+                  <Card>
+                    <div style={Styles.fieldView}>
+                      <p style={Styles.titleStyle}>{CommonLabels.COMPLEXITY_LEVEL}</p>
+                      <div style={Styles.valueStyle}>
+                        {val.complexcityLevel ? val.complexcityLevel : '-'}
+                      </div>
+                    </div>
+                    <div style={Styles.fieldView}>
+                      <p style={Styles.titleStyle}>{CommonLabels.DISHES}</p>
+                      <div style={Styles.valueStyle}>{val.dishes ? val.dishes : '-'}</div>
+                    </div>
+                    <div style={Styles.fieldView}>
+                      <p style={Styles.titleStyle}>{CommonLabels.NO_OF_ITEMS}</p>
+                      <div style={Styles.valueStyle}>
+                        {val.noOfItems.min ? val.noOfItems.min : '-'}
+                        {' - '}
+                        {val.noOfItems.max ? val.noOfItems.max : '-'}
+                        {val.noOfItems.min && val.noOfItems.max && ' menu items'}
+                      </div>
+                    </div>
+                  </Card>
+                ))
+              ) : (
+                <p style={Styles.valueStyle}>{'-'}</p>
+              )}
             </Card>
           </div>
           {/* certificates */}
@@ -597,7 +794,7 @@ export class ChefDetail extends Component {
 
 const mapStateToProps = state => {
   const {chefDetails, chefDetailsLoading} = state.chefDetail
-  const {forgotpassword, forgotpasswordLoading, forgotpasswordError} = state.forgotPassWord
+  const {resetpassword, resetpasswordLoading, resetpasswordError} = state.resetPassword
   // const {
   //   cuisineStatusUpate,
   //   cuisineStatusUpateLoading,
@@ -607,9 +804,9 @@ const mapStateToProps = state => {
   return {
     chefDetails,
     chefDetailsLoading,
-    forgotpassword,
-    forgotpasswordLoading,
-    forgotpasswordError,
+    resetpassword,
+    resetpasswordLoading,
+    resetpasswordError,
     // cuisineStatusUpateLoading,
     // cuisineStatusUpate,
     // cuisineStatusUpateError,
@@ -621,7 +818,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = {
   getChefDetails,
-  adminForgotPassword,
+  resetPassword,
   // updateCuisineStatus,
   // updateDishStatus,
 }
