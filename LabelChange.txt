@@ -1,0 +1,4 @@
+Most of changes will inside this files and some of them placed inside the components
+
+admin dashboard - admin-dashboard\src\containers\common\commonLabel.js
+Mobile - mobile\src\translations\Languages.js
