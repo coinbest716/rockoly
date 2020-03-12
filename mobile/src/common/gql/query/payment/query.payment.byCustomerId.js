@@ -4,7 +4,7 @@ export const paymentByCustomerIdGQLTAG = `query allPaymentHistories(
   $offset: Int
 ) {
   allPaymentHistories(
-    orderBy:CREATED_AT_DESC
+    orderBy: CREATED_AT_DESC
     first: $first
     offset: $offset
     filter: { paymentDoneByCustomerId: { eq: $paymentDoneByCustomerId } }
@@ -26,6 +26,8 @@ export const paymentByCustomerIdGQLTAG = `query allPaymentHistories(
       paymentReceiptUrl
       paymentDoneByCustomerId
       paymentDoneForChefId
+      paymentOriginalPriceValueFormat
+      paymentOriginalPriceUnitFormat
       createdAt
       chefBookingHistoryByBookingHistId {
         chefBookingHistId
@@ -33,14 +35,14 @@ export const paymentByCustomerIdGQLTAG = `query allPaymentHistories(
         chefBookingToTime
         chefBookingStatusId
         paymentHistId
-		chefBookingPriceValue
-		chefBookingPriceUnit
-		chefBookingServiceChargePriceValue
-		chefBookingServiceChargePriceUnit
-		chefBookingCommissionPriceValue
-		chefBookingCommissionPriceUnit
-		chefBookingTotalPriceValue
-		chefBookingTotalPriceUnit
+        chefBookingPriceValue
+        chefBookingPriceUnit
+        chefBookingServiceChargePriceValue
+        chefBookingServiceChargePriceUnit
+        chefBookingCommissionPriceValue
+        chefBookingCommissionPriceUnit
+        chefBookingTotalPriceValue
+        chefBookingTotalPriceUnit
       }
       customerProfileByPaymentDoneByCustomerId {
         customerId
@@ -51,9 +53,10 @@ export const paymentByCustomerIdGQLTAG = `query allPaymentHistories(
         chefId
         fullName
         chefPicId
-        chefProfileExtendedsByChefId{
-          nodes{
+        chefProfileExtendedsByChefId {
+          nodes {
             chefLocationAddress
+            chefCity
           }
         }
       }

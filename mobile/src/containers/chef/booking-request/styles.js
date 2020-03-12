@@ -18,11 +18,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f4f7',
     color: '#79838a',
   },
-  item: {
-    padding: 20,
+  parentItem: {
+    flex: 1,
+    display: 'flex',
     backgroundColor: 'white',
     borderBottomWidth: 1,
     borderBottomColor: '#e8ecf0',
+    flexDirection: 'column',
+  },
+  item: {
+    flex: 1,
+    display: 'flex',
+    paddingVertical: 5,
+    paddingHorizontal: 20,
     flexDirection: 'row',
   },
   itemHourText: {
@@ -43,8 +51,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   itemButtonContainer: {
-    flex: 1,
-    alignItems: 'flex-end',
+    paddingBottom: 5,
+    paddingHorizontal: 20,
   },
   emptyItem: {
     paddingLeft: 20,
@@ -74,25 +82,30 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
   textStyle: {
-    textAlign: 'center',
+    color: Theme.Colors.primary,
   },
   userImage: {
-    width: '22%',
-    height: 55,
+    width: '100%',
+    height: 80,
     overflow: 'hidden',
-    borderRadius: Platform.OS === 'ios' ? 27 : 50,
     paddingLeft: 10,
+    borderRadius: 5,
   },
   messageDescription: {
     fontSize: 14,
     lineHeight: 22,
+    marginRight: 5,
   },
   nameSpacing: {
-    marginLeft: 10,
-    width: '55%',
+    flex: 2.3,
+    justifyContent: 'space-around',
+    paddingHorizontal: 10,
+    paddingBottom: 5,
+    flexDirection: 'column',
+    // backgroundColor: 'red',
   },
   nameViewWrap: {
-    width: SCREEN_WIDTH,
+    // width: SCREEN_WIDTH,
   },
   nameView: {
     display: 'flex',
@@ -102,7 +115,8 @@ const styles = StyleSheet.create({
   },
   infoView: {
     display: 'flex',
-    width: '75%',
+    flex: 2,
+    flexDirection: 'row',
   },
   modelView: {
     display: 'flex',

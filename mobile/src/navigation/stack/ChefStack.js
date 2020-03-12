@@ -23,7 +23,7 @@ import {
   AboutUs,
   ContactUs,
   TermsAndPolicy,
-  ConversationList,
+  ChefPaymentHistory,
   ChatDetail,
   GalleryAttachment,
   ChefRegProfile,
@@ -35,21 +35,37 @@ import {
   Complexity,
   Awards,
   Gallery,
+  DisplayPicture,
   Attachment,
   Availability,
+  ChefEditProfile,
+  CustomerRegProfile,
+  EmailVerification,
+  RegEmailVerification,
+  RegMobileVerification,
+  BookPrice,
 } from '@containers'
 import ChefTab from '../tab/ChefTab'
 
 const ChefStack = createStackNavigator(
   {
-    [RouteNames.INTRO_SCREEN]: IntroPages,
     [RouteNames.CHEF_MAIN_TAB]: ChefTab,
+    [RouteNames.INTRO_SCREEN]: IntroPages,
     [RouteNames.NOTIFICATION_SCREEN]: Notifications,
     [RouteNames.SET_AVAILABILITY_SCREEN]: {
       screen: SetAvailability,
     },
     [RouteNames.CHEF_REG_PROFILE]: {
       screen: ChefRegProfile,
+    },
+    [RouteNames.EMAIL_VERIFICATION]: {
+      screen: EmailVerification,
+    },
+    [RouteNames.REG_EMAIL_VERIFICATION]: {
+      screen: RegEmailVerification,
+    },
+    [RouteNames.COUSTUMER_REG_PROFILE]: {
+      screen: CustomerRegProfile,
     },
     [RouteNames.INTRO_MESSAGE]: {
       screen: IntroMessage,
@@ -84,6 +100,9 @@ const ChefStack = createStackNavigator(
     [RouteNames.OTP_VERIFICATION_SCREEN]: {
       screen: OTPVerification,
     },
+    [RouteNames.REG_MOBILE_VERIFICATION]: {
+      screen: RegMobileVerification,
+    },
     [RouteNames.BOOKING_HISTORY]: {
       screen: BookingHistory,
     },
@@ -104,6 +123,9 @@ const ChefStack = createStackNavigator(
     },
     [RouteNames.CHANGE_PASSWORD_SCREEN]: {
       screen: ChangePassword,
+    },
+    [RouteNames.DISPLAY_PICTURE]: {
+      screen: DisplayPicture,
     },
     [RouteNames.CHEF_MANAGE_PAYMENTS]: {
       screen: ChefManagePayments,
@@ -129,11 +151,17 @@ const ChefStack = createStackNavigator(
     [RouteNames.TERMS_AND_POLICY]: {
       screen: TermsAndPolicy,
     },
-    [RouteNames.CONVERSATION_LIST]: {
-      screen: ConversationList,
+    [RouteNames.CHEF_PAYMENT_HISTORY]: {
+      screen: ChefPaymentHistory,
     },
     [RouteNames.CHAT_DETAIL]: {
       screen: ChatDetail,
+    },
+    [RouteNames.CHEF_EDIT_PROFILE]: {
+      screen: ChefEditProfile,
+    },
+    [RouteNames.BOOK_PRICE]: {
+      screen: BookPrice,
     },
   },
   {

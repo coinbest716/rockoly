@@ -120,6 +120,7 @@ class CustomerPaymentHistory extends PureComponent {
   }
 
   onPaymentCardPress = details => {
+    console.log('details', details)
     if (details.bookingHistId) {
       const {navigation} = this.props
       navigation.navigate(RouteNames.BOOKING_DETAIL_SCREEN, {bookingHistId: details.bookingHistId})
@@ -173,7 +174,7 @@ class CustomerPaymentHistory extends PureComponent {
       if (value.chefProfileExtendedsByChefId) {
         const chefLocation = value.chefProfileExtendedsByChefId
         if (chefLocation.nodes !== null && chefLocation.nodes !== undefined) {
-          location = chefLocation.nodes[0].chefLocationAddress
+          location = chefLocation.nodes[0].chefCity
         }
       }
     }
@@ -202,6 +203,8 @@ class CustomerPaymentHistory extends PureComponent {
       statusName = Languages.Customer_Payment_History.buttonLabels.paid
     } else if (details.paymentStatusId.trim() === 'REFUND') {
       statusName = Languages.Customer_Payment_History.buttonLabels.refund
+    } else if (details.paymentStatusId.trim() === 'FAILED') {
+      statusName = Languages.Customer_Payment_History.buttonLabels.failed
     }
 
     return (

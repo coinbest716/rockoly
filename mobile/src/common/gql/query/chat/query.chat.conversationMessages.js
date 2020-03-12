@@ -12,6 +12,7 @@ export const conversationMessagesGQLTAG = `query allMessageHistories($conversati
       msgText
       fromEntityDetails
       createdAt
+      msgType
     }
   }
 }`

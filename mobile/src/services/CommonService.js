@@ -30,6 +30,8 @@ class CommonService extends BaseService {
       try {
         const gqlValue = GQL.query.custom.totalCountGQLTAG
 
+        console.log('debugging gqlValue', gqlValue, params)
+
         const query = gql`
           ${gqlValue}
         `

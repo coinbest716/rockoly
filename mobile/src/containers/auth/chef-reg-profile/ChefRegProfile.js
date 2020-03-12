@@ -1,10 +1,11 @@
 /** @format */
 
 import React, {PureComponent} from 'react'
-import {View} from 'react-native'
+import {View, Text, Alert} from 'react-native'
 import StepIndicator from 'react-native-step-indicator'
-import {Toast} from 'native-base'
-import {RouteNames} from '@navigation'
+import {Toast, Icon, ListItem, Right, Left, Body} from 'native-base'
+import {RouteNames, ResetStack, ResetAction} from '@navigation'
+import {Languages} from '@translations'
 import {
   Awards,
   ChefExperience,
@@ -16,9 +17,13 @@ import {
   Gallery,
   Attachment,
   Availability,
+  Address,
+  EmailVerification,
+  OTPVerification,
 } from '@containers'
 import {Theme} from '@theme'
 import styles from './styles'
+import {BasicProfileService, AuthContext, CHEF_REG_FLOW_STEPS} from '@services'
 
 const secondIndicatorStyles = {
   stepIndicatorSize: 25,
@@ -45,20 +50,57 @@ const secondIndicatorStyles = {
   currentStepLabelColor: Theme.Colors.primary,
 }
 
-const SCREEN_MAP = ['address', 'allergies', 'dietary', 'kitchenEquipment', 'profilePic']
+const errorMessage = {
+  EMAIL_VERIFICATION: 'Email verification',
+  MOBILE_VERIFICATION: 'Mobile Verification',
+  INTRO: 'IntroMessage',
+  BASE_RATE: 'RateService',
+  ADDITIONAL_SERVICES: 'OptionList',
+  COMPLEXITY: 'Complexity',
+  CUISINE_SPEC: 'ChefExperience',
+  AWARDS: 'Awards',
+  PROFILE_PIC: 'DisplayPicture',
+  GALLERY: 'Gallery',
+  DOCUMENTS: 'Attachment',
+  AVAILABILITY: 'Availability',
+  ADDRESS: 'Address',
+}
 
-export default class ChefRegProfile extends PureComponent {
+class ChefRegProfile extends PureComponent {
   constructor(props) {
     super(props)
     this.state = {
       currentPage: 0,
-      savedData: {
-        address: false,
-        allergies: false,
-        dietary: false,
-        kitchenEquipment: false,
-        profilePic: false,
-      },
+      savedData: [],
+    }
+  }
+
+  async componentDidMount() {
+    const {getProfile} = this.context
+    const profile = await getProfile()
+
+    if (profile && profile.chefUpdatedScreens && profile.chefUpdatedScreens.length > 0) {
+      this.setState({
+        savedData: profile.chefUpdatedScreens,
+      })
+      const fullSteps = CHEF_REG_FLOW_STEPS
+      const completedSteps = profile.chefUpdatedScreens
+      if (fullSteps.length !== completedSteps.length) {
+        let isCurrentPageSet = false
+        fullSteps.map((item, index) => {
+          if (completedSteps.indexOf(item) === -1 && isCurrentPageSet === false) {
+            isCurrentPageSet = true
+            this.setState({
+              currentPage: index,
+            })
+          }
+          return null
+        })
+      } else {
+        this.setState({
+          currentPage: completedSteps.length - 1,
+        })
+      }
     }
   }
 
@@ -66,111 +108,188 @@ export default class ChefRegProfile extends PureComponent {
     this.setState({currentPage: position})
   }
 
-  onCustomer = () => {
-    const {navigation} = this.props
-    navigation.navigate(RouteNames.CUSTOMER_SWITCH)
-  }
-
   onFinish = () => {
     const {savedData} = this.state
-    const flag = Object.keys(savedData).every(k => {
-      return savedData[k]
-    })
+    const {currentUser} = this.context
+    const {navigation} = this.props
 
-    if (flag) {
-      this.onCustomer()
-      console.log('Flag', flag)
+    let uncompletedSteps
+
+    if (savedData && savedData.length === CHEF_REG_FLOW_STEPS.length) {
+      BasicProfileService.updateRegProfileFlag(true, currentUser.chefId)
+        .then(res => {
+          if (res) {
+            Toast.show({
+              text: 'You have completed the profile setup.',
+              duration: 3000,
+            })
+            ResetStack(navigation, RouteNames.CHEF_MAIN_TAB)
+          }
+        })
+        .catch(e => {
+          console.log('debuggging error on saving reg flag', e)
+        })
     } else {
-      Toast.show({
-        text: 'Please fill al the data',
-        duration: 3000,
+      uncompletedSteps = CHEF_REG_FLOW_STEPS.filter(value => !savedData.includes(value))
+      let message = 'Please fill out these screens: '
+      uncompletedSteps.map((itemVal, index) => {
+        message += `${errorMessage[itemVal]}`
+        if (uncompletedSteps.length - 1 !== index) {
+          message += `, `
+        }
+      })
+
+      Alert.alert('Info', message, [{text: 'OK', onPress: () => console.log('OK Pressed')}], {
+        cancelable: false,
       })
     }
   }
 
   updateCurrentPage = () => {
-    // if its last page navigate
-    // onSave={this.updateCurrentPage}
-    // else
-
     const {savedData, currentPage} = this.state
+    const {currentUser} = this.context
 
-    const key = SCREEN_MAP[currentPage]
-
-    if (currentPage === 4) {
-      this.setState(
-        {
-          savedData: {
-            ...savedData,
-            [key]: true,
-          },
-        },
-        () => {
-          this.onFinish()
-        }
-      )
-    } else {
-      this.setState({
-        savedData: {
-          ...savedData,
-          [key]: true,
-        },
-        currentPage: currentPage + 1,
-      })
+    if (!currentUser) {
+      return
     }
+
+    const currentStep = CHEF_REG_FLOW_STEPS[currentPage]
+
+    if (currentStep && savedData.indexOf(currentStep) === -1) {
+      savedData.push(currentStep)
+    }
+
+    BasicProfileService.updateRegProfileStatus(true, currentUser.chefId, savedData)
+      .then(res => {
+        if (res) {
+          if (currentPage === 12) {
+            this.setState(
+              {
+                savedData,
+              },
+              () => {
+                this.onFinish()
+              }
+            )
+          } else {
+            this.setState({
+              savedData,
+              currentPage: currentPage + 1,
+            })
+          }
+        }
+      })
+      .catch(e => {
+        console.log('debugging error e', e)
+      })
   }
 
   renderPage = () => {
     const {currentPage} = this.state
     const {navigation} = this.props
-    console.log('currentPage', currentPage)
     if (currentPage === 0) {
-      return <IntroMessage onSave={this.updateCurrentPage} />
+      return <EmailVerification onSaveCallBack={this.updateCurrentPage} />
     }
     if (currentPage === 1) {
-      return <RateService onSave={this.updateCurrentPage} />
+      return <OTPVerification onSaveCallBack={this.updateCurrentPage} />
     }
     if (currentPage === 2) {
-      return <OptionList onSave={this.updateCurrentPage} />
+      return <IntroMessage onNext={this.updateCurrentPage} />
     }
     if (currentPage === 3) {
-      return <Complexity onSave={this.updateCurrentPage} />
+      return <RateService onSaveCallBack={this.updateCurrentPage} />
     }
     if (currentPage === 4) {
-      return <ChefExperience onSave={this.updateCurrentPage} />
+      return <OptionList onSaveCallBack={this.updateCurrentPage} />
     }
     if (currentPage === 5) {
-      return <Awards onSave={this.updateCurrentPage} />
+      return <Complexity onSaveCallBack={this.updateCurrentPage} />
     }
     if (currentPage === 6) {
-      return <DisplayPicture onSave={this.updateCurrentPage} />
+      return <ChefExperience onSaveCallBack={this.updateCurrentPage} />
     }
     if (currentPage === 7) {
-      return <Gallery onSave={this.updateCurrentPage} />
+      return <Awards onSaveCallBack={this.updateCurrentPage} />
     }
     if (currentPage === 8) {
-      return <Attachment onSave={this.updateCurrentPage} />
+      return <DisplayPicture onSaveCallBack={this.updateCurrentPage} />
     }
     if (currentPage === 9) {
-      return <Availability navigation={navigation} />
+      return <Gallery onNext={this.updateCurrentPage} />
     }
+    if (currentPage === 10) {
+      return <Attachment onNext={this.updateCurrentPage} />
+    }
+    if (currentPage === 11) {
+      return <Availability navigation={navigation} onSaveCallBack={this.updateCurrentPage} />
+    }
+    if (currentPage === 12) {
+      return (
+        <Address navigation={navigation} showFinishText onSaveCallBack={this.updateCurrentPage} />
+      )
+    }
+    return null
+  }
+
+  logout = () => {
+    const {logout} = this.context
+    const {navigation} = this.props
+    Alert.alert(
+      Languages.customerProfile.options.logout,
+      Languages.customerProfile.options.logout_confirm,
+      [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel',
+        },
+        {
+          text: 'OK',
+          onPress: () => {
+            logout(() => {
+              ResetAction(navigation, RouteNames.CUSTOMER_SWITCH)
+            })
+          },
+        },
+      ],
+      {cancelable: false}
+    )
   }
 
   render() {
     const {currentPage} = this.state
     return (
-      <View style={{marginHorizontal: 5, marginVertical: 5}}>
-        <View style={{marginTop: '5%'}}>
+      <View style={{marginHorizontal: 10, paddingVertical: 10, flex: 1}}>
+        <ListItem icon>
+          <Body>
+            <Text style={styles.titleText}>Setup your profile</Text>
+          </Body>
+          <Right>
+            <Icon
+              style={{color: '#f44336'}}
+              onPress={this.logout}
+              name="logout"
+              type="MaterialCommunityIcons"
+            />
+          </Right>
+        </ListItem>
+        <Text style={{paddingVertical: 5, paddingHorizontal: 5}}>
+          Please complete the setup profile to start using our application
+        </Text>
+        <View style={{paddingTop: 10}}>
           <StepIndicator
-            stepCount={10}
+            stepCount={13}
             customStyles={secondIndicatorStyles}
             currentPosition={currentPage}
             renderLabel={this._renderItem}
             onPress={position => this.onStepPress(position)}
           />
-          {this.renderPage()}
         </View>
+        {this.renderPage()}
       </View>
     )
   }
 }
+
+ChefRegProfile.contextType = AuthContext
+export default ChefRegProfile

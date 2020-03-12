@@ -1,0 +1,3 @@
+After chef approval, he is missing in admin and search.
+Admin: All chefs missing my submission. I can see myself in submitted for review but not in all.
+Admin: Edit chef and reset password are not working

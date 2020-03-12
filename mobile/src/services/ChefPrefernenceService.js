@@ -7,9 +7,18 @@ import {Toast} from 'native-base'
 import BaseService from './BaseService'
 import {GQL} from '@common'
 
-export const CHEF_PREFERNCE_EVENT = {}
+export const CHEF_PREFERNCE_EVENT = {
+  ADDITIONAL_SERVICES: 'CHEF_PREFERNCE_EVENT/ADDITIONAL_SERVICES',
+  CERTIFICATE: 'CHEF_PREFERNCE_EVENT/CERTIFICATE',
+}
 
 class ChefPreferenceService extends BaseService {
+  constructor() {
+    super()
+    this.certificateData = []
+    this.additionalServiceData = []
+  }
+
   updateComplexityPreferencesData = inputData => {
     console.log('inputData', inputData)
     return new Promise((resolve, reject) => {
@@ -30,7 +39,7 @@ class ChefPreferenceService extends BaseService {
               reject(errors[0].message)
             } else if (data && data.updateChefProfileExtendedByChefProfileExtendedId) {
               Toast.show({
-                text: 'Complexity Updated Successfully',
+                text: 'Complexity saved.',
                 duration: 3000,
               })
               resolve(data.updateChefProfileExtendedByChefProfileExtendedId)
@@ -59,13 +68,13 @@ class ChefPreferenceService extends BaseService {
             mutation,
             variables: {
               chefProfileExtendedId: params.chefProfileExtendedId,
-              chefGratuity: params.chefGratuity,
+              // chefGratuity: params.chefGratuity,
               chefPricePerHour: params.chefPricePerHour,
-              noOfGuestsCanServe: params.noOfGuestsCanServe,
-              noOfGuestsMax: params.noOfGuestsCanServe,
+              // noOfGuestsCanServe: params.noOfGuestsCanServe,
+              noOfGuestsMax: params.noOfGuestsMax,
               noOfGuestsMin: params.noOfGuestsMin,
-              discount: params.discount,
-              personsCount: params.personsCount,
+              // discount: params.discount,
+              // personsCount: params.personsCount,
             },
           })
           .then(({data, errors}) => {
@@ -73,10 +82,6 @@ class ChefPreferenceService extends BaseService {
             if (errors) {
               reject(errors[0].message)
             } else if (data && data.updateChefProfileExtendedByChefProfileExtendedId) {
-              Toast.show({
-                text: 'Values Updated Successfully',
-                duration: 3000,
-              })
               resolve(data.updateChefProfileExtendedByChefProfileExtendedId)
             }
           })
@@ -110,7 +115,7 @@ class ChefPreferenceService extends BaseService {
               reject(errors[0].message)
             } else if (data) {
               Toast.show({
-                text: 'Chef Work Details Updated Successfully',
+                text: 'Specialties / Experience details saved.',
                 duration: 3000,
               })
               resolve(data)
@@ -145,7 +150,7 @@ class ChefPreferenceService extends BaseService {
               reject(errors[0].message)
             } else if (data) {
               Toast.show({
-                text: 'Chef Experience Details Updated Successfully',
+                text: 'Chef Experience saved.',
                 duration: 3000,
               })
               resolve(data)
@@ -180,7 +185,7 @@ class ChefPreferenceService extends BaseService {
               reject(errors[0].message)
             } else if (data) {
               Toast.show({
-                text: 'Service Details Updated Successfully',
+                text: 'Service saved.',
                 duration: 3000,
               })
               resolve(data)
@@ -193,6 +198,76 @@ class ChefPreferenceService extends BaseService {
         reject(e)
       }
     })
+  }
+
+  getAdditionalServices = async () => {
+    try {
+      const gqlVal = GQL.query.master.allAdditionalServiceTypeMastersGQLTAG
+      const query = gql`
+        ${gqlVal}
+      `
+
+      this.client
+        .query({
+          query,
+          fetchPolicy: 'network-only',
+        })
+        .then(({data}) => {
+          console.log('data getAdditionalServices', data)
+          if (
+            data &&
+            data.allAdditionalServiceTypeMasters &&
+            data.allAdditionalServiceTypeMasters.nodes &&
+            data.allAdditionalServiceTypeMasters.nodes.length
+          ) {
+            this.emit(CHEF_PREFERNCE_EVENT.ADDITIONAL_SERVICES, {
+              additionalServiceData: data.allAdditionalServiceTypeMasters.nodes,
+            })
+          } else {
+            this.emit(CHEF_PREFERNCE_EVENT.ADDITIONAL_SERVICES, {additionalServiceData: []})
+          }
+        })
+        .catch(() => {
+          this.emit(CHEF_PREFERNCE_EVENT.ADDITIONAL_SERVICES, {additionalServiceData: []})
+        })
+    } catch (e) {
+      this.emit(CHEF_PREFERNCE_EVENT.ADDITIONAL_SERVICES, {additionalServiceData: []})
+    }
+  }
+
+  getCertifications = async () => {
+    try {
+      const gqlVal = GQL.query.master.allCertificateTypeMastersGQLTAG
+      const query = gql`
+        ${gqlVal}
+      `
+
+      this.client
+        .query({
+          query,
+          fetchPolicy: 'network-only',
+        })
+        .then(({data}) => {
+          console.log('data getCertifications', data)
+          if (
+            data &&
+            data.allCertificateTypeMasters &&
+            data.allCertificateTypeMasters.nodes &&
+            data.allCertificateTypeMasters.nodes.length
+          ) {
+            this.emit(CHEF_PREFERNCE_EVENT.CERTIFICATE, {
+              certificateData: data.allCertificateTypeMasters.nodes,
+            })
+          } else {
+            this.emit(CHEF_PREFERNCE_EVENT.CERTIFICATE, {certificateData: []})
+          }
+        })
+        .catch(() => {
+          this.emit(CHEF_PREFERNCE_EVENT.CERTIFICATE, {certificateData: []})
+        })
+    } catch (e) {
+      this.emit(CHEF_PREFERNCE_EVENT.CERTIFICATE, {certificateData: []})
+    }
   }
 }
 

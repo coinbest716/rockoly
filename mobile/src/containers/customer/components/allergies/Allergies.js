@@ -1,7 +1,7 @@
 /** @format */
 
 import React, {Component} from 'react'
-import {View, ScrollView} from 'react-native'
+import {View, ScrollView, Platform} from 'react-native'
 import {
   Container,
   Item,
@@ -17,7 +17,9 @@ import {
   Left,
   Button,
   Label,
+  Toast,
 } from 'native-base'
+import KeyboardSpacer from 'react-native-keyboard-spacer'
 import _ from 'lodash'
 import {CommonButton, Spinner} from '@components'
 import {Theme} from '@theme'
@@ -74,6 +76,11 @@ export default class Allergies extends Component {
 
   componentWillUnmount() {
     CustomerPreferenceService.off(CUSTOMER_PREFERNCE_EVENT.CUISINES, this.cuisineList)
+  }
+
+  getAllergy = () => {
+    const {allergyTypeId, newAllergies} = this.state
+    return {allergyTypeId, newAllergies}
   }
 
   onLoadData = async () => {
@@ -163,35 +170,54 @@ export default class Allergies extends Component {
             val.push(itemVal.id)
           }
         })
-        this.setState({
-          allergyTypeId: val,
-        })
+        this.setState(
+          {
+            allergyTypeId: val,
+          },
+          () => {}
+        )
       }
     )
   }
 
   onAddNewAllergies = value => {
-    this.setState({
-      newAllergies: value,
-    })
+    this.setState(
+      {
+        newAllergies: value,
+      },
+      () => {}
+    )
   }
 
   onSave = () => {
-    console.log('onSave')
     const {allergyTypeId, newAllergies} = this.state
+    const {onSaveCallBack, getValue, hideSave} = this.props
     const {currentUser} = this.context
     console.log('currentUser', currentUser)
     if (currentUser !== null && currentUser !== undefined) {
       const obj = {
         customerPreferenceId: currentUser.customerPreferenceId,
-        customerAllergyTypeId: allergyTypeId,
+        customerAllergyTypeId: allergyTypeId && allergyTypeId.length > 0 ? allergyTypeId : null,
         customerOtherAllergyTypes: newAllergies ? JSON.stringify(newAllergies) : null,
       }
       console.log('onSave obj', obj)
       CustomerPreferenceService.updatePreferencesData(obj)
         .then(data => {
           console.log('preferences data', data)
-          this.props.onSave()
+          if (onSaveCallBack) {
+            onSaveCallBack()
+          }
+
+          if (getValue) {
+            getValue(obj)
+          }
+
+          if (!hideSave) {
+            Toast.show({
+              duration: 5000,
+              text: Languages.customerPreference.toast_messages.allergiesMessage,
+            })
+          }
         })
         .catch(error => {
           console.log('preferences error', error)
@@ -201,6 +227,7 @@ export default class Allergies extends Component {
 
   render() {
     const {allergies, newAllergies, allergyTypeId, isLoading} = this.state
+    const {hideSave} = this.props
     console.log('allergies', allergies)
     if (isLoading) {
       return (
@@ -210,9 +237,8 @@ export default class Allergies extends Component {
       )
     }
     return (
-      // <View style={styles.mainView}>
-      <ScrollView style={{marginTop: '5%'}}>
-        <Label style={styles.allergiesLabel}>Please provide your allergies if any.</Label>
+      <ScrollView style={{marginHorizontal: 10, paddingVertical: 5, flex: 1}}>
+        <Label style={styles.allergiesLabel}>Do you have any allergies?</Label>
         <View>
           {allergies &&
             allergies.length > 0 &&
@@ -238,16 +264,21 @@ export default class Allergies extends Component {
             bordered
             value={newAllergies}
             onChangeText={value => this.onAddNewAllergies(value)}
-            placeholder={Languages.customerPreference.labels.allergiesPlaceholder}
+            placeholder="If applicable, please list additional allergies restrictions"
           />
         </View>
+
         <CommonButton
-          btnText={Languages.customerPreference.labels.save}
+          btnText={
+            hideSave
+              ? Languages.customerPreference.labels.next
+              : Languages.customerPreference.labels.save
+          }
           containerStyle={styles.saveBtn}
           onPress={this.onSave}
         />
+        {Platform.OS === 'ios' && <KeyboardSpacer />}
       </ScrollView>
-      // </View>
     )
   }
 }

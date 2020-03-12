@@ -10,11 +10,23 @@ import {
   ScrollView,
   Alert,
 } from 'react-native'
-import {Textarea, Button, Toast} from 'native-base'
+import {Textarea, Button, Toast, Input, Item} from 'native-base'
+import DateTimePicker from 'react-native-modal-datetime-picker'
+import moment from 'moment'
 import styles from './styles'
 import {Languages} from '@translations'
 import {Theme} from '@theme'
 import {AuthContext} from '@services'
+import {
+  displayDateTimeFormat,
+  commonDateFormat,
+  dbTimeFormat,
+  displayTimeFormat,
+  fetchDate,
+  GMTToLocal,
+  DATE_TYPE,
+  dbDateFormat,
+} from '@utils'
 import {CommonButton, Spinner} from '@components'
 import BookingHistoryService from '../../../services/BookingHistoryService'
 import {RouteNames} from '@navigation'
@@ -32,6 +44,7 @@ export default class BookingModal extends PureComponent {
       errorMessage: '',
       isLoading: false,
       notes: '',
+      blockHour: 2,
     }
   }
 
@@ -223,6 +236,74 @@ export default class BookingModal extends PureComponent {
       })
   }
 
+  onAcceptRequest = async () => {
+    await this.updateBookingStatus()
+    const {closeModal, bookingDetail, bookingHistId} = this.props
+    const {updatedStatus, blockHour} = this.state
+
+    let histId
+    let blockedToTime
+    let blockedFromTime
+
+    if (bookingHistId !== undefined && bookingHistId !== '' && bookingHistId !== '') {
+      histId = bookingHistId
+    } else {
+      histId = bookingDetail.chefBookingHistId
+    }
+
+    if (bookingDetail && blockHour && parseInt(blockHour) === 0) {
+      blockedFromTime = moment(bookingDetail.chefBookingFromTime).format(dbDateFormat)
+      blockedToTime = moment(bookingDetail.chefBookingToTime).format(dbDateFormat)
+    }
+
+    if (bookingDetail && blockHour && parseInt(blockHour) > 0) {
+      blockedFromTime = moment(bookingDetail.chefBookingFromTime)
+        .subtract(blockHour, 'hours')
+        .format(dbDateFormat)
+      blockedToTime = moment(bookingDetail.chefBookingToTime)
+        .add(blockHour, 'hours')
+        .format(dbDateFormat)
+    }
+
+    console.log('blockedToTime', blockedFromTime, blockedToTime)
+
+    try {
+      const params = {
+        chefBookingHistId: histId,
+        chefBookingStatusId: updatedStatus,
+        chefBookingBlockFromTime: blockedFromTime,
+        chefBookingBlockToTime: blockedToTime,
+      }
+      BookingHistoryService.updateAcceptBooking(params)
+        .then(data => {
+          console.log('updateAcceptBooking data', data)
+          if (data) {
+            Toast.show({
+              text: 'You have accepted the request.',
+              duration: 5000,
+            })
+          }
+
+          closeModal()
+          this.setState({
+            isLoading: false,
+          })
+        })
+        .catch(err => {
+          console.log('catch err', err)
+          this.setState({
+            isLoading: false,
+          })
+          if (err === 'ALREADY_BOOKING_EXISTS_ON_THIS_DATETIME') {
+            closeModal()
+            Alert.alert('Info', 'You already have a booking')
+          }
+        })
+    } catch (e) {
+      Alert.alert('Error on Accept Customer Request', e.message)
+    }
+  }
+
   onYesPress = () => {
     const {type, bookingDetail, bookingHistId, stripeId} = this.props
     const {chefCancelorRejectReason, customerCancelReason, notes} = this.state
@@ -266,7 +347,8 @@ export default class BookingModal extends PureComponent {
         BookingHistoryService.addNotes(obj)
           .then(res => {
             console.log('res addNotes', res)
-            this.onSubmit()
+            // this.onSubmit()
+            this.onAcceptRequest()
             this.setState({
               isLoading: true,
             })
@@ -275,7 +357,8 @@ export default class BookingModal extends PureComponent {
             console.log('res error', error)
           })
       } else {
-        this.onSubmit()
+        // this.onSubmit()
+        this.onAcceptRequest()
         this.setState({
           isLoading: true,
         })
@@ -300,19 +383,17 @@ export default class BookingModal extends PureComponent {
       .then(res => {
         if (res) {
           closeModal()
-          if (
-            res.bookingComplete.data.chef_booking_status_id.trim() === 'COMPLETED' ||
-            res.bookingComplete.data.chef_booking_status_id.trim() === 'AMOUNT_TRANSFER_FAILED'
-          ) {
+          if (res.bookingComplete.data.chef_booking_status_id.trim() === 'AMOUNT_TRANSFER_FAILED') {
             Toast.show({
               text:
                 'You have completed the booking. But we could not send payment into your bank account/card. Please contact admin',
               duration: 5000,
             })
-          } else {
+          } else if (res.bookingComplete.data.chef_booking_status_id.trim() === 'COMPLETED') {
             Toast.show({
               text:
-                'You have completed the booking. you will receive payment into your bank account/card soon.',
+                'You have completed the booking. Admin will review and send you the booking amount',
+              // 'You have completed the booking. you will receive payment into your bank account/card soon.',
               duration: 5000,
             })
           }
@@ -351,6 +432,12 @@ export default class BookingModal extends PureComponent {
     })
   }
 
+  onChangeHours = value => {
+    this.setState({
+      blockHour: value,
+    })
+  }
+
   render() {
     const {modalVisible, closeModal, content, userRole, type, bookingDetail} = this.props
     const {
@@ -359,10 +446,15 @@ export default class BookingModal extends PureComponent {
       customerCancelReason,
       notes,
       isLoading,
+      blockHour,
     } = this.state
     let error
     let bookingNotes
     let dishTypeDesc
+    let displayFromTime
+    let displayToTime
+    let blockedFromTime
+    let blockedToTime
 
     if (errorMessage !== '') {
       error = errorMessage
@@ -384,6 +476,30 @@ export default class BookingModal extends PureComponent {
       dishTypeDesc = bookingDetail.dishTypeDesc
     }
 
+    // const displaySelectedFromTime = selectedFromTime == null ? 'Select' : selectedFromTime
+    // const displaySelectedToTime = selectedToTime == null ? 'Select' : selectedToTime
+
+    if (bookingDetail) {
+      displayFromTime = GMTToLocal(bookingDetail.chefBookingFromTime, DATE_TYPE.TIME)
+      displayToTime = GMTToLocal(bookingDetail.chefBookingToTime, DATE_TYPE.TIME)
+
+      if (blockHour && parseInt(blockHour) > 0) {
+        const fromTime = moment(bookingDetail.chefBookingFromTime)
+          .subtract(blockHour, 'hours')
+          .format(dbDateFormat)
+        blockedFromTime = GMTToLocal(fromTime, DATE_TYPE.TIME)
+        const toTime = moment(bookingDetail.chefBookingToTime)
+          .add(blockHour, 'hours')
+          .format(dbDateFormat)
+        blockedToTime = GMTToLocal(toTime, DATE_TYPE.TIME)
+      } else if (parseInt(blockHour) === 0) {
+        const fromTime = moment(bookingDetail.chefBookingFromTime).format(dbDateFormat)
+        blockedFromTime = GMTToLocal(fromTime, DATE_TYPE.TIME)
+        const toTime = moment(bookingDetail.chefBookingToTime).format(dbDateFormat)
+        blockedToTime = GMTToLocal(toTime, DATE_TYPE.TIME)
+      }
+    }
+
     return (
       <Modal animationType="fade" transparent visible={modalVisible} onRequestClose={closeModal}>
         <View style={styles.modelView}>
@@ -391,7 +507,20 @@ export default class BookingModal extends PureComponent {
             <View style={styles.modelContainer}>
               <View style={{flexDirection: 'column'}}>
                 <Text style={styles.contentStyle}>{content}</Text>
-
+                {type === 'ACCEPT' && (
+                  <View>
+                    <Text style={styles.heading}>Booking Time</Text>
+                    <View
+                      style={{
+                        justifyContent: 'space-around',
+                        alignItems: 'center',
+                        flexDirection: 'row',
+                      }}>
+                      <Text>{displayFromTime}</Text>
+                      <Text>{displayToTime}</Text>
+                    </View>
+                  </View>
+                )}
                 {type === 'ACCEPT' && dishTypeDesc && dishTypeDesc.length > 0 ? (
                   <View style={styles.iconText}>
                     <Text style={{fontSize: 16, marginTop: 25}}>
@@ -412,6 +541,37 @@ export default class BookingModal extends PureComponent {
                     </View>
                   </View>
                 ) : null}
+                {type === 'ACCEPT' && (
+                  <View style={styles.availableTime}>
+                    <Text style={styles.labelTitle}>
+                      {/* {Languages.bookingModal.labels.blocked_time} */}
+                      How many hours do you want to block on your calendar before and after booking?
+                    </Text>
+                    <Item>
+                      <Input
+                        placeholder="Hours"
+                        onChangeText={this.onChangeHours}
+                        value={blockHour ? blockHour.toString() : null}
+                        keyboardType="number-pad"
+                        style={{textAlign: 'center'}}
+                      />
+                    </Item>
+                  </View>
+                )}
+                {blockedFromTime && blockedToTime && type === 'ACCEPT' && (
+                  <View>
+                    <Text style={styles.heading}>Blocked Time</Text>
+                    <View
+                      style={{
+                        justifyContent: 'space-around',
+                        alignItems: 'center',
+                        flexDirection: 'row',
+                      }}>
+                      <Text>{blockedFromTime}</Text>
+                      <Text>{blockedToTime}</Text>
+                    </View>
+                  </View>
+                )}
                 {type === 'ACCEPT' && bookingNotes && (
                   <View style={styles.iconText}>
                     {/* <Text style={styles.heading}>Booking Notes</Text> */}

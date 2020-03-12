@@ -2,6 +2,7 @@
   "name": "chef_admin",
   "version": "0.1.0",
   "private": true,
+  "homepage": "/admin",
   "dependencies": {
     "antd": "^3.22.2",
     "apexcharts": "^3.8.6",

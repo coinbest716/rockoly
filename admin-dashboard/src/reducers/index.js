@@ -28,9 +28,17 @@ import UpdateDishStatusReducer from './updateDishStatusReducer'
 import SendAmountToChefRedcer from './sendAmountToChefRedcer'
 import RefundAmoutToCustomerReducer from './refundAmoutToCustomerReducer'
 import GetAllcuisineReducer from './getAllcuisineReducer'
+import GetAllAdditionalService from './getAllAdditionalServiceReducer'
 import GetAllDishesReducer from './getAllDishesReducer'
 import GetCancellationTimeReducer from './getCancellationTimeReducer'
+import GetStripeCentsReducer from './getStripeCentsReducer'
+import GetStripePercentageReducer from './getStripePercentageReducer'
 import UpdateCancellationTimeReducer from './updateCancellationTimeReducer'
+import BookingRequestedDetailsReducer from './bookingRequestDetailsReducer'
+import ResetPasswordReducer from './resetPasswordReducer'
+import AddAdditionalService from './addAdditionalServiceReducer'
+import DeleteAdditionalService from './deleteAdditionalServiceReducer'
+import UpdateAdditionalService from './updateAdditionalServiceReducer'
 
 const rootReducer = combineReducers({
   loginData: LoginReducer,
@@ -49,6 +57,7 @@ const rootReducer = combineReducers({
   adminData: GetAdminProfileReducer,
   totalCommission: GetTotalCommisionReducer,
   bookingDetailsData: BookingDetailsReducer,
+  bookingRequested: BookingRequestedDetailsReducer,
   reviewUpdate: ReviewUpdateReducer,
   sendEmail: SendEmailReducer,
   bussinessProgressData: BussinessProgressReducer,
@@ -61,8 +70,15 @@ const rootReducer = combineReducers({
   refundCustomer: RefundAmoutToCustomerReducer,
   cuisines: GetAllcuisineReducer,
   dishes: GetAllDishesReducer,
+  additionalService: GetAllAdditionalService,
   cancelTiming: GetCancellationTimeReducer,
+  stripeCents: GetStripeCentsReducer,
+  stripePercentage: GetStripePercentageReducer,
   updatedTime: UpdateCancellationTimeReducer,
+  resetPassword: ResetPasswordReducer,
+  addAdditionalService: AddAdditionalService,
+  deleteAdditionalService: DeleteAdditionalService,
+  updateAdditionalService: UpdateAdditionalService,
 })
 
 export default rootReducer

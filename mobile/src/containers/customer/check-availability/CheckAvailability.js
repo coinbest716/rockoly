@@ -2,7 +2,7 @@
 
 import React, {useRef, Component} from 'react'
 import {View, Alert, ScrollView, Dimensions} from 'react-native'
-import {Text, Button} from 'native-base'
+import {Text, Button, Textarea} from 'native-base'
 import {CalendarList} from 'react-native-calendars'
 import DateTimePicker from 'react-native-modal-datetime-picker'
 import Modalize from 'react-native-modalize'
@@ -12,6 +12,7 @@ import {GQL} from '@common'
 import {
   displayDateTimeFormat,
   commonDateFormat,
+  LocalToGMT,
   dbTimeFormat,
   displayTimeFormat,
   fetchDate,
@@ -44,6 +45,8 @@ class CheckAvailability extends Component {
       selectedDate: null,
       selectedItem: {},
       markedDates: {},
+      draftBooking: {},
+      draft: '',
       isLoading: true,
       showTimePicker: false,
       timeType: 'fromTime',
@@ -55,20 +58,38 @@ class CheckAvailability extends Component {
       unit: '',
       isInvalid: false,
       bookingTimings: [],
+      about: '',
     }
   }
 
   componentDidMount() {
     const {navigation} = this.props
 
-    const {chefPricePerHour, chefProfile, chefPriceUnit, chefId} = navigation.state.params
-    if (chefPricePerHour && chefPriceUnit) {
-      this.setState({
-        chefPrice: chefPricePerHour,
-        unit: chefPriceUnit,
+    const {
+      chefPricePerHour,
+      chefProfile,
+      chefPriceUnit,
+      draftBooking,
+      draft,
+      // chefId,
+    } = navigation.state.params
+    console.log('navigation.state.params', draftBooking, draft)
+    this.setState(
+      {
+        draftBooking,
+        draft,
         chefProfile,
-      })
-    }
+      },
+      () => {
+        console.log('this.state.draft', this.state.draft)
+        if (this.state.draft === 'DRAFTBOOKING') {
+          setTimeout(() => {
+            this.openModal()
+          }, 500)
+        }
+      }
+    )
+
     const fromDate = moment()
       .startOf('month')
       .format(commonDateFormat)
@@ -82,11 +103,16 @@ class CheckAvailability extends Component {
     BookingHistoryService.on(BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_LIST, this.setList)
 
     const markedDates = {}
-
+    let chefId = ''
+    if (draft === navigation.state.params.draft) {
+      chefId = navigation.state.params.draftBooking.chefId
+    }
     ChefProfileService.getAvailablityForCalendar(chefId, fromDate, toDate)
       .then(res => {
         _.map(res, item => {
-          const disabled = item.status === 'NOT_AVAILABLE' || moment(item.date).isBefore(new Date())
+          const disabled =
+            item.status === 'NOT_AVAILABLE' ||
+            moment(item.date).isBefore(moment().subtract(1, 'days'))
           markedDates[item.date] = {
             disabled,
             marked: !disabled,
@@ -132,7 +158,8 @@ class CheckAvailability extends Component {
   }
 
   dateSelected = date => {
-    const {markedDates} = this.state
+    console.log('date', date)
+    const {markedDates, draft} = this.state
     const {navigation} = this.props
     const {chefId} = navigation.state.params
 
@@ -146,7 +173,9 @@ class CheckAvailability extends Component {
         },
         () => {
           console.log('dateSelected', date, date.dateString)
-          this.fetchBookingTiming(date.dateString, chefId)
+          if (markedDates[date.dateString].disabled === false) {
+            this.fetchBookingTiming(date.dateString, chefId)
+          }
         }
       )
     }
@@ -211,55 +240,88 @@ class CheckAvailability extends Component {
     }
   }
 
-  bookNow = () => {
+  bookNowNext = () => {
     const {currentUser, isLoggedIn} = this.context
 
     const {
       chefId,
       selectedDate,
       isInvalid,
+      selectedItem,
       selectedFromTime,
       selectedToTime,
       chefProfile,
+      about,
+      pickerSelectedTime,
     } = this.state
     const {navigation} = this.props
+    const displayFromTime = moment(selectedItem.fromTime, dbTimeFormat).format(displayTimeFormat)
+    const displayToTime = moment(selectedItem.toTime, dbTimeFormat).format(displayTimeFormat)
+    const newDate = moment(new Date()).format('h:mm A')
+    console.log('selectedFromTime', selectedFromTime, newDate)
+    // let minimumMinutes
+    // let minimumHours
 
-    let minimumMinutes
-    let minimumHours
+    // if (chefProfile.chefProfileExtendedsByChefId.nodes[0].minimumNoOfMinutesForBooking) {
+    //   if (!chefProfile.chefProfileExtendedsByChefId.nodes[0].minimumNoOfMinutesForBooking) {
+    //     minimumMinutes = 0
+    //   } else {
+    //     minimumMinutes =
+    //       chefProfile.chefProfileExtendedsByChefId.nodes[0].minimumNoOfMinutesForBooking
+    //   }
 
-    if (chefProfile.chefProfileExtendedsByChefId.nodes[0].minimumNoOfMinutesForBooking) {
-      if (!chefProfile.chefProfileExtendedsByChefId.nodes[0].minimumNoOfMinutesForBooking) {
-        minimumMinutes = 0
-      } else {
-        minimumMinutes =
-          chefProfile.chefProfileExtendedsByChefId.nodes[0].minimumNoOfMinutesForBooking
-      }
+    //   if (!chefProfile.chefProfileExtendedsByChefId.nodes[0].minimumNoOfMinutesForBooking) {
+    //     minimumHours = 0
+    //   } else {
+    //     minimumHours =
+    //       chefProfile.chefProfileExtendedsByChefId.nodes[0].minimumNoOfMinutesForBooking / 60
+    //   }
+    // }
 
-      if (!chefProfile.chefProfileExtendedsByChefId.nodes[0].minimumNoOfMinutesForBooking) {
-        minimumHours = 0
-      } else {
-        minimumHours =
-          chefProfile.chefProfileExtendedsByChefId.nodes[0].minimumNoOfMinutesForBooking / 60
-      }
+    // const diffValue = moment(selectedToTime, displayTimeFormat).diff(
+    //   moment(selectedFromTime, displayTimeFormat),
+    //   'minutes'
+    // )
+
+    let checkTime = false
+    const momentSelectedDate = moment(`${selectedDate}`, 'YYYY-MM-DD')
+    if (moment(momentSelectedDate).isSame(moment(), 'day')) {
+      checkTime = true
     }
 
-    const diffValue = moment(selectedToTime, displayTimeFormat).diff(
-      moment(selectedFromTime, displayTimeFormat),
-      'minutes'
-    )
+    if (checkTime) {
+      // time checking
+      const from1 = moment(`${selectedDate} ${selectedFromTime}`, displayDateTimeFormat)
+      if (moment(from1).isSameOrBefore(moment())) {
+        Alert.alert('Please select valid time')
+        return
+      }
+    }
 
     if (!selectedDate || !selectedFromTime || !selectedToTime || isInvalid) {
-      Alert.alert(Languages.checkAvailability.alerts.select_time)
+      Alert.alert(Languages.checkAvailability.buttonLabels.select_valid_time)
       return
     }
 
-    if (minimumMinutes !== 0 && minimumMinutes !== undefined && diffValue < minimumMinutes) {
-      Alert.alert(
-        Languages.checkAvailability.alerts.info_title,
-        `Sorry, Minimum booking ${minimumHours} hours`
-      )
-      return
-    }
+    // if (selectedFromTime > displayFromTime || selectedToTime > displayToTime) {
+    //   Alert.alert(Languages.checkAvailability.buttonLabels.select_valid_time)
+    //   return
+    // }
+
+    // if (
+    //   moment(selectedFromTime).isBefore(displayFromTime) ||
+    //   moment(selectedToTime).isAfter(displayToTime)
+    // ) {
+    //   Alert.alert(Languages.checkAvailability.buttonLabels.select_valid_time)
+    //   return
+    // }
+    // if (minimumMinutes !== 0 && minimumMinutes !== undefined && diffValue < minimumMinutes) {
+    //   Alert.alert(
+    //     Languages.checkAvailability.alerts.info_title,
+    //     `Sorry, Minimum booking ${minimumHours} hours`
+    //   )
+    //   return
+    // }
 
     try {
       const from = moment(`${selectedDate} ${selectedFromTime}`, displayDateTimeFormat)
@@ -279,19 +341,57 @@ class CheckAvailability extends Component {
           if (res && isLoggedIn) {
             const chefBookingFromTime = from
             const chefBookingToTime = to
-            const chefBookingPriceValue = this.showTotalCost()
-            const chefBookingPriceUnit = 'USD'
-            const bookingData = {
+
+            BookingHistoryService.bookNow({
+              stripeCustomerId: null,
+              cardId: null,
               chefId,
               customerId: currentUser.customerId,
-              chefBookingFromTime,
-              chefBookingToTime,
-              chefBookingPriceValue,
-              chefBookingPriceUnit,
-              chefProfile,
-            }
+              fromTime: LocalToGMT(chefBookingFromTime),
+              toTime: LocalToGMT(chefBookingToTime),
+              notes: null,
+              dishTypeId: null,
+              summary: about ? JSON.stringify(about) : null,
+              allergyTypeIds: null,
+              otherAllergyTypes: null,
+              dietaryRestrictionsTypesIds: null,
+              otherDietaryRestrictionsTypes: null,
+              kitchenEquipmentTypeIds: null,
+              otherKitchenEquipmentTypes: null,
+              storeTypeIds: null,
+              otherStoreTypes: null,
+              noOfGuests: null,
+              complexity: null,
+              additionalServices: null,
+              locationAddress: null,
+              locationLat: null,
+              locationLng: null,
+              addrLine1: null,
+              addrLine2: null,
+              state: null,
+              country: null,
+              city: null,
+              postalCode: null,
+              isDraftYn: true,
+              bookingHistId: null,
+            })
+              .then(value => {
+                const bookingData = {
+                  chefId,
+                  customerId: currentUser.customerId,
+                  chefBookingFromTime,
+                  chefBookingToTime,
+                  chefProfile,
+                  summary: about ? JSON.stringify(about) : null,
+                  bookingHistId: value.data.chef_booking_hist_id,
+                }
+                console.log('bookingData', bookingData)
+                navigation.navigate(RouteNames.PRICING_MODAL, {bookingData})
+              })
+              .catch(err => {
+                console.log('err', err)
+              })
             this.closeModal()
-            navigation.navigate(RouteNames.BOOK_NOW, {bookingData})
           }
         })
         .catch(e => {
@@ -337,18 +437,21 @@ class CheckAvailability extends Component {
     }
   }
 
-  showTotalCost = () => {
-    const {selectedFromTime, selectedToTime, chefPrice} = this.state
-    // const startHour = this.convert12to24Format(selectedFromTime)
-    // const endHour = this.convert12to24Format(selectedToTime)
-    // const totalhours = endHour - startHour
-    const totalMinutes = moment(selectedToTime, displayTimeFormat).diff(
-      moment(selectedFromTime, displayTimeFormat),
-      'minutes'
-    )
-    const totalhours = totalMinutes / 60
-    const totalCost = totalhours * chefPrice
-    return totalCost
+  // showTotalCost = () => {
+  //   const {selectedFromTime, selectedToTime, chefPrice} = this.state
+  //   const totalMinutes = moment(selectedToTime, displayTimeFormat).diff(
+  //     moment(selectedFromTime, displayTimeFormat),
+  //     'minutes'
+  //   )
+  //   const totalhours = totalMinutes / 60
+  //   const totalCost = totalhours * chefPrice
+  //   return totalCost
+  // }
+
+  onChangeAbout = value => {
+    this.setState({
+      about: value,
+    })
   }
 
   renderModal = () => {
@@ -361,40 +464,39 @@ class CheckAvailability extends Component {
       isInvalid,
       chefProfile,
       bookingTimings,
+      about,
     } = this.state
 
     const displaySelectedFromTime = selectedFromTime == null ? 'Select' : selectedFromTime
     const displaySelectedToTime = selectedToTime == null ? 'Select' : selectedToTime
 
-    // const startHour = this.convert12to24Format(selectedFromTime)
-    // const endHour = this.convert12to24Format(selectedToTime)
-    // const totalhours = endHour - startHour
-    const totalMinutes = moment(selectedToTime, displayTimeFormat).diff(
-      moment(selectedFromTime, displayTimeFormat),
-      'minutes'
-    )
-    const totalhours = totalMinutes / 60
+    // const totalMinutes = moment(selectedToTime, displayTimeFormat).diff(
+    //   moment(selectedFromTime, displayTimeFormat),
+    //   'minutes'
+    // )
+    // const totalhours = totalMinutes / 60
 
-    const totalCost = totalhours * chefPrice
+    // const totalCost = totalhours * chefPrice
 
     const displayFromTime = moment(selectedItem.fromTime, dbTimeFormat).format(displayTimeFormat)
     const displayToTime = moment(selectedItem.toTime, dbTimeFormat).format(displayTimeFormat)
+    console.log('displayFromTime', displayFromTime, displayToTime)
 
-    let minimumHours
+    // let minimumHours
 
-    if (
-      chefProfile &&
-      chefProfile.chefProfileExtendedsByChefId &&
-      chefProfile.chefProfileExtendedsByChefId.nodes &&
-      chefProfile.chefProfileExtendedsByChefId.nodes.length &&
-      chefProfile.chefProfileExtendedsByChefId.nodes[0].minimumNoOfMinutesForBooking !== null &&
-      chefProfile.chefProfileExtendedsByChefId.nodes[0].minimumNoOfMinutesForBooking !== undefined
-    ) {
-      minimumHours =
-        chefProfile.chefProfileExtendedsByChefId.nodes[0].minimumNoOfMinutesForBooking / 60
-    } else {
-      minimumHours = 0
-    }
+    // if (
+    //   chefProfile &&
+    //   chefProfile.chefProfileExtendedsByChefId &&
+    //   chefProfile.chefProfileExtendedsByChefId.nodes &&
+    //   chefProfile.chefProfileExtendedsByChefId.nodes.length &&
+    //   chefProfile.chefProfileExtendedsByChefId.nodes[0].minimumNoOfMinutesForBooking !== null &&
+    //   chefProfile.chefProfileExtendedsByChefId.nodes[0].minimumNoOfMinutesForBooking !== undefined
+    // ) {
+    //   minimumHours =
+    //     chefProfile.chefProfileExtendedsByChefId.nodes[0].minimumNoOfMinutesForBooking / 60
+    // } else {
+    //   minimumHours = 0
+    // }
 
     return (
       <Modalize
@@ -410,17 +512,17 @@ class CheckAvailability extends Component {
           <Text style={styles.bookingTitle}>
             {Languages.checkAvailability.buttonLabels.booking_date} : {selectedItem.date}
           </Text>
-          <Text style={styles.priceTitle}>
+          {/* <Text style={styles.priceTitle}>
             {Languages.checkAvailability.buttonLabels.price_per_hour} :{' '}
             {Languages.checkAvailability.buttonLabels.dollar}
             {chefPrice}
-          </Text>
-          <Text style={styles.priceTitle}>
+          </Text> */}
+          {/* <Text style={styles.priceTitle}>
             {Languages.checkAvailability.buttonLabels.minimum_booking_hours} : {minimumHours} hrs
-          </Text>
+          </Text> */}
           <View style={styles.availableTime}>
             <Text style={styles.labelTitle}>
-              {Languages.checkAvailability.buttonLabels.booked_time}
+              {Languages.checkAvailability.buttonLabels.booked_time_message}
             </Text>
             {bookingTimings && bookingTimings.length > 0 ? (
               bookingTimings.map((time, key) => {
@@ -457,8 +559,11 @@ class CheckAvailability extends Component {
 
           <View style={styles.availableTime}>
             <Text style={styles.labelTitle}>
-              {Languages.checkAvailability.buttonLabels.selected_time}
+              {Languages.checkAvailability.buttonLabels.selected_time_message}
             </Text>
+            {/* <Text style={styles.noteText}>
+              Note: Please select time interval 0 or 30 mins, don't select 5,10,15,20,25 intervals.
+            </Text> */}
             <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
               <Button
                 style={styles.timeinputStyle}
@@ -484,7 +589,7 @@ class CheckAvailability extends Component {
               {Languages.checkAvailability.buttonLabels.select_valid_time}
             </Text>
           ) : null}
-          {isInvalid === false && (
+          {/* {isInvalid === false && (
             <View>
               {selectedFromTime !== null && selectedToTime !== null && (
                 <Text style={styles.amountText}>
@@ -499,11 +604,24 @@ class CheckAvailability extends Component {
                 </Text>
               )}
             </View>
-          )}
+          )} */}
+          <View style={styles.textAreaContent}>
+            <Textarea
+              style={styles.textAreaStyle}
+              rowSpan={5}
+              bordered
+              value={about}
+              onChangeText={value => this.onChangeAbout(value)}
+              placeholder="Tell a little bit about yourself and the event."
+            />
+          </View>
+          <Text style={styles.amountText}>
+            Chef will block out the times he/she will need on accepting the request.
+          </Text>
           <View style={styles.bookNowView}>
-            <Button block style={styles.bookNowStyleBtn} onPress={() => this.bookNow()}>
+            <Button block style={styles.bookNowStyleBtn} onPress={() => this.bookNowNext()}>
               <Text style={styles.continueBookTextSelect}>
-                {Languages.checkAvailability.buttonLabels.continue_booking}
+                {Languages.checkAvailability.buttonLabels.next}
               </Text>
             </Button>
           </View>
@@ -512,41 +630,37 @@ class CheckAvailability extends Component {
     )
   }
 
-  onShowPicker = (type, time) => {
-    this.setState({
-      showTimePicker: true,
-      timeType: type,
-      pickerSelectedTime: new Date(moment(time, 'hh:mm A')),
-    })
-  }
-
-  onChangeTime = date => {
-    const {timeType} = this.state
-    const newTime = moment(date).format('hh:mm A')
-    if (timeType === 'fromTime') {
-      this.setState({
-        selectedFromTime: newTime,
-        showTimePicker: false,
-      })
-    } else {
-      this.setState({
-        selectedToTime: newTime,
-        showTimePicker: false,
-      })
-    }
-
+  timeValidation = () => {
     let frmTime = null
     let totime = null
     let availableStartTime = null
     let availableEndTime = null
 
-    const {selectedItem, selectedFromTime, selectedToTime} = this.state
+    const {selectedItem, selectedDate, selectedFromTime, selectedToTime} = this.state
 
+    console.log('selectedFromTimetest', selectedFromTime)
     // checking min should be 0,30 min
-    const timeSlot = [0, 30]
+    // const timeSlot = [0, 30]
     if (selectedFromTime !== null && selectedToTime !== null) {
-      const fromMin = moment(selectedFromTime, displayTimeFormat).format('mm')
-      const toMin = moment(selectedToTime, displayTimeFormat).format('mm')
+      let checkTime = false
+      const momentSelectedDate = moment(`${selectedDate}`, 'YYYY-MM-DD')
+      if (moment(momentSelectedDate).isSame(moment(), 'day')) {
+        checkTime = true
+      }
+
+      if (checkTime) {
+        // time checking
+        const from1 = moment(`${selectedDate} ${selectedFromTime}`, displayDateTimeFormat)
+        if (moment(from1).isSameOrBefore(moment())) {
+          this.setState({
+            isInvalid: true,
+          })
+          return
+        }
+      }
+
+      // const fromMin = moment(selectedFromTime, displayTimeFormat).format('mm')
+      // const toMin = moment(selectedToTime, displayTimeFormat).format('mm')
 
       frmTime = moment(selectedFromTime, 'hh:mm A')
       totime = moment(selectedToTime, 'hh:mm A')
@@ -556,8 +670,8 @@ class CheckAvailability extends Component {
       availableEndTime = moment(displayToTime, 'hh:mm A')
 
       if (
-        timeSlot.indexOf(parseInt(fromMin)) === -1 ||
-        timeSlot.indexOf(parseInt(toMin)) === -1 ||
+        // timeSlot.indexOf(parseInt(fromMin)) === -1 ||
+        // timeSlot.indexOf(parseInt(toMin)) === -1 ||
         !moment(frmTime).isBefore(totime) ||
         !moment(frmTime).isSameOrAfter(availableStartTime) ||
         !moment(totime).isSameOrBefore(availableEndTime)
@@ -570,6 +684,41 @@ class CheckAvailability extends Component {
           isInvalid: false,
         })
       }
+    }
+  }
+
+  onShowPicker = (type, time) => {
+    console.log('time', time)
+    this.setState({
+      showTimePicker: true,
+      timeType: type,
+      pickerSelectedTime: new Date(moment(time, 'hh:mm A')),
+    })
+  }
+
+  onChangeTime = date => {
+    const {timeType} = this.state
+    const newTime = moment(date).format('hh:mm A')
+    if (timeType === 'fromTime') {
+      this.setState(
+        {
+          selectedFromTime: newTime,
+          showTimePicker: false,
+        },
+        () => {
+          this.timeValidation()
+        }
+      )
+    } else {
+      this.setState(
+        {
+          selectedToTime: newTime,
+          showTimePicker: false,
+        },
+        () => {
+          this.timeValidation()
+        }
+      )
     }
   }
 
@@ -605,7 +754,7 @@ class CheckAvailability extends Component {
         />
         <CalendarList
           pastScrollRange={0}
-          futureScrollRange={2}
+          // futureScrollRange={2}
           selected={new Date()}
           markedDates={markedDates}
           onDayPress={date => {

@@ -47,6 +47,11 @@ const menuItems = [
     route: n.CUISINES_DISHES,
   },
   {
+    name: CommonLables.ADDITIONAL_SER,
+    value: n.EXTRA_SERVICE,
+    route: n.EXTRA_SERVICE,
+  },
+  {
     name: CommonLables.SETTINGS,
     value: n.SETTINGS,
     route: n.SETTINGS,

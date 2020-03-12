@@ -10,7 +10,11 @@ export const createdDate = params => {
     return null
   }
 }
-
+export const displayDateFormat = 'DD-MMM-YYYY'
+export const GMTToLocal = time => {
+  let value = moment(moment.utc(time).local()).format(displayDateFormat)
+  return value
+}
 export const currentDate = () => {
   let date = moment(new Date()).format('MM-DD-YYYY')
   console.log('dsadjalksjdlakjsd123123', date)

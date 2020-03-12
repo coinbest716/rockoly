@@ -1,0 +1,79 @@
+
+Mobile 
+1.submit for review - 3 hrs
+2.Location change labels - 15 min
+  - Country / Region
+  - Street Address
+  - Apt, Suite. (optional)
+  - City, State
+  - Zip Code
+3.One + 5T Rockoly mobile app clicking current location kills internet connection. Reproducible every time. 3 hrs
+4.If my mobile number is already verified. It should be displayed with a check mark mobile verified and an icon to change mobile with new verification if that occurs.  - 30 mins
+6.Customer Profile Enhancements 1 - 4 hrs
+  1) Combine basic profile and mobile number into Profile - its better to have it seperately
+  2) Take away salutation, gender as displays - ok
+  3) change/Verify email, change/verify mobile options - ok
+  
+7.Booking flow - 15min
+  Some wording changes:
+    Desired Dishes 
+    Between 1-2 menu items 
+8.Mobile: After switching to customer from chef, profile picture should carry over automatically. - 30min
+9.Select location in booking flow - 5hrs
+  - by default it will customer location
+  - add After tell about you event
+  - Show location from booking details object instead customer location  
+10.message - 10 min
+  - After completing the process admin will review and send the amount to chef
+  - For chef show message; You have completed the booking. admin will review and send you the booking amount
+11.Inbox first message can be summary of order - back-end
+
+On Hold
+5.Cant update date of birth year in basic profile - will fix this
+  - Please dont make it a calendar. Just 3 drop downs for month day year. - on-hold
+6.Customer Profile Enhancements 1
+  1) Combine basic profile and mobile number into Profile - its better to have it seperately
+  4) Add a short text field bio called "About" - ok
+  
+Web - 
+1.submit for review 
+ we will change functionality
+  - is mobile/email verification mandatory
+2.Website login errors - 2hrs
+3.Location change labels
+  - Country / Region
+  - Street Address
+  - Apt, Suite. (optional)
+  - City, State
+  - Zip Code
+4.Website: After login as customer, see chef profiles, should go to search or page I was forced to login from. - 1hrs
+5.Misspelling favorite
+6.Have success notification popup and go away in 2 secs. without actively clicking.
+7.If my mobile number is already verified. It should be displayed with a check mark mobile verified and an icon to change mobile with new verification if that occurs.
+8.Cant update date of birth year in basic profile. - its native thing
+  - Please dont make it a calendar. Just 3 drop downs for month day year.
+9.Customer Profile Enhancements 1
+  2) Take away salutation, gender as displays - ok
+  3) change/Verify email, change/verify mobile options - ok 
+10.Web final booking page. - 4 hrs
+  No default for number of people makes calculation off. Should be minimum specified by the chef. 
+  What is summary? supposed to be
+  Take away empty if no cards available. 
+  Some wording changes:
+    Desired Dishes 
+    Between 1-2 menu items 
+11.Web: No options to select an existing dish or add a new one. Should be independent of what chef has set. - 1hrs
+12.Mobile: After switching to customer from chef, profile picture should carry over automatically.
+13.Select location in booking flow
+  - by default it will customer location
+  - add After tell about you event
+  - Show location from booking details object instead customer location  
+14.message
+  - After completing the process admin will review and send the amount to chef
+  - For chef show message; You have completed the booking. admin will review and send you the booking amount
+15.Inbox first message can be summary of order
+
+On Hold 
+9.Customer Profile Enhancements 1
+  1) Combine basic profile and mobile number into Profile - its better to have it seperately
+  4) Add a short text field bio called "About" - ok

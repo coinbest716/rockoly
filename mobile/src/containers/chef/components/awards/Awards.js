@@ -11,7 +11,7 @@ import {
   ListItem,
   CheckBox,
   Body,
-  Item,
+  Card,
   Input,
   Content,
   Form,
@@ -19,7 +19,12 @@ import {
 import moment from 'moment'
 import _ from 'lodash'
 import {Theme} from '@theme'
-import {AuthContext, ChefPreferenceService, BasicProfileService} from '@services'
+import {
+  AuthContext,
+  ChefPreferenceService,
+  BasicProfileService,
+  CHEF_PREFERNCE_EVENT,
+} from '@services'
 import {CommonButton, Spinner} from '@components'
 import {Languages} from '@translations'
 import styles from './styles'
@@ -29,33 +34,7 @@ export default class ChefExperience extends Component {
     super(props)
     this.state = {
       awards: '',
-      certifications: [
-        {
-          label: 'Chef Fluency',
-          value: 'Chef Fluency',
-          checked: false,
-        },
-        {
-          label: 'Cookbook Deployment',
-          value: 'Cookbook Deployment',
-          checked: false,
-        },
-        {
-          label: 'Extending Chef',
-          value: 'Extending Chef',
-          checked: false,
-        },
-        {
-          label: 'Cookbook Development',
-          value: 'Cookbook Development',
-          checked: false,
-        },
-        {
-          label: 'Auditing with InSpec',
-          value: 'Auditing with InSpec',
-          checked: false,
-        },
-      ],
+      certifications: [],
       certificationsTypeId: [],
       profile: {},
       isFetching: false,
@@ -63,14 +42,82 @@ export default class ChefExperience extends Component {
   }
 
   componentDidMount() {
+    ChefPreferenceService.on(CHEF_PREFERNCE_EVENT.CERTIFICATE, this.certificationList)
     this.setState(
       {
         isFetching: true,
       },
       () => {
         this.loadData()
+        this.fetchCertificateData()
       }
     )
+  }
+
+  componentWillUnmount() {
+    ChefPreferenceService.off(CHEF_PREFERNCE_EVENT.CERTIFICATE, this.certificationList)
+  }
+
+  fetchCertificateData = () => {
+    ChefPreferenceService.getCertifications()
+  }
+
+  certificationList = ({certificateData}) => {
+    console.log('certificateData', certificateData)
+    this.setState({isFetching: false})
+    const temp = []
+    certificateData.map((item, value) => {
+      const val = {
+        label: item.certificateTypeName,
+        id: item.certificateTypeId,
+        checked: false,
+      }
+      temp.push(val)
+    })
+    this.setState(
+      {
+        certifications: temp,
+      },
+      () => {
+        this.loadCertificateData()
+      }
+    )
+  }
+
+  loadCertificateData = async () => {
+    const {certifications} = this.state
+    const {getProfile} = this.context
+    const profile = await getProfile()
+    console.log('certifications prefernces', profile)
+    if (profile) {
+      if (
+        profile.chefProfileExtendedsByChefId &&
+        profile.chefProfileExtendedsByChefId.nodes.length > 0
+      ) {
+        const preferences = profile.chefProfileExtendedsByChefId.nodes[0]
+
+        const certificationType = certifications
+
+        const temp = []
+        certificationType.map((res, index) => {
+          console.log('res', res)
+          const obj = {
+            label: res.label,
+            id: res.id,
+            checked:
+              preferences && preferences.chefCertificateType
+                ? !preferences.chefCertificateType.every(item => item !== res.id)
+                : false,
+          }
+          temp.push(obj)
+        })
+
+        console.log('certificationType', temp)
+        this.setState({
+          certifications: temp,
+        })
+      }
+    }
   }
 
   onChangeAwardsDesc = value => {
@@ -96,7 +143,7 @@ export default class ChefExperience extends Component {
         const val = []
         await certifications.map((itemVal, key) => {
           if (itemVal.checked === true) {
-            val.push(itemVal.value)
+            val.push(itemVal.id)
           }
         })
         this.setState({
@@ -104,6 +151,10 @@ export default class ChefExperience extends Component {
         })
       }
     )
+  }
+
+  renderLine = () => {
+    return <View style={styles.border} />
   }
 
   loadData = async () => {
@@ -138,12 +189,13 @@ export default class ChefExperience extends Component {
 
   onSave = () => {
     const {currentUser} = this.context
+    const {onSaveCallBack} = this.props
     const {awards, certificationsTypeId} = this.state
     if (currentUser && currentUser !== null && currentUser !== undefined) {
       const obj = {
         chefProfileExtendedId: currentUser.chefProfileExtendedId,
         chefAwards: awards ? JSON.stringify(awards) : null,
-        chefCertificateType: null,
+        chefCertificateType: certificationsTypeId,
       }
       console.log('Awards save', obj)
       this.setState(
@@ -156,9 +208,12 @@ export default class ChefExperience extends Component {
               this.setState({
                 isFetching: false,
               })
-              BasicProfileService.emitProfileEvent()
+              // BasicProfileService.emitProfileEvent()
               console.log('Awards data', data)
-              this.loadData()
+              if (onSaveCallBack) {
+                onSaveCallBack()
+              }
+              // this.loadData()
             })
             .catch(error => {
               console.log('Awards error', error)
@@ -178,7 +233,7 @@ export default class ChefExperience extends Component {
     return (
       <ScrollView>
         <View style={styles.container}>
-          <View>
+          <Card style={styles.cardStyle}>
             <Label style={styles.label}>Awards </Label>
             <Textarea
               style={styles.textAreaStyle}
@@ -186,10 +241,10 @@ export default class ChefExperience extends Component {
               bordered
               value={awards}
               onChangeText={value => this.onChangeAwardsDesc(value)}
-              placeholder="Awards"
+              placeholder="Enter any awards you have won"
             />
-          </View>
-          <View>
+          </Card>
+          <Card style={styles.cardStyle}>
             <Label style={styles.label}>Certifications </Label>
             {certifications &&
               certifications.length > 0 &&
@@ -207,7 +262,7 @@ export default class ChefExperience extends Component {
                   </ListItem>
                 )
               })}
-          </View>
+          </Card>
         </View>
         <CommonButton
           btnText={Languages.awards.btnLabel.save}

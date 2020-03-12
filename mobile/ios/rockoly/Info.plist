@@ -83,6 +83,8 @@
 	<string>Rockoly need get your location</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Upload your picture for profile setup</string>
+	<key>UIUserInterfaceStyle</key>
+  <string>Light</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>OpenSans-Regular.ttf</string>

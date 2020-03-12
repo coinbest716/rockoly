@@ -2,6 +2,7 @@
 
 import React, {Component} from 'react'
 import {BrowserRouter as Router, Switch} from 'react-router-dom'
+import {createBrowserHistory} from 'history'
 import PublicLayout from '../layouts/publicLayout'
 import PrivateLayout from '../layouts/privateLayout'
 import n from './routesNames'
@@ -21,6 +22,7 @@ import ReviewDetail from '../reviewDetails/reviewDetail'
 import BookingDetails from '../bookingDetails/bookingDetails'
 import TestSample from '../test/testSample'
 import CuisinesAndDishes from '../cuisinesAndDishes/cuisinesAndDishes'
+import ExtraService from '../extraService/extraService'
 import Settings from '../settings/settings'
 
 function PublicView(props) {
@@ -32,11 +34,21 @@ function PrivateView(props) {
 }
 
 //TODO: @suren add method to check whether user is logged in and redirect to dashboard
+const history = createBrowserHistory()
 
 export class Routes extends Component {
+  componentDidMount() {
+    const path = (/#!(\/.*)$/.exec(window.location.hash) || [])[1]
+    if (path) {
+      history.replace(path)
+    }
+  }
+  componentWillReceiveProps() {
+    console.log('jymfghfjgghf', window.location.hash)
+  }
   render() {
     return (
-      <Router>
+      <Router basename={'/admin'} history={history}>
         <Switch>
           <PublicView exact path={n.START} component={Login} />
           <PrivateView exact path={n.DASHBOARD} component={Dashboard} />
@@ -54,6 +66,7 @@ export class Routes extends Component {
           <PrivateView exact path={n.BOOKINGDETAILS} component={BookingDetails} />
           <PrivateView exact path={n.TESTSAMPLE} component={TestSample} />
           <PrivateView exact path={n.CUISINES_DISHES} component={CuisinesAndDishes} />
+          <PrivateView exact path={n.EXTRA_SERVICE} component={ExtraService} />
           <PrivateView exact path={n.SETTINGS} component={Settings} />
         </Switch>
       </Router>

@@ -21,6 +21,11 @@ const styles = StyleSheet.create({
     width: 'auto',
     alignSelf: 'center',
   },
+  sndBtn: {
+    marginVertical: 20,
+    width: 'auto',
+    alignSelf: 'center',
+  },
   arrowRight: {
     color: Theme.Colors.primary,
     alignSelf: 'center',

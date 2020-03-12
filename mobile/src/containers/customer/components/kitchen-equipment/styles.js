@@ -9,10 +9,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   allergiesLabel: {
+    marginVertical: 5,
     textAlign: 'center',
   },
   saveBtn: {
-    width: '40%',
+    width: 'auto',
     alignSelf: 'center',
     marginVertical: 15,
   },

@@ -10,21 +10,24 @@ import {RouteNames} from '@navigation'
 export default class AboutUs extends PureComponent {
   constructor(props) {
     super(props)
-    this.state = {
-      isLoading: false,
-    }
+    this.state = {}
   }
 
   render() {
-    const {isLoading} = this.state
-
     return (
       <View style={styles.mainView}>
         <Header showBack title="About Us" showBell={false} />
-        <View>
-          <Text> About Us</Text>
+        <View style={{marginHorizontal: 15, marginVertical: 15}}>
+          <Text style={{fontSize: 16, lineHeight: 25}}>
+            Started by two Boston guys, Rockoly is a platform connecting private chefs to hungry
+            customers. We seek to demystify private chef industry by providing clear transparent
+            pricing based on our unique pricing model and easy booking process. No longer will
+            customers be overcharged for having a "wedding" vs "anything but the wedding". No longer
+            will customers be overcharged for having lobster instead of chicken and rice because of
+            3x ingredients cost pricing model. Join the revolution and let's bring healthy gourmet
+            cooking to your home.
+          </Text>
         </View>
-        {/* {isLoading ? <Spinner animating mode="full" /> : null} */}
       </View>
     )
   }

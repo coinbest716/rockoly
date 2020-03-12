@@ -26,10 +26,12 @@ class OTPVerification extends PureComponent {
       isMobileVerified: false,
       mobileNoWithCountryCode: null,
       isLoading: true,
+      isAutoVerified: false,
     }
   }
 
   componentDidMount() {
+    // for unlinking the phone debugging purpose
     // try {
     //   const {currentUser} = firebase.auth()
     //   currentUser
@@ -77,11 +79,12 @@ class OTPVerification extends PureComponent {
             return `+${country.callingCode}` === callingCodeWithPlus
           })
           .pop()
-        const cca2 = countryData && countryData.cca2 ? countryData.cca2 : ''
+        const cca2 = countryData && countryData.cca2 ? countryData.cca2 : 'US'
+        const callingCode = countryData && countryData.callingCode ? countryData.callingCode : '1'
         this.setState({
           mobileNumber: mob,
           callingCodeWithPlus,
-          callingCode: countryData.callingCode,
+          callingCode,
           cca2,
           // this is common for chef and customer
           userMobileNumber: profile.mobileNoWithCountryCode,
@@ -98,7 +101,6 @@ class OTPVerification extends PureComponent {
 
   continueSendOTP = () => {
     const {mobileNumber, callingCode} = this.state
-
     this.setState({
       isLoading: true,
     })
@@ -106,66 +108,104 @@ class OTPVerification extends PureComponent {
     return firebase
       .auth()
       .verifyPhoneNumber(`+${callingCode}${mobileNumber}`)
-      .on('state_changed', phoneAuthSnapshot => {
-        switch (phoneAuthSnapshot.state) {
-          case firebase.auth.PhoneAuthState.CODE_SENT: {
-            // display toast otp sent
-            this.setState({phoneAuthSnapshot, sendOTP: true, isLoading: false})
+      .on(
+        'state_changed',
+        phoneAuthSnapshot => {
+          switch (phoneAuthSnapshot.state) {
+            case firebase.auth.PhoneAuthState.CODE_SENT: {
+              // display toast otp sent
+              this.setState({phoneAuthSnapshot, sendOTP: true, isLoading: false})
 
-            Toast.show({
-              text: Languages.OTPVerification.otpAlertMessage.otp_sent,
-              duration: 3000,
-            })
+              Toast.show({
+                text: Languages.OTPVerification.otpAlertMessage.otp_sent,
+                duration: 3000,
+              })
 
-            break
-          }
-          case firebase.auth.PhoneAuthState.ERROR: {
-            // display toast otp error
-            Toast.show({
-              text: Languages.OTPVerification.otpAlertMessage.otp_not_sent,
-              duration: 3000,
-            })
-
-            this.setState({
-              isLoading: false,
-            })
-
-            break
-          }
-          case firebase.auth.PhoneAuthState.AUTO_VERIFY_TIMEOUT:
-            break
-          case firebase.auth.PhoneAuthState.AUTO_VERIFIED: {
-            // display toast otp error and update mobile number
-            this.setState({phoneAuthSnapshot, isLoading: true}, () => {
-              const {verificationId, code} = phoneAuthSnapshot
-              const credential = firebase.auth.PhoneAuthProvider.credential(verificationId, code)
-              firebase
-                .auth()
-                .currentUser.linkWithCredential(credential)
-                .then(result => {
-                  this.showVerifiedStatus(true)
+              break
+            }
+            case firebase.auth.PhoneAuthState.ERROR: {
+              this.setState({
+                isLoading: false,
+              })
+              Alert.alert(
+                Languages.OTPVerification.title,
+                Languages.OTPVerification.otpAlertMessage.otp_not_sent
+              )
+              break
+            }
+            case firebase.auth.PhoneAuthState.AUTO_VERIFY_TIMEOUT:
+              break
+            case 'verified':
+              this.setState(
+                {
+                  phoneAuthSnapshot,
+                  isLoading: true,
+                  isAutoVerified: true,
+                },
+                () => {
+                  this.checkProvider()
+                }
+              )
+              break
+            case firebase.auth.PhoneAuthState.AUTO_VERIFIED: {
+              // display toast otp error and update mobile number
+              const {code} = phoneAuthSnapshot
+              if (code) {
+                this.setState(
+                  {
+                    phoneAuthSnapshot,
+                    isLoading: true,
+                    OTP: code,
+                    isAutoVerified: true,
+                  },
+                  () => {
+                    this.checkProvider()
+                  }
+                )
+              } else {
+                this.setState({
+                  isLoading: false,
                 })
-                .catch(error => {
-                  this.setState({
-                    isLoading: false,
-                  })
-                })
-            })
-
-            break
+              }
+              break
+            }
+            default:
+              break
           }
-          default:
-            break
+        },
+        error => {
+          console.log('debugging e', error)
+        },
+        phoneAuthSnapshot => {
+          console.log(phoneAuthSnapshot)
         }
-      })
+      )
+  }
+
+  showError = () => {
+    this.setState({
+      isLoading: false,
+    })
+    Alert.alert(
+      Languages.OTPVerification.title,
+      Languages.OTPVerification.otpAlertMessage.could_not_verify
+    )
   }
 
   sendOtp = () => {
     const {userMobileNumber, mobileNumber, callingCode} = this.state
+    const {currentUser} = firebase.auth()
     if (!mobileNumber || !callingCode) {
       return Toast.show({text: Languages.OTPVerification.otpAlertMessage.number_empty})
     }
     if (userMobileNumber === `+${callingCode}${mobileNumber}`) {
+      if (
+        currentUser &&
+        currentUser.phoneNumber &&
+        currentUser.phoneNumber === `+${callingCode}${mobileNumber}`
+      ) {
+        return Toast.show({text: Languages.OTPVerification.otpAlertMessage.already_verified})
+      }
       return this.continueSendOTP()
     }
     return RegisterService.checkEmailAndMobileNoExists(null, `+${callingCode}${mobileNumber}`)
@@ -197,6 +237,7 @@ class OTPVerification extends PureComponent {
   showVerifiedStatus = async flag => {
     const {mobileNumber, callingCode} = this.state
     const {isChef, currentUser, getProfile} = this.context
+    const {onSaveCallBack} = this.props
     const profile = await getProfile()
     const firstName = isChef ? profile.chefFirstName : profile.customerFirstName
     RegisterService.saveBasicDetails(
@@ -212,6 +253,9 @@ class OTPVerification extends PureComponent {
               : Languages.OTPVerification.otpAlertMessage.number_verified,
             duration: 5000,
           })
+          if (onSaveCallBack) {
+            onSaveCallBack()
+          }
           this.loadData()
         }
       })
@@ -245,7 +289,7 @@ class OTPVerification extends PureComponent {
   }
 
   verifyPhoneNumber = () => {
-    const {OTP, phoneAuthSnapshot} = this.state
+    const {OTP, phoneAuthSnapshot, isAutoVerified} = this.state
     if (phoneAuthSnapshot && OTP && OTP.length) {
       this.setState({
         isLoading: true,
@@ -255,27 +299,52 @@ class OTPVerification extends PureComponent {
         OTP
       )
       const {currentUser} = firebase.auth()
-      currentUser
-        .linkWithCredential(credential)
-        .then(() => {
-          this.showVerifiedStatus(false)
-        })
-        .catch(() => {
-          this.setState({
-            isLoading: false,
+      if (currentUser) {
+        currentUser
+          .linkWithCredential(credential)
+          .then(() => {
+            this.showVerifiedStatus(isAutoVerified)
           })
-        })
+          .catch(e => {
+            console.log('Error otp verification', e)
+            this.showError()
+          })
+      } else {
+        console.log('ERROR no user logged in ')
+        this.showError()
+      }
+    } else if (isAutoVerified && (!OTP || OTP.length === 0)) {
+      const credential = firebase.auth.PhoneAuthProvider.credential(null, null)
+      const {currentUser} = firebase.auth()
+      if (currentUser) {
+        currentUser
+          .linkWithCredential(credential)
+          .then(() => {
+            this.showVerifiedStatus(isAutoVerified)
+          })
+          .catch(e => {
+            console.log('Error otp verification', e)
+            this.showError()
+          })
+      } else {
+        this.showError()
+        console.log('ERROR no user logged in ')
+      }
     } else {
+      this.setState({
+        isLoading: false,
+      })
       Alert.alert(
         Languages.OTPVerification.otpAlertMessage.error,
         Languages.OTPVerification.otpAlertMessage.enter_otp
       )
+      console.log('ERROR no user logged in ')
     }
   }
 
   checkProvider = () => {
     const {currentUser} = firebase.auth()
-    if (currentUser.phoneNumber) {
+    if (currentUser && currentUser.phoneNumber) {
       currentUser
         .unlink('phone')
         .then(() => {
@@ -309,6 +378,7 @@ class OTPVerification extends PureComponent {
       <Item style={styles.otpInput}>
         <CountryPicker
           filterable
+          withAlphaFilter
           closeable
           onChange={value => {
             this.selectCountry(value)
@@ -330,20 +400,65 @@ class OTPVerification extends PureComponent {
           placeholder={Languages.OTPVerification.labels.mobile_number}
           onChangeText={this.onChangeMobileNumber}
           value={mobileNumber}
+          keyboardType="phone-pad"
         />
       </Item>
     )
   }
 
+  onNext = () => {
+    const {onSaveCallBack} = this.props
+    if (onSaveCallBack) {
+      onSaveCallBack()
+    }
+  }
+
   renderContent = () => {
-    const {OTP, mobileNoWithCountryCode, sendOTP, isMobileVerified} = this.state
+    const {currentUser} = firebase.auth()
+    const {
+      OTP,
+      mobileNoWithCountryCode,
+      sendOTP,
+      callingCodeWithPlus,
+      mobileNumber,
+      isMobileVerified,
+      cca2,
+    } = this.state
+    const {onSaveCallBack} = this.props
+    console.log(currentUser)
+    let providerId
+    if (
+      currentUser.providerData &&
+      currentUser.providerData[0] &&
+      currentUser.providerData[0].providerId === 'password'
+    ) {
+      providerId = currentUser.providerData[0].providerId
+    }
     return (
       <ScrollView>
         {isMobileVerified === false && (
           <View style={styles.mainView}>
-            <Text>{Languages.OTPVerification.labels.sentMsg}</Text>
+            {sendOTP === true ? (
+              <Text>{Languages.OTPVerification.labels.sentMsg}</Text>
+            ) : (
+              <Text>{Languages.OTPVerification.labels.otpVerify}</Text>
+            )}
 
-            {this.renderMobileNumber()}
+            {onSaveCallBack && providerId && providerId === 'password' ? (
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  marginTop: 10,
+                }}>
+                <Text>
+                  {callingCodeWithPlus} {mobileNumber}
+                </Text>
+              </View>
+            ) : (
+              this.renderMobileNumber()
+            )}
 
             {sendOTP === true && (
               <Item style={styles.otpInput}>
@@ -351,16 +466,19 @@ class OTPVerification extends PureComponent {
                   placeholder={Languages.OTPVerification.labels.enterOTP}
                   onChangeText={this.onChangeOTP}
                   value={OTP}
+                  keyboardType="number-pad"
                 />
               </Item>
             )}
+            {sendOTP === true && (
+              <Button style={styles.dontReceiveOTP} transparent onPress={() => this.sendOtp()}>
+                <Text style={styles.dontReceiveOTPText}>
+                  {Languages.OTPVerification.labels.dontReceiveOTP}
+                </Text>
+                <Text style={styles.clickHere}>{Languages.OTPVerification.labels.clickHere}</Text>
+              </Button>
+            )}
 
-            <Button style={styles.dontReceiveOTP} transparent onPress={() => this.sendOtp()}>
-              <Text style={styles.dontReceiveOTPText}>
-                {Languages.OTPVerification.labels.dontReceiveOTP}
-              </Text>
-              <Text style={styles.clickHere}>{Languages.OTPVerification.labels.clickHere}</Text>
-            </Button>
             {sendOTP === true && (
               <View style={{flexDirection: 'row', width: '100%', justifyContent: 'space-around'}}>
                 <View
@@ -375,14 +493,19 @@ class OTPVerification extends PureComponent {
                     this.checkProvider()
                   }}
                 />
-                <Icon
+                <View
+                  style={{
+                    width: '15%',
+                  }}
+                />
+                {/* <Icon
                   style={styles.arrowRight}
                   type="MaterialCommunityIcons"
                   name="arrow-right"
                   onPress={() => {
                     this.onSetLocationPress()
                   }}
-                />
+                /> */}
               </View>
             )}
             {sendOTP === false && (
@@ -394,19 +517,24 @@ class OTPVerification extends PureComponent {
                 />
                 <CommonButton
                   btnText={Languages.OTPVerification.labels.send_otp}
-                  containerStyle={styles.verifytBtn}
+                  containerStyle={styles.sndBtn}
                   onPress={() => {
                     this.sendOtp()
                   }}
                 />
-                <Icon
+                <View
+                  style={{
+                    width: '15%',
+                  }}
+                />
+                {/* <Icon
                   style={styles.arrowRight}
                   type="MaterialCommunityIcons"
                   name="arrow-right"
                   onPress={() => {
                     this.onSetLocationPress()
                   }}
-                />
+                /> */}
               </View>
             )}
           </View>
@@ -415,24 +543,56 @@ class OTPVerification extends PureComponent {
           <View style={styles.mainView}>
             <Text style={styles.centerAlign}>{mobileNoWithCountryCode}</Text>
             <Text style={styles.centerAlign}>{Languages.OTPVerification.labels.verified_msg}</Text>
-            <View style={{flexDirection: 'row', width: '100%', justifyContent: 'space-around'}}>
-              <View
-                style={{
-                  width: '10%',
-                }}
-              />
-              <CommonButton
-                btnText={Languages.OTPVerification.labels.change_number}
-                containerStyle={styles.changeMOBButton}
-                onPress={this.onChangeOtherMobileNumber}
-              />
-              <Icon
+            {!onSaveCallBack && (
+              <View style={{flexDirection: 'row', width: '100%', justifyContent: 'space-around'}}>
+                <View
+                  style={{
+                    width: '10%',
+                  }}
+                />
+                <CommonButton
+                  btnText={Languages.OTPVerification.labels.change_number}
+                  containerStyle={styles.changeMOBButton}
+                  onPress={this.onChangeOtherMobileNumber}
+                />
+                <View
+                  style={{
+                    width: '10%',
+                  }}
+                />
+                {/* <Icon
                 style={styles.arrowRight}
                 type="MaterialCommunityIcons"
                 name="arrow-right"
                 onPress={this.onSetLocationPress}
-              />
-            </View>
+              /> */}
+              </View>
+            )}
+            {onSaveCallBack && (
+              <View style={{flexDirection: 'row', width: '100%', justifyContent: 'space-around'}}>
+                <View
+                  style={{
+                    width: '10%',
+                  }}
+                />
+                <CommonButton
+                  btnText={Languages.OTPVerification.labels.next}
+                  containerStyle={styles.changeMOBButton}
+                  onPress={this.onNext}
+                />
+                <View
+                  style={{
+                    width: '10%',
+                  }}
+                />
+                {/* <Icon
+                style={styles.arrowRight}
+                type="MaterialCommunityIcons"
+                name="arrow-right"
+                onPress={this.onSetLocationPress}
+              /> */}
+              </View>
+            )}
           </View>
         )}
       </ScrollView>
@@ -443,7 +603,6 @@ class OTPVerification extends PureComponent {
     const {isLoading} = this.state
     return (
       <View style={styles.container}>
-        <Header showBack title={Languages.OTPVerification.title} showBell={false} />
         {isLoading ? (
           <View style={styles.alignScreenCenter}>
             <Spinner animating mode="full" />

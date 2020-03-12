@@ -34,6 +34,10 @@ import {allCertificateTypeMastersGQLTAG} from './query.master.allCertifications'
 
 //Additional Service Master
 import {allAdditionalServiceTypeMastersGQLTAG} from './query.master.allAdditionalServiceTypeMasters';
+import {allAdditionalServiceTypeMastersByStatusGQLTAG} from './query.master.allAdditionalServiceTypeMastersByStatus';
+
+// Store
+import {storeTypeGQLTAG} from './query.master.store';
 
 export {
   allAllergyGQLTAG,
@@ -70,5 +74,9 @@ export {
   allCertificateTypeMastersGQLTAG,
 
   //Additonal Service Masters
-  allAdditionalServiceTypeMastersGQLTAG
+  allAdditionalServiceTypeMastersGQLTAG,
+  allAdditionalServiceTypeMastersByStatusGQLTAG,
+
+  // Store
+  storeTypeGQLTAG
 };

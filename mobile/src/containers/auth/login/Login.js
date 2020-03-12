@@ -217,9 +217,8 @@ class Login extends PureComponent {
   }
 
   onSignUpHandle = () => {
-    const {role} = this.state
     const {navigation} = this.props
-    navigation.navigate(RouteNames.REGISTER_SCREEN, {role})
+    navigation.navigate(RouteNames.PRE_REGISTER_SCREEN)
   }
 
   checkBoxHandle = () => {
@@ -299,6 +298,7 @@ class Login extends PureComponent {
                   placeholder={Languages.login.buttonLabels.password}
                   onChangeText={e => this.onPasswordEditHandle(e)}
                   returnKeyType="go"
+                  autoCapitalize="none"
                   value={password}
                 />
                 <Right>
@@ -318,6 +318,7 @@ class Login extends PureComponent {
                   placeholder={Languages.login.buttonLabels.password}
                   onChangeText={this.onPasswordEditHandle}
                   returnKeyType="go"
+                  autoCapitalize="none"
                   value={password}
                 />
                 <Right>

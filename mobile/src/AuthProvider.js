@@ -4,6 +4,7 @@ import React from 'react'
 import firebase from 'react-native-firebase'
 import {View, StatusBar, StyleSheet, Alert} from 'react-native'
 import AsyncStorage from '@react-native-community/async-storage'
+import {GoogleSignin} from 'react-native-google-signin'
 import {STORAGE_KEY_NAME} from '@utils'
 import {Spinner} from '@components'
 import {CONSTANTS} from '@common'
@@ -158,14 +159,17 @@ export default class AuthProvider extends React.Component {
   }
 
   logout = cb => {
+    const user = firebase.auth().currentUser
     this.setState({isLoading: true}, () => {
       setTimeout(async () => {
         await PushNotificationService.removeToken()
         this.setInitialState()
         await this.removeUser(STORAGE_KEY_NAME.GQL_USER)
         await this.removeUser(STORAGE_KEY_NAME.USER_DATA)
-        // await this.removeUser('customerRegSetupProfile')
-        // await this.removeUser('chefRegSetupProfile')
+        if (user && user.providerData && user.providerData[0].providerId === 'google.com') {
+          await GoogleSignin.revokeAccess()
+          await GoogleSignin.signOut()
+        }
         await firebase.auth().signOut()
         this.setState({isLoading: false}, () => {
           if (cb) {
@@ -187,6 +191,7 @@ export default class AuthProvider extends React.Component {
       isChef,
       getProfile,
     } = this.state
+    console.log('currentUser', currentUser)
     const {children} = this.props
     if (isLoading) {
       return (

@@ -1,15 +1,18 @@
 /** @format */
 
-export const profileByIdGQLTAG = `query chefProfileByChefId($chefId: String!) {
+export const profileByIdGQLTAG = `query chefProfileByChefId($chefId: String!, $pCustomerId: String) {
   chefProfileByChefId(chefId: $chefId) {
     chefId
-	userId
+    userId
+    conversationHistId(pCustomerId: $pCustomerId)
+    isRegistrationCompletedYn
     fullName
     chefMobileCountryCode
     mobileNoWithCountryCode
     chefSalutation
     chefFirstName
     chefLastName
+    chefUpdatedScreens
     averageRating
     totalReviewCount
     totalUnreadCount
@@ -19,11 +22,13 @@ export const profileByIdGQLTAG = `query chefProfileByChefId($chefId: String!) {
     attachementsLicense
     attachementsOthers
     bookingCompletedCount
-	chefRejectOrBlockReason
+    isEmailVerifiedYn
+    isMobileNoVerifiedYn
+    chefRejectOrBlockReason
     entityId
-    dishTypes{
+    dishTypes {
       totalCount
-      nodes{
+      nodes {
         dishTypeId
         dishTypeName
         dishTypeDesc
@@ -33,9 +38,9 @@ export const profileByIdGQLTAG = `query chefProfileByChefId($chefId: String!) {
         createdAt
       }
     }
-    cuisineTypes{
+    cuisineTypes {
       totalCount
-      nodes{
+      nodes {
         cuisineTypeId
         cusineTypeName
         cuisineTypeDesc
@@ -87,21 +92,23 @@ export const profileByIdGQLTAG = `query chefProfileByChefId($chefId: String!) {
         chefGratuity
         noOfGuestsCanServe
         chefAdditionalServices
+        additionalServiceDetails
         chefComplexity
         chefAwards
-        certificationsTypes{
-          nodes{
+        noOfGuestsMin
+        noOfGuestsMax
+        discount
+        personsCount
+        isChefEnabledShoppingLocationYn
+        chefCertificateType
+        certificationsTypes {
+          nodes {
             certificateTypeId
             certificateTypeName
             certificateTypeDesc
             createdAt
           }
         }
-        noOfGuestsMin
-        noOfGuestsMax
-        discount
-        personsCount
-        isChefEnabledShoppingLocationYn
       }
     }
     statusTypeMasterByChefStatusId {
@@ -142,13 +149,13 @@ export const profileByIdGQLTAG = `query chefProfileByChefId($chefId: String!) {
         isReviewedByCustomerYn
         reviewStatusId
         createdAt
-        customerProfileByCustomerId{
+        customerProfileByCustomerId {
           customerId
           fullName
           customerPicId
-          customerProfileExtendedsByCustomerId{
+          customerProfileExtendedsByCustomerId {
             totalCount
-            nodes{
+            nodes {
               customerLocationAddress
               customerLocationLat
               customerLocationLng
@@ -158,8 +165,7 @@ export const profileByIdGQLTAG = `query chefProfileByChefId($chefId: String!) {
       }
     }
   }
-}
-`
+}`;
 
 // Query Variables
 /*

@@ -256,7 +256,7 @@ class ChefPaymentHistory extends PureComponent {
     return (
       <View style={{flex: 1}}>
         <Header
-          showBack={false}
+          showBack
           navigation={navigation}
           showTitle
           title={Languages.payment_history.title}

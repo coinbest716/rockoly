@@ -90,6 +90,15 @@ export default {
     marginLeft: 10,
     marginTop: 10,
   },
+  emptyText: {
+    fontWeight: 'bold',
+    textAlign: 'center',
+    fontSize: 15,
+    color: 'black',
+    textTransform: 'capitalize',
+    marginLeft: 10,
+    marginTop: 10,
+  },
   grayText: {
     fontWeight: 400,
     fontSize: 15,

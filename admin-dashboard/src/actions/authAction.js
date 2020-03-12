@@ -4,6 +4,9 @@ import {
   LOGIN,
   LOGIN_SUCCESS,
   LOGIN_FAIL,
+  RESET_PASSWORD,
+  RESET_PASSWORD_SUCCESS,
+  RESET_PASSWORD_FAIL,
   FORGOT_PASSWORD,
   FORGOT_PASSWORD_SUCCESS,
   FORGOT_PASSWORD_FAIL,
@@ -36,7 +39,10 @@ export const loginAction = (params, client) => dispatch => {
               .storeAdminId(current, client)
               .then(async val => {
                 StoreInLocal('uid', val)
-                return dispatch({type: LOGIN_SUCCESS, payload: CommonLabels.SUCCESS})
+                setTimeout(() => {
+                  window.location.reload()
+                }, 1000)
+                //return dispatch({type: LOGIN_SUCCESS, payload: CommonLabels.SUCCESS})
               })
               .catch(err => {
                 return dispatch({type: LOGIN_FAIL, payload: CommonLabels.FAIL})
@@ -55,6 +61,25 @@ export const loginAction = (params, client) => dispatch => {
   } catch (err) {
     message.error(err.message)
     return dispatch({type: LOGIN_FAIL, payload: err.message})
+  }
+}
+export const resetPassword = (email, client) => async dispatch => {
+  console.log('emeil', email)
+  dispatch({type: RESET_PASSWORD})
+  try {
+    firebase
+      .auth()
+      .sendPasswordResetEmail(email)
+      .then(user => {
+        message.success(CommonLabels.LINK_SENT_USERS)
+        return dispatch({type: RESET_PASSWORD_SUCCESS, payload: CommonLabels.SUCCESS})
+      })
+      .catch(error => {
+        catchError(error)
+        return dispatch({type: RESET_PASSWORD_FAIL, payload: CommonLabels.FAIL})
+      })
+  } catch (err) {
+    return dispatch({type: RESET_PASSWORD_FAIL, payload: err.message})
   }
 }
 

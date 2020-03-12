@@ -27,6 +27,11 @@ const styles = StyleSheet.create({
     width: '80%',
     marginVertical: 10,
   },
+  saveBtn: {
+    width: '40%',
+    alignSelf: 'center',
+    marginVertical: 15,
+  },
   border: {
     borderBottomColor: '#B9BFBB',
     borderBottomWidth: 1,
@@ -334,6 +339,11 @@ const styles = StyleSheet.create({
   viewStyle: {
     marginHorizontal: 15,
     marginVertical: 15,
+  },
+  topContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignSelf: 'center',
   },
   linkViewStyle: {},
   modelView: {

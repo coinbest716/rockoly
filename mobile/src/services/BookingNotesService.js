@@ -7,6 +7,7 @@ export const BOOKING_NOTES = {
   BOOKING_NOTES_DETAIL: 'BOOKING_NOTES_DETAIL',
   BOOKING_NOTES_ADDED: 'BOOKING_NOTES_ADDED',
   CONVERSATION_LIST: 'CONVERSATION_LIST',
+  CREATE_CHAT: 'CREATE_CHAT',
   BOOKING_NOTES_DETAIL_SUBS: 'BOOKING_NOTES_DETAIL_SUBS',
 }
 
@@ -153,6 +154,49 @@ class BookingNotesService extends BaseService {
         })
     } catch (err) {
       this.emit(BOOKING_NOTES.BOOKING_NOTES_ADDED, {newNotes: {}})
+    }
+  }
+
+  createChat = (chefId, customerId, message) => {
+    console.log('checkChat', chefId, customerId, message)
+    try {
+      const gqlValue = GQL.mutation.chat.createConversationGQLTAG
+      console.log('gqlValue', gqlValue)
+      const mutation = gql`
+        ${gqlValue}
+      `
+
+      this.client
+        .mutate({
+          mutation,
+          variables: {
+            pChefId: chefId,
+            pCustomerId: customerId,
+            pMsgText: message,
+          },
+        })
+        .then(({data}) => {
+          console.log('data addBookingNotes', data)
+          if (
+            data &&
+            data.createConversationHistByParams &&
+            data.createConversationHistByParams.conversationHistory &&
+            data.createConversationHistByParams.conversationHistory.conversationHistId
+          ) {
+            this.emit(BOOKING_NOTES.CREATE_CHAT, {
+              chatNotes: data.createConversationHistByParams.conversationHistory.conversationHistId,
+            })
+          } else {
+            this.emit(BOOKING_NOTES.CREATE_CHAT, {chatNotes: {}})
+          }
+        })
+        .catch(error => {
+          console.log('error', error)
+          this.emit(BOOKING_NOTES.CREATE_CHAT, {chatNotes: {}})
+        })
+    } catch (err) {
+      console.log('err', err)
+      this.emit(BOOKING_NOTES.CREATE_CHAT, {chatNotes: {}})
     }
   }
 }

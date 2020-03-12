@@ -10,6 +10,7 @@ import {RouteNames} from '@navigation'
 export const NOTIFICATION_LIST_EVENT = {
   NOTIFICATION_LIST: 'NOTIFICATION/NOTIFICATION_LIST',
   UPDATING_NOTIFICATION_LIST: 'UPDATING_NOTIFICATION_LIST',
+  NOTIFICATION_LIST_SUBS: 'NOTIFICATION_LIST_SUBS',
 }
 class NotificationListService extends BaseService {
   constructor(props) {
@@ -24,7 +25,7 @@ class NotificationListService extends BaseService {
       const query = gql`
         ${gqlValue}
       `
-      this.client
+      return this.client
         .subscribe({
           query,
           variables: {
@@ -34,6 +35,10 @@ class NotificationListService extends BaseService {
         .subscribe(
           res => {
             this.updatedNotifications = res
+            this.emit(NOTIFICATION_LIST_EVENT.NOTIFICATION_LIST_SUBS, {
+              updatedNotifications: res,
+            })
+            console.log('Listeninggg....', res)
             // this.emit(NOTIFICATION_LIST_EVENT.UPDATING_NOTIFICATION_LIST, {
             //   updatedNotifications: res,
             // })
@@ -53,7 +58,7 @@ class NotificationListService extends BaseService {
       const query = gql`
         ${gqlValue}
       `
-      this.client
+      return this.client
         .subscribe({
           query,
           variables: {
@@ -63,6 +68,9 @@ class NotificationListService extends BaseService {
         .subscribe(
           res => {
             this.updatedNotifications = res
+            this.emit(NOTIFICATION_LIST_EVENT.NOTIFICATION_LIST_SUBS, {
+              updatedNotifications: res,
+            })
             // this.emit(NOTIFICATION_LIST_EVENT.UPDATING_NOTIFICATION_LIST, {
             //   updatedNotifications: res,
             // })
@@ -191,9 +199,21 @@ class NotificationListService extends BaseService {
     data,
     name,
     pic,
-    bookingStatusId
+    bookingStatusId,
+    bookingId,
+    bookingFromTime,
+    bookingToTime
   ) => {
-    this.navigateMessageNotification(navigation, id, name, pic, bookingStatusId)
+    this.navigateMessageNotification(
+      navigation,
+      id,
+      name,
+      pic,
+      bookingStatusId,
+      bookingId,
+      bookingFromTime,
+      bookingToTime
+    )
     if (markFlag && data) {
       this.markAsSeen(data)
     }
@@ -222,13 +242,25 @@ class NotificationListService extends BaseService {
     }
   }
 
-  navigateMessageNotification = (navigation, id, name, pic, bookingStatusId) => {
+  navigateMessageNotification = (
+    navigation,
+    id,
+    name,
+    pic,
+    bookingStatusId,
+    bookingId,
+    bookingFromTime,
+    bookingToTime
+  ) => {
     if (navigation && id) {
       navigation.navigate(RouteNames.CHAT_DETAIL, {
         conversationId: id,
         conversationName: name,
         conversationPic: pic,
         bookingStatusId,
+        bookingHistId: bookingId,
+        bookingFromTime,
+        bookingToTime,
       })
     }
   }

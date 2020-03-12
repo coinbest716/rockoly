@@ -25,17 +25,17 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
   nameStyling: {
-    fontSize: 22,
+    fontSize: 18,
     lineHeight: 28,
-    marginHorizontal: 5,
+    // marginHorizontal: 5,
     textTransform: 'capitalize',
-    marginVertical: 2,
+    // marginVertical: 2,
     color: '#000',
     fontWeight: '500',
     width: '65%',
   },
   locationStyling: {
-    fontSize: 16,
+    fontSize: 14,
     marginHorizontal: 5,
     marginVertical: 6,
   },
@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
   dateStyling: {
     paddingLeft: 5,
     lineHeight: 22,
-    fontSize: 14,
+    fontSize: 12.5,
   },
   itemHourText: {
     fontSize: 14,

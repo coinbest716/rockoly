@@ -4,7 +4,9 @@
 import React, {PureComponent} from 'react'
 import {View, PermissionsAndroid, Alert, Platform, ScrollView} from 'react-native'
 import {Text, Icon, Input, Item, Toast} from 'native-base'
-import Geolocation from 'react-native-geolocation-service'
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view'
+// import Geolocation from 'react-native-geolocation-service'
+import Geolocation from '@react-native-community/geolocation';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete'
 import axios from 'axios'
 import _ from 'lodash'
@@ -53,6 +55,18 @@ class Address extends PureComponent {
     })
   }
 
+  onChangeCity = value => {
+    this.setState({
+      city: value,
+    })
+  }
+
+  onChangeState = value => {
+    this.setState({
+      state: value,
+    })
+  }
+
   onChangeCode = value => {
     this.setState({
       zipcode: value,
@@ -86,7 +100,7 @@ class Address extends PureComponent {
           this.setState({isLoading: true})
           Geolocation.getCurrentPosition(
             info => {
-              axios
+                  axios
                 .post(
                   `https://maps.googleapis.com/maps/api/geocode/json?latlng=${info.coords.latitude},${info.coords.longitude}&key=${mapApiKey}`
                 )
@@ -94,7 +108,6 @@ class Address extends PureComponent {
                   console.log(
                     locationData,
                     'locationData '
-                    // locationData.data.results[0].formatted_address,
                   )
                   const locationinfo = info
                   const wholeAddress = locationData.data.results[0].formatted_address
@@ -103,57 +116,73 @@ class Address extends PureComponent {
                   const city2 = this.findValue(results, 'administrative_area_level_2')
                   const state = this.findValue(results, 'administrative_area_level_1')
                   const country = this.findValue(results, 'country')
-                  const houseNo = this.findValue(results, 'HouseNo')
-                  const streetAddress1 = this.findValue(results, 'neighborhood')
-                  const streetAddress2 = this.findValue(results, 'sublocality_level_2')
-                  const streetAddress3 = this.findValue(results, 'sublocality_level_1')
-                  const route = this.findValue(results, 'route')
+                  // const houseNo = this.findValue(results, 'HouseNo')
+                  // const streetAddress1 = this.findValue(results, 'neighborhood')
+                  // const streetAddress2 = this.findValue(results, 'sublocality_level_2')
+                  // const streetAddress3 = this.findValue(results, 'sublocality_level_1')
+                  // const route = this.findValue(results, 'route')
                   const postalCode = this.findValue(results, 'postal_code')
-                  const address1 = streetAddress1 || ''
-                  const address2 = streetAddress2 || route
-                  const address3 = streetAddress3 || ''
-                  const apartmentNumber = houseNo || ''
-                  let address = ''
+                  // const address1 = streetAddress1 || ''
+                  // const address2 = streetAddress2 || route
+                  // const address3 = streetAddress3 || ''
+                  // const apartmentNumber = houseNo || ''
+                  // let address = ''
                   let cityValue = ''
-                  let addressNumber = ''
-                  if (
-                    apartmentNumber !== '' &&
-                    apartmentNumber !== null &&
-                    address1 !== null &&
-                    address1 !== ''
-                  ) {
-                    addressNumber = `${apartmentNumber}, ${address1}`
-                  } else if (
-                    apartmentNumber !== '' &&
-                    apartmentNumber !== null &&
-                    address === '' &&
-                    address === null
-                  ) {
-                    addressNumber = `${apartmentNumber}`
-                  } else if (
-                    address1 !== null &&
-                    address1 !== '' &&
-                    apartmentNumber === '' &&
-                    apartmentNumber === null
-                  ) {
-                    addressNumber = `${address1}`
-                  }
-                  if (address2 && address3) {
-                    address = `${address2},${address3}`
-                  } else if (address2) {
-                    address = `${address2}`
-                  } else if (address3) {
-                    address = `${address3}`
-                  }
+                  let value = ''
+                  // let addressNumber = ''
+                  // if (
+                  //   apartmentNumber !== '' &&
+                  //   apartmentNumber !== null &&
+                  //   address1 !== null &&
+                  //   address1 !== ''
+                  // ) {
+                  //   addressNumber = `${apartmentNumber}, ${address1}`
+                  // } else if (
+                  //   apartmentNumber !== '' &&
+                  //   apartmentNumber !== null &&
+                  //   address1 === '' &&
+                  //   address1 === null
+                  // ) {
+                  //   addressNumber = `${apartmentNumber}`
+                  // } else if (
+                  //   address1 !== null &&
+                  //   address1 !== '' &&
+                  //   apartmentNumber === '' &&
+                  //   apartmentNumber === null
+                  // ) {
+                  //   addressNumber = `${address1}`
+                  // }
+                  // if (apartmentNumber && address1 && address2 && address3) {
+                  //   address = `${apartmentNumber}, ${address1},${address2},${address3}`
+                  // } else if (address2) {
+                  //   address = `${address2}`
+                  // } else if (address3) {
+                  //   address = `${address3}`
+                  // }
+
+                  
+                  
+                  // address = `${apartmentNumber}`
+                  // address = address1 ? `${address}, ${address1}` : `${address}`
+                  // address = address2 ? `${address}, ${address2}` : `${address}`
+                  // address = address3 ? `${address}, ${address3}` : `${address}`
+
+                  // address = apartmentNumber === '' && address1 === '' && address2 === '' && address3 === '' ? `${route}` : ''
                   
                   if (city1) {
                     cityValue = `${city1}`
                   } else {
                     cityValue = `${city2}`
                   }
+
+                  if(cityValue) {
+                    const n = wholeAddress.indexOf(cityValue)
+                    value = wholeAddress.slice(0, n - 2)
+                    console.log('value', value)
+                  }
                   this.setState({
-                    houseNo: addressNumber,
-                    streetAddress: address,
+                    // houseNo: addressNumber,
+                    streetAddress: value || '',
                     zipcode: `${postalCode}`,
                     fullAddress: wholeAddress,
                     latitude: locationinfo.coords.latitude,
@@ -173,7 +202,7 @@ class Address extends PureComponent {
                 })
             },
             error => Alert.alert('Info', JSON.stringify(error.message)),
-            {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000}
+            {enableHighAccuracy: true, timeout: 60000, maximumAge: 1000}
           )
         } else {
           Alert.alert(
@@ -182,8 +211,8 @@ class Address extends PureComponent {
           )
         }
       } catch (err) {
-        console.log(err)
-        Alert.alert(Languages.setLocation.alert.info_title, err)
+        console.log('err',err)
+        Alert.alert(Languages.setLocation.alert.info_title,Languages.setLocation.alert.userDined )
       }
     } else {
       this.setState({isLoading: true})
@@ -207,57 +236,66 @@ class Address extends PureComponent {
               const city2 = this.findValue(results, 'administrative_area_level_2')
               const state = this.findValue(results, 'administrative_area_level_1')
               const country = this.findValue(results, 'country')
-              const houseNo = this.findValue(results, 'HouseNo')
-              const streetAddress1 = this.findValue(results, 'neighborhood')
-              const streetAddress2 = this.findValue(results, 'sublocality_level_2')
-              const streetAddress3 = this.findValue(results, 'sublocality_level_1')
-              const route = this.findValue(results, 'route')
+              // const houseNo = this.findValue(results, 'HouseNo')
+              // const streetAddress1 = this.findValue(results, 'neighborhood')
+              // const streetAddress2 = this.findValue(results, 'sublocality_level_2')
+              // const streetAddress3 = this.findValue(results, 'sublocality_level_1')
+              // const route = this.findValue(results, 'route')
               const postalCode = this.findValue(results, 'postal_code')
-              const address1 = streetAddress1 || ''
-              const address2 = streetAddress2 || route
-              const address3 = streetAddress3 || ''
-              const apartmentNumber = houseNo || ''
-              let address = ''
+              // const address1 = streetAddress1 || ''
+              // const address2 = streetAddress2 || route
+              // const address3 = streetAddress3 || ''
+              // const apartmentNumber = houseNo || ''
+              // let address = ''
               let cityValue = ''
-              let addressNumber = ''
-              if (
-                apartmentNumber !== '' &&
-                apartmentNumber !== null &&
-                address1 !== null &&
-                address1 !== ''
-              ) {
-                addressNumber = `${apartmentNumber}, ${address1}`
-              } else if (
-                apartmentNumber !== '' &&
-                apartmentNumber !== null &&
-                address === '' &&
-                address === null
-              ) {
-                addressNumber = `${apartmentNumber}`
-              } else if (
-                address1 !== null &&
-                address1 !== '' &&
-                apartmentNumber === '' &&
-                apartmentNumber === null
-              ) {
-                addressNumber = `${address1}`
-              }
-              if (address2 && address3) {
-                address = `${address2},${address3}`
-              } else if (address2) {
-                address = `${address2}`
-              } else if (address3) {
-                address = `${address3}`
-              }
+              let value = ''
+              // let addressNumber = ''
+              // if (
+              //   apartmentNumber !== '' &&
+              //   apartmentNumber !== null &&
+              //   address1 !== null &&
+              //   address1 !== ''
+              // ) {
+              //   addressNumber = `${apartmentNumber}, ${address1}`
+              // } else if (
+              //   apartmentNumber !== '' &&
+              //   apartmentNumber !== null &&
+              //   address === '' &&
+              //   address === null
+              // ) {
+              //   addressNumber = `${apartmentNumber}`
+              // } else if (
+              //   address1 !== null &&
+              //   address1 !== '' &&
+              //   apartmentNumber === '' &&
+              //   apartmentNumber === null
+              // ) {
+              //   addressNumber = `${address1}`
+              // }
+             
+              
+              // address = `${apartmentNumber}`
+              // address = address1 ? `${address}, ${address1}` : `${address}`
+              // address = address2 ? `${address}, ${address2}` : `${address}`
+              // address = address3 ? `${address}, ${address3}` : `${address}`
+
+              // address = apartmentNumber === '' && address1 === '' && address2 === '' && address3 === '' ? `${route}` : ''
               
               if (city1) {
                 cityValue = `${city1}`
               } else {
                 cityValue = `${city2}`
               }
+
+              if(cityValue) {
+                const n = wholeAddress.indexOf(cityValue)
+                value = wholeAddress.slice(0, n - 2)
+                console.log('value', value)
+              }
+
               this.setState({
-                houseNo: addressNumber,
-                streetAddress: address,
+                // houseNo: addressNumber,
+                streetAddress: value || '',
                 zipcode: `${postalCode}`,
                 fullAddress: wholeAddress,
                 latitude: locationinfo.coords.latitude,
@@ -276,7 +314,9 @@ class Address extends PureComponent {
               )
             })
         },
-        error => Alert.alert('Info', JSON.stringify(error.message))
+        error => {
+          this.setState({isLoading: false})
+          Alert.alert('Info', Languages.setLocation.alert.userDined)}
       )
     }
   }
@@ -297,6 +337,7 @@ class Address extends PureComponent {
         profile.chefProfileExtendedsByChefId.nodes.length
       ) {
         const details = profile.chefProfileExtendedsByChefId.nodes[0]
+        console.log('profile', profile.chefProfileExtendedsByChefId.nodes[0])
         this.setState({
           houseNo: details.chefAddrLine1,
           streetAddress: details.chefAddrLine2,
@@ -306,6 +347,10 @@ class Address extends PureComponent {
             details.chefAvailableAroundRadiusInValue.toString(),
           city: details.chefCity,
           state: details.chefState,
+          country: details.chefCountry,
+          // latitude: details.chefLocationLat,
+          // longitude: details.chefLocationLng,
+          fullAddress: details.chefLocationAddress,
         })
       }
     }
@@ -324,12 +369,390 @@ class Address extends PureComponent {
           zipcode: details.customerPostalCode,
           city: details.customerCity,
           state: details.customerState,
+          // latitude: details.customerLocationLat,
+          // longitude: details.customerLocationLng,
+          country: details.customerCountry,
+          fullAddress: details.customerLocationAddress,
         })
       }
+    }
+
+    this.placesRef && this.placesRef.setAddressText(this.state.fullAddress)
+  }
+
+  onGetLocationValue = () => {
+    // const {
+    //   fullAddress,
+    //   latitude,
+    //   longitude,
+    //   houseNo,
+    //   streetAddress,
+    //   zipcode,
+    //   city,
+    //   state,
+    //   country,
+      
+    // } = this.state
+    // const {getValue} = this.props
+    // // const {currentUser } = this.context
+
+    // // if (
+    // //   fullAddress !== undefined &&
+    // //   latitude &&
+    // //   longitude &&
+    // //   streetAddress &&
+    // //   zipcode &&
+    // //   currentUser !== {} &&
+    // //   currentUser !== undefined &&
+    // //   currentUser !== null
+    // // ) {
+    // //   const lat = latitude ? latitude.toString() : null
+    // //   const long = longitude ? longitude.toString() : null
+
+    // //   const obj = {
+    // //     locationAddress: fullAddress,
+    // //     locationLat: lat,
+    // //     locationLng: long,
+    // //     addrLine1: houseNo || null,
+    // //     addrLine2: streetAddress,
+    // //     state,
+    // //     country,
+    // //     city,
+    // //     postalCode: zipcode,
+    // //   }
+    // //   if(getValue) {
+    // //     getValue(obj)
+    // //   }
+    // // } else {
+    // //   Alert.alert(Languages.setLocation.alert.fill_all, Languages.setLocation.alert.use_GPS)
+    // // }
+
+    // if(!latitude && !longitude) {
+    //   console.log('onAddLocation', latitude, longitude)
+    //   if(streetAddress && zipcode && city && state && country) {
+    //     axios
+    //     .post(
+    //       `https://maps.googleapis.com/maps/api/geocode/json?key=${mapApiKey}&address=${streetAddress},${city},${state},${country}`
+    //     )
+    //     .then((value) => {
+    //       console.log('value', value)
+
+    //       if (
+    //         value.data.status === 'OK' &&
+    //         value.data.results.length > 0
+    //       ) {
+
+    //       const wholeAddress = value.data.results[0].formatted_address
+    //       const results = value.data.results[0].address_components
+    //       const houseNumber = this.findValue(results, 'HouseNo')
+    //       const city1 = this.findValue(results, 'locality')
+    //       const city2 = this.findValue(results, 'administrative_area_level_2')
+    //       const stateValue = this.findValue(results, 'administrative_area_level_1')
+    //       const countryValue = this.findValue(results, 'country')
+    //       const streetAddress1 = this.findValue(results, 'neighborhood')
+    //       const streetAddress2 = this.findValue(results, 'sublocality_level_2')
+    //       const streetAddress3 = this.findValue(results, 'sublocality_level_1')
+    //       const route = this.findValue(results, 'route')
+    //       const postalCode = this.findValue(results, 'postal_code')
+    //       const address1 = streetAddress1 || ''
+    //       const address2 = streetAddress2 || route
+    //       const address3 = streetAddress3 || ''
+    //       const apartmentNumber = houseNumber || ''
+    //       let address = ''
+    //       let cityValue = ''
+
+    //         address = apartmentNumber === '' && address1 === '' && address2 === '' && address3 === '' ? `${route}` : ''
+    //         address = `${apartmentNumber}`
+    //         address = address1 ? `${address}, ${address1}` : `${address}`
+    //         address = address2 ? `${address}, ${address2}` : `${address}`
+    //         address = address3 ? `${address}, ${address3}` : `${address}`
+            
+        
+    //       if (city1) {
+    //         cityValue = `${city1}`
+    //       } else {
+    //         cityValue = `${city2}`
+    //       }
+    //       this.setState({
+    //         fullAddress: wholeAddress,
+    //         latitude: value.data.results[0].geometry.location.lat,
+    //         longitude: value.data.results[0].geometry.location.lng,
+    //         streetAddress: address,
+    //         zipcode: postalCode,
+    //         city: cityValue,
+    //         state: stateValue,
+    //         country: countryValue,
+    //       }, () => {
+    //         this.sendLocationValue()
+    //       })
+          
+    //     } else {
+    //       Alert.alert('Info', 'Sorry, we cannot fetch latitude and longitude of your location')
+    //     }
+    //     }).catch((error) => {
+    //       console.log('error', error)
+    //       Alert.alert('Info', 'Unable to fetch latitude and longitude')
+    //     })
+    //   } else {
+    //     Alert.alert('Info', 'Plese fill all details')
+    //   }
+    // } else {
+    //   const lat = latitude ? latitude.toString() : null
+    //   const long = longitude ? longitude.toString() : null
+
+    //   if(streetAddress && zipcode && city && state && country) {
+    //   const obj = {
+    //     locationAddress: fullAddress,
+    //     locationLat: lat,
+    //     locationLng: long,
+    //     addrLine1: houseNo || null,
+    //     addrLine2: streetAddress,
+    //     state,
+    //     country,
+    //     city,
+    //     postalCode: zipcode,
+    //   }
+    //   if(getValue) {
+    //     getValue(obj)
+    //   }
+    // } else {
+    //   Alert.alert('Info', 'Plese fill all details')
+    // }
+    // }
+  }
+
+  sendLocationValue = () => {
+    const {fullAddress, latitude, longitude, houseNo,streetAddress, state, city, country, zipcode} = this.state
+    const {getValue} = this.props
+    
+    const lat = latitude ? latitude.toString() : null
+    const long = longitude ? longitude.toString() : null
+
+    const obj = {
+      locationAddress: fullAddress,
+      locationLat: lat,
+      locationLng: long,
+      addrLine1: houseNo || null,
+      addrLine2: streetAddress,
+      state,
+      country,
+      city,
+      postalCode: zipcode,
+    }
+    if(getValue) {
+      getValue(obj)
     }
   }
 
   onAddLocation = () => {
+    const {isChef} = this.context
+    console.log()
+    const {
+      fullAddress,
+      latitude,
+      longitude,
+      houseNo,
+      streetAddress,
+      zipcode,
+      distance,
+      city,
+      state,
+      country,
+      
+    } = this.state
+    
+    const {getValue} = this.props
+    console.log('distance',distance)
+    if (isChef) {
+      if (distance && distance >0){
+        if(latitude === '' && longitude === '') {
+          console.log('onAddLocation', latitude, longitude, streetAddress, city, state, country, zipcode)
+          if(streetAddress && zipcode && city && state && country) {
+            axios
+            .post(
+              `https://maps.googleapis.com/maps/api/geocode/json?key=${mapApiKey}&address=${streetAddress} ${city} ${state} ${country} ${zipcode}`
+            )
+            .then((value) => {
+              console.log('value', value)
+    
+              if (
+                value.data.status === 'OK'
+              ) {
+    
+              const wholeAddress = value.data.results[0].formatted_address
+              const results = value.data.results[0].address_components
+              // const houseNumber = this.findValue(results, 'HouseNo')
+              const city1 = this.findValue(results, 'locality')
+              const city2 = this.findValue(results, 'administrative_area_level_2')
+              const stateValue = this.findValue(results, 'administrative_area_level_1')
+              const countryValue = this.findValue(results, 'country')
+              // const streetAddress1 = this.findValue(results, 'neighborhood')
+              // const streetAddress2 = this.findValue(results, 'sublocality_level_2')
+              // const streetAddress3 = this.findValue(results, 'sublocality_level_1')
+              // const route = this.findValue(results, 'route')
+              const postalCode = this.findValue(results, 'postal_code')
+              // const address1 = streetAddress1 || ''
+              // const address2 = streetAddress2 || route
+              // const address3 = streetAddress3 || ''
+              // const apartmentNumber = houseNumber || ''
+              // let address = ''
+              let cityValue = ''
+              let streetValue = ''
+    
+                
+                // address = `${apartmentNumber}`
+                // address = address1 ? `${address}, ${address1}` : `${address}`
+                // address = address2 ? `${address}, ${address2}` : `${address}`
+                // address = address3 ? `${address}, ${address3}` : `${address}`
+                // address = apartmentNumber === '' && address1 === '' && address2 === '' && address3 === '' ? `${route}` : ''
+                
+            
+              if (city1) {
+                cityValue = `${city1}`
+              } else {
+                cityValue = `${city2}`
+              }
+    
+              if(cityValue) {
+                const n = wholeAddress.indexOf(cityValue)
+                streetValue = wholeAddress.slice(0, n - 2)
+                console.log('value', value)
+              }
+    
+              this.setState({
+                fullAddress: wholeAddress,
+                latitude: value.data.results[0].geometry.location.lat,
+                longitude: value.data.results[0].geometry.location.lng,
+                streetAddress: streetValue || '',
+                zipcode: postalCode,
+                distance,
+                city: cityValue,
+                state: stateValue,
+                country: countryValue,
+              }, () => {
+                  if(getValue ) {
+                    this.sendLocationValue() 
+                  } 
+                  if(!getValue ) {
+                    this.saveLocation()
+                  }
+              })
+              
+            } else {
+              Alert.alert('Info', 'Sorry, we cannot fetch latitude and longitude of your location')
+            }
+            }).catch((error) => {
+              console.log('error', error)
+              Alert.alert('Info', 'Unable to fetch latitude and longitude')
+            })
+          } else {
+            Alert.alert('Info', 'Plese fill all details')
+          }
+        } else {
+          if(getValue) {
+            this.sendLocationValue()
+          } 
+          if(!getValue) {
+            this.saveLocation()
+          }
+        }
+      }else {
+        Alert.alert('Info', 'Plese fill all details')
+      }
+    }else if(latitude === '' && longitude === '') {
+        console.log('onAddLocation', latitude, longitude, streetAddress, city, state, country, zipcode)
+        if(streetAddress && zipcode && city && state && country) {
+          axios
+          .post(
+            `https://maps.googleapis.com/maps/api/geocode/json?key=${mapApiKey}&address=${streetAddress} ${city} ${state} ${country} ${zipcode}`
+          )
+          .then((value) => {
+            console.log('value', value)
+  
+            if (
+              value.data.status === 'OK'
+            ) {
+  
+            const wholeAddress = value.data.results[0].formatted_address
+            const results = value.data.results[0].address_components
+            // const houseNumber = this.findValue(results, 'HouseNo')
+            const city1 = this.findValue(results, 'locality')
+            const city2 = this.findValue(results, 'administrative_area_level_2')
+            const stateValue = this.findValue(results, 'administrative_area_level_1')
+            const countryValue = this.findValue(results, 'country')
+            // const streetAddress1 = this.findValue(results, 'neighborhood')
+            // const streetAddress2 = this.findValue(results, 'sublocality_level_2')
+            // const streetAddress3 = this.findValue(results, 'sublocality_level_1')
+            // const route = this.findValue(results, 'route')
+            const postalCode = this.findValue(results, 'postal_code')
+            // const address1 = streetAddress1 || ''
+            // const address2 = streetAddress2 || route
+            // const address3 = streetAddress3 || ''
+            // const apartmentNumber = houseNumber || ''
+            // let address = ''
+            let cityValue = ''
+            let streetValue = ''
+  
+              
+              // address = `${apartmentNumber}`
+              // address = address1 ? `${address}, ${address1}` : `${address}`
+              // address = address2 ? `${address}, ${address2}` : `${address}`
+              // address = address3 ? `${address}, ${address3}` : `${address}`
+              // address = apartmentNumber === '' && address1 === '' && address2 === '' && address3 === '' ? `${route}` : ''
+              
+          
+            if (city1) {
+              cityValue = `${city1}`
+            } else {
+              cityValue = `${city2}`
+            }
+  
+            if(cityValue) {
+              const n = wholeAddress.indexOf(cityValue)
+              streetValue = wholeAddress.slice(0, n - 2)
+              console.log('value', value)
+            }
+  
+            this.setState({
+              fullAddress: wholeAddress,
+              latitude: value.data.results[0].geometry.location.lat,
+              longitude: value.data.results[0].geometry.location.lng,
+              streetAddress: streetValue || '',
+              zipcode: postalCode,
+              distance,
+              city: cityValue,
+              state: stateValue,
+              country: countryValue,
+            }, () => {
+                if(getValue ) {
+                  this.sendLocationValue() 
+                } 
+                if(!getValue ) {
+                  this.saveLocation()
+                }
+            })
+            
+          } else {
+            Alert.alert('Info', 'Sorry, we cannot fetch latitude and longitude of your location')
+          }
+          }).catch((error) => {
+            console.log('error', error)
+            Alert.alert('Info', 'Unable to fetch latitude and longitude')
+          })
+        } else {
+          Alert.alert('Info', 'Plese fill all details')
+        }
+      } else {
+        if(getValue) {
+          this.sendLocationValue()
+        } 
+        if(!getValue) {
+          this.saveLocation()
+        }
+      }
+}
+
+  saveLocation = () => {
     const {
       fullAddress,
       latitude,
@@ -342,41 +765,30 @@ class Address extends PureComponent {
       city,
       state,
       country,
-      profile,
     } = this.state
-    const {isChef, currentUser, isLoggedIn} = this.context
-    let status = ``
-    if (isChef && isLoggedIn && profile) {
-      status = profile.chefStatusId && profile.chefStatusId.trim()
-    }
+    const {onSaveCallBack} = this.props
+    const {isChef, currentUser } = this.context
+    
 
-    const lat = latitude.toString()
-    const long = longitude.toString()
-    const dist = parseFloat(distance)
+    const lat = latitude ? latitude.toString() : null
+    const long = longitude ? longitude.toString() : null
+    const dist = distance ? parseFloat(distance) : null
     const addressParams = {
       fullAddress,
       latitude: lat,
       longitude: long,
-      houseNo,
+      houseNo:  houseNo || null,
       streetAddress,
       zipcode,
-      distance: dist || null,
+      distance: dist,
       idDetail,
       city,
       state,
       country,
     }
-    if (
-      fullAddress !== undefined &&
-      latitude &&
-      longitude &&
-      houseNo &&
-      streetAddress &&
-      zipcode &&
-      currentUser !== {} &&
-      currentUser !== undefined &&
-      currentUser !== null
-    ) {
+
+ if (latitude && longitude) {
+   if(streetAddress && zipcode && city && state && country) {
       this.setState(
         {
           isLoading: true,
@@ -387,7 +799,9 @@ class Address extends PureComponent {
             .then(async res => {
               if (res) {
                 this.setState({isLoading: false})
-                this.props.onSave()
+                if (onSaveCallBack){
+                  onSaveCallBack()
+                }
                 Toast.show({
                   duration: 5000,
                   text: Languages.setLocation.toast_messages.save,
@@ -402,15 +816,18 @@ class Address extends PureComponent {
                 Languages.setLocation.alert.error_title,
                 Languages.setLocation.alert.error
               )
-              // show alert
             })
         }
       )
     } else {
-      Alert.alert(Languages.setLocation.alert.fill_all, Languages.setLocation.alert.use_GPS)
+      Alert.alert('Info', 'Plese fill all details')
     }
+   } 
+  //  else {
+  //     Alert.alert(Languages.setLocation.alert.fill_all, Languages.setLocation.alert.use_GPS)
+  //   }
   }
-
+  
   selectLocation = details => {
     const wholeAddress = details.formatted_address
     const results = details.address_components
@@ -419,55 +836,82 @@ class Address extends PureComponent {
     const city2 = this.findValue(results, 'administrative_area_level_2')
     const state = this.findValue(results, 'administrative_area_level_1')
     const country = this.findValue(results, 'country')
-    const streetAddress1 = this.findValue(results, 'neighborhood')
-    const streetAddress2 = this.findValue(results, 'sublocality_level_2')
-    const streetAddress3 = this.findValue(results, 'sublocality_level_1')
-    const route = this.findValue(results, 'route')
+    // const streetAddress1 = this.findValue(results, 'neighborhood')
+    // const streetAddress2 = this.findValue(results, 'sublocality_level_2')
+    // const streetAddress3 = this.findValue(results, 'sublocality_level_1')
+    // const route = this.findValue(results, 'route')
     const postalCode = this.findValue(results, 'postal_code')
-    const address1 = streetAddress1 || ''
-    const address2 = streetAddress2 || route
-    const address3 = streetAddress3 || ''
-    const apartmentNumber = houseNo || ''
-    let address = ''
+    // const address1 = streetAddress1 || ''
+    // const address2 = streetAddress2 || route
+    // const address3 = streetAddress3 || ''
+    // const apartmentNumber = houseNo || ''
+    // let address = ''
     let cityValue = ''
-    let addressNumber = ''
-    if (apartmentNumber !== '' && apartmentNumber !== null) {
-      addressNumber = `${apartmentNumber}`
-    } else if (address1 !== null && address1 !== '') {
-      addressNumber = `${address1}`
-    } else if (
-      apartmentNumber !== '' &&
-      apartmentNumber !== null &&
-      address1 !== null &&
-      address1 !== ''
-    ) {
-      addressNumber = `${apartmentNumber}, ${address1}`
-    }
+    let value = ''
+    // let addressNumber = ''
+    // if (apartmentNumber !== '' && apartmentNumber !== null) {
+    //   addressNumber = `${apartmentNumber}`
+    // } else if (address1 !== null && address1 !== '') {
+    //   addressNumber = `${address1}`
+    // } else if (
+    //   apartmentNumber !== '' &&
+    //   apartmentNumber !== null &&
+    //   address1 !== null &&
+    //   address1 !== ''
+    // ) {
+    //   addressNumber = `${apartmentNumber}, ${address1}`
+    // }
 
-    if (address2 && address3) {
-      address = `${address2},${address3}`
-    } else if (address2) {
-      address = `${address2}`
-    } else if (address3) {
-      address = `${address3}`
-    }
+    // console.log('locationValues', apartmentNumber, address1, address2, address3)
+    // if (apartmentNumber && address1 && address2 && address3) {
+    //   address = `${apartmentNumber}, ${address1}, ${address2}, ${address3}`
+    // }else
+    
+    // if (apartmentNumber) {
+    //   address += `${apartmentNumber}, `
+    // }
+    // if (address1) {
+    //   address = `${address1}`
+    // } else if (address2) {
+    //   address = `${address2}`
+    // } else if (address3) {
+    //   address = `${address2}`
+    // }
+
+   
+      // address = `${apartmentNumber}`
+      // address = address1 ? `${address}, ${address1}` : `${address}`
+      // address = address2 ? `${address}, ${address2}` : `${address}`
+      // address = address3 ? `${address}, ${address3}` : `${address}`
+
+      // address = apartmentNumber === '' && address1 === '' && address2 === '' && address3 === '' ? `${route}` : ''
+      
   
     if (city1) {
       cityValue = `${city1}`
     } else {
       cityValue = `${city2}`
     }
+
+    if(cityValue) {
+      const n = wholeAddress.indexOf(cityValue)
+      value = wholeAddress.slice(0, n - 2)
+      console.log('value', value)
+    }
+
     this.setState({
       fullAddress: wholeAddress,
       latitude: details.geometry.location.lat,
       longitude: details.geometry.location.lng,
-      streetAddress: address,
-      houseNo: addressNumber,
+      streetAddress: value || '',
+      // houseNo: addressNumber,
       zipcode: postalCode,
       distance: '',
       city: cityValue,
       state,
       country,
+    }, () => {
+      this.placesRef && this.placesRef.setAddressText(this.state.fullAddress)
     })
   }
 
@@ -484,6 +928,7 @@ class Address extends PureComponent {
 
       this.setState({
         profile,
+      }, () => {
       })
     }
   }
@@ -517,19 +962,32 @@ class Address extends PureComponent {
       fullAddress,
       city,
       state,
-      profile,
+      country, 
     } = this.state
 
-    const {isChef, isLoggedIn} = this.context
-    let status = ``
-    if (isChef && isLoggedIn && profile) {
-      status = profile.chefStatusId && profile.chefStatusId.trim()
-    }
+    const { showFinishText, hideSave, bookingLocation, chefLocation, chefFirstName, chefMiles } = this.props
+
+    const {isChef} = this.context
     return (
-        <ScrollView style={{marginTop: '5%'}}>
+       <KeyboardAwareScrollView>
           <View style={styles.viewStyle}>
+            {bookingLocation && (
+            <View>
+              <View>
+                <Text style={styles.label}>Chef Location</Text>
+                <Text style={styles.desStyle}>{chefLocation}</Text>
+              </View>
+              <View>
+                <Text style={styles.label}>Chef Miles</Text>
+                <Text style={styles.desStyle}>
+                  {chefFirstName} is happy to travel {chefMiles} miles from {chefLocation}
+                  </Text>
+              </View>
+              <Text style={styles.noteText}>Note: Please select location around {chefMiles} miles from chef location</Text>
+            </View>
+            )}
             <View style={styles.locationView}>
-              <Text style={styles.locationLabel}>{Languages.setLocation.location}</Text>
+              <Text style={styles.locationLabel}>{bookingLocation ? 'Event Location': Languages.setLocation.homeAddress}</Text>
               <Icon
                 type="MaterialCommunityIcons"
                 name="crosshairs-gps"
@@ -538,6 +996,7 @@ class Address extends PureComponent {
             </View>
             <View style={styles.inputViewStyle}>
               <GooglePlacesAutocomplete
+                ref={ref => {this.placesRef = ref}}
                 placeholder={Languages.setLocation.placeholders.searchtxt}
                 minLength={1} // minimum length of text to search
                 autoFocus={false}
@@ -559,8 +1018,11 @@ class Address extends PureComponent {
                   // available options: https://developers.google.com/places/web-service/autocomplete
                   key: mapApiKey,
                   language: 'en', // language of the results
-                  types: 'address', // default: 'geocode'
+                  types: ['address', '(cities)'], // default: 'geocode'
                   components: 'country:us|country:in',
+                  // location: '11.6666779,78.119787',
+                  // radius: 5000,
+
                 }}
                 style={
                   {
@@ -625,11 +1087,35 @@ class Address extends PureComponent {
                   {Languages.setLocation.labels.before_booking}
                 </Text>
               )}
-              {city && state ? (
+              {/* {city && state ? (
                 <Item disabled>
                   <Input style={{color: 'grey'}} disabled value={`${city}, ${state}`} />
                 </Item>
-              ) : null}
+              ) : null} */}
+              <Item>
+               <Input
+                  style={styles.input}
+                  placeholder={Languages.setLocation.placeholders.city}
+                  onChangeText={this.onChangeCity}
+                  value={city}
+                />
+                </Item>
+                <Item>
+               <Input
+                  style={styles.input}
+                  placeholder={Languages.setLocation.placeholders.state}
+                  onChangeText={this.onChangeState}
+                  value={state}
+                />
+                </Item>
+                <Item>
+               <Input
+                  style={styles.input}
+                  placeholder={Languages.setLocation.placeholders.country}
+                  onChangeText={this.onChangeCountry}
+                  value={country}
+                />
+                </Item>
               <Item>
                 <Input
                   style={styles.input}
@@ -655,14 +1141,23 @@ class Address extends PureComponent {
               </View>
             ) : null}
           </View>
+          {hideSave ?
             <CommonButton
               disabled={isLoading}
-              btnText={Languages.setLocation.labels.save}
+              btnText={Languages.setLocation.labels.next}
               containerStyle={styles.locationBtn}
               onPress={this.onAddLocation}
             />
+            :
+              <CommonButton
+              disabled={isLoading}
+              btnText={showFinishText ? 'Submit' : Languages.setLocation.labels.save}
+              containerStyle={styles.locationBtn}
+              onPress={this.onAddLocation}
+            />
+          }
           {isLoading === true && <Spinner mode="full" />}
-        </ScrollView>
+        </KeyboardAwareScrollView>
     )
   }
 }

@@ -105,12 +105,11 @@ export default StyleSheet.create({
   locationView: {
     flex: 1,
     flexDirection: 'row',
-    marginRight: 20,
+    marginRight: 15,
   },
   locationIcon: {
     fontSize: 16,
-    marginHorizontal: 5,
-    marginVertical: 2,
+    marginHorizontal: 1,
     color: Theme.Colors.primary,
   },
   locationStyling: {
@@ -223,6 +222,7 @@ export default StyleSheet.create({
     marginVertical: 5,
     backgroundColor: 'white',
     borderColor: 'grey',
+    width: 'auto',
     borderWidth: 1,
     padding: 0,
     height: 'auto',

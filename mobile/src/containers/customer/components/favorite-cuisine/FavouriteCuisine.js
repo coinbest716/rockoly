@@ -138,7 +138,6 @@ export default class FavouriteCuisine extends PureComponent {
   }
 
   onSave = () => {
-    console.log('onSave')
     const {
       cuisineItems,
       newCuisineItems,
@@ -148,6 +147,7 @@ export default class FavouriteCuisine extends PureComponent {
       newDietry,
     } = this.state
     const {currentUser} = this.context
+    const {onSaveCallBack} = this.props
     console.log('currentUser', currentUser)
     if (currentUser !== null && currentUser !== undefined) {
       const obj = {
@@ -163,7 +163,9 @@ export default class FavouriteCuisine extends PureComponent {
       CustomerPreferenceService.updatePreferencesData(obj)
         .then(data => {
           console.log('preferences data', data)
-          this.props.onSave()
+          if (onSaveCallBack) {
+            onSaveCallBack()
+          }
         })
         .catch(error => {
           console.log('preferences error', error)

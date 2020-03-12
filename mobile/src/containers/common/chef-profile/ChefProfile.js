@@ -3,7 +3,7 @@
 /** @format */
 import React, {PureComponent} from 'react'
 import {View, ScrollView, Image, AsyncStorage} from 'react-native'
-import {Icon, Text, Button, Toast} from 'native-base'
+import {Icon, Text, Button, Toast, Card, CardItem, Body} from 'native-base'
 import StarRating from 'react-native-star-rating'
 import moment from 'moment'
 import {TouchableOpacity} from 'react-native-gesture-handler'
@@ -25,6 +25,8 @@ import {RouteNames} from '@navigation'
 import styles from './styles'
 import {SECTION_TYPE} from '../../chef/gallery-attachment/GalleryAttachment'
 
+const data = [{title: 'Base Rate'}]
+
 class ProfileView extends PureComponent {
   static navigationOptions = {
     title: 'Profile',
@@ -35,6 +37,7 @@ class ProfileView extends PureComponent {
       isLoading: false,
       visible: false,
       imageValue: 0,
+      profile: {},
     },
   }
 
@@ -46,6 +49,7 @@ class ProfileView extends PureComponent {
   }
 
   componentDidMount = async () => {
+    this.loadData()
     ChefProfileService.on(PROFILE_DETAIL_EVENT.UPDATE_CHEF_PROFILE_DETAILS, this.onCallInitialData)
     ChefProfileService.on(PROFILE_DETAIL_EVENT.GET_CHEF_PROFILE_ATTACHMENTS, this.onCallInitialData)
     BasicProfileService.on(UPDATE_BASIC_PROFILE_EVENT.UPDATING_DATA, this.updatedInfo)
@@ -143,6 +147,29 @@ class ProfileView extends PureComponent {
     )
   }
 
+  titleCase = string => {
+    if (!string || string.length === 0) {
+      return ''
+    }
+    const sentence = string.toLowerCase().split(' ')
+    for (let i = 0; i < sentence.length; i++) {
+      sentence[i] = sentence[i][0].toUpperCase() + sentence[i].slice(1)
+    }
+    return sentence.join(' ')
+  }
+
+  loadData = async () => {
+    const {isLoggedIn, getProfile} = this.context
+
+    if (isLoggedIn) {
+      const profile = await getProfile()
+
+      this.setState({
+        profile,
+      })
+    }
+  }
+
   updatedInfo = ({data}) => {
     this.onLoadInitialData()
   }
@@ -183,6 +210,15 @@ class ProfileView extends PureComponent {
     })
   }
 
+  onConversationDetail = (picId, userName, userData) => {
+    const {navigation} = this.props
+    navigation.navigate(RouteNames.CHAT_DETAIL, {
+      conversationName: userName,
+      conversationPic: picId,
+      userDetails: userData,
+    })
+  }
+
   renderLine = () => {
     return <View style={styles.border} />
   }
@@ -197,7 +233,7 @@ class ProfileView extends PureComponent {
     if (userData !== undefined && userData !== null && userData !== {}) {
       userDetails = userData
     }
-    let rateAndReview = 'No Reviews'
+    let rateAndReview = 'New Chef'
 
     return (
       <View>
@@ -265,7 +301,7 @@ class ProfileView extends PureComponent {
             {userDetails.averageRating && parseFloat(userDetails.averageRating).toFixed(1)}
           </Text>
         ) : (
-          <Text style={styles.avgNumber}>No Review</Text>
+          <Text style={styles.avgNumber}>New Chef</Text>
         )}
         {userDetails && userDetails.totalReviewCount > 0 && (
           <Text> ({userDetails.totalReviewCount} reviews)</Text>
@@ -357,17 +393,23 @@ class ProfileView extends PureComponent {
   }
 
   render() {
-    const {userData, isLoading, keyToContinue, attachementsGallery} = this.state
+    const {userData, isLoading, keyToContinue, attachementsGallery, profile} = this.state
     const {navigation} = this.props
-    const {isChef, isLoggedIn} = this.context
+    const {isChef, isLoggedIn, currentUser} = this.context
     const Rating = 'Rating & Reviews'
-
     let userDetails = {}
     let userName = 'No Name'
     let userLocation = 'No Location'
     let chefDesc = 'No Descrpition'
+    let gratuity = 'No Gratuity'
+    let maxGuest = 0
+    let minGuest = 0
+    let discount = 0
+    let personCounts = 0
+    let additionalPrice = 0
     let chefFromHour = ''
     let chefToHour = ''
+    let additionalService = {}
     let chefExperience = 0
     let noOfHires = 0
     let ingredientsDesc = 'No Ingredients'
@@ -375,9 +417,12 @@ class ProfileView extends PureComponent {
     let distance
     let units = 'Miles'
     let minimumHours = ''
+    let awards = ''
+    let certificate = []
+    let complexity = []
+
     if (userData !== undefined && userData !== null && userData !== {}) {
       userDetails = userData
-      console.log('UserData in profile', userData)
 
       if (
         userDetails &&
@@ -386,21 +431,30 @@ class ProfileView extends PureComponent {
         userDetails.chefProfileExtendedsByChefId.nodes.length > 0
       ) {
         const chefProfile = userDetails.chefProfileExtendedsByChefId.nodes[0]
+        console.log('chefProfile', chefProfile)
         if (userDetails.fullName) {
           userName = userDetails.fullName
         }
         if (userDetails.bookingCompletedCount) {
           noOfHires = userDetails.bookingCompletedCount
         }
-        // if (chefProfile.chefLocationAddress || chefProfile.chefAddrLine2) {
         if (
           chefProfile &&
           (chefProfile.chefLocationAddress !== null || chefProfile.chefAddrLine2 !== null)
         ) {
-          userLocation = isChef ? chefProfile.chefLocationAddress : chefProfile.chefAddrLine2
+          userLocation = isChef ? chefProfile.chefLocationAddress : chefProfile.chefCity
         }
         if (chefProfile.chefDesc) {
-          chefDesc = chefProfile.chefDesc
+          chefDesc = JSON.parse(JSON.stringify(chefProfile.chefDesc))
+        }
+        if (chefProfile.discount) {
+          discount = chefProfile.discount
+        }
+        if (chefProfile.personsCount) {
+          personCounts = chefProfile.personsCount
+        }
+        if (chefProfile.additionalServiceDetails) {
+          additionalService = JSON.parse(chefProfile.additionalServiceDetails)
         }
         if (chefProfile.chefBusinessHoursFromTime) {
           chefFromHour = moment(chefProfile.chefBusinessHoursFromTime, dbTimeFormat).format(
@@ -411,6 +465,18 @@ class ProfileView extends PureComponent {
           chefToHour = moment(chefProfile.chefBusinessHoursToTime, dbTimeFormat).format(
             displayTimeFormat
           )
+        }
+        if (chefProfile.noOfGuestsCanServe) {
+          additionalPrice = chefProfile.noOfGuestsCanServe
+        }
+        if (chefProfile.chefGratuity) {
+          gratuity = chefProfile.chefGratuity
+        }
+        if (chefProfile.noOfGuestsMax) {
+          maxGuest = chefProfile.noOfGuestsMax
+        }
+        if (chefProfile.noOfGuestsMin) {
+          minGuest = chefProfile.noOfGuestsMin
         }
         if (chefProfile.chefExperience) {
           chefExperience = chefProfile.chefExperience
@@ -425,8 +491,24 @@ class ProfileView extends PureComponent {
           units = chefProfile.chefAvailableAroundRadiusInUnit.toLowerCase()
         }
 
+        if (chefProfile.chefAwards) {
+          awards = JSON.parse(chefProfile.chefAwards)
+        }
+
+        if (chefProfile.chefComplexity) {
+          complexity = JSON.parse(chefProfile.chefComplexity)
+        }
+
         if (chefProfile.minimumNoOfMinutesForBooking) {
           minimumHours = chefProfile.minimumNoOfMinutesForBooking / 60
+        }
+
+        if (
+          chefProfile.certificationsTypes &&
+          chefProfile.certificationsTypes.nodes &&
+          chefProfile.certificationsTypes.nodes.length > 0
+        ) {
+          certificate = chefProfile.certificationsTypes.nodes
         }
       }
 
@@ -442,7 +524,6 @@ class ProfileView extends PureComponent {
         )
       }
     }
-    console.log('chefExpericence', chefExperience !== 0)
     return (
       <View style={[styles.container]}>
         <Header showBack={!isChef} navigation={navigation} showTitle title="Profile" />
@@ -471,9 +552,16 @@ class ProfileView extends PureComponent {
               <View style={styles.userInfo}>
                 <View style={styles.iconNameView}>
                   <Text style={styles.text}>{userName}</Text>
-                  {isLoggedIn && isChef && (
+                  {isLoggedIn && isChef ? (
                     <TouchableOpacity onPress={() => this.onEditProifile()}>
                       <Icon type="FontAwesome5" name="edit" style={styles.iconStyle3} />
+                    </TouchableOpacity>
+                  ) : (
+                    <TouchableOpacity
+                      onPress={() =>
+                        this.onConversationDetail(userDetails.chefPicId, userName, userDetails)
+                      }>
+                      <Icon type="FontAwesome5" name="comment-dots" style={styles.messageIcon} />
                     </TouchableOpacity>
                   )}
                 </View>
@@ -485,31 +573,6 @@ class ProfileView extends PureComponent {
               </View>
             </View>
 
-            {/* <View style={styles.badgeView}>
-              <Icon type="AntDesign" name="Safety" style={styles.badgeIcon} />
-              {noOfHires === 'No Hired' || noOfHires < 100 ? (
-                <Text style={styles.badgeText}>{Languages.chefProfile.labels.top_pro}</Text>
-              ) : (
-                <Text style={styles.badgeText}>{Languages.chefProfile.labels.master}</Text>
-              )}
-            </View>
-            {this.renderLine()}
-            <View style={styles.badgeView}>
-              <Icon type="FontAwesome5" name="trophy" style={styles.badgeIcon} />
-              <Text style={styles.badgeText}>{Languages.chefProfile.labels.high_in_demand}</Text>
-            </View>
-            {this.renderLine()} */}
-            {chefExperience > 0 ? (
-              <View>
-                {this.renderLine()}
-                <View style={styles.badgeView}>
-                  <Icon type="FontAwesome5" name="clock" style={styles.badgeIcon} />
-                  <Text style={styles.badgeText}>
-                    {chefExperience} {Languages.chefProfile.labels.years_in_business}
-                  </Text>
-                </View>
-              </View>
-            ) : null}
             {noOfHires > 0 ? (
               <View>
                 {this.renderLine()}
@@ -519,147 +582,291 @@ class ProfileView extends PureComponent {
                 </View>
               </View>
             ) : null}
-
             {this.renderLine()}
+            {/* <Card style={styles.cardStyle}> */}
             <View style={styles.desView}>
-              <Text style={styles.heading}>{Languages.chefProfile.labels.description}</Text>
-              <Text style={styles.destext}>{chefDesc}</Text>
+              <Text style={styles.heading}>{Languages.chefProfile.labels.base_rate}</Text>
+              <Text style={styles.destext}>{chefPrice ? `${'$'}${chefPrice}` : 'No Price'}</Text>
             </View>
+            {/* <View style={styles.desView}>
+              <Text style={styles.heading}>{Languages.chefProfile.labels.gratuity}</Text>
+              <Text style={styles.destext}>{gratuity ? `${gratuity}${'%'}` : 'No Gartutity'}</Text>
+            </View> */}
             <View style={styles.desView}>
-              <Text>{Languages.chefProfile.labels.cuisine_types}</Text>
-            </View>
-            <View style={styles.cusineBody}>
-              {userDetails &&
-              userDetails.chefSpecializationProfilesByChefId &&
-              userDetails.chefSpecializationProfilesByChefId.nodes &&
-              userDetails.chefSpecializationProfilesByChefId.nodes.length > 0 &&
-              userDetails.chefSpecializationProfilesByChefId.nodes[0].chefCuisineTypeDesc &&
-              userDetails.chefSpecializationProfilesByChefId.nodes[0].chefCuisineTypeDesc.length >
-                0 ? (
-                userDetails.chefSpecializationProfilesByChefId.nodes[0].chefCuisineTypeDesc.map(
-                  (item, key) => {
-                    const chip = []
-                    chip.push(
-                      <Button key={key} small rounded light style={styles.chipItem}>
-                        <Text style={styles.locationText}>{item}</Text>
-                      </Button>
-                    )
-                    return chip
-                  }
-                )
+              <Text style={styles.heading}>{Languages.chefProfile.labels.noofguests}</Text>
+              {maxGuest <= 0 && minGuest <= 0 ? (
+                <Text style={styles.destext}>No guest counts</Text>
               ) : (
-                <Text style={styles.dishView}>{Languages.chefProfile.labels.cuisines_empty}</Text>
+                <View style={{flexDirection: 'row', flex: 1}}>
+                  <Text style={styles.destext}>
+                    {userName} can cook for between {minGuest} and {maxGuest} people
+                  </Text>
+                </View>
               )}
             </View>
+            {/* <View style={styles.desView}>
+              <Text style={styles.heading}>{Languages.chefProfile.labels.additionalPrice}</Text>
+              <Text style={styles.destext}>
+                {additionalPrice > 0 ? `${'$'}${additionalPrice}` : 'No Additional Price'}
+              </Text>
+            </View>
+
             <View style={styles.desView}>
-              <Text>{Languages.chefProfile.labels.dish_types}</Text>
-            </View>
-            <View style={styles.cusineBody}>
-              {userDetails &&
-              userDetails.chefSpecializationProfilesByChefId &&
-              userDetails.chefSpecializationProfilesByChefId.nodes &&
-              userDetails.chefSpecializationProfilesByChefId.nodes.length > 0 &&
-              userDetails.chefSpecializationProfilesByChefId.nodes[0].chefDishTypeDesc &&
-              userDetails.chefSpecializationProfilesByChefId.nodes[0].chefDishTypeDesc.length >
-                0 ? (
-                userDetails.chefSpecializationProfilesByChefId.nodes[0].chefDishTypeDesc.map(
-                  (item, key) => {
-                    const chip = []
-                    chip.push(
-                      <Button key={key} small rounded light style={styles.chipItem}>
-                        <Text style={styles.locationText}>{item}</Text>
-                      </Button>
-                    )
-                    return chip
-                  }
-                )
+              <Text style={styles.heading}>{Languages.chefProfile.labels.discount}</Text>
+              {maxGuest <= 0 && minGuest <= 0 ? (
+                <Text style={styles.destext}>No Discount</Text>
               ) : (
-                <Text style={styles.dishView}>{Languages.chefProfile.labels.dishes_empty}</Text>
+                <View style={{flexDirection: 'row', flex: 1}}>
+                  <Text style={styles.destext}>{`${'Discount'}: ${discount}% for `}</Text>
+                  <Text style={styles.destext}>{`${'Persons Count'}: ${personCounts}`}</Text>
+                </View>
               )}
-            </View>
+            </View> */}
             {distance && (
               <View style={styles.desView}>
                 <Text style={styles.heading}>
-                  {/* {`Chef can travel around ${distance}${' '}${units} to provide the service`} */}
-                  {Languages.chefProfile.labels.distance_before} {distance} {units}{' '}
+                  {userName}
+                  {Languages.chefProfile.labels.distance_before} {distance} {units}
                   {Languages.chefProfile.labels.distance_after}
+                  {userLocation}
                 </Text>
               </View>
             )}
-            {/* <View style={styles.desView}>
-            <Text style={styles.heading}>Ingredients</Text>
-            <Text style={styles.destext}>{ingredientsDesc || 'No Ingredients'}</Text>
-          </View> */}
-            {isLoggedIn && !isChef && (
-              <Button
-                iconLeft
-                onPress={() => this.onCheckAvailabiltyPress()}
-                style={styles.checkAvailablity}>
-                <Icon name="calendar" />
-                <Text> {Languages.chefProfile.labels.check_availability}</Text>
-                <Icon name="arrow-forward" />
-              </Button>
-            )}
+            {/* {isLoggedIn && !isChef && currentUser.userId !== userDetails.userId && ( */}
+            <Button
+              iconLeft
+              onPress={() => this.onCheckAvailabiltyPress()}
+              style={styles.checkAvailablity}>
+              <Icon name="calendar" />
+              <Text> {Languages.chefProfile.labels.check_availability}</Text>
+              <Icon name="arrow-forward" />
+            </Button>
+            {/* )} */}
             {!isLoggedIn && !isChef && (
               <TouchableOpacity onPress={() => this.onLoginPress()}>
                 <Text style={styles.loginText}>{Languages.chefProfile.labels.please_login}</Text>
               </TouchableOpacity>
             )}
-            <View style={styles.desView}>
-              <Text style={styles.heading}>{Languages.chefProfile.labels.price_per_hour}</Text>
-              <Text style={styles.destext}>{chefPrice ? `${'$'}${chefPrice}` : 'No Price'}</Text>
-            </View>
-            <View style={styles.desView}>
-              <Text style={styles.heading}>
-                {Languages.chefProfile.labels.minimum_booking_hours}
-              </Text>
-              <Text style={styles.destext}>
-                {minimumHours ? `${minimumHours} hours` : 'No Booking Hours'}
-              </Text>
-            </View>
-            <View style={styles.desView}>
-              <Text style={styles.heading}>{Languages.chefProfile.labels.business_hours}</Text>
-              {chefFromHour === '' && chefToHour === '' ? (
-                <Text style={styles.destext}>{Languages.chefProfile.labels.no_data}</Text>
-              ) : (
-                <Text style={styles.destext}>
-                  {Languages.chefProfile.labels.daily} {chefFromHour}{' '}
-                  {Languages.chefProfile.labels.to} {chefToHour}
+            <Card style={styles.cardStyle}>
+              <CardItem header bordered>
+                <Text style={{color: 'black'}}>
+                  {Languages.chefProfile.labels.additional_service}
                 </Text>
-              )}
-            </View>
-            <View style={styles.desView}>
-              <Text style={styles.heading}>{Languages.chefProfile.labels.work_gallery}</Text>
-              {attachementsGallery && attachementsGallery.length > 0 ? (
-                <View style={styles.galleryView}>
-                  {attachementsGallery &&
-                    attachementsGallery.length > 0 &&
-                    attachementsGallery.map((item, key) => (
-                      <TouchableOpacity
-                        activeOpacity={0.6}
-                        onPress={() => {
-                          this.onSelect(item, key)
-                        }}>
-                        <Image
-                          key={key}
-                          style={styles.galleryImage}
-                          source={{uri: item.pAttachmentUrl}}
-                        />
-                      </TouchableOpacity>
-                    ))}
-                </View>
+              </CardItem>
+              {additionalService && additionalService.length > 0 ? (
+                additionalService.map((item, key) => {
+                  console.log('item', item)
+                  const chip = []
+                  chip.push(
+                    // <Button small rounded light style={styles.chipItem}>
+                    <CardItem>
+                      <Body>
+                        <Text style={styles.locationText}>
+                          {item.name}: <Text style={styles.destext}>${item.price}</Text>
+                        </Text>
+                      </Body>
+                    </CardItem>
+                    // </Button>
+                  )
+                  return chip
+                })
               ) : (
-                <Text style={styles.destext}>{Languages.chefProfile.labels.no_data}</Text>
+                <CardItem>
+                  <Body>
+                    <Text style={styles.destext}>{Languages.chefProfile.labels.no_service}</Text>
+                  </Body>
+                </CardItem>
               )}
-            </View>
+            </Card>
+
+            <Card style={styles.cardStyle}>
+              <CardItem header bordered>
+                <Text style={{color: 'black'}}>{Languages.chefProfile.labels.complexity}</Text>
+              </CardItem>
+              {complexity && complexity.length > 0 ? (
+                complexity.map((item, key) => {
+                  const chip = []
+                  chip.push(
+                    <CardItem bordered={complexity.length !== key + 1}>
+                      <Body>
+                        <View style={{display: 'flex', flexDirection: 'column'}}>
+                          <Text style={styles.complexityText}>
+                            Level: <Text style={styles.destext}>{item.complexcityLevel}</Text>{' '}
+                          </Text>
+                          <Text style={styles.complexityText}>
+                            Desired Dishes: <Text style={styles.destext}>{item.dishes}</Text>
+                          </Text>
+                          <Text style={styles.complexityText}>
+                            Between <Text style={styles.destext}>{item.noOfItems.min}</Text>{' '}
+                            <Text style={styles.destext}>-</Text>{' '}
+                            <Text style={styles.destext}>{item.noOfItems.max}</Text> Menu Items
+                          </Text>
+                        </View>
+                      </Body>
+                    </CardItem>
+                  )
+                  return chip
+                })
+              ) : (
+                <Text style={styles.dishView}>{Languages.chefProfile.labels.no_complexity}</Text>
+              )}
+            </Card>
+
+            <Card style={styles.cardStyle}>
+              <CardItem header bordered>
+                <Text style={{color: 'black'}}>{Languages.chefProfile.labels.work_experience}</Text>
+              </CardItem>
+              <CardItem>
+                <Body>
+                  <Text style={styles.destext}>{chefDesc}</Text>
+                </Body>
+              </CardItem>
+            </Card>
+
+            <Card style={styles.cardStyle}>
+              <CardItem header bordered>
+                <Text style={{color: 'black'}}>{Languages.chefProfile.labels.cuisine_types}</Text>
+              </CardItem>
+              <CardItem>
+                <Body style={styles.cusineBody}>
+                  {userDetails &&
+                  userDetails.chefSpecializationProfilesByChefId &&
+                  userDetails.chefSpecializationProfilesByChefId.nodes &&
+                  userDetails.chefSpecializationProfilesByChefId.nodes.length > 0 &&
+                  userDetails.chefSpecializationProfilesByChefId.nodes[0].chefCuisineTypeDesc &&
+                  userDetails.chefSpecializationProfilesByChefId.nodes[0].chefCuisineTypeDesc
+                    .length > 0 ? (
+                    userDetails.chefSpecializationProfilesByChefId.nodes[0].chefCuisineTypeDesc.map(
+                      (item, key) => {
+                        const chip = []
+                        chip.push(
+                          <Button key={key} small rounded light style={styles.chipItem}>
+                            <Text style={styles.cusineText}>{item}</Text>
+                          </Button>
+                        )
+                        return chip
+                      }
+                    )
+                  ) : (
+                    <Text style={{color: 'black'}}>
+                      {Languages.chefProfile.labels.cuisines_empty}
+                    </Text>
+                  )}
+                </Body>
+              </CardItem>
+            </Card>
+            <Card style={styles.cardStyle}>
+              <CardItem header bordered>
+                <Text style={{color: 'black'}}>{Languages.chefProfile.labels.dish_types}</Text>
+              </CardItem>
+              <CardItem>
+                <Body style={styles.cusineBody}>
+                  {userDetails &&
+                  userDetails.chefSpecializationProfilesByChefId &&
+                  userDetails.chefSpecializationProfilesByChefId.nodes &&
+                  userDetails.chefSpecializationProfilesByChefId.nodes.length > 0 &&
+                  userDetails.chefSpecializationProfilesByChefId.nodes[0].chefDishTypeDesc &&
+                  userDetails.chefSpecializationProfilesByChefId.nodes[0].chefDishTypeDesc.length >
+                    0 ? (
+                    userDetails.chefSpecializationProfilesByChefId.nodes[0].chefDishTypeDesc.map(
+                      (item, key) => {
+                        const chip = []
+                        chip.push(
+                          <Button key={key} small rounded light style={styles.chipItem}>
+                            <Text style={styles.cusineText}>{item}</Text>
+                          </Button>
+                        )
+                        return chip
+                      }
+                    )
+                  ) : (
+                    <Text style={{color: 'black'}}>
+                      {Languages.chefProfile.labels.dishes_empty}
+                    </Text>
+                  )}
+                </Body>
+              </CardItem>
+            </Card>
+
+            <Card style={styles.cardStyle}>
+              <CardItem header bordered>
+                <Text style={{color: 'black'}}>{Languages.chefProfile.labels.awards}</Text>
+              </CardItem>
+              <CardItem>
+                <Body>
+                  <Text style={styles.destext}>{awards || 'No Awards'}</Text>
+                </Body>
+              </CardItem>
+            </Card>
+            <Card style={styles.cardStyle}>
+              <CardItem header bordered>
+                <Text style={{color: 'black'}}>{Languages.chefProfile.labels.certificate}</Text>
+              </CardItem>
+              <CardItem>
+                <Body style={styles.cusineBody}>
+                  {certificate && certificate.length > 0 ? (
+                    certificate.map((item, key) => {
+                      console.log('item', item)
+                      const chip = []
+                      chip.push(
+                        <Button small rounded light style={styles.chipItem}>
+                          <Text style={styles.cusineText}>{item.certificateTypeName}</Text>
+                        </Button>
+                      )
+                      return chip
+                    })
+                  ) : (
+                    <Text style={styles.dishView}>
+                      {Languages.chefProfile.labels.no_certificate}
+                    </Text>
+                  )}
+                </Body>
+              </CardItem>
+            </Card>
+
+            <Card style={styles.cardStyle}>
+              <CardItem header bordered>
+                <Text style={{color: 'black'}}>{Languages.chefProfile.labels.work_gallery}</Text>
+              </CardItem>
+              <CardItem>
+                {attachementsGallery && attachementsGallery.length > 0 ? (
+                  <Body style={styles.galleryView}>
+                    {attachementsGallery &&
+                      attachementsGallery.length > 0 &&
+                      attachementsGallery.map((item, key) => (
+                        <TouchableOpacity
+                          activeOpacity={0.6}
+                          onPress={() => {
+                            this.onSelect(item, key)
+                          }}>
+                          <Image
+                            key={key}
+                            style={styles.galleryImage}
+                            source={{uri: item.pAttachmentUrl}}
+                          />
+                        </TouchableOpacity>
+                      ))}
+                  </Body>
+                ) : (
+                  <Body>
+                    <Text style={styles.destext}>{Languages.chefProfile.labels.no_data}</Text>
+                  </Body>
+                )}
+              </CardItem>
+            </Card>
             {userDetails &&
               userDetails.chefAttachmentProfilesByChefId &&
               userDetails.chefAttachmentProfilesByChefId.nodes &&
               this.onViewImages(attachementsGallery)}
-            <View style={styles.desView}>
-              <Text style={styles.heading}>{Rating}</Text>
-              {this.rateReview()}
-            </View>
+            <Card style={styles.cardStyle}>
+              <CardItem header bordered>
+                <Text style={styles.heading}>{Rating}</Text>
+              </CardItem>
+              <CardItem>
+                <Body>{this.rateReview()}</Body>
+              </CardItem>
+            </Card>
+            {/* </Card> */}
           </ScrollView>
         )}
       </View>

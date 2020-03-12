@@ -144,6 +144,41 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     paddingHorizontal: 5,
   },
+  serviceView: {
+    display: 'flex',
+    flexDirection: 'column',
+    flexWrap: 'wrap',
+  },
+  locationText: {
+    color: Theme.Colors.primary,
+    fontSize: 14,
+    textAlign: 'center',
+    alignItems: 'center',
+  },
+  // destext: {
+  //   color: '#B9BFBB',
+  //   fontSize: 14,
+  // },
+  destext: {
+    color: 'black', // B9BFBB
+    fontSize: 14,
+    marginTop: 10,
+    // paddingLeft: 20,
+  },
+  biilingRightText: {
+    color: 'black',
+    fontSize: 14,
+    marginTop: 20,
+    // paddingLeft: 20,
+    position: 'absolute',
+    right: 5,
+  },
+  noText: {
+    textAlign: 'center',
+    marginTop: 10,
+    color: 'black',
+    fontSize: 14,
+  },
 })
 
 export default styles

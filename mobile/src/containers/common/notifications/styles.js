@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
   },
   destext: {
     // color: '#B9BFBB',
-    fontSize: 18,
+    fontSize: 16,
     // marginTop: 15,
     textAlign: 'center',
   },

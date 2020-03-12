@@ -1,6 +1,6 @@
 export const updateComplexityGQLTAG = `mutation updateComplexity(
     $chefProfileExtendedId: String!
-    $chefComplexity: Float
+    $chefComplexity: JSON
   ) {
     updateChefProfileExtendedByChefProfileExtendedId(
       input: {

@@ -158,7 +158,6 @@ class Register extends PureComponent {
           const {updateCurrentUser} = this.context
           const {navigation} = this.props
 
-          this.setLoading(true)
           if (firebase.auth().currentUser) {
             const token = await LoginService.getIdToken()
             if (token) {
@@ -169,14 +168,7 @@ class Register extends PureComponent {
                 dob: null,
                 mobileCountryCode: `+${callingCode}`,
               }
-              RegisterService.gqlRegister(token, role, userData)
-                .then(async gqlRes => {
-                  LoginService.onLogin({role, gqlRes, updateCurrentUser, navigation})
-                })
-                .catch(e => {
-                  console.log(e)
-                  this.registerError()
-                })
+              this.onRegisterUser(token, role, userData, updateCurrentUser, navigation)
             }
           } else {
             RegisterService.firebaseEmailRegister(email, password)
@@ -203,14 +195,7 @@ class Register extends PureComponent {
                         dob: null,
                         mobileCountryCode: `+${callingCode}`,
                       }
-                      RegisterService.gqlRegister(token, role, userData)
-                        .then(async gqlRes => {
-                          LoginService.onLogin({role, gqlRes, updateCurrentUser, navigation})
-                        })
-                        .catch(e => {
-                          console.log(e)
-                          this.registerError()
-                        })
+                      this.onRegisterUser(token, role, userData, updateCurrentUser, navigation)
                     }
                   }
                 }
@@ -269,6 +254,19 @@ class Register extends PureComponent {
         } else {
           this.registerError()
         }
+      })
+  }
+
+  onRegisterUser = (token, role, userData, updateCurrentUser, navigation) => {
+    this.setLoading(true)
+    RegisterService.gqlRegister(token, role, userData)
+      .then(async gqlRes => {
+        LoginService.onLogin({role, gqlRes, updateCurrentUser, navigation})
+        this.setLoading(false)
+      })
+      .catch(e => {
+        console.log(e)
+        this.registerError()
       })
   }
 
@@ -629,6 +627,7 @@ class Register extends PureComponent {
                 <Input
                   onChangeText={this.onPasswordEditHandle}
                   secureTextEntry
+                  autoCapitalize="none"
                   value={password}
                   placeholder={Languages.register.reg_form_label.password}
                 />
@@ -648,6 +647,7 @@ class Register extends PureComponent {
                 <Input
                   onChangeText={this.onPasswordEditHandle}
                   value={password}
+                  autoCapitalize="none"
                   placeholder={Languages.register.reg_form_label.password}
                 />
                 <Right>
@@ -667,6 +667,7 @@ class Register extends PureComponent {
                 <Input
                   onChangeText={this.onConfirmPasswordEditHandle}
                   secureTextEntry
+                  autoCapitalize="none"
                   value={confirmPassword}
                   placeholder={Languages.register.reg_form_label.confirmPassword}
                 />
@@ -688,6 +689,7 @@ class Register extends PureComponent {
                 <Input
                   onChangeText={this.onConfirmPasswordEditHandle}
                   value={confirmPassword}
+                  autoCapitalize="none"
                   placeholder={Languages.register.reg_form_label.confirmPassword}
                 />
                 <Right>
@@ -714,6 +716,7 @@ class Register extends PureComponent {
             <Item>
               <CountryPicker
                 filterable
+                withAlphaFilter
                 closeable
                 onChange={value => {
                   this.selectCountry(value)

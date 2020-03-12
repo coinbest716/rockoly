@@ -9,7 +9,11 @@ import BookingDetailService, {BOOKING_DETAIL_EVENT} from './BookingDetailService
 import {AuthContext} from '../AuthContext'
 import LocationService, {LOCATION_EVENT} from './LocationService'
 import ChefProfileService, {PROFILE_DETAIL_EVENT} from './ChefProfileService'
-import BasicProfileService, {UPDATE_BASIC_PROFILE_EVENT} from './BasicProfileService'
+import BasicProfileService, {
+  UPDATE_BASIC_PROFILE_EVENT,
+  CUSTOMER_REG_FLOW_STEPS,
+  CHEF_REG_FLOW_STEPS,
+} from './BasicProfileService'
 import FeedbackService, {FEEDBACK_EVENT} from './FeedbackService'
 import TabBarService, {TAB_EVENTS} from './TabBarService'
 import PushNotificationService, {PUSH_NOTIFICATION} from './PushNotificaitonService'
@@ -23,8 +27,11 @@ import NotificationListService, {NOTIFICATION_LIST_EVENT} from './NotificationSe
 import BookingNotesService, {BOOKING_NOTES} from './BookingNotesService'
 import CustomerPreferenceService, {CUSTOMER_PREFERNCE_EVENT} from './CustomerPreferenceService'
 import ChefPreferenceService, {CHEF_PREFERNCE_EVENT} from './ChefPrefernenceService'
+import PriceCalculationService, {PRICE_EVENT} from './PriceCalculationService'
 
 export {
+  CHEF_REG_FLOW_STEPS,
+  CUSTOMER_REG_FLOW_STEPS,
   CommonService,
   COMMON_LIST_NAME,
   LOCATION_EVENT,
@@ -71,4 +78,6 @@ export {
   CUSTOMER_PREFERNCE_EVENT,
   ChefPreferenceService,
   CHEF_PREFERNCE_EVENT,
+  PriceCalculationService,
+  PRICE_EVENT,
 }

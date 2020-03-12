@@ -340,7 +340,7 @@ class SetUnavailabilty extends Component {
           canLoadMore={canLoadMore}
           loadMore={this.loadMore}
           reload={this.reload}
-          emptyDataMessage="No Unavailability date found"
+          // emptyDataMessage="No Unavailability date found"
         />
       </View>
     )

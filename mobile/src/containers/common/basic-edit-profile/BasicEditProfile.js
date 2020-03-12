@@ -39,16 +39,15 @@ class BasicEditProfile extends PureComponent {
     super(props)
     this.state = {
       dateOfBirth: new Date(),
-      selectedSalutation: null,
       dateOfBirthToDisplay: null,
       isDateTimePickerVisible: false,
       firstName: '',
       lastName: '',
       isLoading: false,
       isFetching: true,
-      radioValue: '',
       profilePicUrl: '',
       profile: {},
+      invalidDate: false,
     }
     this.onFirstNameEditHandle = firstName => this.setState({firstName})
     this.onLastNameEditHandle = lastName => this.setState({lastName})
@@ -159,31 +158,20 @@ class BasicEditProfile extends PureComponent {
   onLoadProfileData = async () => {
     const {isLoggedIn, getProfile, isChef} = this.context
     const profile = await getProfile()
-    const {
-      selectedSalutation,
-      firstName,
-      lastName,
-      radioValue,
-      dateOfBirthToDisplay,
-      profilePicUrl,
-    } = this.state
+    const {firstName, lastName, dateOfBirthToDisplay, profilePicUrl} = this.state
 
     // For Chef
     if (isLoggedIn === true && isChef && profile !== null) {
-      const chefSalutation = profile.chefSalutation ? profile.chefSalutation : selectedSalutation
       const chefFirstName = profile.chefFirstName ? profile.chefFirstName : firstName
       const chefLastName = profile.chefLastName ? profile.chefLastName : lastName
-      const chefGender = profile.chefGender ? profile.chefGender : radioValue
       const chefDob = profile.chefDob
-        ? moment(profile.chefDob).format('MMM Do YYYY')
+        ? moment(moment.utc(profile.chefDob).local()).format('MM/DD/YYYY')
         : dateOfBirthToDisplay
       const chefPicId = profile.chefPicId ? profile.chefPicId : profilePicUrl
       const chefDateOfBirth = profile.chefDob ? new Date(profile.chefDob) : new Date()
       this.setState({
-        selectedSalutation: chefSalutation,
         firstName: chefFirstName,
         lastName: chefLastName,
-        radioValue: chefGender,
         dateOfBirthToDisplay: chefDob,
         dateOfBirth: chefDateOfBirth,
         profilePicUrl: chefPicId,
@@ -193,35 +181,23 @@ class BasicEditProfile extends PureComponent {
 
     // For Customer
     if (isLoggedIn === true && !isChef && profile !== null) {
-      const customerSalutation = profile.customerSalutation
-        ? profile.customerSalutation
-        : selectedSalutation
       const customerFirstName = profile.customerFirstName ? profile.customerFirstName : firstName
       const customerLastName = profile.customerLastName ? profile.customerLastName : lastName
-      const customerGender = profile.customerGender ? profile.customerGender : radioValue
       const customerDob = profile.customerDob
-        ? moment(profile.customerDob).format('MMM Do YYYY')
+        ? moment(moment.utc(profile.customerDob).local()).format('MM/DD/YYYY')
         : dateOfBirthToDisplay
       const customerPicId = profile.customerPicId ? profile.customerPicId : profilePicUrl
       const customerDateOfBirth = profile.customerDob ? new Date(profile.customerDob) : new Date()
 
       this.setState({
-        selectedSalutation: customerSalutation,
         firstName: customerFirstName,
         lastName: customerLastName,
-        radioValue: customerGender,
         dateOfBirthToDisplay: customerDob,
         profilePicUrl: customerPicId,
         dateOfBirth: customerDateOfBirth,
         isFetching: false,
       })
     }
-  }
-
-  onValueChange(value) {
-    this.setState({
-      selectedSalutation: value,
-    })
   }
 
   onChangeFirstName = value => {
@@ -348,9 +324,40 @@ class BasicEditProfile extends PureComponent {
 
   handleDatePicked = dob => {
     const date = new Date(dob)
-    const dateOfBirthToDisplay = moment(date).format('MMM Do YYYY')
+    const dateOfBirthToDisplay = moment(date).format('MM/DD/YYYY')
+    console.log('handleDatePicked', dob, dateOfBirthToDisplay, date)
     this.setState({dateOfBirthToDisplay, dateOfBirth: dob})
     this.hideDateTimePicker()
+  }
+
+  onChangeDob = value => {
+    console.log('value', value)
+    const date = new Date(value)
+    this.setState({dateOfBirthToDisplay: value, dateOfBirth: date}, () => {
+      this.checkDob()
+    })
+  }
+
+  checkDob = () => {
+    const {dateOfBirthToDisplay, dateOfBirth} = this.state
+    if (dateOfBirthToDisplay && dateOfBirth) {
+      if (dateOfBirthToDisplay.match(/^([0-9]{2})\/([0-9]{2})\/([0-9]{4})$/)) {
+        console.log('onChangedate', dateOfBirth)
+        const dateStr = dateOfBirth.toString().split('/')
+        console.log('dateStr', dateStr)
+        if (dateStr && dateStr[0] === 'Invalid Date') {
+          this.setState({
+            invalidDate: true,
+          })
+        } else {
+          this.setState({invalidDate: false})
+        }
+      } else if (!dateOfBirthToDisplay.match(/^([0-9]{2})\/([0-9]{2})\/([0-9]{4})$/)) {
+        this.setState({
+          invalidDate: true,
+        })
+      }
+    }
   }
 
   showDateTimePicker = () => {
@@ -367,8 +374,14 @@ class BasicEditProfile extends PureComponent {
   }
 
   onUpdateProfile = async () => {
-    const {dateOfBirth} = this.state
-    if (dateOfBirth) {
+    const {dateOfBirth, dateOfBirthToDisplay, invalidDate} = this.state
+    console.log('debugging dateOfBirth', dateOfBirth)
+    if (invalidDate === true) {
+      Alert.alert('Info', 'Please enter a valid date')
+      return
+    }
+
+    if (dateOfBirth && dateOfBirthToDisplay) {
       const now = new Date()
       let dob = ''
       let currentDate = ''
@@ -379,10 +392,10 @@ class BasicEditProfile extends PureComponent {
         moment(dob, displayDateFormat),
         'years'
       )
-
+      console.log('dob date', dob, dateOfBirth, dateOfBirthToDisplay)
       console.log('diffValue date', diffValue)
-      if (diffValue <= 18) {
-        Alert.alert('Info', 'Sorry you should be above 18')
+      if (diffValue < 18) {
+        Alert.alert('Info', 'Sorry, your age should be above 18')
       } else {
         this.onUpdateProfileDetails()
       }
@@ -398,11 +411,10 @@ class BasicEditProfile extends PureComponent {
 
   onUpdateProfileDetails = () => {
     const {
-      selectedSalutation,
       firstName,
       lastName,
-      radioValue,
       dateOfBirth,
+      dateOfBirthToDisplay,
       profilePicUrl,
       profile,
     } = this.state
@@ -419,20 +431,20 @@ class BasicEditProfile extends PureComponent {
     if (isChef && isLoggedIn === true && currentUser.chefId) {
       const params = {
         chefId: currentUser.chefId,
-        chefSalutation: selectedSalutation,
         chefFirstName: firstName,
         chefLastName: lastName,
-        chefGender: radioValue || null,
-        chefDob: dateOfBirth ? date : null,
+        chefDob: dateOfBirthToDisplay && dateOfBirth ? date : null,
         chefPicId: profilePicUrl || null,
       }
+
+      console.log('params', params)
 
       BasicProfileService.updateChefProfile(params)
         .then(res => {
           if (res) {
             this.onLoadProfileData()
             this.showSuccess()
-            this.onProfileSetup()
+            // this.onProfileSetup()
           } else {
             this.showError()
           }
@@ -445,10 +457,8 @@ class BasicEditProfile extends PureComponent {
     if (!isChef && isLoggedIn === true && currentUser.customerId) {
       const params = {
         customerId: currentUser.customerId,
-        customerSalutation: selectedSalutation,
         customerFirstName: firstName,
         customerLastName: lastName,
-        customerGender: radioValue || null,
         customerDob: dateOfBirth ? date : null,
         customerPicId: profilePicUrl || null,
       }
@@ -476,7 +486,7 @@ class BasicEditProfile extends PureComponent {
 
   showSuccess = () => {
     Toast.show({
-      text: Languages.basicEditProfile.toast_message.update_success,
+      text: Languages.basicEditProfile.toast_message.update_profile_success,
     })
   }
 
@@ -491,7 +501,6 @@ class BasicEditProfile extends PureComponent {
   renderContent = () => {
     const {
       isDateTimePickerVisible,
-      selectedSalutation,
       firstName,
       lastName,
       dateOfBirthToDisplay,
@@ -499,6 +508,8 @@ class BasicEditProfile extends PureComponent {
       isLoading,
       profilePicUrl,
       profile,
+      dateOfBirthText,
+      invalidDate,
     } = this.state
     const {isChef, isLoggedIn} = this.context
     let picId
@@ -553,39 +564,6 @@ class BasicEditProfile extends PureComponent {
         <View style={Styles.editPanel}>
           <Item>
             <Icon style={Styles.iconColor} type="MaterialCommunityIcons" name="account-edit" />
-            <Picker
-              iosIcon={
-                <Icon
-                  name="arrow-dropdown-circle"
-                  style={{color: Theme.Colors.primary, fontSize: 25}}
-                />
-              }
-              placeholder={Languages.basicEditProfile.basic_edit_form_label.salutation}
-              placeholderStyle={{color: '#000', paddingLeft: 5}}
-              enabled
-              mode="dropdown"
-              style={{width: 120}}
-              selectedValue={selectedSalutation}
-              onValueChange={value => this.onValueChange(value)}>
-              <Picker.Item
-                style={{paddingLeft: 5}}
-                label={Languages.basicEditProfile.basic_edit_form_label.salutation_mr_label}
-                value={Languages.basicEditProfile.basic_edit_form_label.salutation_mr_value}
-              />
-              <Picker.Item
-                style={{paddingLeft: 5}}
-                label={Languages.basicEditProfile.basic_edit_form_label.salutation_ms_label}
-                value={Languages.basicEditProfile.basic_edit_form_label.salutation_ms_value}
-              />
-              <Picker.Item
-                style={{paddingLeft: 5}}
-                label={Languages.basicEditProfile.basic_edit_form_label.salutation_mrs_label}
-                value={Languages.basicEditProfile.basic_edit_form_label.salutation_mrs_value}
-              />
-            </Picker>
-          </Item>
-          <Item>
-            <Icon style={Styles.iconColor} type="MaterialCommunityIcons" name="account-edit" />
             <Input
               onChangeText={this.onFirstNameEditHandle}
               autoCapitalize="words"
@@ -602,35 +580,7 @@ class BasicEditProfile extends PureComponent {
               placeholder={Languages.basicEditProfile.basic_edit_form_label.last_name}
             />
           </Item>
-          <Item>
-            <Icon style={Styles.iconColor} type="MaterialCommunityIcons" name="account-edit" />
-            <Content style={{height: 180}}>
-              <Text style={Styles.heading}>Gender</Text>
-              {radioItem.map((data, index) => {
-                return (
-                  <ListItem
-                    key={index}
-                    onPress={() => {
-                      this.setState({radioValue: data.value})
-                    }}>
-                    <Left>
-                      <Text style={Styles.destext}>{data.label}</Text>
-                    </Left>
-                    <Right>
-                      <Radio
-                        onPress={() => {
-                          this.setState({radioValue: data.value})
-                        }}
-                        selectedColor={Theme.Colors.primary}
-                        selected={data.value === this.state.radioValue}
-                      />
-                    </Right>
-                  </ListItem>
-                )
-              })}
-            </Content>
-          </Item>
-          <Item>
+          {/* <Item>
             <Icon style={Styles.iconColor} type="MaterialCommunityIcons" name="calendar-edit" />
             <Button transparent onPress={this.showDateTimePicker}>
               <Text style={Styles.dateOfBirth}>
@@ -638,42 +588,58 @@ class BasicEditProfile extends PureComponent {
                   ? dateOfBirthToDisplay
                   : Languages.basicEditProfile.basic_edit_form_label.date_of_birth}
               </Text>
-              {/* <Icon active style={styles.dobIconColor} name="arrow-forward" /> */}
             </Button>
-            <DateTimePicker
-              date={dateOfBirth}
-              isVisible={isDateTimePickerVisible}
-              onConfirm={this.handleDatePicked}
-              onCancel={this.hideDateTimePicker}
+
+          </Item> */}
+          <Item>
+            {/* <TouchableOpacity onPress={() => this.showDateTimePicker()}> */}
+            <Icon style={Styles.iconColor} type="MaterialCommunityIcons" name="calendar-edit" />
+            {/* </TouchableOpacity> */}
+
+            <Input
+              onChangeText={this.onChangeDob}
+              value={dateOfBirthToDisplay}
+              placeholder={Languages.basicEditProfile.basic_edit_form_label.date_of_birth}
             />
           </Item>
-        </View>
-        <View style={{flexDirection: 'row', width: '100%', justifyContent: 'space-around'}}>
-          <Icon
-            style={Styles.arrowLeft}
-            type="MaterialCommunityIcons"
-            name="arrow-left"
-            onPress={this.onBack}
+          <DateTimePicker
+            date={dateOfBirth}
+            isVisible={isDateTimePickerVisible}
+            onConfirm={this.handleDatePicked}
+            onCancel={this.hideDateTimePicker}
           />
+        </View>
+        {invalidDate === true && (
+          <Text style={{textAlign: 'center', marginTop: 10, color: 'red'}}>
+            Please enter a valid date
+          </Text>
+        )}
+        <View style={{flexDirection: 'row', width: '100%', justifyContent: 'space-around'}}>
+          {/* <Icon
+                style={Styles.arrowLeft}
+                type="MaterialCommunityIcons"
+                name="arrow-left"
+                onPress={this.onBack}
+              /> */}
           <CommonButton
             containerStyle={Styles.updateBtn}
-            btnText={Languages.basicEditProfile.buttonLabels.update}
+            btnText={Languages.basicEditProfile.buttonLabels.save}
             onPress={this.onUpdateProfile}
           />
-          {isChef ? (
-            <Icon
-              style={Styles.arrowRight}
-              type="MaterialCommunityIcons"
-              name="arrow-right"
-              onPress={this.onUpdateProfile}
-            />
-          ) : (
-            <View
-              style={{
-                width: '15%',
-              }}
-            />
-          )}
+          {/* {isChef ? (
+                <Icon
+                  style={Styles.arrowRight}
+                  type="MaterialCommunityIcons"
+                  name="arrow-right"
+                  onPress={this.onUpdateProfile}
+                />
+              ) : (
+                <View
+                  style={{
+                    width: '15%',
+                  }}
+                />
+              )} */}
         </View>
         <ActionSheet
           ref={o => (this.ActionSheet = o)}
@@ -694,7 +660,7 @@ class BasicEditProfile extends PureComponent {
 
   render() {
     const {navigation} = this.props
-    const {isFetching} = this.state
+    const {isFetching, invalidDate} = this.state
     return (
       <View style={Styles.container}>
         <Header

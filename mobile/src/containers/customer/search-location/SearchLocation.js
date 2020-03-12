@@ -14,7 +14,8 @@ import {
   AsyncStorage,
 } from 'react-native'
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete'
-import Geolocation from 'react-native-geolocation-service'
+import Geolocation from '@react-native-community/geolocation'
+// import Geolocation from 'react-native-geolocation-service'
 import {Icon} from 'native-base'
 import axios from 'axios'
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view'
@@ -123,13 +124,13 @@ class SearchLocation extends PureComponent {
                 })
             },
             error => Alert.alert('Info', JSON.stringify(error.message)),
-            {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000}
+            {enableHighAccuracy: true, timeout: 60000, maximumAge: 1000}
           )
         } else {
           Alert.alert('Info', Languages.searchLocation.alerts.allow_location)
         }
       } catch (err) {
-        Alert.alert('Info', err)
+        Alert.alert('Info', Languages.searchLocation.alerts.userDined)
       }
     } else {
       this.setState({
@@ -166,7 +167,10 @@ class SearchLocation extends PureComponent {
               Alert.alert('Info', Languages.searchLocation.alerts.not_fetch_location)
             })
         },
-        error => Alert.alert('Info', JSON.stringify(error.message))
+        error => {
+          Alert.alert('Info', Languages.searchLocation.alerts.userDined)
+          this.setState({isLoading: false})
+        }
       )
     }
   }
@@ -248,8 +252,9 @@ class SearchLocation extends PureComponent {
                   // available options: https://developers.google.com/places/web-service/autocomplete
                   key: mapApiKey,
                   language: 'en', // language of the results
-                  types: 'address', // default: 'geocode'
+                  types: ['address', '(cities)'], // default: 'geocode'
                   components: 'country:us|country:in',
+                  // radius: 5000,
                 }}
                 suppressDefaultStyles
                 styles={{

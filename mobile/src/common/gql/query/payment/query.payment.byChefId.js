@@ -33,14 +33,14 @@ export const paymentByChefIdGQLTAG = `query allBankTransferHistories($chefId: St
         chefBookingToTime
         chefBookingStatusId
         paymentHistId
-		chefBookingPriceValue
-		chefBookingPriceUnit
-		chefBookingServiceChargePriceValue
-		chefBookingServiceChargePriceUnit
-		chefBookingCommissionPriceValue
-		chefBookingCommissionPriceUnit
-		chefBookingTotalPriceValue
-		chefBookingTotalPriceUnit
+        chefBookingPriceValue
+        chefBookingPriceUnit
+        chefBookingServiceChargePriceValue
+        chefBookingServiceChargePriceUnit
+        chefBookingCommissionPriceValue
+        chefBookingCommissionPriceUnit
+        chefBookingTotalPriceValue
+        chefBookingTotalPriceUnit
         chefProfileByChefId {
           fullName
           chefPicId

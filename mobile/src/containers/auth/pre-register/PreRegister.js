@@ -38,7 +38,7 @@ export default class PreRegister extends PureComponent {
             }}
           />
           <Image style={styles.imageStyle} source={Images.role.chefImage} />
-          <Text style={styles.topText}>Are you a private chef ?</Text>
+          <Text style={styles.topText}>Are you a private chef?</Text>
           <Icon
             style={styles.arrowRight}
             type="MaterialCommunityIcons"
@@ -50,7 +50,7 @@ export default class PreRegister extends PureComponent {
         </View>
         <View style={styles.viewBottom}>
           <Image style={styles.imageBottom} source={Images.role.customerImage} />
-          <Text style={styles.topText}>Are you looking for a private chef ?</Text>
+          <Text style={styles.topText}>Are you looking for a private chef?</Text>
           <Icon
             style={styles.arrowRight}
             type="MaterialCommunityIcons"

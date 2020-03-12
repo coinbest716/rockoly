@@ -16,6 +16,34 @@ export const UPDATE_BASIC_PROFILE_EVENT = {
 const storage = firebase.storage()
 const storageRef = storage.ref()
 
+// Don't change the order.Based on index we are rendering the screen
+export const CUSTOMER_REG_FLOW_STEPS = [
+  'EMAIL_VERIFICATION',
+  'MOBILE_VERIFICATION',
+  'ADDRESS',
+  'ALLERGY',
+  'DIETARY',
+  'KITCHEN_EQUIPMENT',
+  'PROFILE_PIC',
+]
+
+// Don't change the order.Based on index we are rendering the screen
+export const CHEF_REG_FLOW_STEPS = [
+  'EMAIL_VERIFICATION',
+  'MOBILE_VERIFICATION',
+  'INTRO',
+  'BASE_RATE',
+  'ADDITIONAL_SERVICES',
+  'COMPLEXITY',
+  'CUISINE_SPEC',
+  'AWARDS',
+  'PROFILE_PIC',
+  'GALLERY',
+  'DOCUMENTS',
+  'AVAILABILITY',
+  'ADDRESS',
+]
+
 class BasicProfileService extends BaseService {
   emitProfileEvent = () => {
     this.emit(UPDATE_BASIC_PROFILE_EVENT.UPDATING_DATA, true)
@@ -248,6 +276,231 @@ class BasicProfileService extends BaseService {
           })
       } catch (e) {
         console.log('ERROR: updateProfilePic', e)
+        reject(e)
+      }
+    })
+  }
+
+  updateRegProfileStatus = (isChef, id, inputData) => {
+    return new Promise((resolve, reject) => {
+      try {
+        let gqlValue = ``
+        const variables = {}
+        if (isChef) {
+          gqlValue = GQL.mutation.chef.updateScreensGQLTAG
+          variables.chefId = id
+          variables.chefUpdatedScreens = inputData
+        } else {
+          gqlValue = GQL.mutation.customer.updateScreensGQLTAG
+          variables.customerId = id
+          variables.customerUpdatedScreens = inputData
+        }
+        const mutation = gql`
+          ${gqlValue}
+        `
+        this.client
+          .mutate({
+            mutation,
+            variables,
+          })
+          .then(({data}) => {
+            if (data && isChef) {
+              if (
+                data &&
+                data.updateChefProfileByChefId &&
+                data.updateChefProfileByChefId.chefProfile
+              ) {
+                resolve(true)
+              } else {
+                reject(new Error('ERROR: updateRegProfileStatus'))
+              }
+            } else if (data && !isChef) {
+              if (
+                data &&
+                data.updateCustomerProfileByCustomerId &&
+                data.updateCustomerProfileByCustomerId.customerProfile
+              ) {
+                resolve(true)
+              } else {
+                reject(new Error('ERROR: updateRegProfileStatus'))
+              }
+            }
+          })
+          .catch(e => {
+            console.log('ERROR: updateRegProfileStatus', e)
+            reject(e)
+          })
+      } catch (e) {
+        console.log('ERROR: updateRegProfileStatus', e)
+        reject(e)
+      }
+    })
+  }
+
+  updateRegProfileFlag = (isChef, id) => {
+    return new Promise((resolve, reject) => {
+      try {
+        let gqlValue = ``
+        const variables = {isRegistrationCompletedYn: true}
+        if (isChef) {
+          gqlValue = GQL.mutation.chef.updateRegistrationFlag
+          variables.chefId = id
+        } else {
+          gqlValue = GQL.mutation.customer.updateRegistrationGQLTAG
+          variables.customerId = id
+        }
+        console.log('debugging data', gqlValue, variables)
+        const mutation = gql`
+          ${gqlValue}
+        `
+        this.client
+          .mutate({
+            mutation,
+            variables,
+          })
+          .then(({data}) => {
+            if (data && isChef) {
+              if (
+                data &&
+                data.updateChefProfileByChefId &&
+                data.updateChefProfileByChefId.chefProfile
+              ) {
+                resolve(true)
+              } else {
+                reject(new Error('ERROR: updateRegProfileFlag'))
+              }
+            } else if (data && !isChef) {
+              if (
+                data &&
+                data.updateCustomerProfileByCustomerId &&
+                data.updateCustomerProfileByCustomerId.customerProfile
+              ) {
+                resolve(true)
+              } else {
+                reject(new Error('ERROR: updateRegProfileFlag'))
+              }
+            }
+          })
+          .catch(e => {
+            console.log('ERROR: updateRegProfileFlag', e)
+            reject(e)
+          })
+      } catch (e) {
+        console.log('ERROR: updateRegProfileFlag', e)
+        reject(e)
+      }
+    })
+  }
+
+  updatEmailVerificationFlag = (isChef, id) => {
+    return new Promise((resolve, reject) => {
+      try {
+        let gqlValue = ``
+        const variables = {isEmailVerifiedYn: true}
+        if (isChef) {
+          gqlValue = GQL.mutation.chef.updateIsEmailVerifiedYnGQLTAG
+          variables.chefId = id
+        } else {
+          gqlValue = GQL.mutation.customer.updateIsEmailVerifiedYnGQLTAG
+          variables.customerId = id
+        }
+        console.log('debugging updatEmailVerificationFlag', gqlValue, variables)
+        const mutation = gql`
+          ${gqlValue}
+        `
+        this.client
+          .mutate({
+            mutation,
+            variables,
+          })
+          .then(({data, errors}) => {
+            if (data && isChef) {
+              if (
+                data &&
+                data.updateChefProfileByChefId &&
+                data.updateChefProfileByChefId.chefProfile
+              ) {
+                resolve(true)
+              } else {
+                reject(new Error('ERROR: updatEmailVerificationFlag'))
+              }
+            } else if (data && !isChef) {
+              if (
+                data &&
+                data.updateCustomerProfileByCustomerId &&
+                data.updateCustomerProfileByCustomerId.customerProfile
+              ) {
+                resolve(true)
+              } else {
+                reject(new Error('ERROR: updatEmailVerificationFlag'))
+              }
+            } else if (errors) {
+              reject(errors[0].message)
+            }
+          })
+          .catch(e => {
+            console.log('ERROR: updatEmailVerificationFlag', e)
+            reject(e)
+          })
+      } catch (e) {
+        console.log('ERROR: updatEmailVerificationFlag', e)
+        reject(e)
+      }
+    })
+  }
+
+  updateMobileVerifyFlag = (isChef, id) => {
+    return new Promise((resolve, reject) => {
+      try {
+        let gqlValue = ``
+        const variables = {isMobileNoVerifiedYn: true}
+        if (isChef) {
+          gqlValue = GQL.mutation.chef.updateIsMobileNoVerifiedYnGQLTAG
+          variables.chefId = id
+        } else {
+          gqlValue = GQL.mutation.customer.updateIsMobileNoVerifiedYnGQLTAG
+          variables.customerId = id
+        }
+        console.log('debugging updateMobileVerifyFlag', gqlValue, variables)
+        const mutation = gql`
+          ${gqlValue}
+        `
+        this.client
+          .mutate({
+            mutation,
+            variables,
+          })
+          .then(({data, errors}) => {
+            if (data && isChef) {
+              if (
+                data &&
+                data.updateChefProfileByChefId &&
+                data.updateChefProfileByChefId.chefProfile
+              ) {
+                resolve(true)
+              } else {
+                reject(new Error('ERROR: updateMobileVerifyFlag'))
+              }
+            } else if (data && !isChef) {
+              if (
+                data &&
+                data.updateCustomerProfileByCustomerId &&
+                data.updateCustomerProfileByCustomerId.customerProfile
+              ) {
+                resolve(true)
+              } else {
+                reject(new Error('ERROR: updateMobileVerifyFlag'))
+              }
+            } else if (errors) {
+              reject(errors[0].message)
+            }
+          })
+          .catch(e => {
+            console.log('ERROR: updateMobileVerifyFlag', e)
+            reject(e)
+          })
+      } catch (e) {
+        console.log('ERROR: updateMobileVerifyFlag', e)
         reject(e)
       }
     })

@@ -5,10 +5,31 @@ export const createGQLTAG = `mutation createBooking(
   $customerId: String!
   $fromTime: String!
   $toTime: String!
+  $summary: String
+  $allergyTypeIds: [String]
+  $otherAllergyTypes: JSON
+  $dietaryRestrictionsTypesIds: [String]
+  $otherDietaryRestrictionsTypes: JSON
+  $kitchenEquipmentTypeIds: [String]
+  $otherKitchenEquipmentTypes: JSON
+  $storeTypeIds: [String]
+  $otherStoreTypes: JSON
+  $noOfGuests: Int
+  $complexity: Float
+  $additionalServices: [additionalServicesType]
   $notes: String
   $dishTypeId: [String]
+  $locationAddress: String
+  $locationLat: String
+  $locationLng: String
+  $addrLine1: String
+  $addrLine2: String
+  $state: String
+  $country: String
+  $city: String
+  $postalCode: String
 ) {
-  createBooking(
+  createBookingTest(
     stripeCustomerId: $stripeCustomerId
     cardId: $cardId
     chefId: $chefId
@@ -16,25 +37,68 @@ export const createGQLTAG = `mutation createBooking(
     fromTime: $fromTime
     toTime: $toTime
     notes: $notes
-    dishTypeId:$dishTypeId
+    dishTypeId: $dishTypeId
+    summary: $summary
+    allergyTypeIds: $allergyTypeIds
+    otherAllergyTypes: $otherAllergyTypes
+    dietaryRestrictionsTypesIds: $dietaryRestrictionsTypesIds
+    otherDietaryRestrictionsTypes: $otherDietaryRestrictionsTypes
+    kitchenEquipmentTypeIds: $kitchenEquipmentTypeIds
+    otherKitchenEquipmentTypes: $otherKitchenEquipmentTypes
+    storeTypeIds: $storeTypeIds
+    otherStoreTypes: $otherStoreTypes
+    noOfGuests: $noOfGuests
+    complexity: $complexity
+    additionalServices: $additionalServices
+    locationAddress: $locationAddress
+    locationLat: $locationLat
+    locationLng: $locationLng
+    addrLine1: $addrLine1
+    addrLine2: $addrLine2
+    state: $state
+    country: $country
+    city: $city
+    postalCode: $postalCode
   ) {
     data
   }
-}`
+}
+`
 
 
-  /*
- {
+/*
+{
   "stripeCustomerId":"cus_G81Ncl2ZEC44Tb",
-  "cardId":"card_1FblL6AZeKBPGDhHCYi75KRV",
+  "cardId":"card_1FgmUzAZeKBPGDhHUBSA3afr",
   "chefId":"9f749de7-dbc7-47f4-92d3-9c013e1788cf",
   "customerId":"115be931-9b10-4982-acf1-b13d4a8a9b34",
   "fromTime":"2019-11-10 11:00:00",
   "toTime":"2019-11-10 12:00:00",
-  "notes":"Test \nffff\nffff\nffff\nffff",
-  "dishTypeId": null / ["d","c"]
-
-}*/
+  "notes":null,
+  "dishTypeId": null,
+  "summary": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+  "allergyTypeIds": ["WHEAT                               ","EGGS                                "],
+  "otherAllergyTypes": "tomato,potato,rice",
+  "dietaryRestrictionsTypesIds": ["PEANUT_ALLERGIES                    ","DIABETIC                            "],
+  "otherDietaryRestrictionsTypes": "tomato,potato,rice",
+  "kitchenEquipmentTypeIds": ["SLOW_COOKER                         ","HAND_JUICER                         "],
+  "otherKitchenEquipmentTypes": "tomato,potato,rice",
+  "storeTypeIds": ["WHOLE_FOODS                         ","PRICE_RITE                          "],
+  "otherStoreTypes": "tomato,potato,rice",
+  "noOfGuests": 3,
+  "complexity": 2,
+  "additionalServices": [{"service": "CLEANING","price": 100}],
+  "locationAddress":"",
+"locationLat":"",
+"locationLng":"",
+"addrLine1":"",
+"addrLine2":"",
+"state":"",
+"country":"",
+"city":"",
+"postalCode":""
+}
+*/
 
 /*PASS IN HEADERS:
 

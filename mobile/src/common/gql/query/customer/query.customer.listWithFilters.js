@@ -56,6 +56,7 @@ export function listWithFiltersGQLTAG (params){
         customerLastName
         fullName
         isDetailsFilledYn
+        customerUpdatedScreens
         customerGender
         customerEmail
         customerMobileNumber

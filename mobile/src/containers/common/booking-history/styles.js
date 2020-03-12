@@ -31,15 +31,25 @@ const styles = StyleSheet.create({
     paddingTop: 30,
     marginLeft: 22,
   },
-  CardContainer: {
-    flexDirection: 'row',
-    marginVertical: 10,
+  parentItem: {
+    flex: 1,
+    display: 'flex',
+    backgroundColor: 'white',
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: '#e8ecf0',
+    flexDirection: 'column',
+  },
+  item: {
+    flex: 1,
+    display: 'flex',
+    paddingVertical: 5,
+    paddingHorizontal: 20,
+    flexDirection: 'row',
   },
   infoView: {
     display: 'flex',
-    width: '75%',
+    flex: 2,
+    flexDirection: 'row',
   },
   nameViewWrap: {
     width: SCREEN_WIDTH,
@@ -51,30 +61,36 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   userImage: {
-    width: '20%',
-    height: 55,
+    width: '100%',
+    height: 80,
     overflow: 'hidden',
-    borderRadius: Platform.OS === 'ios' ? 27 : 50,
     paddingLeft: 10,
+    borderRadius: 5,
   },
   nameSpacing: {
-    marginLeft: 10,
-    width: '55%',
+    flex: 2.3,
+    justifyContent: 'space-around',
+    paddingHorizontal: 10,
+    paddingBottom: 5,
+    flexDirection: 'column',
   },
   nameStyling: {
+    color: 'black',
+    // marginLeft: 10,
+    textTransform: 'capitalize',
+    fontWeight: 'bold',
     fontSize: 16,
-    // color: Colors.primary,
   },
   messageDescription: {
     fontSize: 14,
     lineHeight: 22,
+    marginBottom: 5,
+    marginRight: 5,
   },
 
   dateView: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    paddingRight: 10,
-    width: '25%',
+    paddingBottom: 5,
+    paddingHorizontal: 20,
   },
   dateText: {
     fontSize: 14,
@@ -146,8 +162,10 @@ const styles = StyleSheet.create({
   noDataView: {flex: 1, justifyContent: 'center', alignSelf: 'center'},
   noDataText: {textAlign: 'center'},
   textStyle: {
-    textAlign: 'center',
-    textAlignVertical: 'center',
+    color: Theme.Colors.primary,
+  },
+  fialedtextStyle: {
+    color: 'red',
   },
   closeIcon: {
     width: 20,
@@ -262,7 +280,7 @@ const styles = StyleSheet.create({
   dateViewStyle: {
     flexDirection: 'row',
     marginHorizontal: 10,
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
   },
   locationText: {
     // backgroundColor: Theme.Colors.primary,
@@ -298,10 +316,8 @@ const styles = StyleSheet.create({
   },
   timeinputStyle: {
     height: 40,
-    width: 110,
-    justifyContent: 'center',
-    alignItems: 'center',
-    textAlign: 'center',
+    width: 'auto',
+    paddingHorizontal: 7,
     alignSelf: 'center',
     backgroundColor: '#F1F1F1',
     borderRadius: 20,

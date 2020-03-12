@@ -27,7 +27,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     alignItems: 'center',
   },
+  cardStyle: {
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    marginTop: 20,
+    borderRadius: 10,
+  },
   formContainer: {
+    display: 'flex',
     marginVertical: 10,
   },
   textAreaStyle: {
@@ -38,7 +45,13 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginVertical: 10,
   },
+  border: {
+    borderBottomColor: '#B9BFBB',
+    borderBottomWidth: 1,
+    marginTop: 5,
+  },
   label: {
+    marginTop: 5,
     fontSize: 20,
   },
   saveBtn: {

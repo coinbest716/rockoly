@@ -298,6 +298,30 @@ export default class Attachment extends PureComponent {
     }
   }
 
+  onNext = () => {
+    const {attachementsCertification, attachementsLicense, attachementsOthers} = this.state
+
+    if (
+      (!attachementsCertification && !attachementsCertification && !attachementsOthers) ||
+      (attachementsOthers &&
+        attachementsOthers.length === 0 &&
+        (attachementsCertification && attachementsCertification.length === 0) &&
+        (attachementsLicense && attachementsLicense.length === 0))
+    ) {
+      Alert.alert('Please upload any one of documents')
+      return
+    }
+
+    const {onNext} = this.props
+    Toast.show({
+      text: 'Attachments saved.',
+      duration: 3000,
+    })
+    if (onNext) {
+      onNext()
+    }
+  }
+
   onPickCamera = () => {
     const {selectedSectionType} = this.state
     const {currentUser} = this.context
@@ -786,16 +810,16 @@ export default class Attachment extends PureComponent {
       Languages.chef_profile.chef_profile_alrt_msg.kind_of_document,
       [
         {
-          text: Languages.chef_profile.chef_profile_alrt_msg.others,
-          onPress: () => this.fileChosenAlert(SECTION_TYPE.OTHERS),
+          text: Languages.chef_profile.chef_profile_alrt_msg.certificate,
+          onPress: () => this.fileChosenAlert(SECTION_TYPE.CERTIFICATION),
         },
         {
           text: Languages.chef_profile.chef_profile_alrt_msg.license,
           onPress: () => this.fileChosenAlert(SECTION_TYPE.LICENSE),
         },
         {
-          text: Languages.chef_profile.chef_profile_alrt_msg.certificate,
-          onPress: () => this.fileChosenAlert(SECTION_TYPE.CERTIFICATION),
+          text: Languages.chef_profile.chef_profile_alrt_msg.others,
+          onPress: () => this.fileChosenAlert(SECTION_TYPE.OTHERS),
         },
         {
           text: Languages.chef_profile.chef_profile_alrt_msg.cancel,
@@ -976,50 +1000,61 @@ export default class Attachment extends PureComponent {
       attachementsOthers,
     } = this.state
 
-    return (
-      <ScrollView>
-        {isFetching ? (
+    if (isFetching) {
+      return (
+        <View style={Styles.alignScreenCenter}>
           <Spinner mode="full" />
+        </View>
+      )
+    }
+
+    return (
+      <ScrollView style={{flex: 1}}>
+        {isDocLoading ? (
+          <View style={{paddingTop: '5%'}}>
+            <Spinner mode="full" />
+          </View>
         ) : (
-          <View style={Styles.viewStyle}>
-            <View style={Styles.iconBody}>
-              <TouchableOpacity onPress={() => this.chooseSectionType()}>
-                <Icon type="FontAwesome" name="plus-square" style={Styles.iconStyle} />
-              </TouchableOpacity>
-              <View style={Styles.iconText}>
-                <Text style={Styles.text}>{Languages.chef_profile.chef_profile_lable.upload}</Text>
-                <Text style={Styles.text2}>
-                  {Languages.chef_profile.chef_profile_lable.upload_info}
-                </Text>
-              </View>
+          <View style={Styles.iconBody}>
+            <TouchableOpacity onPress={() => this.chooseSectionType()}>
+              <Icon type="FontAwesome" name="plus-square" style={Styles.iconStyle} />
+            </TouchableOpacity>
+            <View style={Styles.iconText}>
+              <Text style={Styles.text}>{Languages.chef_profile.chef_profile_lable.upload}</Text>
+              <Text style={Styles.text2}>
+                {Languages.chef_profile.chef_profile_lable.upload_info}
+              </Text>
             </View>
-            {isDocLoading ? (
-              <Spinner mode="full" />
-            ) : (
-              <View>
-                {attachementsCertification && attachementsCertification.length ? (
-                  <View style={Styles.documentsImage}>
-                    {this.renderDocuments(
-                      attachementsCertification,
-                      'Certification',
-                      SECTION_TYPE.CERTIFICATION
-                    )}
-                  </View>
-                ) : null}
-                {attachementsLicense && attachementsLicense.length ? (
-                  <View style={Styles.documentsImage}>
-                    {this.renderDocuments(attachementsLicense, 'License', SECTION_TYPE.LICENSE)}
-                  </View>
-                ) : null}
-                {attachementsOthers && attachementsOthers.length ? (
-                  <View style={Styles.documentsImage}>
-                    {this.renderDocuments(attachementsOthers, 'Others', SECTION_TYPE.OTHERS)}
-                  </View>
-                ) : null}
-              </View>
-            )}
           </View>
         )}
+        <View style={Styles.viewStyle}>
+          {attachementsCertification && attachementsCertification.length ? (
+            <View style={Styles.documentsImage}>
+              {this.renderDocuments(
+                attachementsCertification,
+                'Certification',
+                SECTION_TYPE.CERTIFICATION
+              )}
+            </View>
+          ) : null}
+          {attachementsLicense && attachementsLicense.length ? (
+            <View style={Styles.documentsImage}>
+              {this.renderDocuments(attachementsLicense, 'License', SECTION_TYPE.LICENSE)}
+            </View>
+          ) : null}
+          {attachementsOthers && attachementsOthers.length ? (
+            <View style={Styles.documentsImage}>
+              {this.renderDocuments(attachementsOthers, 'Others', SECTION_TYPE.OTHERS)}
+            </View>
+          ) : null}
+        </View>
+
+        <CommonButton
+          btnText={Languages.complexity.btnLabel.save}
+          containerStyle={Styles.saveBtn}
+          onPress={this.onNext}
+        />
+
         <ActionSheet
           ref={o => (this.ActionSheet = o)}
           title={

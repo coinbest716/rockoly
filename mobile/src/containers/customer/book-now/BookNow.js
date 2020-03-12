@@ -30,7 +30,13 @@ import MultiSelect from 'react-native-multiple-select'
 import StarRating from 'react-native-star-rating'
 import moment from 'moment'
 import _ from 'lodash'
-import {commonDateFormat, LocalToGMT, fetchDate, displayTimeFormat} from '@utils'
+import {
+  commonDateFormat,
+  displayDateTimeFormat,
+  LocalToGMT,
+  fetchDate,
+  displayTimeFormat,
+} from '@utils'
 import {
   ChefProfileService,
   PROFILE_DETAIL_EVENT,
@@ -70,6 +76,11 @@ class BookNow extends PureComponent {
       dishTypes: [],
       dishItems: [],
       displaySelectedDishItems: [],
+      complexity: 1,
+      noOfGuests: 1,
+      additionalServiceValues: [],
+      priceCalculationFormula: '',
+      additionalPrice: [],
     }
   }
 
@@ -105,43 +116,46 @@ class BookNow extends PureComponent {
   loadBookingData = () => {
     SettingsService.getSettings(SETTING_KEY_NAME.COMMISSION_KEY)
       .then(servicePercentage => {
-        let bookingData = {}
         const {navigation} = this.props
-
-        if (navigation.state.params && navigation.state.params.bookingData) {
-          bookingData = navigation.state.params.bookingData
+        let bookingData = {}
+        if (navigation.state.params && navigation.state.params.bookingValue) {
+          bookingData = navigation.state.params.bookingValue
         } else {
           Alert.alert(Languages.bookNow.alert.no_booking_data)
-          // bookingData = {
-          //   chefBookingFromTime: '2019-10-31 10:00:00',
-          //   chefBookingPriceUnit: 'USD',
-          //   chefBookingPriceValue: 150,
-          //   chefBookingToTime: '2019-10-31 16:00:00',
-          //   chefId: '0320d741-01f0-4d5c-8a3c-bb678ee5367d',
-          //   customerId: 'be4636b8-8131-4937-976b-8a1d7fec02fa',
-          // }
         }
 
         let commissionCost = 0
         if (servicePercentage) {
-          commissionCost = (servicePercentage / 100) * bookingData.chefBookingPriceValue
+          commissionCost = (servicePercentage / 100) * bookingData.totalCost
         }
 
-        const totalPrice = bookingData.chefBookingPriceValue + commissionCost
+        const totalPrice = bookingData.totalCost + commissionCost
+
+        const priceCalculationFormula =
+          bookingData.noOfGuests > 5
+            ? `(${Languages.bookNow.labels.service_cost} * 5 + ((${Languages.bookNow.labels.no_of_guests} - 5) * (${Languages.bookNow.labels.service_cost} / 2)) * ${Languages.bookNow.labels.service_cost})+ ${Languages.bookNow.labels.additional_services} + ${Languages.bookNow.labels.service_charge}`
+            : `(${Languages.bookNow.labels.service_cost} * ${Languages.bookNow.labels.no_of_guests} * ${Languages.bookNow.labels.service_cost}) + ${Languages.bookNow.labels.additional_services} + ${Languages.bookNow.labels.service_charge}`
+        console.log(bookingData)
 
         this.setState(
           {
             bookingData,
-            bookingDate: moment(bookingData.chefBookingFromTime).format(commonDateFormat),
-            bookingFromTime: moment(bookingData.chefBookingFromTime).format(displayTimeFormat),
-            bookingToTime: moment(bookingData.chefBookingToTime).format(displayTimeFormat),
+            bookingDate: moment(bookingData.fromTime).format(commonDateFormat),
+            bookingFromTime: moment(bookingData.fromTime).format(displayTimeFormat),
+            bookingToTime: moment(bookingData.toTime).format(displayTimeFormat),
             chefPrice: bookingData.chefBookingPriceValue,
             chefPriceUnit: bookingData.chefBookingPriceUnit,
             totalPrice,
             chefProfile: bookingData.chefProfile,
             servicePercentage,
+            complexity: bookingData.complexity,
+            noOfGuests: bookingData.noOfGuests,
+            additionalServiceValues: bookingData.additionalServiceValues,
+            additionalPrice: bookingData.additionalPrice,
+            priceCalculationFormula,
           },
           () => {
+            console.log('bookingData', bookingData)
             this.onDishTypes()
           }
         )
@@ -242,25 +256,47 @@ class BookNow extends PureComponent {
         },
         {
           text: 'OK',
-          onPress: () =>
-            this.checkBooking(stripeCustomerId, selectedCardId, bookingData, totalPrice),
+          onPress: () => this.checkBooking(stripeCustomerId, selectedCardId, bookingData),
         },
       ],
       {cancelable: true}
     )
   }
 
-  checkBooking = (stripeCustomerId, selectedCardId, bookingData, totalPrice) => {
+  checkBooking = (stripeCustomerId, selectedCardId, bookingData) => {
     const {isLoggedIn} = this.context
     const {requestNotes, dishItems} = this.state
     try {
-      const GMTFrom = bookingData.chefBookingFromTime.toISOString()
-      const GMTto = bookingData.chefBookingToTime.toISOString()
+      console.log('Booking Now', {
+        stripeCustomerId,
+        cardId: selectedCardId,
+        chefId: bookingData.chefId,
+        customerId: bookingData.customerId,
+        fromTime: LocalToGMT(bookingData.fromTime),
+        toTime: LocalToGMT(bookingData.toTime),
+        notes: requestNotes ? JSON.stringify(requestNotes) : null,
+        dishTypeId: dishItems || null,
+        summary: bookingData.summary,
+        allergyTypeIds: bookingData.allergyTypeIds,
+        otherAllergyTypes: bookingData.otherAllergyTypes,
+        dietaryRestrictionsTypesIds: bookingData.dietaryRestrictionsTypesIds,
+        otherDietaryRestrictionsTypes: bookingData.otherDietaryRestrictionsTypes,
+        kitchenEquipmentTypeIds: bookingData.kitchenEquipmentTypeIds,
+        otherKitchenEquipmentTypes: bookingData.otherKitchenEquipmentTypes,
+        storeTypeIds: bookingData.storeTypeIds,
+        otherStoreTypes: bookingData.otherStoreTypes,
+        noOfGuests: bookingData.noOfGuests,
+        complexity: bookingData.complexity,
+        additionalServices: bookingData.additionalServices,
+      })
+
+      const GMTFrom = bookingData.chefBookingFromTime
+      const GMTto = bookingData.chefBookingToTime
 
       BookingHistoryService.checkAvailablity({
         chefId: bookingData.chefId,
-        fromTime: fetchDate(bookingData.chefBookingFromTime),
-        toTime: fetchDate(bookingData.chefBookingToTime),
+        fromTime: fetchDate(bookingData.fromTime),
+        toTime: fetchDate(bookingData.toTime),
         gmtFromTime: GMTFrom,
         gmtToTime: GMTto,
       })
@@ -274,9 +310,30 @@ class BookNow extends PureComponent {
               fromTime: LocalToGMT(bookingData.chefBookingFromTime),
               toTime: LocalToGMT(bookingData.chefBookingToTime),
               notes: requestNotes ? JSON.stringify(requestNotes) : null,
-              dishTypeId: dishItems || null,
-              // price: parseInt(100 * totalPrice),
-              // currency: 'USD',
+              dishTypeId: dishItems && dishItems.length > 0 ? dishItems : null,
+              summary: bookingData.summary,
+              allergyTypeIds: bookingData.allergyTypeIds,
+              otherAllergyTypes: bookingData.otherAllergyTypes,
+              dietaryRestrictionsTypesIds: bookingData.dietaryRestrictionsTypesIds,
+              otherDietaryRestrictionsTypes: bookingData.otherDietaryRestrictionsTypes,
+              kitchenEquipmentTypeIds: bookingData.kitchenEquipmentTypeIds,
+              otherKitchenEquipmentTypes: bookingData.otherKitchenEquipmentTypes,
+              storeTypeIds: bookingData.storeTypeIds,
+              otherStoreTypes: bookingData.otherStoreTypes,
+              noOfGuests: bookingData.noOfGuests,
+              complexity: bookingData.complexity,
+              additionalServices: bookingData.additionalServices,
+              locationAddress: bookingData.locationAddress,
+              locationLat: bookingData.locationLat,
+              locationLng: bookingData.locationLng,
+              addrLine1: bookingData.addrLine1,
+              addrLine2: bookingData.addrLine2,
+              state: bookingData.state,
+              country: bookingData.country,
+              city: bookingData.city,
+              postalCode: bookingData.postalCode,
+              isDraftYn: false,
+              bookingHistId: bookingData.bookingHistId,
             })
           }
         })
@@ -289,6 +346,8 @@ class BookNow extends PureComponent {
   }
 
   bookNow = data => {
+    const {bookingData} = this.state
+    console.log('data', data)
     this.setState({
       isBooking: true,
     })
@@ -304,7 +363,7 @@ class BookNow extends PureComponent {
               () => {}
             )
             ResetStack(navigation, RouteNames.BOOKING_DETAIL_SCREEN, {
-              bookingHistId: res,
+              bookingHistId: res.data.chef_booking_hist_id,
               bookNow: true,
               showAlert: true,
             })
@@ -480,9 +539,6 @@ class BookNow extends PureComponent {
       bookingFromTime,
       bookingToTime,
       chefPrice,
-      chefPriceUnit,
-      totalPrice,
-      servicePercentage,
       cardsList,
       selectedCardId,
       isBooking,
@@ -490,18 +546,94 @@ class BookNow extends PureComponent {
       displaySelectedDishItems,
       dishTypes,
       dishItems,
+      complexity,
+      noOfGuests,
+      additionalPrice,
     } = this.state
     const {navigation} = this.props
-
     let dishTypesValue = []
     let dishItemsValue = []
 
+    let chefCharge = 0
+    let remChefCharge = 0
+    let chefTotalCharge = 0
+    let firstChefCharge = 0
+
+    let chefAmount = 0
+    let complexityUpcharge = 0
+    let additionalTotalPrice = 0
+    let discount = 0
+    let guestCount = 0
+    let guestPrice = 0
+    let TotalCharge = 0
+
+    if (noOfGuests && chefPrice) {
+      chefAmount = chefPrice * noOfGuests
+    }
+    console.log('chefDetails', chefPrice, noOfGuests, chefAmount)
+    if (noOfGuests) {
+      guestCount = noOfGuests - 5
+    }
+    if (chefPrice) {
+      guestPrice = chefPrice / 2
+    }
+    if (noOfGuests > 5) {
+      discount = (noOfGuests - 5) * (chefPrice / 2)
+    } else {
+      discount = 0
+    }
+
+    const chefChargeAfterDiscount = chefAmount - discount
+    complexityUpcharge = chefChargeAfterDiscount * complexity - chefChargeAfterDiscount
+    console.log('chefChargeAfterDiscount', chefChargeAfterDiscount, complexityUpcharge, complexity)
+    const discountTotal = chefAmount - discount
+    if (noOfGuests && noOfGuests > 5) {
+      TotalCharge += discountTotal
+      TotalCharge += complexityUpcharge
+      TotalCharge += _.sum(additionalPrice)
+    } else {
+      TotalCharge = chefAmount + complexityUpcharge + _.sum(additionalPrice)
+    }
     if (dishTypes && dishTypes !== undefined && dishTypes !== null) {
       dishTypesValue = dishTypes
     }
 
     if (dishItems && dishItems !== undefined && dishItems !== null) {
       dishItemsValue = dishItems
+    }
+
+    if (noOfGuests && noOfGuests <= 5) {
+      chefCharge = chefPrice * noOfGuests
+    }
+
+    if (noOfGuests && noOfGuests > 5) {
+      firstChefCharge = chefPrice * 5
+      remChefCharge = (noOfGuests - 5) * (chefPrice / 2)
+    }
+
+    if (noOfGuests && noOfGuests > 5) {
+      complexityCharge =
+        (firstChefCharge + remChefCharge) * complexity - (firstChefCharge + remChefCharge)
+    } else {
+      complexityCharge = chefCharge * complexity - chefCharge
+    }
+
+    if (noOfGuests && noOfGuests > 5) {
+      chefTotalCharge += chefPrice * 5
+      chefTotalCharge += (noOfGuests - 5) * (chefPrice / 2)
+      chefTotalCharge *= complexity
+      chefTotalCharge += _.sum(additionalPrice)
+    } else {
+      chefTotalCharge = chefPrice * noOfGuests * complexity + _.sum(additionalPrice)
+    }
+    if (chefTotalCharge) {
+      const total = chefTotalCharge
+      const totalAmount = parseFloat(total)
+      totalAmountToPay = totalAmount.toFixed(2)
+    }
+
+    if (additionalPrice) {
+      additionalTotalPrice = _.sum(additionalPrice)
     }
 
     if (isLoading) {
@@ -539,14 +671,14 @@ class BookNow extends PureComponent {
                     chefProfile.chefProfileExtendedsByChefId &&
                     chefProfile.chefProfileExtendedsByChefId.nodes &&
                     chefProfile.chefProfileExtendedsByChefId.nodes.length &&
-                    chefProfile.chefProfileExtendedsByChefId.nodes[0].chefLocationAddress}
+                    chefProfile.chefProfileExtendedsByChefId.nodes[0].chefCity}
                 </Text>
               </View>
               {this.renderRating()}
             </View>
           </View>
           <ListItem itemDivider>
-            <Text>{Languages.bookNow.labels.dishes}</Text>
+            <Text style={styles.destext}>{Languages.bookNow.labels.desired_dishes}</Text>
           </ListItem>
           <Form>
             <View style={styles.formContainer2}>
@@ -595,7 +727,7 @@ class BookNow extends PureComponent {
             </View>
           </Form>
           <ListItem itemDivider>
-            <Text>{Languages.bookNow.labels.request_notes}</Text>
+            <Text style={styles.destext}>{Languages.bookNow.labels.request_notes}</Text>
           </ListItem>
           <Form style={{paddingVertical: 5}}>
             <Textarea
@@ -610,40 +742,142 @@ class BookNow extends PureComponent {
           </Form>
           <View>
             <ListItem itemDivider>
-              <Text>{Languages.bookNow.labels.booking_details}</Text>
+              <Text style={styles.destext}>{Languages.bookNow.labels.booking_details}</Text>
             </ListItem>
             <ListItem>
-              <Text>
-                {Languages.bookNow.labels.booking_date} : {bookingDate}
+              <Text style={styles.destext}>{Languages.bookNow.labels.booking_date}</Text>
+              <Text style={styles.biilingRightText}>{bookingDate}</Text>
+            </ListItem>
+            <ListItem>
+              <Text style={styles.destext}>{Languages.bookNow.labels.booking_time}</Text>
+              <Text style={styles.biilingRightText}>
+                {bookingFromTime} - {bookingToTime}
               </Text>
             </ListItem>
             <ListItem>
-              <Text>
-                {Languages.bookNow.labels.booking_time} : {bookingFromTime} - {bookingToTime}
-              </Text>
-            </ListItem>
-            <ListItem>
-              <Text>
-                {Languages.bookNow.labels.service_cost} : ${chefPrice}{' '}
-                {Languages.bookNow.labels.per_hour}
-              </Text>
-            </ListItem>
-            <ListItem>
-              <Text>
-                {Languages.bookNow.labels.service_charge}: {servicePercentage}{' '}
-                {Languages.bookNow.labels.percentage}
-              </Text>
-            </ListItem>
-            <ListItem>
-              <Text>
-                {Languages.bookNow.labels.total_cost} : ${totalPrice ? totalPrice.toFixed(2) : ''}
-              </Text>
+              <Text style={styles.destext}>{Languages.bookNow.labels.service_cost} :</Text>
+              <Text style={styles.biilingRightText}>${chefPrice}</Text>
             </ListItem>
           </View>
-          <View style={styles.selectCardView}>
+          {/* <View>
             <ListItem itemDivider>
-              <Text>{Languages.bookNow.labels.payment_details}</Text>
+              <Text style={styles.destext}>{Languages.bookNow.labels.pricing_details}</Text>
             </ListItem>
+            <ListItem>
+              <Text style={styles.destext}>{Languages.bookNow.labels.complexity}</Text>
+              <Text style={styles.biilingRightText}>{complexity}X</Text>
+            </ListItem>
+            <ListItem>
+              <Text style={styles.destext}>{Languages.bookNow.labels.no_of_guests}</Text>
+              <Text style={styles.biilingRightText}>{noOfGuests}</Text>
+            </ListItem>
+            <ListItem>
+              <Text style={styles.destext}>{Languages.bookNow.labels.additional_services} </Text>
+            </ListItem>
+            {additionalServiceValues && additionalServiceValues.length > 0 ? (
+              additionalServiceValues.map((item, index) => {
+                return (
+                  <CardItem>
+                    <Body style={styles.serviceView}>
+                      <Text style={styles.locationText}>
+                        {item.name}: <Text style={styles.destext}>${item.price}</Text>
+                      </Text>
+                    </Body>
+                  </CardItem>
+                )
+              })
+            ) : (
+              <Text style={styles.noText}>No services</Text>
+            )}
+            <ListItem style={{padding: 0}} /> */}
+          {/* <ListItem>
+              <Text style={styles.destext}>{Languages.bookNow.labels.service_charge}</Text>
+              <Text style={styles.biilingRightText}>
+                {servicePercentage} {Languages.bookNow.labels.percentage}
+              </Text>
+            </ListItem> */}
+          {/* <ListItem>
+              <Text style={styles.destext}>{Languages.bookNow.labels.total_cost}</Text>
+              <Text style={styles.biilingRightText}>
+                {' '}
+                ${chefTotalCharge ? chefTotalCharge.toFixed(2) : ''}
+              </Text>
+            </ListItem>
+          </View> */}
+
+          <View>
+            <ListItem itemDivider>
+              <Text style={styles.destext}>{Languages.bookNow.labels.billing_details}</Text>
+            </ListItem>
+            {noOfGuests > 5 ? (
+              <View>
+                <ListItem>
+                  <Text style={styles.destext}>
+                    Chef base rate ({`$${chefPrice}`}) X {noOfGuests}{' '}
+                  </Text>
+                  <Text style={styles.biilingRightText}>
+                    {chefAmount ? `$${chefAmount.toFixed(2)}` : null}
+                  </Text>
+                </ListItem>
+                <ListItem>
+                  <Text style={styles.destext}>Discount</Text>
+                  <Text style={styles.biilingRightText}>
+                    {discount ? `-$${discount.toFixed(2)}` : null}
+                  </Text>
+                </ListItem>
+                <ListItem>
+                  <Text style={styles.destext}>
+                    Over 5 ({guestCount}) guests half chef Base Rate ({`$${guestPrice}`})
+                  </Text>
+                </ListItem>
+              </View>
+            ) : (
+              <ListItem>
+                <Text style={styles.destext}>
+                  Chef base rate ({`$${chefPrice}`}) X {noOfGuests}{' '}
+                </Text>
+                <Text style={styles.biilingRightText}>
+                  {chefAmount ? `$${chefAmount.toFixed(2)}` : null}
+                </Text>
+              </ListItem>
+            )}
+            {complexityUpcharge !== 0 && (
+              <ListItem>
+                <Text style={styles.destext}>Complexity Upcharge</Text>
+                <Text style={styles.biilingRightText}>
+                  {complexityUpcharge ? `$${complexityUpcharge.toFixed(2)}` : `$${0}`}
+                </Text>
+              </ListItem>
+            )}
+
+            <ListItem>
+              <Text style={styles.destext}>Additional services </Text>
+              <Text style={styles.biilingRightText}>
+                {additionalTotalPrice ? `$${additionalTotalPrice.toFixed(2)}` : null}
+              </Text>
+            </ListItem>
+            <ListItem>
+              <Text style={styles.destext}>Total </Text>
+              <Text style={styles.biilingRightText}>
+                {TotalCharge ? `$${TotalCharge.toFixed(2)}` : null}
+              </Text>
+            </ListItem>
+            {/* <ListItem>
+              <Text style={styles.destext}>Rockoly/Payment charges</Text>
+              <Text style={styles.biilingRightText}>
+                {rockolyCharge ? `$${rockolyCharge.toFixed(2)}` : null}
+              </Text>
+            </ListItem> */}
+
+            {/* <ListItem>
+              <Text style={styles.destext}>Total amount to pay</Text>
+              <Text style={styles.biilingRightText}>${totalAmountToPay}</Text>
+            </ListItem> */}
+          </View>
+          <View style={styles.selectCardView}>
+            {/* <ListItem itemDivider>
+              <Text style={styles.destext}>{Languages.bookNow.labels.payment_details}</Text>
+            </ListItem> */}
 
             <View style={styles.addCardView}>
               <Button

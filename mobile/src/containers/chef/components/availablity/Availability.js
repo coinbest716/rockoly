@@ -2,17 +2,29 @@
 
 import React, {Component} from 'react'
 import {View, Text, Alert} from 'react-native'
-import {Button, CheckBox, Toast, Icon} from 'native-base'
+import {Button, CheckBox, Toast, Icon, Item, Card} from 'native-base'
 import DateTimePicker from 'react-native-modal-datetime-picker'
 import moment from 'moment'
 import _ from 'lodash'
 import {ScrollView} from 'react-native-gesture-handler'
-import {Header, Spinner} from '@components'
-import {AuthContext, ChefProfileService, PROFILE_DETAIL_EVENT} from '@services'
+import {Header, Spinner, CommonButton, CommonList} from '@components'
+import {
+  AuthContext,
+  ChefProfileService,
+  PROFILE_DETAIL_EVENT,
+  CommonService,
+  COMMON_LIST_NAME,
+} from '@services'
 import {Theme} from '@theme'
 import Styles from './styles'
 import {Languages} from '@translations'
-import {availabilityDaysDefault, displayTimeFormat, dbTimeFormat, AVAILABILITY_TYPE} from '@utils'
+import {
+  availabilityDaysDefault,
+  displayTimeFormat,
+  dbTimeFormat,
+  AVAILABILITY_TYPE,
+  commonDateFormat,
+} from '@utils'
 import {RouteNames} from '@navigation'
 
 class Availabilty extends Component {
@@ -26,6 +38,12 @@ class Availabilty extends Component {
       availabilityDays: availabilityDaysDefault,
       isLoading: true,
       profile: {},
+      unavailableDays: [],
+      isFetching: true,
+      isFetchingMore: false,
+      canLoadMore: false,
+      first: 50,
+      offset: 0,
     }
   }
 
@@ -33,10 +51,14 @@ class Availabilty extends Component {
     const {isLoggedIn, currentUser} = this.context
     // subscription call
     ChefProfileService.on(PROFILE_DETAIL_EVENT.AVAILABILITY_UPDATING, this.subs)
+    ChefProfileService.on(PROFILE_DETAIL_EVENT.UNAVAILABILITY_UPDATING, this.unavailableSubs)
     ChefProfileService.availabilitySubscription(isLoggedIn && currentUser && currentUser.chefId)
+    ChefProfileService.unAvailabilitySubscription(isLoggedIn && currentUser && currentUser.chefId)
     this.loadData()
+
     if (isLoggedIn && currentUser && currentUser.chefId) {
       this.getAvailablityList(currentUser.chefId)
+      this.loadTotalCount()
     } else {
       this.setLoading(false)
     }
@@ -95,23 +117,31 @@ class Availabilty extends Component {
     this.getAvailablityList(currentUser.chefId)
   }
 
+  unavailableSubs = () => {
+    this.loadTotalCount()
+  }
+
   onAccount = () => {
     const {navigation} = this.props
     navigation.navigate(RouteNames.CHEF_SETTING_STACK)
   }
 
   saveAvailablity = async () => {
-    const {isChef, isLoggedIn, currentUser} = this.context
-    const {profile} = this.state
+    const {isLoggedIn, currentUser} = this.context
+    const {onSaveCallBack} = this.props
     let invalidData = []
-    let status = ``
-    if (isChef && isLoggedIn && profile) {
-      status = profile.chefStatusId && profile.chefStatusId.trim()
-    }
-    this.setLoading(true)
 
     if (isLoggedIn && currentUser && currentUser.chefId) {
       const {availabilityDays} = this.state
+
+      const checkedItems = await _.filter(availabilityDays, item => item.checked)
+
+      if (!checkedItems || checkedItems.length === 0) {
+        Alert.alert('Please select your availability')
+        return
+      }
+
+      this.setLoading(true)
       invalidData = await _.filter(availabilityDays, item => item.isInvalid && item.checked)
       if (invalidData.length === 0) {
         const dbData = []
@@ -131,6 +161,9 @@ class Availabilty extends Component {
                     text: Languages.set_availability.set_availability_alrt_msg.availability_saved,
                   })
                   this.setLoading(false)
+                  if (onSaveCallBack) {
+                    onSaveCallBack()
+                  }
                   // this.onAvailabilitynext()
                 } else {
                   this.showError()
@@ -200,9 +233,12 @@ class Availabilty extends Component {
     }
 
     // checking min should be 0,30 min
-    const min = moment(date).format('mm')
-    const timeSlot = [0, 30]
-    if (timeSlot.indexOf(parseInt(min)) === -1 || !moment(frmTime).isBefore(totime)) {
+    // const min = moment(date).format('mm')
+    // const timeSlot = [0, 30]
+    if (
+      // timeSlot.indexOf(parseInt(min)) === -1 ||
+      !moment(frmTime).isBefore(totime)
+    ) {
       temp[currentIndex].isInvalid = true
     } else {
       temp[currentIndex].isInvalid = false
@@ -265,37 +301,170 @@ class Availabilty extends Component {
     )
   }
 
-  renderContent = () => {
-    const {availabilityDays, profile} = this.state
-    const {isChef, isLoggedIn} = this.context
-    const {navigation} = this.props
-    let status = ``
-    if (isChef && isLoggedIn && profile) {
-      status = profile.chefStatusId && profile.chefStatusId.trim()
+  loadTotalCount = () => {
+    const {currentUser, isLoggedIn, isChef} = this.context
+    const fromDate = moment().format(commonDateFormat)
+    const futureMonth = moment()
+      .startOf('month')
+      .add(3, 'M')
+    const toDate = moment(futureMonth)
+      .endOf('month')
+      .format(commonDateFormat)
+    this.setState({
+      fromDate,
+      toDate,
+    })
+
+    if (isLoggedIn && isChef) {
+      CommonService.getTotalCount(COMMON_LIST_NAME.CHEF_NOT_AVAILABILITY, {
+        chefId: currentUser.chefId,
+        fromDate,
+        toDate,
+      })
+        .then(totalCount => {
+          this.setState({totalCount}, () => {
+            this.fetchData()
+          })
+        })
+        .catch(() => {
+          this.setLoading(false)
+        })
+    } else {
+      this.setLoading(false)
     }
-    return (
-      <ScrollView style={{paddingBottom: '13%'}}>
-        <Text style={Styles.infoText}>
-          {Languages.set_availability.set_availability_lable.info_text}
-        </Text>
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'flex-end',
-            paddingRight: 20,
-          }}>
-          <Button
-            block
-            style={Styles.unavailableBtn}
-            onPress={() => {
-              this.goToSetUnavailable(navigation)
-            }}>
-            <Text style={Styles.unavailablityText}>
-              {Languages.set_availability.set_availability_lable.set_unavailability}
-            </Text>
-          </Button>
+  }
+
+  reload = () => {
+    this.setState(
+      {
+        first: 50,
+        offset: 0,
+        unavailableDays: [],
+        isFetching: true,
+        canLoadMore: false,
+      },
+      () => {
+        this.fetchData()
+      }
+    )
+  }
+
+  fetchData = () => {
+    const {currentUser} = this.context
+    const {totalCount, first, offset, fromDate, toDate} = this.state
+    ChefProfileService.getUnAvailableCalenderList(
+      first,
+      offset,
+      currentUser.chefId,
+      fromDate,
+      toDate
+    )
+      .then(res => {
+        this.setState({
+          isFetching: false,
+          isFetchingMore: false,
+          unavailableDays: res,
+          canLoadMore: res.length < totalCount,
+        })
+      })
+      .catch(() => {
+        this.setLoading(false)
+      })
+  }
+
+  setLoading = isFetching => {
+    this.setState({
+      isFetching,
+    })
+  }
+
+  renderItem = ({item}) => {
+    if (
+      item.chefNotAvailDate !== null &&
+      item.chefNotAvailDate !== undefined &&
+      item.chefNotAvailDate !== ''
+    ) {
+      return (
+        <View key={item.chefNotAvailId} style={Styles.itemView}>
+          <Text style={Styles.dateText}>{item.chefNotAvailDate}</Text>
         </View>
-        <View style={{flexDirection: 'column'}}>
+      )
+    }
+    return null
+  }
+
+  loadMore = () => {
+    const {first, unavailableDays, canLoadMore} = this.state
+    // const newOffset = favList.length
+    const newFirst = unavailableDays.length + first
+    if (!canLoadMore) {
+      return
+    }
+    this.setState(
+      {
+        // offset: newOffset,
+        first: newFirst,
+        isFetchingMore: true,
+      },
+      () => {
+        this.loadTotalCount()
+      }
+    )
+  }
+
+  renderContent = () => {
+    const {availabilityDays, unavailableDays, isFetching, isFetchingMore, canLoadMore} = this.state
+    const {onSaveCallBack, navigation} = this.props
+    console.log('availabilityDays', availabilityDays)
+    return (
+      <View style={onSaveCallBack ? {} : {paddingHorizontal: 10, paddingVertical: 10}}>
+        {onSaveCallBack ? (
+          <Text style={Styles.infoText}>
+            {Languages.set_availability.set_availability_lable.info_text1}
+          </Text>
+        ) : (
+          <Text style={Styles.infoText}>
+            {Languages.set_availability.set_availability_lable.info_text}
+          </Text>
+        )}
+        {onSaveCallBack ? null : (
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'flex-end',
+              paddingRight: 20,
+            }}>
+            <Button
+              block
+              style={Styles.unavailableBtn}
+              onPress={() => {
+                this.goToSetUnavailable(navigation)
+              }}>
+              <Text style={Styles.unavailablityText}>
+                {Languages.set_availability.set_availability_lable.set_unavailability}
+              </Text>
+            </Button>
+          </View>
+        )}
+        {onSaveCallBack ? null : (
+          <Card style={Styles.cardStyle}>
+            <Text style={Styles.labelText}>Unavailability</Text>
+            <CommonList
+              keyExtractor="chefNotAvailId"
+              data={unavailableDays}
+              renderItem={this.renderItem}
+              isFetching={isFetching}
+              isFetchingMore={isFetchingMore}
+              canLoadMore={canLoadMore}
+              loadMore={this.loadMore}
+              reload={this.reload}
+              emptyDataMessage="No Unavailability date found"
+              hideNoDataMessage
+            />
+          </Card>
+        )}
+        <Card style={Styles.cardStyle}>
+          <Text style={Styles.labelText}>Availability</Text>
           {availabilityDays &&
             availabilityDays.map((item, index) => {
               return (
@@ -346,39 +515,39 @@ class Availabilty extends Component {
                 </View>
               )
             })}
-        </View>
-
-        <Button style={Styles.locationBtn} onPress={this.saveAvailablity}>
-          <Text style={Styles.locationText}>
-            {Languages.set_availability.set_availability_lable.save}
-          </Text>
-        </Button>
-      </ScrollView>
+        </Card>
+        <CommonButton
+          onPress={this.saveAvailablity}
+          containerStyle={Styles.locationBtn}
+          btnText={Languages.set_availability.set_availability_lable.save}
+        />
+      </View>
     )
   }
 
   render() {
-    const {showTimePicker, selectedTime, isLoading} = this.state
+    const {showTimePicker, selectedTime, isLoading, isFetching} = this.state
+    if (isFetching) {
+      return (
+        <View style={Styles.alignScreenCenter}>
+          <Spinner animating mode="full" />
+        </View>
+      )
+    }
 
     return (
-      <View>
+      <ScrollView>
         <DateTimePicker
           date={selectedTime}
           mode="time"
-          minuteInterval={30}
+          minuteInterval={5}
           is24Hour={false}
           isVisible={showTimePicker}
           onConfirm={this.onChangeTime}
           onCancel={() => this.setState({showTimePicker: false})}
         />
-        {isLoading ? (
-          <View style={Styles.alignScreenCenter}>
-            <Spinner animating mode="full" />
-          </View>
-        ) : (
-          this.renderContent()
-        )}
-      </View>
+        {this.renderContent()}
+      </ScrollView>
     )
   }
 }

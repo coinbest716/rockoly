@@ -4,6 +4,9 @@ import {
   GET_BOOKING_HISTORY,
   GET_BOOKING_HISTORY_SUCCESS,
   GET_BOOKING_HISTORY_FAIL,
+  GET_BOOKING_REQUESTED_DETAILS,
+  GET_BOOKING_REQUESTED_SUCCESS_DETAILS,
+  GET_BOOKING_REQUESTED_FAIL_DETAILS,
   GET_BOOKING_DETAILS,
   GET_BOOKING_SUCCESS_DETAILS,
   GET_BOOKING_FAIL_DETAILS,
@@ -62,6 +65,7 @@ export const getBookingListUnmount = () => dispatch => {
 }
 
 export const getBookingDetails = (client, bookingId) => async dispatch => {
+  console.log('bookingId', bookingId)
   dispatch({type: GET_BOOKING_DETAILS})
   try {
     const gqlValue = gqlTag.query.booking.byIdGQLTAG
@@ -87,8 +91,35 @@ export const getBookingDetails = (client, bookingId) => async dispatch => {
     return dispatch({type: GET_BOOKING_FAIL_DETAILS, payload: err.message})
   }
 }
+export const getBookingRequestDetails = (client, bookingId) => async dispatch => {
+  dispatch({type: GET_BOOKING_REQUESTED_DETAILS})
+  try {
+    const gqlValue = gqlTag.query.booking.requestedBookingByIdGQLTAG
+    const query = gql`
+      ${gqlValue}
+    `
+    const {data, error} = await client.query({
+      query,
+      variables: {
+        bookingHistId: bookingId,
+      },
+      fetchPolicy: CommonLabels.NETWORK_ONLY,
+    })
+    if (data.allChefBookingRequestHistories) {
+      return dispatch({
+        type: GET_BOOKING_REQUESTED_SUCCESS_DETAILS,
+        payload: data.allChefBookingRequestHistories,
+      })
+    } else {
+      return dispatch({type: GET_BOOKING_REQUESTED_FAIL_DETAILS, payload: {}})
+    }
+  } catch (err) {
+    return dispatch({type: GET_BOOKING_REQUESTED_FAIL_DETAILS, payload: err.message})
+  }
+}
 
 export const sendAmountToChef = (client, value) => async dispatch => {
+  console.log('value', value.chefStripeUserId)
   dispatch({type: SENT_TO_CHEF, payload: ''})
   try {
     const gqlValue = gqlTag.mutation.admin.transferAmountGQLTAG
@@ -98,10 +129,15 @@ export const sendAmountToChef = (client, value) => async dispatch => {
     `
     const {data} = await client.mutate({
       mutation,
-      variables: value,
+      variables: {
+        chefStripeUserId: value.chefStripeUserId,
+        bookingHistId: value.bookingHistId,
+        adminId: value.adminId,
+        chefId: value.chefId,
+      },
     })
-
-    if (data && data.stripeTransferAmt && data.stripeTransferAmt.data) {
+    console.log('data', data)
+    if (data && data.stripeTransferAmtTest && data.stripeTransferAmtTest.data) {
       message.success('Payment success')
       return dispatch({type: SENT_TO_CHEF_SUCCESS, payload: 'success'})
     }
@@ -112,7 +148,6 @@ export const sendAmountToChef = (client, value) => async dispatch => {
 
 export const refundAmoutToCustomer = (client, value) => async dispatch => {
   dispatch({type: REFUND_TO_CUSTOMER, payload: ''})
-  console.log('refundAmoutToCustomer', value)
   try {
     const gqlValue = gqlTag.mutation.admin.refundAmountGQLTAG
 
@@ -124,14 +159,11 @@ export const refundAmoutToCustomer = (client, value) => async dispatch => {
       variables: value,
     })
 
-    console.log('data', data)
-
     if (data && data.stripeRefundAmtToCustomer && data.stripeRefundAmtToCustomer.data) {
       message.success('Payment success')
       return dispatch({type: REFUND_TO_CUSTOMER_SUCCESS, payload: 'success'})
     }
   } catch (err) {
-    console.log('err', err)
     return dispatch({type: REFUND_TO_CUSTOMER_FAIL, payload: err.message})
   }
 }

@@ -1,23 +1,9 @@
 /** @format */
 
 import React, {PureComponent} from 'react'
-import {View, ScrollView} from 'react-native'
-import {
-  Container,
-  Item,
-  Textarea,
-  Text,
-  Input,
-  Content,
-  Form,
-  CheckBox,
-  ListItem,
-  Body,
-  Icon,
-  Left,
-  Button,
-  Label,
-} from 'native-base'
+import {View, ScrollView, Platform} from 'react-native'
+import {Textarea, Text, CheckBox, ListItem, Body, Label, Toast} from 'native-base'
+import KeyboardSpacer from 'react-native-keyboard-spacer'
 import {CommonButton, Spinner} from '@components'
 import {AuthContext, CustomerPreferenceService, CUSTOMER_PREFERNCE_EVENT} from '@services'
 import {Languages} from '@translations'
@@ -75,6 +61,11 @@ export default class KitchenEquipment extends PureComponent {
 
   componentWillUnmount() {
     CustomerPreferenceService.off(CUSTOMER_PREFERNCE_EVENT.KITCHEN_EQUIPMENT, this.equipmentList)
+  }
+
+  getKitchenEquipment = () => {
+    const {kitchenEquipmentId, newKitchenEquipment} = this.state
+    return {kitchenEquipmentId, newKitchenEquipment}
   }
 
   onLoadData = async () => {
@@ -177,7 +168,6 @@ export default class KitchenEquipment extends PureComponent {
   }
 
   onSave = () => {
-    console.log('onSave')
     const {
       cuisineItems,
       newCuisineItems,
@@ -189,6 +179,7 @@ export default class KitchenEquipment extends PureComponent {
       newKitchenEquipment,
     } = this.state
     const {currentUser} = this.context
+    const {onSaveCallBack, getValue, hideSave} = this.props
     console.log('currentUser', currentUser)
     if (currentUser !== null && currentUser !== undefined) {
       const obj = {
@@ -199,7 +190,8 @@ export default class KitchenEquipment extends PureComponent {
         customerOtherAllergyTypes: newAllergies ? JSON.stringify(newAllergies) : null,
         customerDietaryRestrictionsTypeId: dietryTypeId,
         customerOtherDietaryRestrictionsTypes: newDietry ? JSON.stringify(newDietry) : null,
-        customerKitchenEquipmentTypeId: kitchenEquipmentId,
+        customerKitchenEquipmentTypeId:
+          kitchenEquipmentId && kitchenEquipmentId.length > 0 ? kitchenEquipmentId : null,
         customerOtherKitchenEquipmentTypes: newKitchenEquipment
           ? JSON.stringify(newKitchenEquipment)
           : null,
@@ -208,7 +200,20 @@ export default class KitchenEquipment extends PureComponent {
       CustomerPreferenceService.updatePreferencesData(obj)
         .then(data => {
           console.log('preferences data', data)
-          this.props.onSave()
+          if (onSaveCallBack) {
+            onSaveCallBack()
+          }
+
+          if (getValue) {
+            getValue(obj)
+          }
+
+          if (!hideSave) {
+            Toast.show({
+              duration: 5000,
+              text: Languages.customerPreference.toast_messages.kitchenEquipmentMessage,
+            })
+          }
         })
         .catch(error => {
           console.log('preferences error', error)
@@ -218,6 +223,7 @@ export default class KitchenEquipment extends PureComponent {
 
   render() {
     const {kitchenEquipment, newKitchenEquipment, kitchenEquipmentId, isLoading} = this.state
+    const {hideSave} = this.props
     if (isLoading) {
       return (
         <View style={styles.alignScreenCenter}>
@@ -227,7 +233,7 @@ export default class KitchenEquipment extends PureComponent {
     }
     return (
       <ScrollView style={{marginTop: '5%'}}>
-        <Label style={styles.allergiesLabel}>What type of kitchen equipment do you have ?</Label>
+        <Label style={styles.allergiesLabel}>What type of kitchen equipment do you have?</Label>
         <View>
           {kitchenEquipment &&
             kitchenEquipment.length > 0 &&
@@ -257,11 +263,17 @@ export default class KitchenEquipment extends PureComponent {
             placeholder={Languages.customerPreference.labels.kitchenEquipmentPlaceholder}
           />
         </View>
+
         <CommonButton
-          btnText={Languages.customerPreference.labels.save}
+          btnText={
+            hideSave
+              ? Languages.customerPreference.labels.next
+              : Languages.customerPreference.labels.save
+          }
           containerStyle={styles.saveBtn}
           onPress={this.onSave}
         />
+        {Platform.OS === 'ios' && <KeyboardSpacer />}
       </ScrollView>
     )
   }
