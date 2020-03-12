@@ -125,3 +125,10 @@ export const subsMessageHistory = {
   subsFilterCriteria: ['conversationHistId'],
   subsPkId: 'messageHistoryId',
 };
+
+export const subsConversationHistory = {
+  subsChannelName: 'conversationHistory',
+  subsSchemaDefn: 'conversationHistory(conversationHistId: String, tableName: String, tablePkId: String, tablePkId2: String): JSONType',
+  subsFilterCriteria: ['conversationHistId','tableName','tablePkId','tablePkId2'],
+  subsPkId: 'conversationHistId',
+};
