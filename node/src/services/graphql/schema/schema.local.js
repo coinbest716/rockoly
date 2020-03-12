@@ -288,6 +288,7 @@ export const localSchema = `
        ${subs.subsChefBookingHistory.subsSchemaDefn}
        ${subs.subsPaymentHistory.subsSchemaDefn}
        ${subs.subsMessageHistory.subsSchemaDefn}
+       ${subs.subsConversationHistory.subsSchemaDefn}
     }
   
   schema {
