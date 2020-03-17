@@ -41,6 +41,8 @@ Test        - `test.json`<br>
     ```
 
     When we run the node using above cli, it will run the [Postgraphile](https://www.graphile.org/postgraphile/) first and then [Apollo Graphql](https://www.apollographql.com/docs/apollo-server/getting-started/) server next.
+	
+	When you run locally, it will run the server in path [localhost](http://localhost:2002/graphql)
 
 
 ## Logs
@@ -57,6 +59,8 @@ By default when you run the node app, it will log the consoles in separate file.
 5. [Nodemailer](https://nodemailer.com/about/)
 6. [Postgraphile-plugin-connection-filter](https://github.com/graphile-contrib/postgraphile-plugin-connection-filter)
 7. [Stripe](https://github.com/stripe/stripe-node)
+8. [Twilio](https://www.twilio.com/docs/libraries/node)
+9. [Postgis](https://postgis.net/)
 
 
 ## Project structure
