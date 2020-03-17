@@ -33,6 +33,7 @@ import {
   RegisterProfile,
   ChefExperience,
   Complexity,
+  priceCalculation,
   Awards,
   Gallery,
   DisplayPicture,
@@ -40,6 +41,7 @@ import {
   Availability,
   ChefEditProfile,
   CustomerRegProfile,
+  chefRequestPrice,
   EmailVerification,
   RegEmailVerification,
   RegMobileVerification,
@@ -154,11 +156,17 @@ const ChefStack = createStackNavigator(
     [RouteNames.CHEF_PAYMENT_HISTORY]: {
       screen: ChefPaymentHistory,
     },
+    [RouteNames.CHEF_REQUEST_PRICE]: {
+      screen: chefRequestPrice,
+    },
     [RouteNames.CHAT_DETAIL]: {
       screen: ChatDetail,
     },
     [RouteNames.CHEF_EDIT_PROFILE]: {
       screen: ChefEditProfile,
+    },
+    [RouteNames.PRICE_CALCULATION]: {
+      screen: priceCalculation,
     },
     [RouteNames.BOOK_PRICE]: {
       screen: BookPrice,
@@ -166,7 +174,7 @@ const ChefStack = createStackNavigator(
   },
   {
     ...StackNavConfig,
-    // initialRouteName: RouteNames.CHEF_REG_PROFILE,
+    // initialRouteName: RouteNames.PRICE_CALCULATION,
   }
 )
 

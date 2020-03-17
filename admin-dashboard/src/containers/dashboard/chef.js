@@ -160,7 +160,8 @@ export class Chef extends Component {
                     <div style={Styles.buttonsView}>
                       <div style={CommonStyles.actionButtonView}>
                         <div style={CommonStyles.alignActionButtons}>
-                          {(val.chefStatusId.trim() === gqlStatus.PENDING ||
+                          {(val.chefStatusId.trim() === 'SUBMITTED_FOR_REVIEW' ||
+                            // val.chefStatusId.trim() === gqlStatus.PENDING ||
                             val.chefStatusId.trim() === gqlStatus.REJECTED ||
                             val.chefStatusId.trim() === gqlStatus.UNBLOCKED) && (
                             <Button
@@ -171,7 +172,8 @@ export class Chef extends Component {
                               {CommonLabels.APPROVE}
                             </Button>
                           )}
-                          {(val.chefStatusId.trim() === gqlStatus.PENDING ||
+                          {(val.chefStatusId.trim() === 'SUBMITTED_FOR_REVIEW' ||
+                            // val.chefStatusId.trim() === gqlStatus.PENDING ||
                             val.chefStatusId.trim() === gqlStatus.APPROVED ||
                             val.chefStatusId.trim() === gqlStatus.UNBLOCKED) && (
                             <Button
@@ -209,6 +211,11 @@ export class Chef extends Component {
                             </Button>
                           )}
                         </div>
+                        {val.chefStatusId.trim() === gqlStatus.PENDING && (
+                          <p style={CommonStyles.actionStatus}>
+                            {CommonLabels.PROFILE_NOT_SUBMITTED}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>

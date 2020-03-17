@@ -128,11 +128,17 @@ export default class RateService extends Component {
     }
 
     if (minGuestCount === 0 || maxGuestCount === 0) {
-      Alert.alert('Info', 'Please fill up the form')
+      Alert.alert(
+        'Info',
+        'Please select a minimum and maximum number of guests you are able to cook for.'
+      )
       return
     }
     if (minGuestCount === null || maxGuestCount === null) {
-      Alert.alert('Info', 'Please fill up the form')
+      Alert.alert(
+        'Info',
+        'Please select a minimum and maximum number of guests you are able to cook for.'
+      )
       return
     }
 

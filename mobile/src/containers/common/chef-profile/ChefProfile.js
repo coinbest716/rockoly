@@ -104,6 +104,7 @@ class ProfileView extends PureComponent {
           navigation.state.params !== ''
         ) {
           const user = navigation.state.params
+          console.log('user', user)
           // customer logged in
           AsyncStorage.getItem('KeyToContinue').then(data => {
             if (data !== null) {
@@ -121,9 +122,12 @@ class ProfileView extends PureComponent {
             }
           })
           // customer not logged in and clicked the card in chef list
-          if (user && user.chefId) {
+          if (user && user.chefId && !user.customerId) {
             ProfileViewService.on(PROFILE_VIEW_EVENT.PROFILE_VIEW, this.setList)
-            ProfileViewService.getProfileDetails(user.chefId)
+            ProfileViewService.getProfileDetails(user.chefId, null)
+          } else if (user && user.chefId && user.customerId) {
+            ProfileViewService.on(PROFILE_VIEW_EVENT.PROFILE_VIEW, this.setList)
+            ProfileViewService.getProfileDetails(user.chefId, user.customerId)
             // ChefProfileService.chefProfileSubs(user.chefId)
           }
         }
@@ -175,6 +179,7 @@ class ProfileView extends PureComponent {
   }
 
   setList = ({profileDetails}) => {
+    console.log('profileDetails', profileDetails)
     this.setLoading(false)
     if (Object.keys(profileDetails).length !== 0) {
       if (profileDetails.hasOwnProperty('chefProfileByChefId')) {
@@ -212,6 +217,7 @@ class ProfileView extends PureComponent {
 
   onConversationDetail = (picId, userName, userData) => {
     const {navigation} = this.props
+    console.log('userData', userData)
     navigation.navigate(RouteNames.CHAT_DETAIL, {
       conversationName: userName,
       conversationPic: picId,
@@ -313,6 +319,7 @@ class ProfileView extends PureComponent {
   onCheckAvailabiltyPress = () => {
     const {navigation} = this.props
     const {userData} = this.state
+    console.log('userData', userData)
     let price
     let unit
     if (
@@ -552,18 +559,20 @@ class ProfileView extends PureComponent {
               <View style={styles.userInfo}>
                 <View style={styles.iconNameView}>
                   <Text style={styles.text}>{userName}</Text>
+
                   {isLoggedIn && isChef ? (
                     <TouchableOpacity onPress={() => this.onEditProifile()}>
                       <Icon type="FontAwesome5" name="edit" style={styles.iconStyle3} />
                     </TouchableOpacity>
-                  ) : (
+                  ) : null}
+                  {isLoggedIn && !isChef && currentUser.userId !== userDetails.userId ? (
                     <TouchableOpacity
                       onPress={() =>
                         this.onConversationDetail(userDetails.chefPicId, userName, userDetails)
                       }>
                       <Icon type="FontAwesome5" name="comment-dots" style={styles.messageIcon} />
                     </TouchableOpacity>
-                  )}
+                  ) : null}
                 </View>
                 <View style={styles.addressView}>
                   <Icon type="FontAwesome5" name="map-marker-alt" style={styles.locationIcon} />
@@ -632,16 +641,16 @@ class ProfileView extends PureComponent {
                 </Text>
               </View>
             )}
-            {/* {isLoggedIn && !isChef && currentUser.userId !== userDetails.userId && ( */}
-            <Button
-              iconLeft
-              onPress={() => this.onCheckAvailabiltyPress()}
-              style={styles.checkAvailablity}>
-              <Icon name="calendar" />
-              <Text> {Languages.chefProfile.labels.check_availability}</Text>
-              <Icon name="arrow-forward" />
-            </Button>
-            {/* )} */}
+            {isLoggedIn && !isChef && currentUser.userId !== userDetails.userId && (
+              <Button
+                iconLeft
+                onPress={() => this.onCheckAvailabiltyPress()}
+                style={styles.checkAvailablity}>
+                <Icon name="calendar" />
+                <Text> {Languages.chefProfile.labels.check_availability}</Text>
+                <Icon name="arrow-forward" />
+              </Button>
+            )}
             {!isLoggedIn && !isChef && (
               <TouchableOpacity onPress={() => this.onLoginPress()}>
                 <Text style={styles.loginText}>{Languages.chefProfile.labels.please_login}</Text>

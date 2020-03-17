@@ -463,12 +463,14 @@ export default class ChefExperience extends Component {
     let dishTypesValue = []
     let dishItemsValue = []
     if (cuisineTypes && cuisineTypes !== undefined && cuisineTypes !== null) {
-      cuisineTypesValue = cuisineTypes
+      cuisineTypesValue = _.uniqWith(cuisineTypes, _.isEqual)
     }
     if (dishTypes && dishTypes !== undefined && dishTypes !== null) {
-      dishTypesValue = dishTypes
+      dishTypesValue = _.uniqWith(dishTypes, _.isEqual)
     }
 
+    const cuisineSelected = _.uniqWith(displaySelectedCuisineItems, _.isEqual)
+    const dishSelected = _.uniqWith(displaySelectedDishItems, _.isEqual)
     if (dishItems && dishItems !== undefined && dishItems !== null) {
       dishItemsValue = dishItems
     }
@@ -509,8 +511,8 @@ export default class ChefExperience extends Component {
               onAddItem={value => this.addCuisineItem(value)}
             />
             <View style={styles.cusineTagBody}>
-              {displaySelectedCuisineItems && displaySelectedCuisineItems.length
-                ? displaySelectedCuisineItems.map((item, key) => {
+              {cuisineSelected && cuisineSelected.length
+                ? cuisineSelected.map((item, key) => {
                     return (
                       <Button
                         key={`cuisine-${key}`}
@@ -561,8 +563,8 @@ export default class ChefExperience extends Component {
               onAddItem={value => this.addDishItem(value)}
             />
             <View style={styles.cusineTagBody}>
-              {displaySelectedDishItems && displaySelectedDishItems.length
-                ? displaySelectedDishItems.map((item, key) => {
+              {dishSelected && dishSelected.length
+                ? dishSelected.map((item, key) => {
                     return (
                       <Button
                         key={`dish-${key}`}

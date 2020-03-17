@@ -113,6 +113,7 @@ export const byIdGQLTAG = `query chefBookingHistoryByChefBookingHistId($chefBook
           chefCity
           chefAvailableAroundRadiusInValue
           chefAvailableAroundRadiusInUnit
+          additionalServiceDetails
         }
       }
     }

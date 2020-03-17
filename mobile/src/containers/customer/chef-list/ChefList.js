@@ -290,7 +290,7 @@ class ChefList extends PureComponent {
     const {first, offset} = this.state
     const {userRole, currentUser, isLoggedIn} = this.context
     const filter = this.onLocationFilter()
-    console.log('filter', filter)
+    console.log('debugging filter', filter)
     const filterParams = {
       data: filter || {},
       first,
@@ -421,8 +421,13 @@ class ChefList extends PureComponent {
   }
 
   onCardCLick(details) {
+    const {currentUser} = this.context
+    console.log('details', currentUser)
     const {navigation} = this.props
-    navigation.navigate(RouteNames.CHEF_PROFILE_SCREEN, {chefId: details.chefId})
+    navigation.navigate(RouteNames.CHEF_PROFILE_SCREEN, {
+      chefId: details.chefId,
+      customerId: currentUser.customerId,
+    })
   }
 
   onFollowPress = (data, type) => {
@@ -465,7 +470,7 @@ class ChefList extends PureComponent {
         return filterValues.filterListValue.filterOption
       }
       val1 = filterValues.filterListValue.filterOption
-
+      console.log('val1', val1)
       if (
         filterValues.filterListValue.latitude !== latitude &&
         filterValues.filterListValue.longitude !== longitude
@@ -473,12 +478,16 @@ class ChefList extends PureComponent {
         value = {
           lat: latitude || undefined,
           lng: longitude || undefined,
-          min_rating: val1.min_rating !== 0 ? val1.min_rating : undefined,
-          min_price: val1.min_price !== '' ? val1.min_price : undefined,
-          max_price: val1.max_price !== '' ? val1.max_price : undefined,
+          pricing: val1.pricing !== [] ? val1.pricing : [],
+          rating: val1.rating !== '' ? val1.rating : undefined,
+          // min_rating: val1.min_rating !== 0 ? val1.min_rating : undefined,
+          // min_price: val1.min_price !== '' ? val1.min_price : undefined,
+          // max_price: val1.max_price !== '' ? val1.max_price : undefined,
           cuisine: val1.cuisine !== '' ? val1.cuisine : undefined,
           dish: val1.dish !== '' ? val1.dish : undefined,
           event_from_time: val1.formDate !== '' ? val1.formDate : undefined,
+          // event_gmt_from_time: formDateFormat !== '' ? LocalToGMT(formDateFormat) : undefined,
+          // event_gmt_to_time: toDateFormat !== '' ? LocalToGMT(toDateFormat) : undefined,
           event_to_time: val1.toDate !== '' ? val1.toDate : undefined,
           experience: val1.experience !== 0 ? val1.experience : undefined,
         }

@@ -183,20 +183,21 @@ class BookingNotesService extends BaseService {
             data.createConversationHistByParams.conversationHistory &&
             data.createConversationHistByParams.conversationHistory.conversationHistId
           ) {
-            this.emit(BOOKING_NOTES.CREATE_CHAT, {
-              chatNotes: data.createConversationHistByParams.conversationHistory.conversationHistId,
-            })
+            this.emit(
+              BOOKING_NOTES.CREATE_CHAT,
+              data.createConversationHistByParams.conversationHistory.conversationHistId
+            )
           } else {
-            this.emit(BOOKING_NOTES.CREATE_CHAT, {chatNotes: {}})
+            this.emit(BOOKING_NOTES.CREATE_CHAT, '')
           }
         })
         .catch(error => {
           console.log('error', error)
-          this.emit(BOOKING_NOTES.CREATE_CHAT, {chatNotes: {}})
+          this.emit(BOOKING_NOTES.CREATE_CHAT, '')
         })
     } catch (err) {
       console.log('err', err)
-      this.emit(BOOKING_NOTES.CREATE_CHAT, {chatNotes: {}})
+      this.emit(BOOKING_NOTES.CREATE_CHAT, '')
     }
   }
 }

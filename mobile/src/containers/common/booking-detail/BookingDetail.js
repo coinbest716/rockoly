@@ -314,6 +314,7 @@ fetchStripeCents = () => {
   }
 
   setRequestBookingDetail = ({requestBookingDetail}) => {
+    console.log('requestBookingDetail',requestBookingDetail)
     if (requestBookingDetail) {
       this.setState(
         {
@@ -409,7 +410,12 @@ fetchStripeCents = () => {
       moment(currentDate, displayDateFormat),
       'minutes'
     )
-    if (stripeId !== undefined && stripeId) {
+    if(moment().isBefore(moment.utc(details.chefBookingFromTime).local())){
+      Alert.alert(
+        Languages.booking_History.alerts.info_title,
+        Languages.booking_History.alerts.eventEdit,
+      )
+     }else if (stripeId !== undefined && stripeId) {
     // if (diffValue <= 0) {
       Alert.alert(
         Languages.bookingDetail.alerts.info,
@@ -456,7 +462,7 @@ fetchStripeCents = () => {
       bookingHistId,
     }
 
-    navigation.navigate(RouteNames.BOOK_PRICE, {bookingData: obj})
+    navigation.navigate(RouteNames.CHEF_REQUEST_PRICE, {bookingValue: obj})
   }
 
   onCompleteBooking = async details => {
@@ -509,6 +515,7 @@ console.log('details.chefBookingFromTime',moment.utc(details.chefBookingToTime).
         Languages.bookingDetail.alerts.booking_cannot_be_cancelled
       )
     }
+    
   }
 
   onAcceptRequestAmount = () => {
@@ -560,11 +567,11 @@ console.log('details.chefBookingFromTime',moment.utc(details.chefBookingToTime).
   }
 
 onEditPress= () =>{
-  const {bookingDetail,bookingValue} = this.state
+  const {bookingDetail,bookingValue, bookingHistId,chefUserProfile} = this.state
 
   console.log('bookingDetail',bookingDetail,bookingValue)
   const {navigation} = this.props
-  navigation.navigate(RouteNames.CHECK_AVAILABILITY, {draftBooking: bookingDetail, draft:'DRAFTBOOKING',})
+  navigation.navigate(RouteNames.CHECK_AVAILABILITY, {draftBooking: bookingDetail, draft:'DRAFTBOOKING',bookingHistId, chefProfile:chefUserProfile})
 }
 
   showStatus = (
@@ -1300,7 +1307,7 @@ onEditPress= () =>{
     let complexityUpcharge = 0
     let TotalCharge = 0
     let totalAmountToPay1 = 0
- console.log('reqest',requestBookingDetail)
+ console.log('reqest',stripeCents,stripePercentage)
 
 
 
@@ -1329,8 +1336,9 @@ onEditPress= () =>{
        console.log("bookingDetail",bookingDetail.chefBookingSummary) 
         try {
           bookingSummary = JSON.parse(bookingDetail.chefBookingSummary)
-          
+
         }catch (e) {
+          bookingSummary = JSON.parse(JSON.stringify(bookingDetail.chefBookingSummary))
           console.log(e)
         }
         
@@ -1956,23 +1964,22 @@ console.log ('stipeCents',bookingDetail)
                         <View>
                          <View style={Styles.iconText}>
                         <Text style={Styles.heading}>
-                        Chef base rate({`$${chefPricePerHour}`}) X {bookingNoOfPeople}
+                        Chef Base rate({`$${chefPricePerHour}`}) X ({bookingNoOfPeople}) guests.
                         </Text>
                         <Text style={Styles.biilingRightText}>{chefBaseCharge ? `$${chefBaseCharge.toFixed(2)}` : null}</Text>
                          </View>
                          <View style={Styles.iconText}>
-                         <Text style={Styles.heading}>
-                          Discount
+                         <Text style={Styles.discount}>
+                          Discount - Over 5 ({guestCount}) guests half chef Base Rate ({`$${guestPrice}`})
                          </Text>
                          <Text style={Styles.biilingRightText}>{discount ? `-$${discount.toFixed(2)}` : null}</Text>
                          </View>
-                         <Text style={Styles.heading}>Over 5 ({guestCount}) guests half chef Base Rate ({`$${guestPrice}`})</Text>
                          </View>
                          
                         :
                         <View style={Styles.iconText}>
                         <Text style={Styles.heading}>
-                        Chef base rate({`$${chefPricePerHour}`}) X {bookingNoOfPeople}
+                        Chef Base rate({`$${chefPricePerHour}`}) X ({bookingNoOfPeople}) guests.
                         </Text>
                          <Text style={Styles.biilingRightText}>{chefBaseCharge ? `$${chefBaseCharge.toFixed(2)}` : null}</Text>
                         </View>

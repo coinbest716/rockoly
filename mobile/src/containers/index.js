@@ -44,6 +44,8 @@ import Awards from './chef/components/awards/Awards'
 import Gallery from './chef/components/gallery/Gallery'
 import Attachment from './chef/components/attachments/Attachments'
 import Availability from './chef/components/availablity/Availability'
+import chefRequestPrice from './chef/chef-request-price/chefRequestPrice'
+import priceCalculation from './chef/priceClaculator/priceCalculator'
 import ChefEditProfile from './chef/chef-edit-profile/ChefEditProfile'
 // chef
 
@@ -137,6 +139,8 @@ export {
   PricingModal,
   ChefRegProfile,
   Complexity,
+  priceCalculation,
+  chefRequestPrice,
   Awards,
   Gallery,
   Attachment,

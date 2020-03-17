@@ -11,6 +11,7 @@ import KeyboardSpacer from 'react-native-keyboard-spacer'
 import _ from 'lodash'
 import ChefListService, {CHEF_LIST_EVENT} from '../../../services/ChefListService'
 import ChefProfileService, {PROFILE_DETAIL_EVENT} from '../../../services/ChefProfileService'
+import {LocalToGMT} from '@utils'
 import {CommonButton} from '@components'
 import {Languages} from '@translations'
 import {Theme} from '@theme'
@@ -29,44 +30,32 @@ class Filter extends Component {
       formDate: '',
       toDate: '',
       dishItems: [],
-      ratingMaxValue: 0,
+      // ratingMaxValue: 0,
       cuisineFilterOptionValue: '',
       dishFilterOptionValue: '',
       ratingOptionValue: '',
+      pricing: [],
       dishTypes: [],
       cuisineTypes: [],
       latitude: '',
       longitude: '',
       // experience: 0,
       errorMessage: '',
-      ratingValue: null,
-      priceValue: 0,
+      // ratingValue: null,
+      // priceValue: 0,
       rating: [
         {
           title: '5',
-          // checked: false,
           value: [5],
         },
         {
           title: '4',
-          // checked: false,
           value: [4],
         },
         {
           title: '3',
-          // checked: false,
           value: [3],
         },
-        // {
-        //   title: '2',
-        //   // checked: false,
-        //   value: 2,
-        // },
-        // {
-        //   title: '1',
-        //   // checked: false,
-        //   value: 1,
-        // },
         {
           title: '0',
           value: [0, 1, 2],
@@ -90,6 +79,36 @@ class Filter extends Component {
           value: 1,
         },
       ],
+      price2: [
+        {
+          title: '$$$$',
+          value: {
+            min_price: 60,
+            max_price: null,
+          },
+        },
+        {
+          title: '$$$',
+          value: {
+            min_price: 40,
+            max_price: 60,
+          },
+        },
+        {
+          title: '$$',
+          value: {
+            min_price: 20,
+            max_price: 40,
+          },
+        },
+        {
+          title: '$',
+          value: {
+            min_price: 0,
+            max_price: 20,
+          },
+        },
+      ],
     }
   }
 
@@ -98,23 +117,53 @@ class Filter extends Component {
     if (filterScreenValues && Object.keys(filterScreenValues).length !== 0) {
       const value = filterScreenValues
       console.log('value.filterListValue.ratingValue', value)
-      this.setState({
-        cuisineFilterOptionValue: value.filterListValue.cuisineFilterOptionValue,
-        cuisineItems: value.filterListValue.cuisineItems,
-        dishFilterOptionValue: value.filterListValue.dishFilterOptionValue,
-        ratingOptionValue: value.filterListValue.ratingOptionValue,
-        dishItems: value.filterListValue.dishItems,
-        // minPrice: value.filterListValue.minPrice,
-        // maxPrice: value.filterListValue.maxPrice,
-        ratingMaxValue: value.filterListValue.ratingMaxValue,
-        rating: value.filterListValue.rating,
-        tabIndex: value.filterListValue.tabIndex,
-        dishTypes: value.filterListValue.dishTypes,
-        cuisineTypes: value.filterListValue.cuisineTypes,
-        ratingValue: value.filterListValue.ratingValue,
-        priceValue: value.filterListValue.priceValue,
-        // experience: value.filterListValue.experience,
-      })
+      this.setState(
+        {
+          cuisineFilterOptionValue: value.filterListValue.cuisineFilterOptionValue,
+          cuisineItems: value.filterListValue.cuisineItems,
+          dishFilterOptionValue: value.filterListValue.dishFilterOptionValue,
+          ratingOptionValue: value.filterListValue.ratingOptionValue,
+          pricing: value.filterListValue.pricing,
+          dishItems: value.filterListValue.dishItems,
+          // minPrice: value.filterListValue.minPrice,
+          // maxPrice: value.filterListValue.maxPrice,
+          // ratingMaxValue: value.filterListValue.ratingMaxValue,
+          rating: value.filterListValue.rating,
+          tabIndex: value.filterListValue.tabIndex,
+          dishTypes: value.filterListValue.dishTypes,
+          cuisineTypes: value.filterListValue.cuisineTypes,
+          // ratingValue: value.filterListValue.ratingValue,
+          // priceValue: value.filterListValue.priceValue,
+          // experience: value.filterListValue.experience,
+        },
+        async () => {
+          const {pricing} = this.state
+          const {price2} = this.state
+          if (pricing && pricing.length > 0) {
+            const temp = []
+            await price2.map(item => {
+              const localItem = item
+              const index = _.findIndex(
+                pricing,
+                pricingItem =>
+                  pricingItem.min_price == item.value.min_price &&
+                  pricingItem.max_price == item.value.max_price
+              )
+              console.log('debugging index', index)
+              if (index >= 0) {
+                localItem.checked = true
+                temp.push(localItem)
+              } else {
+                localItem.checked = false
+                temp.push(localItem)
+              }
+            })
+            this.setState({
+              price2: temp,
+            })
+          }
+        }
+      )
     }
 
     if (latitude && longitude) {
@@ -189,6 +238,39 @@ class Filter extends Component {
     this.setState({
       experience: value,
     })
+  }
+
+  onSelectPrice2 = (index, checked, item) => {
+    const {price2} = this.state
+    const temp = price2
+    if (temp[index]) {
+      temp[index].checked = !checked
+    }
+    this.setState(
+      {
+        price2: temp,
+      },
+      async () => {
+        console.log('debugging price2', price2)
+        const pricing = []
+        // let val = ''
+        // let value = ''
+        // console.log('rating', price2)
+        await price2.map((itemVal, key) => {
+          if (itemVal.checked === true) {
+            pricing.push(itemVal.value)
+            // itemVal.value.map((itemValue, itemIndex) => {
+            //   val = `${`${val},${itemValue.toString()}`}`
+            // })
+          }
+        })
+
+        // value = `{${_.trim(val, ',')}}`
+        this.setState({
+          pricing,
+        })
+      }
+    )
   }
 
   onGiveRating = (index, checked, item) => {
@@ -372,11 +454,12 @@ class Filter extends Component {
       dishFilterOptionValue,
       cuisineFilterOptionValue,
       ratingOptionValue,
+      pricing,
       cuisineItems,
       dishItems,
       // minPrice,
       // maxPrice,
-      ratingMaxValue,
+      // ratingMaxValue,
       formDate,
       toDate,
       rating,
@@ -387,10 +470,10 @@ class Filter extends Component {
       latitude,
       experience,
       errorMessage,
-      ratingValue,
-      priceValue,
+      // ratingValue,
+      // priceValue,
     } = this.state
-    console.log('ratingValue', ratingValue)
+    // console.log('ratingValue', ratingValue)
     const yesterday = moment().subtract(1, 'days')
 
     const formDateFormat = moment(formDate).format('YYYY-MM-DDTHH:mm:SS')
@@ -421,10 +504,11 @@ class Filter extends Component {
       cuisineItems,
       dishFilterOptionValue,
       ratingOptionValue,
+      pricing,
       dishItems,
       // minPrice,
       // maxPrice,
-      ratingMaxValue,
+      // ratingMaxValue,
       formDateFormat,
       toDateFormat,
       filterOption,
@@ -436,10 +520,11 @@ class Filter extends Component {
       latitude,
       experience,
       errorMessage,
-      ratingValue,
-      priceValue,
+      // ratingValue,
+      // priceValue,
     }
-    console.log('obj', obj)
+    console.log('debugging filterOption', filterOption)
+    console.log('debugging obj', obj)
     ChefListService.on(CHEF_LIST_EVENT.FILTER_LIST, this.setList)
     ChefListService.filterList(obj)
 
@@ -460,17 +545,18 @@ class Filter extends Component {
         dishItems: [],
         formDate: '',
         toDate: '',
-        ratingMaxValue: 0,
+        // ratingMaxValue: 0,
         cuisineFilterOptionValue: '',
         dishFilterOptionValue: '',
         ratingOptionValue: '',
+        pricing: [],
         longitude: '',
         latitude: '',
         dishTypes: [],
         cuisineTypes: [],
         experience: 0,
-        ratingValue: null,
-        priceValue: 0,
+        // ratingValue: null,
+        // priceValue: 0,
         errorMessage: '',
         rating: [
           {
@@ -515,11 +601,12 @@ class Filter extends Component {
           dishFilterOptionValue,
           cuisineFilterOptionValue,
           ratingOptionValue,
+          pricing,
           cuisineItems,
           dishItems,
           // minPrice,
           // maxPrice,
-          ratingMaxValue,
+          // ratingMaxValue,
           formDate,
           toDate,
           rating,
@@ -530,8 +617,8 @@ class Filter extends Component {
           latitude,
           experience,
           errorMessage,
-          ratingValue,
-          priceValue,
+          // ratingValue,
+          // priceValue,
         } = this.state
 
         const filterOption = this.checkFilters()
@@ -541,10 +628,11 @@ class Filter extends Component {
           cuisineItems,
           dishFilterOptionValue,
           ratingOptionValue,
+          pricing,
           dishItems,
           // minPrice,
           // maxPrice,
-          ratingMaxValue,
+          // ratingMaxValue,
           formDate,
           toDate,
           filterOption,
@@ -556,8 +644,8 @@ class Filter extends Component {
           latitude,
           experience,
           errorMessage,
-          ratingValue,
-          priceValue,
+          // ratingValue,
+          // priceValue,
         }
 
         ChefListService.on(CHEF_LIST_EVENT.FILTER_LIST, this.setList)
@@ -576,15 +664,16 @@ class Filter extends Component {
     const {
       // minPrice,
       // maxPrice,
-      ratingMaxValue,
+      // ratingMaxValue,
       dishFilterOptionValue,
       cuisineFilterOptionValue,
       ratingOptionValue,
+      pricing,
       latitude,
       longitude,
       experience,
-      ratingValue,
-      priceValue,
+      // ratingValue,
+      // priceValue,
       formDate,
       toDate,
     } = this.state
@@ -596,48 +685,55 @@ class Filter extends Component {
     const formDateFormat = formDate && moment(formDate).format('YYYY-MM-DDTHH:mm:SS')
     const toDateFormat = toDate && moment(toDate).format('YYYY-MM-DDTHH:mm:SS')
 
-    console.log(formDate)
-    if (priceValue && priceValue !== 0) {
-      if (priceValue === 1) {
-        minValue = 0
-        maxValue = 20
-      } else if (priceValue === 2) {
-        minValue = 20
-        maxValue = 40
-      } else if (priceValue === 3) {
-        minValue = 40
-        maxValue = 60
-      } else if (priceValue === 4) {
-        minValue = 60
-        maxValue = ''
-      }
-    }
+    // console.log(formDate)
+    // if (priceValue && priceValue !== 0) {
+    //   if (priceValue === 1) {
+    //     minValue = 0
+    //     maxValue = 20
+    //   } else if (priceValue === 2) {
+    //     minValue = 20
+    //     maxValue = 40
+    //   } else if (priceValue === 3) {
+    //     minValue = 40
+    //     maxValue = 60
+    //   } else if (priceValue === 4) {
+    //     minValue = 60
+    //     maxValue = ''
+    //   }
+    // }
+
+    console.log('debugging pricing', pricing)
 
     if (
       cuisineFilterOptionValue !== '' ||
       dishFilterOptionValue !== '' ||
       ratingOptionValue !== '' ||
-      (minValue && maxValue) ||
-      ratingMaxValue !== 0 ||
+      pricing !== [] ||
+      // (minValue && maxValue) ||
+      // ratingMaxValue !== 0 ||
       // (minPrice !== '' && maxPrice !== '')
-      ratingValue !== 0 ||
+      // ratingValue !== 0 ||
       (latitude !== '' && longitude !== '') ||
       experience !== 0
     ) {
       rangeObj = {
         rating: ratingOptionValue !== '' ? ratingOptionValue : undefined,
+        pricing: pricing !== [] ? pricing : [],
         type: 'CHEF_LIST',
         // min_rating: ratingValue !== 0 ? ratingValue : undefined,
-        min_price: minValue === '' ? null : minValue,
-        max_price: maxValue === '' ? null : maxValue,
+        // min_price: minValue === '' ? null : minValue,
+        // max_price: maxValue === '' ? null : maxValue,
         cuisine: cuisineFilterOptionValue !== '' ? cuisineFilterOptionValue : undefined,
         dish: dishFilterOptionValue !== '' ? dishFilterOptionValue : undefined,
         lat: latitude !== '' ? latitude : undefined,
         lng: longitude !== '' ? longitude : undefined,
         event_from_time: formDateFormat !== '' ? formDateFormat : undefined,
         event_to_time: toDateFormat !== '' ? toDateFormat : undefined,
+        event_gmt_from_time: formDateFormat !== '' ? LocalToGMT(formDateFormat) : undefined,
+        event_gmt_to_time: toDateFormat !== '' ? LocalToGMT(toDateFormat) : undefined,
         experience: experience !== 0 ? experience : undefined,
       }
+      console.log('rangeObj', rangeObj)
       // rangeObj = JSON.stringify(rangeObj)
       // rangeObj = JSON.stringify(rangeObj)
       return rangeObj
@@ -730,12 +826,13 @@ class Filter extends Component {
       // minPrice,
       // maxPrice,
       rating,
-      ratingMaxValue,
+      // ratingMaxValue,
       dishItems,
       cuisineItems,
-      experience,
+      // experience,
       errorMessage,
-      price,
+      // price,
+      price2,
     } = this.state
     let cuisineTypesValue = []
     let cuisineItemsValue = []
@@ -867,18 +964,15 @@ class Filter extends Component {
                       keyboardType="number-pad"
                     />
                   </Item> */}
-                  {price &&
-                    price.map((item, index) => {
+                  {price2 &&
+                    price2.map((item, index) => {
                       console.log('itemFilter', item)
                       return (
-                        <ListItem
-                          style={{borderBottomWidth: 0}}
-                          key={index}
-                          onPress={() => this.onSelectPrice(item.value)}>
-                          <Radio
-                            onPress={() => this.onSelectPrice(item.value)}
+                        <ListItem>
+                          <CheckBox
+                            checked={item.checked}
                             selectedColor={Theme.Colors.primary}
-                            selected={item.value === this.state.priceValue}
+                            onPress={() => this.onSelectPrice2(index, item.checked, item)}
                           />
                           <Body style={{marginLeft: 5}}>
                             {item.title === '$$$$' && (

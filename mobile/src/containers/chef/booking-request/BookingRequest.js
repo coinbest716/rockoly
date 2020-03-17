@@ -102,7 +102,7 @@ class BookingRequest extends Component {
           NOTIFICATION_LIST_EVENT.UPDATING_NOTIFICATION_LIST,
           this.loadNotification()
         )
-
+        BookingHistoryService.bookingSubsByChef(currentUser.chefId)
         this.onAddBackHandler()
         this.loadInitialData()
         this.checkProfileApproved()
@@ -181,7 +181,6 @@ class BookingRequest extends Component {
         //     firebase.notifications().setBadge(profile.totalUnreadCount)
         //   }
         // }
-        BookingHistoryService.bookingSubsByChef(currentUser.chefId)
       }
     }
   }
@@ -369,8 +368,9 @@ class BookingRequest extends Component {
     }
   }
 
-  updatedList = ({data}) => {
+  updatedList = data => {
     // if (data !== null && data !== undefined && data !== '' && data !== {}) {
+    console.log('debugging subscription listened data', data)
     this.loadInitialData()
     // }
   }
@@ -393,7 +393,19 @@ class BookingRequest extends Component {
             pFromTime: fromTime,
             pToTime: toTime,
             chefId: currentUser.chefId,
-            // statusId: ['"CUSTOMER_REQUESTED"', '"CHEF_ACCEPTED"'],
+            statusId: [
+              '"CUSTOMER_REQUESTED"',
+              '"CHEF_ACCEPTED"',
+              '"AMOUNT_TRANSFER_SUCCESS"',
+              '"CHEF_REJECTED"',
+              '"CANCELLED_BY_CHEF"',
+              '"CANCELLED_BY_CUSTOMER"',
+              '"COMPLETED"',
+              '"AMOUNT_TRANSFER_FAILED"',
+              '"REFUND_AMOUNT_SUCCESS"',
+              '"REFUND_AMOUNT_FAILED"',
+              '"CHEF_REQUESTED_AMOUNT"',
+            ],
           })
 
           BookingHistoryService.getBookingHistoryList(gqlValue)

@@ -2,8 +2,8 @@
 
 import React, {PureComponent} from 'react'
 import {ScrollView, View, TouchableOpacity, Platform, Image} from 'react-native'
-import {GiftedChat, Actions, Bubble, Send} from 'react-native-gifted-chat'
-import {Text, Icon, Button, Textarea, Form} from 'native-base'
+import {GiftedChat, Actions, Bubble, Message, Send} from 'react-native-gifted-chat'
+import {Text, Icon, Button, Textarea, Form, ListItem} from 'native-base'
 import moment from 'moment'
 import _ from 'lodash'
 import {Header, CommonButton, Spinner, CommonList} from '@components'
@@ -14,7 +14,7 @@ import {
   COMMON_LIST_NAME,
   CommonService,
 } from '@services'
-import {dbDateFormat} from '@utils'
+import {dbDateFormat, displayDateTimeFormat} from '@utils'
 import {Theme} from '@theme'
 import {Images} from '@images'
 import styles from './styles'
@@ -80,6 +80,24 @@ export default class ChatDetail extends PureComponent {
         conversationPic: navigation.state.params.conversationPic,
         userDetails: navigation.state.params.userDetails,
       })
+    } else if (
+      navigation &&
+      navigation.state.params &&
+      navigation.state.params.userDetails &&
+      navigation.state.params.userDetails.conversationHistId
+    ) {
+      this.setState(
+        {
+          conversationName: navigation.state.params.conversationName,
+          conversationPic: navigation.state.params.conversationPic,
+          userDetails: navigation.state.params.userDetails,
+          conversationId: navigation.state.params.userDetails.conversationHistId,
+        },
+        () => {
+          BookingNotesService.fetchNotesSubscription(this.state.conversationId)
+          this.loadInitialData()
+        }
+      )
     }
   }
 
@@ -111,20 +129,22 @@ export default class ChatDetail extends PureComponent {
     this.fetchMessageListCount()
   }
 
-  setChatList = chatNotes => {
-    console.log('chatNotes', chatNotes)
+  setChatList = conversationId => {
+    this.setState(
+      {
+        conversationId,
+      },
+      () => {
+        BookingNotesService.fetchNotesSubscription(this.state.conversationId)
+        this.loadInitialData()
+      }
+    )
   }
 
   onSend = (messages = []) => {
     const {conversationId, userDetails} = this.state
     const {currentUser} = this.context
-    console.log(currentUser.customerId)
-    if (userDetails.conversationHistId === null) {
-      const message = messages[0].text ? JSON.stringify(messages[0].text) : null
-      BookingNotesService.on(BOOKING_NOTES.CREATE_CHAT, this.setChatList)
-      BookingNotesService.createChat(userDetails.chefId, currentUser.customerId, message)
-    } else if (conversationId) {
-      console.log(conversationId)
+    if (conversationId !== null && conversationId !== '' && conversationId !== undefined) {
       const obj = {
         fromEntityId: messages[0].user._id,
         conversationHistId: conversationId,
@@ -132,6 +152,10 @@ export default class ChatDetail extends PureComponent {
       }
       BookingNotesService.on(BOOKING_NOTES.BOOKING_NOTES_ADDED, this.updatedNotesDetail)
       BookingNotesService.addBookingNotes(obj)
+    } else if (userDetails && userDetails.conversationHistId === null) {
+      const message = messages[0].text ? JSON.stringify(messages[0].text) : null
+      BookingNotesService.on(BOOKING_NOTES.CREATE_CHAT, this.setChatList)
+      BookingNotesService.createChat(userDetails.chefId, currentUser.customerId, message)
     }
   }
 
@@ -181,6 +205,13 @@ export default class ChatDetail extends PureComponent {
 
   setNotesDetail = ({bookingNotesDetail}) => {
     const {conversationName, conversationPic, totalCount} = this.state
+    console.log(
+      'bookingNotesDetail',
+      bookingNotesDetail,
+      conversationName,
+      conversationPic,
+      totalCount
+    )
     this.setState({
       isFetching: false,
       isLoadingEarlier: false,
@@ -194,23 +225,39 @@ export default class ChatDetail extends PureComponent {
     }
 
     if (bookingNotesDetail && bookingNotesDetail.length > 0) {
+      console.log('CheckingBooking', bookingNotesDetail)
       const temp = []
       bookingNotesDetail.map((item, key) => {
+        console.log('item', item)
+        let text = ''
+        try {
+          text = JSON.parse(item.msgText)
+        } catch (e) {
+          text = item.msgText
+        }
         const obj = {
           _id: item.messageHistoryId,
-          text: item.msgText ? JSON.parse(item.msgText) : null,
+          text: text || null,
           createdAt: new Date(moment.utc(item.createdAt).local()),
+          msgType: item.msgType,
           user: {
             _id: item.fromEntityId,
             name: conversationName,
             avatar: picId || Images.common.defaultAvatar,
           },
         }
+        console.log('obj', obj)
         temp.push(obj)
       })
-      this.setState({
-        messages: temp,
-      })
+      console.log('temp', temp)
+      this.setState(
+        {
+          messages: temp,
+        },
+        () => {
+          console.log('messages', this.state.messages)
+        }
+      )
     } else {
       this.setState({
         messages: [],
@@ -266,33 +313,51 @@ export default class ChatDetail extends PureComponent {
     )
   }
 
+  renderMessage = props => {
+    const {currentMessage} = props
+
+    if (
+      currentMessage &&
+      currentMessage.msgType &&
+      currentMessage.msgType.trim() === 'NEW_MESSAGE'
+    ) {
+      return <Message {...props} />
+    }
+
+    return (
+      <View style={styles.infoContainer}>
+        <Text style={styles.btnText}>{currentMessage.text}</Text>
+        <Text style={styles.btnTimeText}>
+          {moment(currentMessage.createdAt).format('DD-MMM-YYYY hh:mm A')}
+        </Text>
+      </View>
+    )
+  }
+
   renderChat = () => {
     const {
       messages,
       isFetching,
       isLoadingEarlier,
-      loadEarlier,
-      bookingStatusId,
-      bookingHisId,
       bookingFromTime,
       bookingToTime,
+      loadEarlier,
+      bookingStatusId,
     } = this.state
-    console.log('bookingHisId', bookingHisId)
+    console.log('bookingHisId', messages)
 
     const bookingEndTime = moment(bookingToTime)
       .add(3, 'days')
       .format(dbDateFormat)
 
     const now = moment(new Date()).format(dbDateFormat)
-
-    console.log('bookingEndTime', bookingEndTime, now)
-
     const {currentUser} = this.context
     if (isFetching) {
       return <Spinner mode="full" />
     }
     return (
       <GiftedChat
+        renderMessage={this.renderMessage}
         messages={messages}
         onSend={this.onSend}
         renderSend={this.renderSend}
@@ -305,7 +370,9 @@ export default class ChatDetail extends PureComponent {
         // minComposerHeight={status ? 0 : undefined}
         // maxComposerHeight={status ? 0 : undefined}
         // minInputToolbarHeight={status ? 0 : undefined}
+
         renderInputToolbar={
+          bookingStatusId &&
           bookingStatusId !== '' &&
           (bookingStatusId.trim() === 'AMOUNT_TRANSFER_SUCCESS' ||
             bookingStatusId.trim() === 'AMOUNT_TRANSFER_FAILED' ||
@@ -337,7 +404,7 @@ export default class ChatDetail extends PureComponent {
           navigation={navigation}
           showTitle
           title={conversationName}
-          showDetail
+          showDetail={!!bookingHisId}
           bookingHisId={bookingHisId}
         />
         {this.renderChat()}

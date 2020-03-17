@@ -8,6 +8,7 @@ import {GQL} from '@common'
 
 export const BOOKING_HISTORY_LIST_EVENT = {
   BOOKING_HISTORY_LIST: 'BOOKING_HISTORY/BOOKING_HISTORY_LIST',
+  BOOKING_HISTORY_LIST2: 'BOOKING_HISTORY/BOOKING_HISTORY_LIST2',
   BOOKING_HISTORY_STATUS_UPDATED: 'BOOKING_HISTORY/BOOKING_HISTORY_STATUS_UPDATED',
   BOOKING_HISTORY_UPDATING: 'BOOKING_HISTORY_UPDATING',
 }
@@ -61,6 +62,7 @@ class BookingHistoryService extends BaseService {
         })
         .subscribe(
           res => {
+            console.log('debugging subscription called', res)
             this.bookingHistory = res
             this.emit(BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_UPDATING, {bookingHistory: res})
           },
@@ -179,6 +181,41 @@ class BookingHistoryService extends BaseService {
         reject(e)
       }
     })
+  }
+
+  getBookingHistoryList2 = async gqlValue => {
+    console.log('getBookingHistoryList')
+
+    try {
+      const query = gql`
+        ${gqlValue}
+      `
+      this.client
+        .query({
+          query,
+          fetchPolicy: 'network-only',
+        })
+        .then(({data}) => {
+          console.log('data getBookingHistoryList', data)
+          if (
+            data &&
+            data.listBookingByDateRange &&
+            data.listBookingByDateRange.nodes &&
+            data.listBookingByDateRange.nodes.length
+          ) {
+            this.emit(BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_LIST2, {
+              bookingHistory: data.listBookingByDateRange.nodes,
+            })
+          } else {
+            this.emit(BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_LIST2, {bookingHistory: []})
+          }
+        })
+        .catch(() => {
+          this.emit(BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_LIST2, {bookingHistory: []})
+        })
+    } catch (e) {
+      this.emit(BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_LIST2, {bookingHistory: []})
+    }
   }
 
   getBookingHistoryList = async gqlValue => {

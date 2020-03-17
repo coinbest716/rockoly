@@ -52,10 +52,15 @@ export class BookingHistory extends Component {
   }
 
   componentWillReceiveProps(nxtprops) {
-    console.log('nxtprops.bookingHistoryList', nxtprops.bookingHistoryList)
     if (nxtprops.bookingHistoryList) {
+      let val = []
+      _.find(nxtprops.bookingHistoryList, function(o) {
+        if (o.chefBookingStatusId && o.chefBookingStatusId.trim() !== 'PAYMENT_PENDING') {
+          val.push(o)
+        }
+      })
       this.setState({
-        allBookingHistory: nxtprops.bookingHistoryList,
+        allBookingHistory: val,
         duplicateData: nxtprops.bookingHistoryList,
       })
     }
@@ -64,7 +69,7 @@ export class BookingHistory extends Component {
   componentWillUnmount() {
     this.props.getBookingListUnmount()
   }
-
+  // _.findIndex(users, function(o) { return o.user == 'barney'; });
   getTableData = ArrayData => {
     let newVal = []
     newVal = ArrayData
@@ -441,7 +446,7 @@ export class BookingHistory extends Component {
         key: 'chefBookingTotalPriceValue',
         sorter: (a, b) => a.chefBookingTotalPriceValue - b.chefBookingTotalPriceValue,
         render(val) {
-          return <div style={CommonStyles.grayText}>{val ? `$ ${val}` : '-'}</div>
+          return <div style={CommonStyles.grayText}>{val ? `$ ${val.toFixed(2)}` : '-'}</div>
         },
       },
       {

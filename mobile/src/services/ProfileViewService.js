@@ -68,7 +68,7 @@ class ProfileViewService extends BaseService {
     })
   }
 
-  getProfileDetails = async chefIdData => {
+  getProfileDetails = async (chefIdData, customerIdData) => {
     const gqlValue = GQL.query.chef.profileByIdGQLTAG
     const query = gql`
       ${gqlValue}
@@ -78,6 +78,7 @@ class ProfileViewService extends BaseService {
         query,
         variables: {
           chefId: chefIdData,
+          pCustomerId: customerIdData,
         },
         fetchPolicy: 'network-only',
       })

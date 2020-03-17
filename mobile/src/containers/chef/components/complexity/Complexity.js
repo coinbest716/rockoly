@@ -107,9 +107,9 @@ export default class Complexity extends Component {
         Alert.alert('Info', 'Number of menu items should be greater than 0.')  
       } else if( 
 
-         (parseInt(max1) < parseInt(min1)) ||
-         (parseInt(max2) < parseInt(min2)) || 
-         (parseInt(max3) < parseInt(min3)) ||
+         (parseInt(max1) <= parseInt(min1)) ||
+         (parseInt(max2) <= parseInt(min2)) || 
+         (parseInt(max3) <= parseInt(min3)) ||
 
 
          !Number.isInteger(parseFloat(min1)) ||

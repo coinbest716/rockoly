@@ -36,90 +36,101 @@ export default class BookDietary extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      bookingData: {},
+      bookingDetail: {},
+      chefProfile: {},
     }
   }
 
   componentDidMount() {
     const {navigation} = this.props
     if (navigation.state.params && navigation.state.params.bookingValue) {
-      const {bookingValue} = navigation.state.params
+      const {bookingValue, chefProfile} = navigation.state.params
       this.setState({
-        bookingData: bookingValue,
+        bookingDetail: bookingValue,
+        chefProfile,
       })
     }
   }
 
   getDietaryValue = dietaryValue => {
     const {navigation} = this.props
-    const {bookingData} = this.state
-    console.log('bookingData', bookingData)
-    if (bookingData) {
-      BookingHistoryService.bookNow({
-        stripeCustomerId: null,
-        cardId: null,
-        chefId: bookingData.chefId,
-        customerId: bookingData.customerId,
-        fromTime: LocalToGMT(bookingData.fromTime),
-        toTime: LocalToGMT(bookingData.toTime),
-        notes: null,
-        dishTypeId: null,
-        summary: bookingData.summary ? JSON.stringify(bookingData.summary) : null,
-        allergyTypeIds: bookingData.allergyTypeIds ? bookingData.allergyTypeIds : null,
-        otherAllergyTypes: bookingData.otherAllergyTypes ? bookingData.otherAllergyTypes : null,
-        dietaryRestrictionsTypesIds: dietaryValue.customerDietaryRestrictionsTypeId
-          ? dietaryValue.customerDietaryRestrictionsTypeId
-          : null,
-        otherDietaryRestrictionsTypes: dietaryValue.customerOtherDietaryRestrictionsTypes
-          ? dietaryValue.customerOtherDietaryRestrictionsTypes
-          : null,
-        kitchenEquipmentTypeIds: null,
-        otherKitchenEquipmentTypes: null,
-        storeTypeIds: null,
-        otherStoreTypes: null,
-        noOfGuests: null,
-        complexity: null,
-        additionalServices: null,
-        locationAddress: bookingData.locationAddress ? bookingData.locationAddress : null,
-        locationLat: bookingData.locationLat ? bookingData.locationLat : null,
-        locationLng: bookingData.locationLng ? bookingData.locationLng : null,
-        addrLine1: bookingData.addrLine1 ? bookingData.addrLine1 : null,
-        addrLine2: bookingData.addrLine2 ? bookingData.addrLine2 : null,
-        state: bookingData.state ? bookingData.state : null,
-        country: bookingData.country ? bookingData.country : null,
-        city: bookingData.city ? bookingData.city : null,
-        postalCode: bookingData.postalCode ? bookingData.postalCode : null,
-        isDraftYn: true,
-        bookingHistId: bookingData.bookingHistId,
-      })
+    const {bookingDetail, chefProfile} = this.state
+    console.log('bookingDetail', bookingDetail)
+
+    const variables = {
+      stripeCustomerId: null,
+      cardId: null,
+
+      chefId: bookingDetail.chefId,
+      customerId: bookingDetail.customerId,
+
+      fromTime: bookingDetail.fromTime,
+      toTime: bookingDetail.toTime,
+
+      summary: bookingDetail.summary ? bookingDetail.summary : null,
+
+      bookingHistId: bookingDetail.bookingHistId,
+
+      isDraftYn: true,
+
+      locationAddress: bookingDetail.locationAddress ? bookingDetail.locationAddress : null,
+      locationLat: bookingDetail.locationLat ? bookingDetail.locationLat : null,
+      locationLng: bookingDetail.locationLng ? bookingDetail.locationLng : null,
+
+      addrLine1: bookingDetail.addrLine1 ? bookingDetail.addrLine1 : null,
+      addrLine2: bookingDetail.addrLine2 ? bookingDetail.addrLine2 : null,
+      city: bookingDetail.city ? bookingDetail.city : null,
+      state: bookingDetail.state ? bookingDetail.state : null,
+      country: bookingDetail.country ? bookingDetail.country : null,
+      postalCode: bookingDetail.postalCode ? bookingDetail.postalCode : null,
+
+      allergyTypeIds: bookingDetail.allergyTypeIds ? bookingDetail.allergyTypeIds : null,
+
+      otherAllergyTypes: bookingDetail.otherAllergyTypes ? bookingDetail.otherAllergyTypes : null,
+
+      dietaryRestrictionsTypesIds: dietaryValue.customerDietaryRestrictionsTypeId
+        ? dietaryValue.customerDietaryRestrictionsTypeId
+        : bookingDetail.dietaryRestrictionsTypesIds
+        ? bookingDetail.dietaryRestrictionsTypesIds
+        : null,
+
+      otherDietaryRestrictionsTypes: dietaryValue.customerOtherDietaryRestrictionsTypes
+        ? dietaryValue.customerOtherDietaryRestrictionsTypes
+        : bookingDetail.otherDietaryRestrictionsTypes
+        ? bookingDetail.otherDietaryRestrictionsTypes
+        : null,
+
+      kitchenEquipmentTypeIds: bookingDetail.kitchenEquipmentTypeIds
+        ? bookingDetail.kitchenEquipmentTypeIds
+        : null,
+
+      otherKitchenEquipmentTypes: bookingDetail.otherKitchenEquipmentTypes
+        ? bookingDetail.otherKitchenEquipmentTypes
+        : null,
+
+      noOfGuests: bookingDetail.noOfGuests ? bookingDetail.noOfGuests : null,
+
+      complexity: bookingDetail.complexity ? bookingDetail.complexity : null,
+
+      storeTypeIds: bookingDetail.storeTypeIds ? bookingDetail.storeTypeIds : null,
+
+      otherStoreTypes: bookingDetail.otherStoreTypes ? bookingDetail.otherStoreTypes : null,
+
+      additionalServices: bookingDetail.additionalServices
+        ? bookingDetail.additionalServices
+        : null,
+
+      dishTypeId: bookingDetail.dishTypeId ? bookingDetail.dishTypeId : null,
+    }
+    console.log('variables', variables)
+
+    if (bookingDetail) {
+      BookingHistoryService.bookNow(variables)
         .then(detail => {
-          const bookingValue = {
-            chefId: bookingData.chefId,
-            customerId: bookingData.customerId,
-            fromTime: LocalToGMT(bookingData.fromTime),
-            toTime: LocalToGMT(bookingData.toTime),
-            summary: bookingData.summary,
-            chefProfile: bookingData.chefProfile,
-            allergyTypeIds: bookingData.allergyTypeIds,
-            otherAllergyTypes: bookingData.otherAllergyTypes,
-            dietaryRestrictionsTypesIds: dietaryValue.customerDietaryRestrictionsTypeId
-              ? dietaryValue.customerDietaryRestrictionsTypeId
-              : null,
-            otherDietaryRestrictionsTypes: dietaryValue.customerOtherDietaryRestrictionsTypes
-              ? dietaryValue.customerOtherDietaryRestrictionsTypes
-              : null,
-            locationAddress: bookingData.locationAddress,
-            locationLat: bookingData.locationLat,
-            locationLng: bookingData.locationLng,
-            addrLine1: bookingData.addrLine1,
-            addrLine2: bookingData.addrLine2,
-            state: bookingData.state,
-            country: bookingData.country,
-            city: bookingData.city,
-            postalCode: bookingData.postalCode,
-            bookingHistId: bookingData.bookingHistId,
-          }
-          navigation.navigate(RouteNames.BOOK_KITCHEN_EQUIPMENT, {bookingValue})
+          navigation.navigate(RouteNames.BOOK_KITCHEN_EQUIPMENT, {
+            bookingValue: variables,
+            chefProfile,
+          })
         })
         .catch(err => {
           console.log('err', err)

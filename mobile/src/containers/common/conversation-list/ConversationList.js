@@ -396,7 +396,11 @@ export default class ConversationList extends PureComponent {
     }
 
     if (details.conversationLastMessage) {
-      lastMessage = JSON.parse(details.conversationLastMessage)
+      try {
+        lastMessage = JSON.parse(details.conversationLastMessage)
+      } catch (e) {
+        lastMessage = ''
+      }
     }
 
     if (details.conversationDetails) {
