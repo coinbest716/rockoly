@@ -540,67 +540,73 @@ class ChefProfileService extends BaseService {
   getChefAttachments = (userId, sectionType, galleryImages) => {
     try {
       const data = []
-      const randNo = Math.floor(Math.random() * 9000000000) + 1000000000
       if (galleryImages.length > 0) {
-        console.log('Uploading image started', new Date())
+        console.log('Uploading image started', galleryImages, new Date())
         galleryImages.map((info, key) => {
-          const dateTime = new Date().getTime()
-          const unsubscribe = storageRef
-            .child(`${userId}/${sectionType}/${dateTime}_${randNo}`) // ref/chef_id/{CERITIFICATION/GALLERY/}/rand_datetime.format
-
-            .putFile(info.uri, {contentType: info.mime})
-            .on(
-              firebase.storage.TaskEvent.STATE_CHANGED,
-              res => {
-                if (res.bytesTransferred > 0) {
-                  const progress = (res.totalBytes / res.bytesTransferred) * 100
-                  console.log('Uploading progress', key, ' ', Math.round(progress), new Date())
-                } else {
-                  console.log('Uploading no bytes transferred', key)
-                }
-
-                if (res.state === firebase.storage.TaskState.SUCCESS) {
-                  unsubscribe()
-                  console.log(`Uploading image ${key} completed `, new Date())
-                  let obj = {}
-                  if (_.startsWith(res.metadata.contentType, 'image')) {
-                    obj = {
-                      pAttachmentUrl: res.downloadURL,
-                      pAttachmentType: 'IMAGE',
-                      pAttachmentAreaSection: sectionType,
-                    }
-                    data.push(obj)
-                  } else if (
-                    (_.startsWith(res.metadata.contentType, 'application') &&
-                      res.metadata.contentType === 'application/pdf') ||
-                    (_.startsWith(res.metadata.contentType, 'application') &&
-                      res.metadata.contentType === 'application/msword') ||
-                    _.endsWith(res.metadata.contentType, '.document')
-                  ) {
-                    obj = {
-                      pAttachmentUrl: res.downloadURL,
-                      pAttachmentType: 'DOCUMENT',
-                      pAttachmentAreaSection: sectionType,
-                    }
-                    data.push(obj)
-                  }
-                  if (galleryImages.length === data.length) {
-                    console.log('Uploading all image completed', new Date(), data)
-                    this.attachments = data
-                    this.emit(PROFILE_DETAIL_EVENT.GET_CHEF_PROFILE_ATTACHMENTS, {
-                      attachments: data,
-                    })
-                  }
-                }
-              },
-              error => {
-                console.log('error', error)
-                unsubscribe()
-                this.attachments = data
-                this.emit(PROFILE_DETAIL_EVENT.GET_CHEF_PROFILE_ATTACHMENTS, {attachments: data})
-              }
+          setTimeout(() => {
+            const randNo = Math.floor(Math.random() * 9000000000) + 1000000000
+            const dateTime = new Date().getTime()
+            console.log(
+              'debugging ${userId}/${sectionType}/${dateTime}_${randNo}_${key}',
+              `${userId}/${sectionType}/${dateTime}_${randNo}_${key}`
             )
-        })
+            const unsubscribe = storageRef
+              .child(`${userId}/${sectionType}/${dateTime}_${randNo}_${key}`) // ref/chef_id/{CERITIFICATION/GALLERY/}/rand_datetime.format
+
+              .putFile(info.uri, {contentType: info.mime})
+              .on(
+                firebase.storage.TaskEvent.STATE_CHANGED,
+                res => {
+                  if (res.bytesTransferred > 0) {
+                    const progress = (res.totalBytes / res.bytesTransferred) * 100
+                    console.log('Uploading progress', key, ' ', Math.round(progress), new Date())
+                  } else {
+                    console.log('Uploading no bytes transferred', key)
+                  }
+
+                  if (res.state === firebase.storage.TaskState.SUCCESS) {
+                    unsubscribe()
+                    console.log(`Uploading image ${key} completed `, new Date())
+                    let obj = {}
+                    if (_.startsWith(res.metadata.contentType, 'image')) {
+                      obj = {
+                        pAttachmentUrl: res.downloadURL,
+                        pAttachmentType: 'IMAGE',
+                        pAttachmentAreaSection: sectionType,
+                      }
+                      data.push(obj)
+                    } else if (
+                      (_.startsWith(res.metadata.contentType, 'application') &&
+                        res.metadata.contentType === 'application/pdf') ||
+                      (_.startsWith(res.metadata.contentType, 'application') &&
+                        res.metadata.contentType === 'application/msword') ||
+                      _.endsWith(res.metadata.contentType, '.document')
+                    ) {
+                      obj = {
+                        pAttachmentUrl: res.downloadURL,
+                        pAttachmentType: 'DOCUMENT',
+                        pAttachmentAreaSection: sectionType,
+                      }
+                      data.push(obj)
+                    }
+                    if (galleryImages.length === data.length) {
+                      console.log('Uploading all image completed', new Date(), data)
+                      this.attachments = data
+                      this.emit(PROFILE_DETAIL_EVENT.GET_CHEF_PROFILE_ATTACHMENTS, {
+                        attachments: data,
+                      })
+                    }
+                  }
+                },
+                error => {
+                  console.log('error', error)
+                  unsubscribe()
+                  this.attachments = data
+                  this.emit(PROFILE_DETAIL_EVENT.GET_CHEF_PROFILE_ATTACHMENTS, {attachments: data})
+                }
+              )
+          })
+        }, 500)
       } else {
         this.attachments = data
         this.emit(PROFILE_DETAIL_EVENT.GET_CHEF_PROFILE_ATTACHMENTS, {attachments: data})

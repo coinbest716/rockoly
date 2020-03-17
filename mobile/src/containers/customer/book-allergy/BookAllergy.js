@@ -36,22 +36,24 @@ export default class BookAllergy extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      bookingData: {},
+      bookingDetail: {},
+      chefProfile: {},
     }
   }
 
   componentDidMount() {
     const {navigation} = this.props
 
-    if (navigation.state.params && navigation.state.params.bookingData) {
-      const {bookingData} = navigation.state.params
+    if (navigation.state.params && navigation.state.params.bookingDetail) {
+      const {bookingDetail, chefProfile} = navigation.state.params
       console.log()
       this.setState(
         {
-          bookingData,
+          bookingDetail,
+          chefProfile,
         },
         () => {
-          console.log('this.state', this.state.bookingData)
+          console.log('this.state', this.state.bookingDetail)
         }
       )
     }
@@ -59,72 +61,83 @@ export default class BookAllergy extends Component {
 
   getAllergyValue = allergyValue => {
     const {navigation} = this.props
-    const {bookingData} = this.state
-    console.log('allergyValue', allergyValue, bookingData)
-    if (bookingData) {
-      BookingHistoryService.bookNow({
-        stripeCustomerId: null,
-        cardId: null,
-        chefId: bookingData.chefId,
-        customerId: bookingData.customerId,
-        fromTime: LocalToGMT(bookingData.chefBookingFromTime),
-        toTime: LocalToGMT(bookingData.chefBookingToTime),
-        notes: null,
-        dishTypeId: null,
-        summary: bookingData.summary ? JSON.stringify(bookingData.summary) : null,
-        allergyTypeIds: allergyValue.customerAllergyTypeId
-          ? allergyValue.customerAllergyTypeId
-          : null,
-        otherAllergyTypes: allergyValue.customerOtherAllergyTypes
-          ? allergyValue.customerOtherAllergyTypes
-          : null,
-        dietaryRestrictionsTypesIds: null,
-        otherDietaryRestrictionsTypes: null,
-        kitchenEquipmentTypeIds: null,
-        otherKitchenEquipmentTypes: null,
-        storeTypeIds: null,
-        otherStoreTypes: null,
-        noOfGuests: null,
-        complexity: null,
-        additionalServices: null,
-        locationAddress: bookingData.locationAddress ? bookingData.locationAddress : null,
-        locationLat: bookingData.locationLat ? bookingData.locationLat : null,
-        locationLng: bookingData.locationLng ? bookingData.locationLng : null,
-        addrLine1: bookingData.addrLine1 ? bookingData.addrLine1 : null,
-        addrLine2: bookingData.addrLine2 ? bookingData.addrLine2 : null,
-        state: bookingData.state ? bookingData.state : null,
-        country: bookingData.country ? bookingData.country : null,
-        city: bookingData.city ? bookingData.city : null,
-        postalCode: bookingData.postalCode ? bookingData.postalCode : null,
-        isDraftYn: true,
-        bookingHistId: bookingData.bookingHistId,
-      })
+    const {bookingDetail, chefProfile} = this.state
+    const variables = {
+      stripeCustomerId: null,
+      cardId: null,
+
+      chefId: bookingDetail.chefId,
+      customerId: bookingDetail.customerId,
+
+      fromTime: bookingDetail.fromTime,
+      toTime: bookingDetail.toTime,
+
+      summary: bookingDetail.summary ? bookingDetail.summary : null,
+
+      bookingHistId: bookingDetail.bookingHistId,
+
+      isDraftYn: true,
+
+      locationAddress: bookingDetail.locationAddress ? bookingDetail.locationAddress : null,
+      locationLat: bookingDetail.locationLat ? bookingDetail.locationLat : null,
+      locationLng: bookingDetail.locationLng ? bookingDetail.locationLng : null,
+
+      addrLine1: bookingDetail.addrLine1 ? bookingDetail.addrLine1 : null,
+      addrLine2: bookingDetail.addrLine2 ? bookingDetail.addrLine2 : null,
+      city: bookingDetail.city ? bookingDetail.city : null,
+      state: bookingDetail.state ? bookingDetail.state : null,
+      country: bookingDetail.country ? bookingDetail.country : null,
+      postalCode: bookingDetail.postalCode ? bookingDetail.postalCode : null,
+
+      allergyTypeIds: allergyValue.customerAllergyTypeId
+        ? allergyValue.customerAllergyTypeId
+        : bookingDetail.allergyTypeIds
+        ? bookingDetail.allergyTypeIds
+        : null,
+
+      otherAllergyTypes: allergyValue.customerOtherAllergyTypes
+        ? allergyValue.customerOtherAllergyTypes
+        : bookingDetail.otherAllergyTypes
+        ? bookingDetail.otherAllergyTypes
+        : null,
+
+      dietaryRestrictionsTypesIds: bookingDetail.dietaryRestrictionsTypesIds
+        ? bookingDetail.dietaryRestrictionsTypesIds
+        : null,
+
+      otherDietaryRestrictionsTypes: bookingDetail.otherDietaryRestrictionsTypes
+        ? bookingDetail.otherDietaryRestrictionsTypes
+        : null,
+
+      kitchenEquipmentTypeIds: bookingDetail.kitchenEquipmentTypeIds
+        ? bookingDetail.kitchenEquipmentTypeIds
+        : null,
+
+      otherKitchenEquipmentTypes: bookingDetail.otherKitchenEquipmentTypes
+        ? bookingDetail.otherKitchenEquipmentTypes
+        : null,
+
+      noOfGuests: bookingDetail.noOfGuests ? bookingDetail.noOfGuests : null,
+
+      complexity: bookingDetail.complexity ? bookingDetail.complexity : null,
+
+      storeTypeIds: bookingDetail.storeTypeIds ? bookingDetail.storeTypeIds : null,
+
+      otherStoreTypes: bookingDetail.otherStoreTypes ? bookingDetail.otherStoreTypes : null,
+
+      additionalServices: bookingDetail.additionalServices
+        ? bookingDetail.additionalServices
+        : null,
+
+      dishTypeId: bookingDetail.dishTypeId ? bookingDetail.dishTypeId : null,
+    }
+    if (bookingDetail) {
+      BookingHistoryService.bookNow(variables)
         .then(detail => {
-          const bookingValue = {
-            chefId: bookingData.chefId,
-            customerId: bookingData.customerId,
-            fromTime: LocalToGMT(bookingData.chefBookingFromTime),
-            toTime: LocalToGMT(bookingData.chefBookingToTime),
-            summary: bookingData.summary,
-            chefProfile: bookingData.chefProfile,
-            allergyTypeIds: allergyValue.customerAllergyTypeId
-              ? allergyValue.customerAllergyTypeId
-              : null,
-            otherAllergyTypes: allergyValue.customerOtherAllergyTypes
-              ? allergyValue.customerOtherAllergyTypes
-              : null,
-            locationAddress: bookingData.locationAddress,
-            locationLat: bookingData.locationLat,
-            locationLng: bookingData.locationLng,
-            addrLine1: bookingData.addrLine1,
-            addrLine2: bookingData.addrLine2,
-            state: bookingData.state,
-            country: bookingData.country,
-            city: bookingData.city,
-            postalCode: bookingData.postalCode,
-            bookingHistId: bookingData.bookingHistId,
-          }
-          navigation.navigate(RouteNames.BOOK_DIETARY, {bookingValue})
+          navigation.navigate(RouteNames.BOOK_DIETARY, {
+            bookingValue: variables,
+            chefProfile,
+          })
         })
         .catch(err => {
           console.log('err', err)
@@ -133,11 +146,11 @@ export default class BookAllergy extends Component {
   }
 
   render() {
-    const {bookingData} = this.state
+    const {bookingDetail} = this.state
     return (
       <View style={{flex: 1}}>
         <Header showBack title={Languages.book.labels.allergy} showBell={false} />
-        <Allergies getValue={this.getAllergyValue} bookingData={bookingData} hideSave />
+        <Allergies getValue={this.getAllergyValue} bookingData={bookingDetail} hideSave />
         {Platform.OS === 'ios' && <KeyboardSpacer />}
       </View>
     )

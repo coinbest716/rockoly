@@ -429,6 +429,9 @@ export class BookingDetails extends Component {
     console.log('stripePercentage', requestedDetails)
     let summary = ''
     let NoofPeople = 0
+    let chefTotalPrice = 0
+    let guestPrice = 0
+    let guestCount = 0
     let additionalNoOfPeople = 0
     let OtherAllergy = ''
     let kitchenEquipment = ''
@@ -490,6 +493,15 @@ export class BookingDetails extends Component {
     }
     if (NoofPeople && NoofPeople <= 5) {
       chefCharge = chefprice * NoofPeople
+    }
+    if (NoofPeople && chefprice) {
+      chefTotalPrice = chefprice * NoofPeople
+    }
+    if (NoofPeople) {
+      guestCount = NoofPeople - 5
+    }
+    if (chefprice) {
+      guestPrice = chefprice / 2
     }
     if (NoofPeople && NoofPeople > 5) {
       firstChefCharge = chefprice * 5
@@ -895,15 +907,20 @@ export class BookingDetails extends Component {
                 {NoofPeople > 5 ? (
                   <div>
                     <div style={Styles.fieldView}>
-                      <p style={Styles.titleStyle}>{'Chef charge for first 5 guests:'}</p>
+                      <p style={Styles.titleStyle}>
+                        {'Chef Base rate'}(${chefprice}) X ({NoofPeople}):
+                      </p>
                       <div style={Styles.valueStyle}>
-                        {firstChefCharge ? `$ ${firstChefCharge.toFixed(2)}` : '-'}
+                        {chefTotalPrice ? `$ ${chefTotalPrice.toFixed(2)}` : '-'}
                       </div>
                     </div>
                     <div style={Styles.fieldView}>
-                      <p style={Styles.titleStyle}>{'Chef charge for after 5 guests:'}</p>
+                      <p style={Styles.titleStyle}>
+                        {'Discount - Over 5'}({guestCount}) guests half chef Base rate ($
+                        {guestPrice}):
+                      </p>
                       <div style={Styles.valueStyle}>
-                        {remChefCharge ? `$ ${remChefCharge.toFixed(2)}` : '-'}
+                        -{remChefCharge ? `$ ${remChefCharge.toFixed(2)}` : '-'}
                       </div>
                     </div>
                   </div>

@@ -62,7 +62,7 @@ const customerData = [
     value: ['"CANCELLED_BY_CHEF"', '"CANCELLED_BY_CUSTOMER"'],
   },
   {
-    label: 'Payment Pending/Failed',
+    label: 'Draft/Failed',
     value: ['"PAYMENT_PENDING"', '"PAYMENT_FAILED"'],
   },
   {

@@ -165,6 +165,13 @@ const styles = StyleSheet.create({
     marginTop: 10,
     // paddingLeft: 20,
   },
+  discount: {
+    color: 'black', // B9BFBB
+    fontSize: 14,
+    marginTop: 10,
+    width: '65%',
+    // paddingLeft: 20,
+  },
   biilingRightText: {
     color: 'black',
     fontSize: 14,

@@ -37,7 +37,7 @@ import {Languages} from '@translations'
 import styles from './styles'
 import {RouteNames} from '@navigation'
 
-export default class BookPrice extends Component {
+export default class chefRequestPrice extends Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -74,12 +74,11 @@ export default class BookPrice extends Component {
     PriceCalculationService.on(PRICE_EVENT.STORE, this.getStoreList)
     BookingDetailService.on(BOOKING_DETAIL_EVENT.BOOKING_DETAIL, this.setBookingDetail)
     if (navigation.state.params && navigation.state.params.bookingValue) {
-      const {bookingValue, chefProfile} = navigation.state.params
+      const {bookingValue} = navigation.state.params
       console.log('bookingVaule', bookingValue)
       this.setState(
         {
           bookingData: bookingValue,
-          chefProfile,
         },
         () => {
           this.onLoadData()
@@ -114,31 +113,6 @@ export default class BookPrice extends Component {
     if (bookingData && bookingData.bookingHistId) {
       BookingDetailService.getBookingDetail(bookingData.bookingHistId)
     }
-    this.setState({
-      guestCount: bookingData.noOfGuests ? bookingData.noOfGuests : 0,
-      complexitySelected: bookingData.complexity ? `${bookingData.complexity}X` : null,
-      otherShopName: bookingData.storeTypeIds ? bookingData.storeTypeIds : null,
-
-      // // additionalServices: bookingDetail.additionalServiceDetails
-      // //   ? JSON.parse(bookingDetail.additionalServiceDetails)
-      // //   : null,
-      // shopName:
-      //   bookingDetail.storeTypes.nodes.length < 0 && bookingDetail.storeTypes.nodes[0].storeTypeId
-      //     ? bookingDetail.storeTypes.nodes[0].storeTypeId
-      //     : null,
-      // originalNoOfGuest: bookingDetail.chefBookingNoOfPeople
-      //   ? bookingDetail.chefBookingNoOfPeople
-      //   : 0,
-      // originalComplexity: bookingDetail.chefBookingComplexity
-      //   ? `${bookingDetail.chefBookingComplexity}X`
-      //   : null,
-      // originalAdditionalServices: bookingDetail.additionalServiceDetails
-      //   ? JSON.parse(bookingDetail.additionalServiceDetails)
-      //   : null,
-      // otherShopName: bookingDetail.chefBookingOtherStoreTypes
-      //   ? JSON.parse(bookingDetail.chefBookingOtherStoreTypes)
-      //   : null,
-    })
   }
 
   setBookingDetail = ({bookingDetail}) => {
@@ -149,47 +123,47 @@ export default class BookPrice extends Component {
           bookingDetail,
         },
         () => {
-          // if (bookingDetail) {
-          //   this.setState(
-          //     {
-          //       guestCount: bookingDetail.chefBookingNoOfPeople
-          //         ? bookingDetail.chefBookingNoOfPeople
-          //         : 0,
-          //       // guestMin: bookingDetail.chefBookingNoOfPeople
-          //       //   ? bookingDetail.chefBookingNoOfPeople
-          //       //   : 0,
-          //       complexitySelected: bookingDetail.chefBookingComplexity
-          //         ? `${bookingDetail.chefBookingComplexity}X`
-          //         : null,
-          //       // additionalServices: bookingDetail.additionalServiceDetails
-          //       //   ? JSON.parse(bookingDetail.additionalServiceDetails)
-          //       //   : null,
-          //       shopName:
-          //         bookingDetail.storeTypes.nodes.length < 0 &&
-          //         bookingDetail.storeTypes.nodes[0].storeTypeId
-          //           ? bookingDetail.storeTypes.nodes[0].storeTypeId
-          //           : null,
-          //       originalNoOfGuest: bookingDetail.chefBookingNoOfPeople
-          //         ? bookingDetail.chefBookingNoOfPeople
-          //         : 0,
-          //       originalComplexity: bookingDetail.chefBookingComplexity
-          //         ? `${bookingDetail.chefBookingComplexity}X`
-          //         : null,
-          //       originalAdditionalServices: bookingDetail.additionalServiceDetails
-          //         ? JSON.parse(bookingDetail.additionalServiceDetails)
-          //         : null,
-          //       otherShopName: bookingDetail.chefBookingOtherStoreTypes
-          //         ? JSON.parse(bookingDetail.chefBookingOtherStoreTypes)
-          //         : null,
-          //     },
-          //     () => {
-          //       if (bookingDetail && bookingDetail.additionalServiceDetails) {
-          //         this.loadServices()
-          //       }
-          //       // this.loadAdditionalServices()
-          //     }
-          //   )
-          // }
+          if (bookingDetail) {
+            this.setState(
+              {
+                guestCount: bookingDetail.chefBookingNoOfPeople
+                  ? bookingDetail.chefBookingNoOfPeople
+                  : 0,
+                // guestMin: bookingDetail.chefBookingNoOfPeople
+                //   ? bookingDetail.chefBookingNoOfPeople
+                //   : 0,
+                complexitySelected: bookingDetail.chefBookingComplexity
+                  ? `${bookingDetail.chefBookingComplexity}X`
+                  : null,
+                // additionalServices: bookingDetail.additionalServiceDetails
+                //   ? JSON.parse(bookingDetail.additionalServiceDetails)
+                //   : null,
+                shopName:
+                  bookingDetail.storeTypes.nodes.length < 0 &&
+                  bookingDetail.storeTypes.nodes[0].storeTypeId
+                    ? bookingDetail.storeTypes.nodes[0].storeTypeId
+                    : null,
+                originalNoOfGuest: bookingDetail.chefBookingNoOfPeople
+                  ? bookingDetail.chefBookingNoOfPeople
+                  : 0,
+                originalComplexity: bookingDetail.chefBookingComplexity
+                  ? `${bookingDetail.chefBookingComplexity}X`
+                  : null,
+                originalAdditionalServices: bookingDetail.additionalServiceDetails
+                  ? JSON.parse(bookingDetail.additionalServiceDetails)
+                  : null,
+                otherShopName: bookingDetail.chefBookingOtherStoreTypes
+                  ? JSON.parse(bookingDetail.chefBookingOtherStoreTypes)
+                  : null,
+              },
+              () => {
+                if (bookingDetail && bookingDetail.additionalServiceDetails) {
+                  this.loadServices()
+                }
+                // this.loadAdditionalServices()
+              }
+            )
+          }
         }
       )
     }
@@ -498,89 +472,97 @@ export default class BookPrice extends Component {
       Alert.alert('Info', 'Please select complexity')
       return
     }
-    const otherShop =
-      shopName &&
-      shopName.trim() === 'OTHERS' &&
-      otherShopName !== '' &&
-      JSON.stringify(otherShopName)
-    const guest = guestCount || guestMin
-    const additional =
-      additionalServiceData && additionalServiceData.length > 0 && additionalServiceData
-    const totalCost = this.getTotalPrice(selectedValue, chefPrice, guestCount, additionalPrice)
-    const chefBookingPriceUnit = 'USD'
-    const variables = {
-      stripeCustomerId: null,
-      cardId: null,
-      chefId: bookingData.chefId,
-      customerId: bookingData.customerId,
-      fromTime: bookingData.fromTime,
-      toTime: bookingData.toTime,
-
-      summary: bookingData.summary ? bookingData.summary : null,
-
-      bookingHistId: bookingData.bookingHistId,
-
-      isDraftYn: true,
-
-      locationAddress: bookingData.locationAddress ? bookingData.locationAddress : null,
-      locationLat: bookingData.locationLat ? bookingData.locationLat : null,
-      locationLng: bookingData.locationLng ? bookingData.locationLng : null,
-
-      addrLine1: bookingData.addrLine1 ? bookingData.addrLine1 : null,
-      addrLine2: bookingData.addrLine2 ? bookingData.addrLine2 : null,
-      city: bookingData.city ? bookingData.city : null,
-      state: bookingData.state ? bookingData.state : null,
-      country: bookingData.country ? bookingData.country : null,
-      postalCode: bookingData.postalCode ? bookingData.postalCode : null,
-
-      allergyTypeIds: bookingData.allergyTypeIds ? bookingData.allergyTypeIds : null,
-
-      otherAllergyTypes: bookingData.otherAllergyTypes ? bookingData.otherAllergyTypes : null,
-      dietaryRestrictionsTypesIds: bookingData.dietaryRestrictionsTypesIds
-        ? bookingData.dietaryRestrictionsTypesIds
-        : null,
-      otherDietaryRestrictionsTypes: bookingData.otherDietaryRestrictionsTypes
-        ? bookingData.otherDietaryRestrictionsTypes
-        : null,
-
-      kitchenEquipmentTypeIds: bookingData.kitchenEquipmentTypeIds
-        ? bookingData.kitchenEquipmentTypeIds
-        : null,
-
-      otherKitchenEquipmentTypes: bookingData.otherKitchenEquipmentTypes
-        ? bookingData.otherKitchenEquipmentTypes
-        : null,
-
-      noOfGuests: guest || (bookingData.noOfGuests ? bookingData.noOfGuests : null),
-
-      complexity: selectedValue || (bookingData.complexity ? bookingData.complexity : null),
-
-      storeTypeIds: storeId || (bookingData.storeTypeIds ? bookingData.storeTypeIds : null),
-
-      otherStoreTypes:
-        otherShop || (bookingData.otherStoreTypes ? bookingData.otherStoreTypes : null),
-
-      additionalServices:
-        additional || (bookingData.additionalServices ? bookingData.additionalServices : null),
-
-      dishTypeId: bookingData.dishTypeId ? bookingData.dishTypeId : null,
-    }
 
     console.log('bookingData', bookingData)
     if (bookingData) {
-      BookingHistoryService.bookNow(variables)
+      BookingHistoryService.bookNow({
+        stripeCustomerId: null,
+        cardId: null,
+        chefId: bookingData.chefId,
+        customerId: bookingData.customerId,
+        fromTime: LocalToGMT(bookingData.fromTime),
+        toTime: LocalToGMT(bookingData.toTime),
+        notes: null,
+        dishTypeId: null,
+        summary: bookingData.summary ? JSON.stringify(bookingData.summary) : null,
+        allergyTypeIds: bookingData.allergyTypeIds ? bookingData.allergyTypeIds : null,
+        otherAllergyTypes: bookingData.otherAllergyTypes ? bookingData.otherAllergyTypes : null,
+        dietaryRestrictionsTypesIds: bookingData.dietaryRestrictionsTypesIds
+          ? bookingData.dietaryRestrictionsTypesIds
+          : null,
+        otherDietaryRestrictionsTypes: bookingData.otherDietaryRestrictionsTypes
+          ? bookingData.otherDietaryRestrictionsTypes
+          : null,
+        kitchenEquipmentTypeIds: bookingData.kitchenEquipmentTypeIds
+          ? bookingData.kitchenEquipmentTypeIds
+          : null,
+        otherKitchenEquipmentTypes: bookingData.otherKitchenEquipmentTypes
+          ? bookingData.otherKitchenEquipmentTypes
+          : null,
+        storeTypeIds: storeId || null,
+        otherStoreTypes:
+          shopName && shopName.trim() === 'OTHERS' && otherShopName !== ''
+            ? JSON.stringify(otherShopName)
+            : null,
+        noOfGuests: guestCount || guestMin,
+        complexity: selectedValue,
+        additionalServices:
+          additionalServiceData && additionalServiceData.length > 0 ? additionalServiceData : null,
+        locationAddress: bookingData.locationAddress ? bookingData.locationAddress : null,
+        locationLat: bookingData.locationLat ? bookingData.locationLat : null,
+        locationLng: bookingData.locationLng ? bookingData.locationLng : null,
+        addrLine1: bookingData.addrLine1 ? bookingData.addrLine1 : null,
+        addrLine2: bookingData.addrLine2 ? bookingData.addrLine2 : null,
+        state: bookingData.state ? bookingData.state : null,
+        country: bookingData.country ? bookingData.country : null,
+        city: bookingData.city ? bookingData.city : null,
+        postalCode: bookingData.postalCode ? bookingData.postalCode : null,
+        isDraftYn: true,
+        bookingHistId: bookingData.bookingHistId,
+      })
         .then(detail => {
-          navigation.navigate(RouteNames.BOOK_NOW, {
-            bookingValue: {
-              ...variables,
-              totalCost,
-              chefBookingPriceValue: chefPrice,
-              chefBookingPriceUnit,
-              additionalServiceValues,
-              additionalPrice,
-            },
-            chefProfile,
-          })
+          console.log('value', detail)
+          const bookingValue = {
+            chefId: bookingData.chefId,
+            customerId: bookingData.customerId,
+            chefBookingFromTime: bookingData.fromTime,
+            chefBookingToTime: bookingData.toTime,
+            summary: bookingData.summary,
+            chefProfile: bookingData.chefProfile,
+            allergyTypeIds: bookingData.allergyTypeIds,
+            otherAllergyTypes: bookingData.otherAllergyTypes,
+            dietaryRestrictionsTypesIds: bookingData.dietaryRestrictionsTypesIds,
+            otherDietaryRestrictionsTypes: bookingData.otherDietaryRestrictionsTypes,
+            kitchenEquipmentTypeIds: bookingData.kitchenEquipmentTypeIds,
+            otherKitchenEquipmentTypes: bookingData.otherKitchenEquipmentTypes,
+            storeTypeIds: storeId || null,
+            otherStoreTypes:
+              shopName && shopName.trim() === 'OTHERS' && otherShopName !== ''
+                ? JSON.stringify(otherShopName)
+                : null,
+            noOfGuests: guestCount || guestMin,
+            complexity: selectedValue,
+            additionalServices:
+              additionalServiceData && additionalServiceData.length > 0
+                ? additionalServiceData
+                : null,
+            totalCost: this.getTotalPrice(selectedValue, chefPrice, guestCount, additionalPrice),
+            chefBookingPriceValue: chefPrice,
+            chefBookingPriceUnit: 'USD',
+            additionalServiceValues,
+            additionalPrice,
+            locationAddress: bookingData.locationAddress,
+            locationLat: bookingData.locationLat,
+            locationLng: bookingData.locationLng,
+            addrLine1: bookingData.addrLine1,
+            addrLine2: bookingData.addrLine2,
+            state: bookingData.state,
+            country: bookingData.country,
+            city: bookingData.city,
+            postalCode: bookingData.postalCode,
+            bookingHistId: bookingData.bookingHistId,
+          }
+          navigation.navigate(RouteNames.BOOK_NOW, {bookingValue})
         })
         .catch(err => {
           console.log('err', err)
@@ -1154,11 +1136,15 @@ export default class BookPrice extends Component {
                   <View>
                     <View>
                       <ListItem style={{borderBottomWidth: 0}}>
-                        <CheckBox
-                          checked={item.checked}
-                          onPress={() => this.onServiceChecked(index, item.checked)}
-                          color={Theme.Colors.primary}
-                        />
+                        {item.disabled === true ? (
+                          <CheckBox checked={item.checked} color={Theme.Colors.lightgrey} />
+                        ) : (
+                          <CheckBox
+                            checked={item.checked}
+                            onPress={() => this.onServiceChecked(index, item.checked)}
+                            color={Theme.Colors.primary}
+                          />
+                        )}
                         <Body>
                           <Text>{item.name}</Text>
                         </Body>
@@ -1172,7 +1158,7 @@ export default class BookPrice extends Component {
                 )
               })}
           </Card>
-          {bookingData.isDraftYn === true && (
+          {!bookingData.bookingHistId && (
             <Card style={styles.cardStyle}>
               <CardItem header bordered>
                 <Text style={{color: 'black'}}>
@@ -1218,52 +1204,50 @@ export default class BookPrice extends Component {
               )}
             </Card>
           )}
-          {bookingData.isDraftYn === false &&
-            invalidGuest === false &&
-            invalidComplexity === false && (
-              <Card style={styles.cardStyle}>
-                <CardItem header bordered>
-                  <Text style={{color: 'black'}}>Additional Charges</Text>
-                </CardItem>
-                <View style={styles.iconText}>
-                  <Text style={styles.heading}>
-                    {Languages.bookingDetail.labels.additional_no_of_people}
-                  </Text>
-                  <Text style={styles.biilingRightText}>{newGuest}</Text>
-                </View>
-                <View style={styles.iconText}>
-                  <Text style={styles.heading}>
-                    {Languages.bookingDetail.labels.complexity_changes}
-                  </Text>
-                  <Text style={styles.biilingRightText}>{newComplexity}X</Text>
-                </View>
+          {bookingData.bookingHistId && invalidGuest === false && invalidComplexity === false && (
+            <Card style={styles.cardStyle}>
+              <CardItem header bordered>
+                <Text style={{color: 'black'}}>Additional Charges</Text>
+              </CardItem>
+              <View style={styles.iconText}>
+                <Text style={styles.heading}>
+                  {Languages.bookingDetail.labels.additional_no_of_people}
+                </Text>
+                <Text style={styles.biilingRightText}>{newGuest}</Text>
+              </View>
+              <View style={styles.iconText}>
+                <Text style={styles.heading}>
+                  {Languages.bookingDetail.labels.complexity_changes}
+                </Text>
+                <Text style={styles.biilingRightText}>{newComplexity}X</Text>
+              </View>
 
-                <View style={styles.iconText}>
-                  <Text style={styles.heading}>
-                    {Languages.bookingDetail.labels.extra_service_provided}
+              <View style={styles.iconText}>
+                <Text style={styles.heading}>
+                  {Languages.bookingDetail.labels.extra_service_provided}
+                </Text>
+                {newService && newService.length > 0 ? (
+                  <View style={styles.dishView}>
+                    {newService.map((item, key) => {
+                      const chip = []
+                      chip.push(
+                        <Button small rounded light style={styles.dishItem}>
+                          <Text style={styles.locationText}>
+                            {item.name} : {Languages.bookingDetail.labels.dollar}
+                            {item.price}
+                          </Text>
+                        </Button>
+                      )
+                      return chip
+                    })}
+                  </View>
+                ) : (
+                  <Text style={styles.biilingRightText}>
+                    {Languages.chefProfile.labels.no_service}
                   </Text>
-                  {newService && newService.length > 0 ? (
-                    <View style={styles.dishView}>
-                      {newService.map((item, key) => {
-                        const chip = []
-                        chip.push(
-                          <Button small rounded light style={styles.dishItem}>
-                            <Text style={styles.locationText}>
-                              {item.name} : {Languages.bookingDetail.labels.dollar}
-                              {item.price}
-                            </Text>
-                          </Button>
-                        )
-                        return chip
-                      })}
-                    </View>
-                  ) : (
-                    <Text style={styles.biilingRightText}>
-                      {Languages.chefProfile.labels.no_service}
-                    </Text>
-                  )}
-                </View>
-                {/* <View style={styles.iconText}>
+                )}
+              </View>
+              {/* <View style={styles.iconText}>
                 <Text style={styles.heading}>
                   {Languages.bookingDetail.labels.rockoly_payment_charge}
                 </Text>
@@ -1271,27 +1255,27 @@ export default class BookPrice extends Component {
                   {commissionCost ? `$${parseFloat(commissionCost).toFixed(2)}` : `$${0}`}
                 </Text>
               </View> */}
-                <View style={styles.iconText}>
-                  <Text style={styles.heading}>
-                    {Languages.bookingDetail.labels.extra_services_amount}
-                  </Text>
-                  <Text style={styles.biilingRightText}>
-                    {newAdditionalTotalPrice ? `$${parseFloat(newAdditionalTotalPrice)}` : `$${0}`}
-                  </Text>
-                </View>
-                <View
-                  style={{borderWidth: 0.5, borderColor: Theme.Colors.borderColor, marginTop: 10}}
-                />
-                <View style={styles.iconText}>
-                  <Text style={styles.heading}>{Languages.bookingDetail.labels.total_amount} </Text>
-                  <Text style={styles.biilingRightText}>
-                    {Languages.bookingDetail.labels.dollar}
-                    {newTotalPrice ? `${parseFloat(newTotalPrice).toFixed(2)}` : null}
-                  </Text>
-                </View>
-                <View style={{marginBottom: 5}} />
-              </Card>
-            )}
+              <View style={styles.iconText}>
+                <Text style={styles.heading}>
+                  {Languages.bookingDetail.labels.extra_services_amount}
+                </Text>
+                <Text style={styles.biilingRightText}>
+                  {newAdditionalTotalPrice ? `$${parseFloat(newAdditionalTotalPrice)}` : `$${0}`}
+                </Text>
+              </View>
+              <View
+                style={{borderWidth: 0.5, borderColor: Theme.Colors.borderColor, marginTop: 10}}
+              />
+              <View style={styles.iconText}>
+                <Text style={styles.heading}>{Languages.bookingDetail.labels.total_amount} </Text>
+                <Text style={styles.biilingRightText}>
+                  {Languages.bookingDetail.labels.dollar}
+                  {newTotalPrice ? `${parseFloat(newTotalPrice)}` : null}
+                </Text>
+              </View>
+              <View style={{marginBottom: 5}} />
+            </Card>
+          )}
           {/* {bookingData.bookingHistId && invalidGuest === false && invalidComplexity === false && (
             <View style={styles.iconText}>
               <View>
@@ -1304,7 +1288,7 @@ export default class BookPrice extends Component {
               </View>
             </View>
           )} */}
-          {bookingData.isDraftYn === false ? (
+          {bookingData.bookingHistId ? (
             <View>
               <CommonButton
                 btnText={Languages.book.labels.request_additional_charges}
@@ -1326,4 +1310,4 @@ export default class BookPrice extends Component {
   }
 }
 
-BookPrice.contextType = AuthContext
+chefRequestPrice.contextType = AuthContext

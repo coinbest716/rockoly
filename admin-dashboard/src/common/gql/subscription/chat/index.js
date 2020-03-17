@@ -1,3 +1,4 @@
-import {messsageHistoryGQLTAG} from './query.subscription.chat.messageHistory'
+import { messsageHistoryGQLTAG } from './query.subscription.chat.messageHistory';
+import { conversationHistoryGQLTAG } from './query.subscription.chat.conversationHistory';
 
-export {messsageHistoryGQLTAG};
+export { messsageHistoryGQLTAG, conversationHistoryGQLTAG };

@@ -233,7 +233,7 @@ export default class Gallery extends PureComponent {
       waitAnimationEnd: false,
       includeExif: true,
       forceJpg: true,
-      maxFiles: 2,
+      // maxFiles: 2,
       showsSelectedCount: true,
     })
       .then(images1 => {

@@ -28,60 +28,95 @@ export default class PricingModal extends PureComponent {
   constructor(props) {
     super(props)
     this.state = {
-      bookingDatas: {},
+      bookingDetail: {},
+      chefProfile: {},
     }
   }
 
   componentDidMount() {
     const {navigation} = this.props
-    if (navigation.state.params && navigation.state.params.bookingData) {
-      console.log('navigation.state.params.bookingData', navigation.state.params.bookingData)
-      const {bookingData} = navigation.state.params
+    if (navigation.state.params && navigation.state.params.bookingDetail) {
+      const {bookingDetail, chefProfile} = navigation.state.params
       this.setState({
-        bookingDatas: bookingData,
+        bookingDetail,
+        chefProfile,
       })
     }
   }
 
   onNext = () => {
     const {navigation} = this.props
-    const {bookingDatas} = this.state
-    if (bookingDatas) {
-      BookingHistoryService.bookNow({
+    const {bookingDetail, chefProfile} = this.state
+    console.log('bookingDetail, chefProfile', bookingDetail, chefProfile)
+    if (bookingDetail) {
+      const variables = {
         stripeCustomerId: null,
         cardId: null,
-        chefId: bookingDatas.chefId,
-        customerId: bookingDatas.customerId,
-        fromTime: LocalToGMT(bookingDatas.chefBookingFromTime),
-        toTime: LocalToGMT(bookingDatas.chefBookingToTime),
-        notes: null,
-        dishTypeId: null,
-        summary: bookingDatas.summary ? JSON.stringify(bookingDatas.summary) : null,
-        allergyTypeIds: null,
-        otherAllergyTypes: null,
-        dietaryRestrictionsTypesIds: null,
-        otherDietaryRestrictionsTypes: null,
-        kitchenEquipmentTypeIds: null,
-        otherKitchenEquipmentTypes: null,
-        storeTypeIds: null,
-        otherStoreTypes: null,
-        noOfGuests: null,
-        complexity: null,
-        additionalServices: null,
-        locationAddress: null,
-        locationLat: null,
-        locationLng: null,
-        addrLine1: null,
-        addrLine2: null,
-        state: null,
-        country: null,
-        city: null,
-        postalCode: null,
+
+        chefId: bookingDetail.chefId,
+        customerId: bookingDetail.customerId,
+
+        fromTime: bookingDetail.fromTime,
+        toTime: bookingDetail.toTime,
+
+        summary: bookingDetail.summary ? bookingDetail.summary : null,
+
+        bookingHistId: bookingDetail.bookingHistId,
+
         isDraftYn: true,
-        bookingHistId: bookingDatas.bookingHistId,
-      })
+
+        locationAddress: bookingDetail.locationAddress ? bookingDetail.locationAddress : null,
+        locationLat: bookingDetail.locationLat ? bookingDetail.locationLat : null,
+        locationLng: bookingDetail.locationLng ? bookingDetail.locationLng : null,
+
+        addrLine1: bookingDetail.addrLine1 ? bookingDetail.addrLine1 : null,
+        addrLine2: bookingDetail.addrLine2 ? bookingDetail.addrLine2 : null,
+        city: bookingDetail.city ? bookingDetail.city : null,
+        state: bookingDetail.state ? bookingDetail.state : null,
+        country: bookingDetail.country ? bookingDetail.country : null,
+        postalCode: bookingDetail.postalCode ? bookingDetail.postalCode : null,
+
+        allergyTypeIds: bookingDetail.allergyTypeIds ? bookingDetail.allergyTypeIds : null,
+
+        otherAllergyTypes: bookingDetail.otherAllergyTypes ? bookingDetail.otherAllergyTypes : null,
+
+        dietaryRestrictionsTypesIds: bookingDetail.dietaryRestrictionsTypesIds
+          ? bookingDetail.dietaryRestrictionsTypesIds
+          : null,
+
+        otherDietaryRestrictionsTypes: bookingDetail.otherDietaryRestrictionsTypes
+          ? bookingDetail.otherDietaryRestrictionsTypes
+          : null,
+
+        kitchenEquipmentTypeIds: bookingDetail.kitchenEquipmentTypeIds
+          ? bookingDetail.kitchenEquipmentTypeIds
+          : null,
+
+        otherKitchenEquipmentTypes: bookingDetail.otherKitchenEquipmentTypes
+          ? bookingDetail.otherKitchenEquipmentTypes
+          : null,
+
+        noOfGuests: bookingDetail.noOfGuests ? bookingDetail.noOfGuests : null,
+
+        complexity: bookingDetail.complexity ? bookingDetail.complexity : null,
+
+        storeTypeIds: bookingDetail.storeTypeIds ? bookingDetail.storeTypeIds : null,
+
+        otherStoreTypes: bookingDetail.otherStoreTypes ? bookingDetail.otherStoreTypes : null,
+
+        additionalServices: bookingDetail.additionalServices
+          ? bookingDetail.additionalServices
+          : null,
+
+        dishTypeId: bookingDetail.dishTypeId ? bookingDetail.dishTypeId : null,
+      }
+      console.log('debugging step 2 variables', variables)
+      BookingHistoryService.bookNow(variables)
         .then(value => {
-          navigation.navigate(RouteNames.CHANGE_BOOK_LOCATION, {bookingDatas})
+          navigation.navigate(RouteNames.CHANGE_BOOK_LOCATION, {
+            bookingDetail: variables,
+            chefProfile,
+          })
         })
         .catch(err => {
           console.log('err', err)

@@ -218,6 +218,13 @@ export default {
     marginTop: 20,
     paddingLeft: 10,
   },
+  discount: {
+    color: 'black',
+    width: '65%',
+    fontSize: 16,
+    marginTop: 20,
+    paddingLeft: 10,
+  },
   destext: {
     color: 'black', // B9BFBB
     fontSize: 14,

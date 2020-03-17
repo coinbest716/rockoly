@@ -18,27 +18,26 @@ export default class ChangeBookLocation extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      bookingData: {},
       chefData: {},
       isLoading: false,
+      bookingDetail: {},
     }
   }
 
   componentDidMount() {
     const {navigation} = this.props
-    const {bookingData} = this.state
-    if (navigation.state.params && navigation.state.params.bookingDatas) {
-      const {bookingDatas} = navigation.state.params
+    if (navigation.state.params && navigation.state.params.bookingDetail) {
+      const {bookingDetail, chefProfile} = navigation.state.params
       this.setState(
         {
-          bookingData: bookingDatas,
           isLoading: true,
+          bookingDetail,
+          chefProfile,
         },
         () => {
-          console.log('bookingData', this.state.bookingData)
-          if (this.state.bookingData && this.state.bookingData.chefId) {
+          if (this.state.bookingDetail && this.state.bookingDetail.chefId) {
             ProfileViewService.on(PROFILE_VIEW_EVENT.PROFILE_VIEW, this.setList)
-            ProfileViewService.getProfileDetails(this.state.bookingData.chefId)
+            ProfileViewService.getProfileDetails(this.state.bookingDetail.chefId)
           }
         }
       )
@@ -65,8 +64,8 @@ export default class ChangeBookLocation extends Component {
 
   getLocationValue = address => {
     const {navigation} = this.props
-    const {bookingData, chefData} = this.state
-    console.log('getLocationValue', address, bookingData)
+    const {chefData, bookingDetail, chefProfile} = this.state
+    console.log('debugging getLocationValue', address, bookingDetail)
     let chefLocationLat
     let chefLocationLng
     let chefMiles
@@ -92,23 +91,103 @@ export default class ChangeBookLocation extends Component {
     }
 
     const obj = {
-      chefId: bookingData.chefId,
-      customerId: bookingData.customerId,
-      chefBookingFromTime: bookingData.chefBookingFromTime,
-      chefBookingToTime: bookingData.chefBookingToTime,
-      chefProfile: bookingData.chefProfile,
-      summary: bookingData.summary,
-      locationAddress: address.locationAddress,
-      locationLat: address.locationLat,
-      locationLng: address.locationLng,
-      addrLine1: address.addrLine1,
-      addrLine2: address.addrLine2,
-      state: address.state,
-      country: address.country,
-      city: address.city,
-      postalCode: address.postalCode,
-      bookingHistId: bookingData.bookingHistId,
+      stripeCustomerId: null,
+      cardId: null,
+
+      chefId: bookingDetail.chefId,
+      customerId: bookingDetail.customerId,
+
+      fromTime: bookingDetail.fromTime,
+      toTime: bookingDetail.toTime,
+
+      summary: bookingDetail.summary ? JSON.stringify(bookingDetail.summary) : null,
+
+      bookingHistId: bookingDetail.bookingHistId,
+
+      isDraftYn: true,
+
+      locationAddress: address.locationAddress
+        ? address.locationAddress
+        : bookingDetail.locationAddress
+        ? bookingDetail.locationAddress
+        : null,
+
+      locationLat: address.locationLat
+        ? address.locationLat
+        : bookingDetail.locationLat
+        ? bookingDetail.locationLat
+        : null,
+
+      locationLng: address.locationLng
+        ? address.locationLng
+        : bookingDetail.locationLng
+        ? bookingDetail.locationLng
+        : null,
+
+      addrLine1: address.addrLine1
+        ? address.addrLine1
+        : bookingDetail.addrLine1
+        ? bookingDetail.addrLine1
+        : null,
+
+      addrLine2: address.addrLine2
+        ? address.addrLine2
+        : bookingDetail.addrLine2
+        ? bookingDetail.addrLine2
+        : null,
+
+      city: address.city ? address.city : bookingDetail.city ? bookingDetail.city : null,
+
+      state: address.state ? address.state : bookingDetail.state ? bookingDetail.state : null,
+
+      country: address.country
+        ? address.country
+        : bookingDetail.country
+        ? bookingDetail.country
+        : null,
+
+      postalCode: address.postalCode
+        ? address.postalCode
+        : bookingDetail.postalCode
+        ? bookingDetail.postalCode
+        : null,
+
+      allergyTypeIds: bookingDetail.allergyTypeIds ? bookingDetail.allergyTypeIds : null,
+
+      otherAllergyTypes: bookingDetail.otherAllergyTypes ? bookingDetail.otherAllergyTypes : null,
+
+      dietaryRestrictionsTypesIds: bookingDetail.dietaryRestrictionsTypesIds
+        ? bookingDetail.dietaryRestrictionsTypesIds
+        : null,
+
+      otherDietaryRestrictionsTypes: bookingDetail.otherDietaryRestrictionsTypes
+        ? bookingDetail.otherDietaryRestrictionsTypes
+        : null,
+
+      kitchenEquipmentTypeIds: bookingDetail.kitchenEquipmentTypeIds
+        ? bookingDetail.kitchenEquipmentTypeIds
+        : null,
+
+      otherKitchenEquipmentTypes: bookingDetail.otherKitchenEquipmentTypes
+        ? bookingDetail.otherKitchenEquipmentTypes
+        : null,
+
+      noOfGuests: bookingDetail.noOfGuests ? bookingDetail.noOfGuests : null,
+
+      complexity: bookingDetail.complexity ? bookingDetail.complexity : null,
+
+      storeTypeIds: bookingDetail.storeTypeIds ? bookingDetail.storeTypeIds : null,
+
+      otherStoreTypes: bookingDetail.otherStoreTypes ? bookingDetail.otherStoreTypes : null,
+
+      additionalServices: bookingDetail.additionalServices
+        ? bookingDetail.additionalServices
+        : null,
+
+      dishTypeId: bookingDetail.dishTypeId ? bookingDetail.dishTypeId : null,
     }
+
+    console.log('debugging step 1 variables', obj)
 
     if (chefLocationLat && chefLocationLng) {
       axios
@@ -124,42 +203,10 @@ export default class ChangeBookLocation extends Component {
             const {value} = milesData.data.rows[0].elements[0].distance
             const miles = value / 1609
             if (miles <= chefMiles) {
-              if (bookingData) {
-                BookingHistoryService.bookNow({
-                  stripeCustomerId: null,
-                  cardId: null,
-                  chefId: bookingData.chefId,
-                  customerId: bookingData.customerId,
-                  fromTime: LocalToGMT(bookingData.chefBookingFromTime),
-                  toTime: LocalToGMT(bookingData.chefBookingToTime),
-                  notes: null,
-                  dishTypeId: null,
-                  summary: bookingData.summary ? JSON.stringify(bookingData.summary) : null,
-                  allergyTypeIds: null,
-                  otherAllergyTypes: null,
-                  dietaryRestrictionsTypesIds: null,
-                  otherDietaryRestrictionsTypes: null,
-                  kitchenEquipmentTypeIds: null,
-                  otherKitchenEquipmentTypes: null,
-                  storeTypeIds: null,
-                  otherStoreTypes: null,
-                  noOfGuests: null,
-                  complexity: null,
-                  additionalServices: null,
-                  locationAddress: address.locationAddress ? address.locationAddress : null,
-                  locationLat: address.locationLat ? address.locationLat : null,
-                  locationLng: address.locationLng ? address.locationLng : null,
-                  addrLine1: address.addrLine1 ? address.addrLine1 : null,
-                  addrLine2: address.addrLine2 ? address.addrLine2 : null,
-                  state: address.state ? address.state : null,
-                  country: address.country ? address.country : null,
-                  city: address.city ? address.city : null,
-                  postalCode: address.postalCode ? address.postalCode : null,
-                  isDraftYn: true,
-                  bookingHistId: bookingData.bookingHistId,
-                })
+              if (bookingDetail) {
+                BookingHistoryService.bookNow(obj)
                   .then(detail => {
-                    navigation.navigate(RouteNames.BOOK_ALLERGY, {bookingData: obj})
+                    navigation.navigate(RouteNames.BOOK_ALLERGY, {bookingDetail: obj, chefProfile})
                   })
                   .catch(err => {
                     console.log('err', err)
@@ -185,7 +232,7 @@ export default class ChangeBookLocation extends Component {
                 },
                 {
                   text: 'OK',
-                  onPress: () => navigation.navigate(RouteNames.BOOK_ALLERGY, {bookingData: obj}),
+                  onPress: () => navigation.navigate(RouteNames.BOOK_ALLERGY, {bookingDetail: obj}),
                 },
               ],
               {
@@ -206,7 +253,13 @@ export default class ChangeBookLocation extends Component {
               },
               {
                 text: 'OK',
-                onPress: () => navigation.navigate(RouteNames.BOOK_ALLERGY, {bookingData: obj}),
+                onPress: () =>
+                  navigation.navigate(RouteNames.BOOK_ALLERGY, {
+                    bookingDetail: {
+                      ...obj,
+                    },
+                    chefProfile,
+                  }),
               },
             ],
             {
@@ -218,7 +271,7 @@ export default class ChangeBookLocation extends Component {
   }
 
   render() {
-    const {bookingData, chefData, isLoading} = this.state
+    const {bookingDetail, chefData, isLoading} = this.state
     const {navigation} = this.props
 
     let chefCity
@@ -254,7 +307,7 @@ export default class ChangeBookLocation extends Component {
         <Header showBack title={Languages.book.labels.book_location} showBell={false} />
         <Address
           getValue={this.getLocationValue}
-          bookingData={bookingData}
+          bookingData={bookingDetail}
           navigation={navigation}
           hideSave
           chefLocation={chefCity}

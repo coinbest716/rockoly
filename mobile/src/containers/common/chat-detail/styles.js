@@ -19,6 +19,27 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#aaa',
   },
+  infoContainer: {
+    flex: 1,
+    flexDirection: 'column',
+    padding: 8,
+    borderColor: Theme.Colors.primary,
+    borderWidth: 1,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignSelf: 'center',
+    alignItems: 'center',
+    marginHorizontal: 10,
+    marginVertical: 5,
+  },
+  btnText: {
+    margin: 5,
+    color: 'black',
+  },
+  btnTimeText: {
+    fontSize: 12,
+    color: 'grey',
+  },
 })
 
 export default styles

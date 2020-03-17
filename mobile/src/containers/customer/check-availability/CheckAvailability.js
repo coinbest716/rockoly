@@ -64,6 +64,7 @@ class CheckAvailability extends Component {
 
   componentDidMount() {
     const {navigation} = this.props
+    BookingHistoryService.on(BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_LIST2, this.setList)
 
     const {
       chefPricePerHour,
@@ -71,22 +72,52 @@ class CheckAvailability extends Component {
       chefPriceUnit,
       draftBooking,
       draft,
+      bookingHistId,
       // chefId,
     } = navigation.state.params
-    console.log('navigation.state.params', draftBooking, draft)
     this.setState(
       {
         draftBooking,
+        bookingDetail: draftBooking || {},
         draft,
         chefProfile,
+        bookingHistId,
+        about:
+          draftBooking && draftBooking.chefBookingSummary ? draftBooking.chefBookingSummary : null,
       },
       () => {
-        console.log('this.state.draft', this.state.draft)
-        if (this.state.draft === 'DRAFTBOOKING') {
-          setTimeout(() => {
-            this.openModal()
-          }, 500)
-        }
+        setTimeout(() => {
+          if (draft === 'DRAFTBOOKING') {
+            const {chefBookingFromTime, chefBookingToTime} = draftBooking
+
+            const fromDateTime = moment(moment.utc(chefBookingFromTime).local())
+            const toDateTime = moment(moment.utc(chefBookingToTime).local())
+
+            const dateString = moment(fromDateTime).format('YYYY-MM-DD')
+            const year = parseInt(moment(fromDateTime).format('YYYY'))
+            const month = parseInt(moment(fromDateTime).format('MM'))
+            const day = parseInt(moment(fromDateTime).format('DD'))
+            const timestamp = moment(dateString, 'YYYY-MM-DD').valueOf()
+
+            const item = {
+              year,
+              month,
+              day,
+              timestamp,
+              dateString,
+            }
+
+            this.dateSelected(item)
+
+            const fromTime = moment(fromDateTime).format('hh:mm A')
+            const toTime = moment(toDateTime).format('hh:mm A')
+            this.setState({
+              selectedFromTime: fromTime,
+              selectedToTime: toTime,
+              isInvalid: false,
+            })
+          }
+        }, 1000)
       }
     )
 
@@ -100,12 +131,12 @@ class CheckAvailability extends Component {
       .endOf('month')
       .format(commonDateFormat)
 
-    BookingHistoryService.on(BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_LIST, this.setList)
-
     const markedDates = {}
     let chefId = ''
-    if (draft === navigation.state.params.draft) {
-      chefId = navigation.state.params.draftBooking.chefId
+    if (draft === 'DRAFTBOOKING') {
+      chefId = draftBooking.chefId
+    } else {
+      chefId = navigation.state.params.chefId
     }
     ChefProfileService.getAvailablityForCalendar(chefId, fromDate, toDate)
       .then(res => {
@@ -133,6 +164,10 @@ class CheckAvailability extends Component {
       })
   }
 
+  componentWillUnmount() {
+    BookingHistoryService.off(BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_LIST2, this.setList)
+  }
+
   onClosed = () => {
     const {onClosed} = this.props
 
@@ -142,24 +177,37 @@ class CheckAvailability extends Component {
   }
 
   openModal = () => {
-    if (this.modal.current) {
-      this.setState({isInvalid: false}, () => {
-        this.modal.current.open()
-      })
-    }
+    // if (this.modal.current) {
+    //   this.setState({isInvalid: false}, () => {
+    //     this.modal.current.open()
+    //   })
+    // }
+    this.setState({
+      showModal: true,
+    })
   }
 
-  closeModal = () => {
-    if (this.modal.current) {
-      this.setState({isInvalid: false}, () => {
-        this.modal.current.close()
-      })
-    }
+  closeModal = cb => {
+    // if (this.modal.current) {
+    //   this.setState({isInvalid: false}, () => {
+    //     this.modal.current.close()
+    //     setTimeout(() => {
+    //       cb()
+    //     }, 200)
+    //   })
+    // }
+    this.setState(
+      {
+        showModal: false,
+      },
+      () => {
+        cb()
+      }
+    )
   }
 
   dateSelected = date => {
-    console.log('date', date)
-    const {markedDates, draft} = this.state
+    const {markedDates} = this.state
     const {navigation} = this.props
     const {chefId} = navigation.state.params
 
@@ -172,7 +220,6 @@ class CheckAvailability extends Component {
           selectedToTime: null,
         },
         () => {
-          console.log('dateSelected', date, date.dateString)
           if (markedDates[date.dateString].disabled === false) {
             this.fetchBookingTiming(date.dateString, chefId)
           }
@@ -185,13 +232,9 @@ class CheckAvailability extends Component {
     const {userRole, currentUser} = this.context
     const {first, offset, bookingStatusValue} = this.state
 
-    console.log('fetchBookingTiming', dateString, chefId)
-
     const fromTime = `${dateString} 00:00:00`
 
     const toTime = `${dateString} 23:59:59`
-
-    console.log('fetchData Time', fromTime, toTime)
 
     let gqlValue
 
@@ -204,22 +247,21 @@ class CheckAvailability extends Component {
         offset: 0,
         statusId: ['"CHEF_ACCEPTED"'],
       })
-      BookingHistoryService.getBookingHistoryList(gqlValue)
+      BookingHistoryService.getBookingHistoryList2(gqlValue)
     }
   }
 
   setList = async ({bookingHistory}) => {
-    console.log('checkTiming', bookingHistory)
-
     if (bookingHistory.length > 0) {
       const temp = []
-      bookingHistory.map((item, key) => {
+      await bookingHistory.map((item, key) => {
         const obj = {
           bookingStartTime: GMTToLocal(item.chefBookingFromTime, DATE_TYPE.TIME),
           bookingEndTime: GMTToLocal(item.chefBookingToTime, DATE_TYPE.TIME),
         }
         temp.push(obj)
       })
+
       this.setState(
         {
           bookingTimings: temp,
@@ -252,13 +294,13 @@ class CheckAvailability extends Component {
       selectedToTime,
       chefProfile,
       about,
+      bookingHistId,
       pickerSelectedTime,
     } = this.state
     const {navigation} = this.props
     const displayFromTime = moment(selectedItem.fromTime, dbTimeFormat).format(displayTimeFormat)
     const displayToTime = moment(selectedItem.toTime, dbTimeFormat).format(displayTimeFormat)
     const newDate = moment(new Date()).format('h:mm A')
-    console.log('selectedFromTime', selectedFromTime, newDate)
     // let minimumMinutes
     // let minimumHours
 
@@ -342,56 +384,116 @@ class CheckAvailability extends Component {
             const chefBookingFromTime = from
             const chefBookingToTime = to
 
-            BookingHistoryService.bookNow({
-              stripeCustomerId: null,
-              cardId: null,
-              chefId,
-              customerId: currentUser.customerId,
-              fromTime: LocalToGMT(chefBookingFromTime),
-              toTime: LocalToGMT(chefBookingToTime),
-              notes: null,
-              dishTypeId: null,
-              summary: about ? JSON.stringify(about) : null,
-              allergyTypeIds: null,
-              otherAllergyTypes: null,
-              dietaryRestrictionsTypesIds: null,
-              otherDietaryRestrictionsTypes: null,
-              kitchenEquipmentTypeIds: null,
-              otherKitchenEquipmentTypes: null,
-              storeTypeIds: null,
-              otherStoreTypes: null,
-              noOfGuests: null,
-              complexity: null,
-              additionalServices: null,
-              locationAddress: null,
-              locationLat: null,
-              locationLng: null,
-              addrLine1: null,
-              addrLine2: null,
-              state: null,
-              country: null,
-              city: null,
-              postalCode: null,
-              isDraftYn: true,
-              bookingHistId: null,
-            })
-              .then(value => {
-                const bookingData = {
-                  chefId,
-                  customerId: currentUser.customerId,
-                  chefBookingFromTime,
-                  chefBookingToTime,
-                  chefProfile,
-                  summary: about ? JSON.stringify(about) : null,
-                  bookingHistId: value.data.chef_booking_hist_id,
-                }
-                console.log('bookingData', bookingData)
-                navigation.navigate(RouteNames.PRICING_MODAL, {bookingData})
-              })
-              .catch(err => {
-                console.log('err', err)
-              })
-            this.closeModal()
+            const {draftBooking, bookingDetail} = this.state
+
+            try {
+              const variables = {
+                // stripeCustomerId: null,
+                // cardId: null,
+
+                chefId,
+                customerId: currentUser.customerId,
+
+                fromTime: LocalToGMT(chefBookingFromTime),
+                toTime: LocalToGMT(chefBookingToTime),
+                summary: about ? JSON.stringify(about) : null,
+
+                locationAddress: bookingDetail.chefBookingLocationAddress
+                  ? bookingDetail.chefBookingLocationAddress
+                  : null,
+                locationLat: bookingDetail.chefBookingLocationLat
+                  ? bookingDetail.chefBookingLocationLat
+                  : null,
+                locationLng: bookingDetail.chefBookingLocationLng
+                  ? bookingDetail.chefBookingLocationLng
+                  : null,
+
+                addrLine1: bookingDetail.chefBookingAddrLine1
+                  ? bookingDetail.chefBookingAddrLine1
+                  : null,
+                addrLine2: bookingDetail.chefBookingAddrLine2
+                  ? bookingDetail.chefBookingAddrLine2
+                  : null,
+                city: bookingDetail.chefBookingCity ? bookingDetail.chefBookingCity : null,
+                state: bookingDetail.chefBookingState ? bookingDetail.chefBookingState : null,
+                country: bookingDetail.chefBookingCountry ? bookingDetail.chefBookingCountry : null,
+                postalCode: bookingDetail.chefBookingPostalCode
+                  ? bookingDetail.chefBookingPostalCode
+                  : null,
+
+                allergyTypeIds: bookingDetail.chefBookingAllergyTypeId
+                  ? bookingDetail.chefBookingAllergyTypeId
+                  : null,
+
+                otherAllergyTypes: bookingDetail.chefBookingOtherAllergyTypes
+                  ? bookingDetail.chefBookingOtherAllergyTypes
+                  : null,
+
+                dietaryRestrictionsTypesIds: bookingDetail.chefBookingDietaryRestrictionsTypeId
+                  ? bookingDetail.chefBookingDietaryRestrictionsTypeId
+                  : null,
+
+                otherDietaryRestrictionsTypes: bookingDetail.chefBookingOtherDietaryRestrictionsTypes
+                  ? bookingDetail.chefBookingOtherDietaryRestrictionsTypes
+                  : null,
+
+                kitchenEquipmentTypeIds: bookingDetail.chefBookingKitchenEquipmentTypeId
+                  ? bookingDetail.chefBookingKitchenEquipmentTypeId
+                  : null,
+
+                otherKitchenEquipmentTypes: bookingDetail.chefBookingOtherKitchenEquipmentTypes
+                  ? bookingDetail.chefBookingOtherKitchenEquipmentTypes
+                  : null,
+
+                noOfGuests: bookingDetail.chefBookingNoOfPeople
+                  ? bookingDetail.chefBookingNoOfPeople
+                  : null,
+
+                complexity: bookingDetail.chefBookingComplexity
+                  ? bookingDetail.chefBookingComplexity
+                  : null,
+
+                storeTypeIds: bookingDetail.chefBookingStoreTypeId
+                  ? bookingDetail.chefBookingStoreTypeId
+                  : null,
+
+                otherStoreTypes: bookingDetail.chefBookingOtherStoreTypes
+                  ? bookingDetail.chefBookingOtherStoreTypes
+                  : null,
+
+                additionalServices: bookingDetail.chefBookingAdditionalServices
+                  ? JSON.parse(bookingDetail.chefBookingAdditionalServices)
+                  : null,
+
+                dishTypeId: bookingDetail.chefBookingDishTypeId
+                  ? bookingDetail.chefBookingDishTypeId
+                  : null,
+
+                isDraftYn: true,
+
+                bookingHistId: bookingHistId || null,
+              }
+              BookingHistoryService.bookNow(variables)
+                .then(value => {
+                  this.closeModal(() => {
+                    setTimeout(() => {
+                      navigation.navigate(RouteNames.PRICING_MODAL, {
+                        bookingDetail: {
+                          ...variables,
+                          summary: about || null,
+                          bookingHistId: value.data.chef_booking_hist_id,
+                        },
+                        chefProfile,
+                      })
+                    }, 500)
+                  })
+                })
+                .catch(err => {
+                  console.log('err', err)
+                })
+            } catch (e) {
+              console.log('debugging e', e)
+            }
           }
         })
         .catch(e => {
@@ -480,7 +582,6 @@ class CheckAvailability extends Component {
 
     const displayFromTime = moment(selectedItem.fromTime, dbTimeFormat).format(displayTimeFormat)
     const displayToTime = moment(selectedItem.toTime, dbTimeFormat).format(displayTimeFormat)
-    console.log('displayFromTime', displayFromTime, displayToTime)
 
     // let minimumHours
 
@@ -499,97 +600,94 @@ class CheckAvailability extends Component {
     // }
 
     return (
-      <Modalize
-        modalStyle={styles.modal}
-        modalHeight={SCREEN_HEIGHT * (2.5 / 3)}
-        ref={this.modal}
-        scrollViewProps={{
-          showsVerticalScrollIndicator: false,
-        }}
-        adjustToContentHeight
-        onClosed={this.onClosed}>
-        <ScrollView style={{flex: 1}}>
-          <Text style={styles.bookingTitle}>
-            {Languages.checkAvailability.buttonLabels.booking_date} : {selectedItem.date}
-          </Text>
-          {/* <Text style={styles.priceTitle}>
+      <ScrollView style={{flex: 1, paddingTop: 20, paddingBottom: 20}}>
+        <View style={styles.btnCon}>
+          <Button style={styles.changeDateBtn} onPress={() => this.setState({showModal: false})}>
+            <Text>Change Date</Text>
+          </Button>
+        </View>
+
+        <Text style={styles.bookingTitle}>
+          {Languages.checkAvailability.buttonLabels.booking_date} : {selectedItem.date}
+        </Text>
+        {/* <Text style={styles.priceTitle}>
             {Languages.checkAvailability.buttonLabels.price_per_hour} :{' '}
             {Languages.checkAvailability.buttonLabels.dollar}
             {chefPrice}
           </Text> */}
-          {/* <Text style={styles.priceTitle}>
+        {/* <Text style={styles.priceTitle}>
             {Languages.checkAvailability.buttonLabels.minimum_booking_hours} : {minimumHours} hrs
           </Text> */}
-          <View style={styles.availableTime}>
-            <Text style={styles.labelTitle}>
-              {Languages.checkAvailability.buttonLabels.booked_time_message}
-            </Text>
-            {bookingTimings && bookingTimings.length > 0 ? (
-              bookingTimings.map((time, key) => {
-                return (
-                  <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-                    <Button transparent>
-                      <Text style={styles.timeText}>{time.bookingStartTime}</Text>
-                    </Button>
-                    <Button transparent>
-                      <Text style={styles.timeText}>{time.bookingEndTime}</Text>
-                    </Button>
-                  </View>
-                )
-              })
-            ) : (
-              <View style={{flexDirection: 'row', justifyContent: 'space-around', marginTop: 10}}>
-                <Text style={{color: 'gray'}}>No Booked Time</Text>
-              </View>
-            )}
-          </View>
-          <View style={styles.availableTime}>
-            <Text style={styles.labelTitle}>
-              {Languages.checkAvailability.buttonLabels.available_time}
-            </Text>
-            <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-              <Button transparent>
-                <Text style={styles.timeText}>{displayFromTime}</Text>
-              </Button>
-              <Button transparent>
-                <Text style={styles.timeText}>{displayToTime}</Text>
-              </Button>
+        <View style={styles.availableTime}>
+          <Text style={styles.labelTitle}>
+            {Languages.checkAvailability.buttonLabels.booked_time_message}
+          </Text>
+          {bookingTimings && bookingTimings.length > 0 ? (
+            bookingTimings.map((time, key) => {
+              return (
+                <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
+                  <Button transparent>
+                    <Text style={styles.timeText}>{time.bookingStartTime}</Text>
+                  </Button>
+                  <Button transparent>
+                    <Text style={styles.timeText}>{time.bookingEndTime}</Text>
+                  </Button>
+                </View>
+              )
+            })
+          ) : (
+            <View style={{flexDirection: 'row', justifyContent: 'space-around', marginTop: 10}}>
+              <Text style={{color: 'gray'}}>No Booked Time</Text>
             </View>
+          )}
+        </View>
+        <View style={styles.availableTime}>
+          <Text style={styles.labelTitle}>
+            {Languages.checkAvailability.buttonLabels.available_time}
+          </Text>
+          <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
+            <Button transparent>
+              <Text style={styles.timeText}>{displayFromTime}</Text>
+            </Button>
+            <Button transparent>
+              <Text style={styles.timeText}>{displayToTime}</Text>
+            </Button>
           </View>
+        </View>
 
-          <View style={styles.availableTime}>
-            <Text style={styles.labelTitle}>
-              {Languages.checkAvailability.buttonLabels.selected_time_message}
-            </Text>
-            {/* <Text style={styles.noteText}>
+        <View style={styles.availableTime}>
+          <Text style={styles.labelTitle}>
+            {Languages.checkAvailability.buttonLabels.selected_time_message}
+          </Text>
+          {/* <Text style={styles.noteText}>
               Note: Please select time interval 0 or 30 mins, don't select 5,10,15,20,25 intervals.
             </Text> */}
-            <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-              <Button
-                style={styles.timeinputStyle}
-                onPress={() => this.onShowPicker('fromTime', displayFromTime)}>
-                <Text style={styles.timeTextSelect}>{displaySelectedFromTime} </Text>
-              </Button>
-              <Button
-                style={styles.timeinputStyle}
-                onPress={() => this.onShowPicker('toTime', displayToTime)}>
-                <Text style={styles.timeTextSelect}>{displaySelectedToTime} </Text>
-              </Button>
-            </View>
+          <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
+            <Button
+              style={styles.timeinputStyle}
+              onPress={() => this.onShowPicker('fromTime', displayFromTime)}>
+              <Text style={styles.timeTextSelect}>{displaySelectedFromTime} </Text>
+            </Button>
+            <Button
+              style={styles.timeinputStyle}
+              onPress={() => this.onShowPicker('toTime', displayToTime)}>
+              <Text style={styles.timeTextSelect}>{displaySelectedToTime} </Text>
+            </Button>
           </View>
-          {isInvalid ? (
-            <Text
-              style={{
-                color: Theme.Colors.error,
-                textAlign: 'center',
-                marginTop: 15,
-                fontSize: 16,
-                paddingHorizontal: 10,
-              }}>
-              {Languages.checkAvailability.buttonLabels.select_valid_time}
-            </Text>
-          ) : null}
-          {/* {isInvalid === false && (
+        </View>
+        {isInvalid ? (
+          <Text
+            style={{
+              color: Theme.Colors.error,
+              textAlign: 'center',
+              marginTop: 15,
+              fontSize: 16,
+              paddingHorizontal: 10,
+            }}>
+            {Languages.checkAvailability.buttonLabels.select_valid_time}
+          </Text>
+        ) : null}
+        {/* {isInvalid === false && (
             <View>
               {selectedFromTime !== null && selectedToTime !== null && (
                 <Text style={styles.amountText}>
@@ -605,28 +703,27 @@ class CheckAvailability extends Component {
               )}
             </View>
           )} */}
-          <View style={styles.textAreaContent}>
-            <Textarea
-              style={styles.textAreaStyle}
-              rowSpan={5}
-              bordered
-              value={about}
-              onChangeText={value => this.onChangeAbout(value)}
-              placeholder="Tell a little bit about yourself and the event."
-            />
-          </View>
-          <Text style={styles.amountText}>
-            Chef will block out the times he/she will need on accepting the request.
-          </Text>
-          <View style={styles.bookNowView}>
-            <Button block style={styles.bookNowStyleBtn} onPress={() => this.bookNowNext()}>
-              <Text style={styles.continueBookTextSelect}>
-                {Languages.checkAvailability.buttonLabels.next}
-              </Text>
-            </Button>
-          </View>
-        </ScrollView>
-      </Modalize>
+        <View style={styles.textAreaContent}>
+          <Textarea
+            style={styles.textAreaStyle}
+            rowSpan={5}
+            bordered
+            value={about}
+            onChangeText={value => this.onChangeAbout(value)}
+            placeholder="Tell a little bit about yourself and the event."
+          />
+        </View>
+        <Text style={styles.amountText}>
+          Chef will block out the times he/she will need on accepting the request.
+        </Text>
+        <View style={styles.bookNowView}>
+          <Button block style={styles.bookNowStyleBtn} onPress={() => this.bookNowNext()}>
+            <Text style={styles.continueBookTextSelect}>
+              {Languages.checkAvailability.buttonLabels.next}
+            </Text>
+          </Button>
+        </View>
+      </ScrollView>
     )
   }
 
@@ -638,7 +735,6 @@ class CheckAvailability extends Component {
 
     const {selectedItem, selectedDate, selectedFromTime, selectedToTime} = this.state
 
-    console.log('selectedFromTimetest', selectedFromTime)
     // checking min should be 0,30 min
     // const timeSlot = [0, 30]
     if (selectedFromTime !== null && selectedToTime !== null) {
@@ -688,7 +784,6 @@ class CheckAvailability extends Component {
   }
 
   onShowPicker = (type, time) => {
-    console.log('time', time)
     this.setState({
       showTimePicker: true,
       timeType: type,
@@ -738,7 +833,7 @@ class CheckAvailability extends Component {
 
   render() {
     const {navigation} = this.props
-    const {markedDates, isLoading} = this.state
+    const {markedDates, isLoading, draftBooking, showModal} = this.state
 
     if (isLoading) {
       return <Spinner animating mode="full" />
@@ -752,16 +847,19 @@ class CheckAvailability extends Component {
           showTitle
           title={Languages.checkAvailability.title}
         />
-        <CalendarList
-          pastScrollRange={0}
-          // futureScrollRange={2}
-          selected={new Date()}
-          markedDates={markedDates}
-          onDayPress={date => {
-            this.dateSelected(date)
-          }}
-        />
-        {this.renderModal()}
+        {!showModal ? (
+          <CalendarList
+            pastScrollRange={0}
+            // futureScrollRange={2}
+            selected={new Date()}
+            markedDates={markedDates}
+            onDayPress={date => {
+              // console.log('debugging date', date)
+              this.dateSelected(date)
+            }}
+          />
+        ) : null}
+        {showModal ? this.renderModal() : null}
         {this.renderTimePicker()}
       </View>
     )

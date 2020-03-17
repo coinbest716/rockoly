@@ -22,7 +22,7 @@ export default class Feedback extends Component {
     super(props)
     this.state = {
       review: '',
-      starCount: 2,
+      starCount: 5,
       compliment: [],
       reviewDesc: '',
       role: '',

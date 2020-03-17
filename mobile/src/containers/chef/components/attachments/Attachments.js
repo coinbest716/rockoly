@@ -308,7 +308,9 @@ export default class Attachment extends PureComponent {
         (attachementsCertification && attachementsCertification.length === 0) &&
         (attachementsLicense && attachementsLicense.length === 0))
     ) {
-      Alert.alert('Please upload any one of documents')
+      Alert.alert(
+        `Please upload a picture of your driver's license and any certificates you are currently holding.`
+      )
       return
     }
 

@@ -245,6 +245,11 @@ class CustomerProfile extends Component {
     navigation.navigate(RouteNames.CHEF_EDIT_PROFILE, {screen: 'RATE'})
   }
 
+  onPrice = () => {
+    const {navigation} = this.props
+    navigation.navigate(RouteNames.PRICE_CALCULATION)
+  }
+
   onService = () => {
     const {navigation} = this.props
     navigation.navigate(RouteNames.CHEF_EDIT_PROFILE, {screen: 'NUMBER_OF_GUESTS'})
@@ -824,6 +829,12 @@ class CustomerProfile extends Component {
           onPress={this.onRate}
           type="MaterialCommunityIcons"
         />
+        <CustomListItem
+          iconName="calculator-variant"
+          label={Languages.customerProfile.options.priceCal}
+          onPress={this.onPrice}
+          type="MaterialCommunityIcons"
+        />
 
         <CustomListItem
           iconName="account-group"
@@ -920,6 +931,12 @@ class CustomerProfile extends Component {
     } else if (!isChef && profile) {
       picId = profile.customerPicId
     }
+    let pic
+    if (picId) {
+      pic = {uri: picId}
+    } else {
+      pic = Images.common.defaultAvatar
+    }
     console.log('picid', picId)
     return (
       <View style={styles.container}>
@@ -929,7 +946,7 @@ class CustomerProfile extends Component {
           {isLoggedIn && !isChef && <Text style={styles.accountNameLabel}>I'm a customer</Text>}
           <View style={styles.topContainer}>
             {isLoggedIn ? (
-              <Image source={{uri: picId}} style={styles.profileImage} resizeMode="contain" />
+              <Image source={pic} style={styles.profileImage} resizeMode="contain" />
             ) : (
               <Image source={Images.logo.mainLogo} style={styles.logo} resizeMode="contain" />
             )}

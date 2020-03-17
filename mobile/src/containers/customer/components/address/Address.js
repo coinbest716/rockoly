@@ -646,7 +646,7 @@ class Address extends PureComponent {
               Alert.alert('Info', 'Unable to fetch latitude and longitude')
             })
           } else {
-            Alert.alert('Info', 'Plese fill all details')
+            Alert.alert('Info', 'Please fill all details')
           }
         } else {
           if(getValue) {
@@ -657,7 +657,7 @@ class Address extends PureComponent {
           }
         }
       }else {
-        Alert.alert('Info', 'Plese fill all details')
+        Alert.alert('Info', 'Please fill all details')
       }
     }else if(latitude === '' && longitude === '') {
         console.log('onAddLocation', latitude, longitude, streetAddress, city, state, country, zipcode)
@@ -740,7 +740,7 @@ class Address extends PureComponent {
             Alert.alert('Info', 'Unable to fetch latitude and longitude')
           })
         } else {
-          Alert.alert('Info', 'Plese fill all details')
+          Alert.alert('Info', 'Please fill all details')
         }
       } else {
         if(getValue) {
@@ -820,7 +820,7 @@ class Address extends PureComponent {
         }
       )
     } else {
-      Alert.alert('Info', 'Plese fill all details')
+      Alert.alert('Info', 'Please fill all details')
     }
    } 
   //  else {

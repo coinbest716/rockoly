@@ -5,12 +5,25 @@ import {Theme} from '@theme'
 
 const styles = StyleSheet.create({
   ...Theme.CommonStyle,
+  btnCon: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    paddingHorizontal: 20,
+  },
+  changeDateBtn: {
+    backgroundColor: Theme.Colors.primary,
+    width: '40%',
+    textAlign: 'center',
+  },
   modal: {
     paddingVertical: 30,
     paddingHorizontal: 10,
   },
   bookingTitle: {
     fontSize: 18,
+    marginVertical: 10,
+    textAlign: 'center',
   },
   priceTitle: {
     fontSize: 18,

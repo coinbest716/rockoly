@@ -62,13 +62,14 @@ class BookNow extends PureComponent {
     this.state = {
       isBooking: false,
       isLoading: false,
-      chefProfile: {
-        chefPicId: null,
-        name: '',
-        location: 'dawdawdawdawd dawdawdaw',
-        averageRating: 4.3,
-        totalReviewCount: 10,
-      },
+      // chefProfile: {
+      //   chefPicId: null,
+      //   name: '',
+      //   location: 'dawdawdawdawd dawdawdaw',
+      //   averageRating: 4.3,
+      //   totalReviewCount: 10,
+      // },
+      chefProfile: {},
       servicePercentage: 0,
       cardsList: [],
       selectedCardId: undefined,
@@ -116,10 +117,12 @@ class BookNow extends PureComponent {
   loadBookingData = () => {
     SettingsService.getSettings(SETTING_KEY_NAME.COMMISSION_KEY)
       .then(servicePercentage => {
+        console.log('servicePercentage', servicePercentage)
         const {navigation} = this.props
         let bookingData = {}
         if (navigation.state.params && navigation.state.params.bookingValue) {
           bookingData = navigation.state.params.bookingValue
+          console.log('navigation.state.params.bookingValue', navigation.state.params.bookingValue)
         } else {
           Alert.alert(Languages.bookNow.alert.no_booking_data)
         }
@@ -146,7 +149,7 @@ class BookNow extends PureComponent {
             chefPrice: bookingData.chefBookingPriceValue,
             chefPriceUnit: bookingData.chefBookingPriceUnit,
             totalPrice,
-            chefProfile: bookingData.chefProfile,
+            chefProfile: navigation.state.params.chefProfile,
             servicePercentage,
             complexity: bookingData.complexity,
             noOfGuests: bookingData.noOfGuests,
@@ -290,9 +293,9 @@ class BookNow extends PureComponent {
         additionalServices: bookingData.additionalServices,
       })
 
-      const GMTFrom = bookingData.chefBookingFromTime
-      const GMTto = bookingData.chefBookingToTime
-
+      const GMTFrom = bookingData.fromTime
+      const GMTto = bookingData.toTime
+      console.log('GMTFrom', GMTFrom)
       BookingHistoryService.checkAvailablity({
         chefId: bookingData.chefId,
         fromTime: fetchDate(bookingData.fromTime),
@@ -307,33 +310,59 @@ class BookNow extends PureComponent {
               cardId: selectedCardId,
               chefId: bookingData.chefId,
               customerId: bookingData.customerId,
-              fromTime: LocalToGMT(bookingData.chefBookingFromTime),
-              toTime: LocalToGMT(bookingData.chefBookingToTime),
-              notes: requestNotes ? JSON.stringify(requestNotes) : null,
-              dishTypeId: dishItems && dishItems.length > 0 ? dishItems : null,
-              summary: bookingData.summary,
-              allergyTypeIds: bookingData.allergyTypeIds,
-              otherAllergyTypes: bookingData.otherAllergyTypes,
-              dietaryRestrictionsTypesIds: bookingData.dietaryRestrictionsTypesIds,
-              otherDietaryRestrictionsTypes: bookingData.otherDietaryRestrictionsTypes,
-              kitchenEquipmentTypeIds: bookingData.kitchenEquipmentTypeIds,
-              otherKitchenEquipmentTypes: bookingData.otherKitchenEquipmentTypes,
-              storeTypeIds: bookingData.storeTypeIds,
-              otherStoreTypes: bookingData.otherStoreTypes,
-              noOfGuests: bookingData.noOfGuests,
-              complexity: bookingData.complexity,
-              additionalServices: bookingData.additionalServices,
-              locationAddress: bookingData.locationAddress,
-              locationLat: bookingData.locationLat,
-              locationLng: bookingData.locationLng,
-              addrLine1: bookingData.addrLine1,
-              addrLine2: bookingData.addrLine2,
-              state: bookingData.state,
-              country: bookingData.country,
-              city: bookingData.city,
-              postalCode: bookingData.postalCode,
-              isDraftYn: false,
+              fromTime: bookingData.fromTime,
+              toTime: bookingData.toTime,
+
+              summary: bookingData.summary ? bookingData.summary : null,
+
               bookingHistId: bookingData.bookingHistId,
+
+              isDraftYn: false,
+
+              locationAddress: bookingData.locationAddress ? bookingData.locationAddress : null,
+              locationLat: bookingData.locationLat ? bookingData.locationLat : null,
+              locationLng: bookingData.locationLng ? bookingData.locationLng : null,
+
+              addrLine1: bookingData.addrLine1 ? bookingData.addrLine1 : null,
+              addrLine2: bookingData.addrLine2 ? bookingData.addrLine2 : null,
+              city: bookingData.city ? bookingData.city : null,
+              state: bookingData.state ? bookingData.state : null,
+              country: bookingData.country ? bookingData.country : null,
+              postalCode: bookingData.postalCode ? bookingData.postalCode : null,
+
+              allergyTypeIds: bookingData.allergyTypeIds ? bookingData.allergyTypeIds : null,
+
+              otherAllergyTypes: bookingData.otherAllergyTypes
+                ? bookingData.otherAllergyTypes
+                : null,
+              dietaryRestrictionsTypesIds: bookingData.dietaryRestrictionsTypesIds
+                ? bookingData.dietaryRestrictionsTypesIds
+                : null,
+              otherDietaryRestrictionsTypes: bookingData.otherDietaryRestrictionsTypes
+                ? bookingData.otherDietaryRestrictionsTypes
+                : null,
+
+              kitchenEquipmentTypeIds: bookingData.kitchenEquipmentTypeIds
+                ? bookingData.kitchenEquipmentTypeIds
+                : null,
+
+              otherKitchenEquipmentTypes: bookingData.otherKitchenEquipmentTypes
+                ? bookingData.otherKitchenEquipmentTypes
+                : null,
+
+              noOfGuests: bookingData.noOfGuests ? bookingData.noOfGuests : null,
+
+              complexity: bookingData.complexity ? bookingData.complexity : null,
+
+              storeTypeIds: bookingData.storeTypeIds ? bookingData.storeTypeIds : null,
+
+              otherStoreTypes: bookingData.otherStoreTypes ? bookingData.otherStoreTypes : null,
+
+              additionalServices: bookingData.additionalServices
+                ? bookingData.additionalServices
+                : null,
+
+              dishTypeId: bookingData.dishTypeId ? bookingData.dishTypeId : null,
             })
           }
         })
@@ -549,7 +578,9 @@ class BookNow extends PureComponent {
       complexity,
       noOfGuests,
       additionalPrice,
+      additionalServiceValues,
     } = this.state
+    console.log('chefProfile', chefProfile)
     const {navigation} = this.props
     let dishTypesValue = []
     let dishItemsValue = []
@@ -749,15 +780,15 @@ class BookNow extends PureComponent {
               <Text style={styles.biilingRightText}>{bookingDate}</Text>
             </ListItem>
             <ListItem>
-              <Text style={styles.destext}>{Languages.bookNow.labels.booking_time}</Text>
+              <Text style={styles.destext}>{Languages.bookNow.labels.ServingTime}</Text>
               <Text style={styles.biilingRightText}>
                 {bookingFromTime} - {bookingToTime}
               </Text>
             </ListItem>
-            <ListItem>
+            {/* <ListItem>
               <Text style={styles.destext}>{Languages.bookNow.labels.service_cost} :</Text>
               <Text style={styles.biilingRightText}>${chefPrice}</Text>
-            </ListItem>
+            </ListItem> */}
           </View>
           {/* <View>
             <ListItem itemDivider>
@@ -813,28 +844,25 @@ class BookNow extends PureComponent {
               <View>
                 <ListItem>
                   <Text style={styles.destext}>
-                    Chef base rate ({`$${chefPrice}`}) X {noOfGuests}{' '}
+                    Chef Base rate ({`$${chefPrice}`}) X ({noOfGuests}) guests.
                   </Text>
                   <Text style={styles.biilingRightText}>
                     {chefAmount ? `$${chefAmount.toFixed(2)}` : null}
                   </Text>
                 </ListItem>
                 <ListItem>
-                  <Text style={styles.destext}>Discount</Text>
+                  <Text style={styles.discount}>
+                    Discount - Over 5 ({guestCount}) guests half chef Base Rate ({`$${guestPrice}`})
+                  </Text>
                   <Text style={styles.biilingRightText}>
                     {discount ? `-$${discount.toFixed(2)}` : null}
-                  </Text>
-                </ListItem>
-                <ListItem>
-                  <Text style={styles.destext}>
-                    Over 5 ({guestCount}) guests half chef Base Rate ({`$${guestPrice}`})
                   </Text>
                 </ListItem>
               </View>
             ) : (
               <ListItem>
                 <Text style={styles.destext}>
-                  Chef base rate ({`$${chefPrice}`}) X {noOfGuests}{' '}
+                  Chef Base rate ({`$${chefPrice}`}) X ({noOfGuests}) guests.
                 </Text>
                 <Text style={styles.biilingRightText}>
                   {chefAmount ? `$${chefAmount.toFixed(2)}` : null}
@@ -856,6 +884,21 @@ class BookNow extends PureComponent {
                 {additionalTotalPrice ? `$${additionalTotalPrice.toFixed(2)}` : null}
               </Text>
             </ListItem>
+            {additionalServiceValues && additionalServiceValues.length > 0 ? (
+              additionalServiceValues.map((item, index) => {
+                return (
+                  <CardItem>
+                    <Body style={styles.serviceView}>
+                      <Text style={styles.locationText}>
+                        {item.name}: <Text style={styles.destext}>${item.price}</Text>
+                      </Text>
+                    </Body>
+                  </CardItem>
+                )
+              })
+            ) : (
+              <Text style={styles.noText}>No services</Text>
+            )}
             <ListItem>
               <Text style={styles.destext}>Total </Text>
               <Text style={styles.biilingRightText}>
