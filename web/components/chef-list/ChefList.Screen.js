@@ -7,6 +7,7 @@ import LeftSidebar from './components/LeftSidebar';
 import * as utils from '../../utils/checkEmptycondition';
 import { toastMessage } from '../../utils/Toast';
 import { AppContext } from '../../context/appContext';
+import moment from 'moment';
 
 const ChefListScreen = props => {
   let rangeObj = {},
@@ -47,7 +48,7 @@ const ChefListScreen = props => {
     try {
       setgridClass(e);
     } catch (error) {
-      console.log('error', error.message);
+      //console.log('error', error.message);
     }
   }
 
@@ -141,6 +142,16 @@ const ChefListScreen = props => {
       experience: experience ? experience : undefined,
       event_from_time: startTime ? startTime : undefined,
       event_to_time: endTime ? endTime : undefined,
+      event_gmt_from_time: startTime
+        ? moment(startTime)
+            .utc()
+            .format()
+        : undefined,
+      event_gmt_to_time: endTime
+        ? moment(endTime)
+            .utc()
+            .format()
+        : undefined,
     };
     rangeObj = JSON.stringify(rangeObj);
     rangeObj = JSON.stringify(rangeObj);

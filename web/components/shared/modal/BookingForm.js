@@ -24,6 +24,7 @@ import {
   getTimeFormat,
   getHourFormat,
   getIsoTime,
+  getTimeFirefoxOnly,
 } from '../../../utils/DateTimeFormat';
 import Modal from 'react-responsive-modal';
 import * as gqlTag from '../../../common/gql';
@@ -114,6 +115,10 @@ const BookingForms = props => {
   const [enblePayment, setEnablePayment] = useState(false);
   const [bookedTime, setbookedTime] = useState([]);
   const [bookingSummary, setBookingSummary] = useState(null);
+  const [isEditFromTimeYn, setEditFromTimeYn] = useState(false);
+  const [isEditToTimeYn, setEditToTimeYn] = useState(false);
+  const [bookingType, setBookingType] = useState('CREATE');
+
   const customStyles = {
     content: {
       top: '50%',
@@ -239,7 +244,7 @@ const BookingForms = props => {
     pToTime: bookingDate + ' 23:59:59',
     first: 100,
     chefId: currentChefIdValue,
-    statusId: 'CHEF_ACCEPTED',
+    statusId: '"CHEF_ACCEPTED"',
   });
   const BOOKING_HISTORY_VALUE = gql`
     ${bookingHistoryValue}
@@ -269,16 +274,18 @@ const BookingForms = props => {
   useEffect(() => {
     let data = props.bookingDetail;
     if (util.isObjectEmpty(data)) {
-      console.log(
-        'getTimeOnly',
-        getDateWithTimeLocal(data.chefBookingToTime),
-        getTimeOnly(getDateWithTimeLocal(data.chefBookingToTime))
-      );
       setBookingDate(getDateFormat(moment(new Date(data.chefBookingFromTime))));
-      setBookingStartTime(getTimeOnly(getDateWithTimeLocal(data.chefBookingFromTime)));
-      setBookingEndTime(getTimeOnly(getDateWithTimeLocal(data.chefBookingToTime)));
+
+      let gmtDateFromTime = moment.utc(data.chefBookingFromTime);
+      let localFromTime = gmtDateFromTime.local().format('MM-DD-YYYY h:mm a');
+      setBookingStartTime(getTimeFirefoxOnly(localFromTime));
+      let gmtDateToTime = moment.utc(data.chefBookingToTime);
+      let localToTime = gmtDateToTime.local().format('MM-DD-YYYY h:mm a');
+      setBookingEndTime(getTimeFirefoxOnly(localToTime));
       setBookingSummary(data.chefBookingSummary);
       setBookingDetail(data);
+      setBookingType('EDIT');
+      bookingHistoryDataValue();
     }
   }, [props.bookingDetail]);
 
@@ -305,14 +312,20 @@ const BookingForms = props => {
       let fromToTime = [];
       historyData.data.listBookingByDateRange.nodes.map((res, key) => {
         if (res) {
+          console.log('res', res);
           let startDate1 = getTimeOnly(res.chefBookingFromTime);
           //Set fixed end date
           let endDate1 = getTimeOnly(res.chefBookingToTime);
-
+          let gmtDateFromTime = moment.utc(res.chefBookingBlockFromTime);
+          let localFromTime = gmtDateFromTime.local().format('MM-DD-YYYY h:mm a');
+          let gmtDateToTime = moment.utc(res.chefBookingBlockToTime);
+          let localToTime = gmtDateToTime.local().format('MM-DD-YYYY h:mm a');
           let combineTime =
-            getTimeOnly(getDateWithTimeLocal(res.chefBookingFromTime)) +
-            ' - ' +
-            getTimeOnly(getDateWithTimeLocal(res.chefBookingToTime));
+            getTimeFirefoxOnly(localFromTime) + ' - ' + getTimeFirefoxOnly(localToTime);
+
+          // getTimeOnly(getDateWithTimeLocal(res.chefBookingFromTime)) +
+          // ' - ' +
+          // getTimeOnly(getDateWithTimeLocal(res.chefBookingToTime));
           fromToTime.push(combineTime);
           if (historyData.data.listBookingByDateRange.nodes.length - 1 === key) {
             setbookedTime(fromToTime);
@@ -573,22 +586,12 @@ const BookingForms = props => {
         }
       } else if (type === 'end') {
         if (util.isObjectEmpty(props.bookingDetail)) {
-          console.log('bookingEndTime', bookingEndTime);
           const bookedEnd = bookingEndTime;
           formattedEndTime = moment(bookedEnd, 'hh:mm a').format('HH:mm');
-          console.log('formattedEndTime', formattedEndTime);
         } else {
           formattedEndTime = fixedEndTime;
         }
       }
-
-      console.log(
-        'formattedStartTime',
-        formattedStartTime,
-        bookingStartTime,
-        formattedEndTime,
-        bookingEndTime
-      );
       // if (value) {
       try {
         return (
@@ -651,6 +654,7 @@ const BookingForms = props => {
       if (type === 'start') {
         let toTime = null;
         let endMin = null;
+        setEditFromTimeYn(true);
         // if (minute == '30') {
         //   if (hour == '11' && meridiem == 'AM') {
         //     toTime = convert12to24Format(`${parseInt(hour) + 1}:${parseInt(minute) - 30} PM`);
@@ -673,18 +677,18 @@ const BookingForms = props => {
         endMin = calcluateMin(`${parseInt(hour)}:${parseInt(minute) + 5} ${meridiem}`);
 
         stateValue(fromTime);
-        console.log('onChangeAvailability', toTime);
         if (props.bookingDetail && util.isObjectEmpty(props.bookingDetail)) {
           setBookingEndTime(toTime);
         } else {
           setBookingToTime(toTime);
         }
-
+        setEditToTimeYn(true);
         setStartMin(startMin);
         setEndMin(endMin);
       }
       //if end time
       else if (type === 'end') {
+        setEditToTimeYn(true);
         stateValue(fromTime);
         setEndMin(startMin);
       }
@@ -918,14 +922,26 @@ const BookingForms = props => {
     let finalBookingStartTime;
     let finalBookingEndTime;
     if (props.bookingDetail && util.isObjectEmpty(props.bookingDetail)) {
-      finalBookingStartTime = bookingStartTime;
-      finalBookingEndTime = bookingEndTime;
+      if (bookingType === 'EDIT' && isEditFromTimeYn === false) {
+        console.log('checkBookingExists fromValue', bookingStartTime);
+        let val = moment(bookingStartTime, 'hh:mm a').format('HH:mm');
+        finalBookingStartTime = val;
+      } else {
+        finalBookingStartTime = bookingStartTime;
+      }
+
+      if (bookingType === 'EDIT' && isEditToTimeYn === false) {
+        console.log('checkBookingExists toValue', bookingEndTime);
+        let val = moment(bookingEndTime, 'hh:mm a').format('HH:mm');
+        finalBookingEndTime = val;
+      } else {
+        finalBookingEndTime = bookingEndTime;
+      }
     } else {
       finalBookingStartTime = bookingFromTime;
       finalBookingEndTime = bookingToTime;
     }
 
-    console.log('checkBookingExists', finalBookingStartTime, finalBookingEndTime);
     const data = {
       pChefId: currentChefIdValue,
       pFromTime: getDate(bookingDate, finalBookingStartTime),
@@ -1116,10 +1132,12 @@ const BookingForms = props => {
                   data-error="Please enter booking date"
                 />
               </div>
-              <div className="row form-group" id="bookingDetail" style={{ fontSize: '15px' }}>
-                <label className="label">{S.AVAIALABLE_TIME}</label>
-                <div>{avaialableTime}</div>
-              </div>
+              {props && props.bookingDetail && !util.isObjectEmpty(props.bookingDetail) ? (
+                <div className="row form-group" id="bookingDetail" style={{ fontSize: '15px' }}>
+                  <label className="label">{S.AVAIALABLE_TIME}</label>
+                  <div>{avaialableTime}</div>
+                </div>
+              ) : null}
               {bookedTime && bookedTime.length > 0 && (
                 <div>
                   <div className="row form-group" id="bookingDetail">
@@ -1131,6 +1149,7 @@ const BookingForms = props => {
                   </div>
                 </div>
               )}
+              <br />
               <div className="form-group">
                 <label className="label" style={{ fontSize: '15px' }}>
                   {S.SELECTED_TIME}

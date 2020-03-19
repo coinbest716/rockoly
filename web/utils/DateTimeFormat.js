@@ -74,23 +74,17 @@ export const getTimestamp = date => {
 };
 
 export const getCurrentTimestamp = date => {
-
-  console.log("date",date)
   try {
     var time = moment(new Date()).format('hh');
-    console.log("date time",time)
     var day = moment(new Date());
     // console.log("date day",day)
     // day.setHours(time)
     // var day = moment(new Date(date)).set(time, 'hh');
-    console.log("date day",day)
     return new Date(date);
-
   } catch (error) {
     toastMessage(renderError, error.message);
   }
 };
-
 
 // get date format
 export const getDateFormat = date => {
@@ -134,6 +128,14 @@ export const getDateWithTimeLocalWithoutFormat = date => {
 export const getTimeOnly = date => {
   try {
     return moment(date).format(timeOnly);
+  } catch (error) {
+    toastMessage(renderError, error.message);
+  }
+};
+
+export const getTimeFirefoxOnly = date => {
+  try {
+    return moment(date, 'MM-DD-YYYY h:mm a').format(timeOnly);
   } catch (error) {
     toastMessage(renderError, error.message);
   }
@@ -213,7 +215,7 @@ export const getTimeFormat = date => {
   }
 };
 
-export const getIsoTime = date =>{
+export const getIsoTime = date => {
   try {
     return moment(date).format(timeValue);
   } catch (error) {

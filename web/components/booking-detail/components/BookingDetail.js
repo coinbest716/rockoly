@@ -6,7 +6,15 @@ import {
   NotificationconvertDateandTime,
   convertDate,
 } from '../../../utils/DateTimeFormat';
-import { chef, customer, getUserTypeRole, customerId } from '../../../utils/UserType';
+import {
+  chef,
+  customer,
+  getUserTypeRole,
+  getChefId,
+  getCustomerId,
+  chefId,
+  customerId,
+} from '../../../utils/UserType';
 import { useMutation, useLazyQuery, useQuery } from '@apollo/react-hooks';
 import gql from 'graphql-tag';
 import {
@@ -15,7 +23,7 @@ import {
   isStringEmpty,
   isArrayEmpty,
 } from '../../../utils/checkEmptycondition';
-import { NavigateToChatPage } from './Navigation';
+import { NavigateToChatPage, NavigateToHome } from './Navigation';
 // import { toastMessage, success, renderError, error } from '../../../utils/Toast';
 import ChefBookingButton from '../../shared/booking-buttons/ChefBookingButton';
 import CustomerBookingButton from '../../shared/booking-buttons/CustomerBookingButton';
@@ -52,6 +60,8 @@ export default function BookingDetail(props) {
   const [fullName, setFullName] = useState('');
   const [image, setImage] = useState('');
   const [address, setAddress] = useState('');
+  const [city, setCity] = useState('');
+  const [state, setState] = useState('');
   const [reason, setReason] = useState('');
   const [bookingDetail, setBookingDetail] = useState({});
   const [notes, setNotes] = useState([]);
@@ -70,6 +80,7 @@ export default function BookingDetail(props) {
   const [savedComplexity, setSavedComplexity] = useState();
   const [serviceCentsValue, setServiceCentsValue] = useState(null);
   const [servicePercentValue, setServicePercentValue] = useState(null);
+
 
   const [serviceCent, serviceCentData] = useLazyQuery(STRIPE_SERVICE_CENTS, {
     variables: {
@@ -164,6 +175,8 @@ export default function BookingDetail(props) {
               const chefDetail =
                 bookingValue.chefProfileByChefId.chefProfileExtendedsByChefId.nodes[0];
               setAddress(chefDetail.chefLocationAddress);
+              setCity(chefDetail.chefCity)
+              setState(chefDetail.chefState)
               setBaseRate(chefDetail.chefPricePerHour);
             }
             setFullName(bookingValue.chefProfileByChefId.fullName);
@@ -204,6 +217,9 @@ export default function BookingDetail(props) {
                 bookingValue.customerProfileByCustomerId.customerProfileExtendedsByCustomerId
                   .nodes[0];
               setAddress(chefDetail.customerLocationAddress);
+              console.log('chefDetail', chefDetail)
+              setCity(chefDetail.customerCity)
+              setState(chefDetail.customerState)
             }
             setFullName(bookingValue.customerProfileByCustomerId.fullName);
             setImage(bookingValue.customerProfileByCustomerId.customerPicId);
@@ -260,61 +276,154 @@ export default function BookingDetail(props) {
   useEffect(() => {
     servicePrice = 0;
     if (isObjectEmpty(bookingData)) {
-      if (isStringEmpty(bookingData.chefBookingAdditionalServices)) {
-        let service = JSON.parse(bookingData.chefBookingAdditionalServices);
-        service.map(data => {
-          servicePrice = servicePrice + parseInt(data.price);
-        });
-        setServicePrice(servicePrice);
-      } else {
-        setServicePrice(0);
-      }
-      if (baserate) {
-        const value = priceCalculator(
-          baserate,
-          bookingData.chefBookingNoOfPeople,
-          bookingData.chefBookingComplexity,
-          servicePrice
-        );
-        setChefPrice(value);
-        setNoOfPeople(bookingData.chefBookingNoOfPeople);
-        if (bookingData.chefBookingNoOfPeople > 5) {
-          let price = (bookingData.chefBookingNoOfPeople - 5) * (baserate / 2);
-          setAfterFive(price);
-          price = 5 * baserate;
-          setBeforeFive(price);
-        } else if (bookingData.chefBookingNoOfPeople <= 5) {
-          let price = bookingData.chefBookingNoOfPeople * baserate;
-          setBeforeFive(price);
-        }
-        if (bookingData.chefBookingNoOfPeople >= 5) {
-          let remainingCount = bookingData.chefBookingNoOfPeople - 5;
-          let halfBaseRate = baserate / 2;
+      console.log('bookingData', bookingData);
+      getUserTypeRole()
+        .then(res => {
+          console.log('res', res);
+          if (res === customer) {
+            getCustomerId(customerId)
+              .then(async customerIdvalue => {
+                if (customerIdvalue === bookingData.customerId) {
+                  if (isStringEmpty(bookingData.chefBookingAdditionalServices)) {
+                    let service = JSON.parse(bookingData.chefBookingAdditionalServices);
+                    service.map(data => {
+                      servicePrice = servicePrice + parseInt(data.price);
+                    });
+                    setServicePrice(servicePrice);
+                  } else {
+                    setServicePrice(0);
+                  }
+                  if (baserate) {
+                    const value = priceCalculator(
+                      baserate,
+                      bookingData.chefBookingNoOfPeople,
+                      bookingData.chefBookingComplexity,
+                      servicePrice
+                    );
+                    setChefPrice(value);
+                    setNoOfPeople(bookingData.chefBookingNoOfPeople);
+                    if (bookingData.chefBookingNoOfPeople > 5) {
+                      let price = (bookingData.chefBookingNoOfPeople - 5) * (baserate / 2);
+                      setAfterFive(price);
+                      price = 5 * baserate;
+                      setBeforeFive(price);
+                    } else if (bookingData.chefBookingNoOfPeople <= 5) {
+                      let price = bookingData.chefBookingNoOfPeople * baserate;
+                      setBeforeFive(price);
+                    }
+                    if (bookingData.chefBookingNoOfPeople >= 5) {
+                      let remainingCount = bookingData.chefBookingNoOfPeople - 5;
+                      let halfBaseRate = baserate / 2;
 
-          setHalfBaseRate(halfBaseRate);
-          setRemainingCount(remainingCount);
-        }
-        if (bookingData.chefBookingComplexity > 0) {
-          setSavedComplexity(bookingData.chefBookingComplexity);
-          if (bookingData.chefBookingNoOfPeople <= 5) {
-            setComplexity(
-              baserate * bookingData.chefBookingNoOfPeople * bookingData.chefBookingComplexity -
-                baserate * bookingData.chefBookingNoOfPeople
-            );
-          } else {
-            let lastprice =
-              bookingData.chefBookingNoOfPeople > 5
-                ? (bookingData.chefBookingNoOfPeople - 5) * (baserate / 2)
-                : 0;
-            let firstprice = bookingData.chefBookingNoOfPeople * baserate;
-            let price = firstprice - lastprice;
-            let first = price * bookingData.chefBookingComplexity;
-            setComplexity(first - price);
+                      setHalfBaseRate(halfBaseRate);
+                      setRemainingCount(remainingCount);
+                    }
+                    if (bookingData.chefBookingComplexity > 0) {
+                      setSavedComplexity(bookingData.chefBookingComplexity);
+                      if (bookingData.chefBookingNoOfPeople <= 5) {
+                        setComplexity(
+                          baserate *
+                            bookingData.chefBookingNoOfPeople *
+                            bookingData.chefBookingComplexity -
+                            baserate * bookingData.chefBookingNoOfPeople
+                        );
+                      } else {
+                        let lastprice =
+                          bookingData.chefBookingNoOfPeople > 5
+                            ? (bookingData.chefBookingNoOfPeople - 5) * (baserate / 2)
+                            : 0;
+                        let firstprice = bookingData.chefBookingNoOfPeople * baserate;
+                        let price = firstprice - lastprice;
+                        let first = price * bookingData.chefBookingComplexity;
+                        setComplexity(first - price);
+                      }
+                    } else {
+                      setSavedComplexity(1);
+                    }
+                  }
+                } else {
+                  NavigateToHome();
+                }
+              })
+              .catch(err => {});
+          } else if (res === chef) {
+            console.log('chefff', res);
+            getChefId(chefId)
+              .then(async chefIdvalue => {
+                console.log(
+                  'chefIdvalue',
+                  chefIdvalue,
+                  bookingData.chefId,
+                  chefIdvalue === bookingData.chefId
+                );
+                if (chefIdvalue === bookingData.chefId) {
+                  if (isStringEmpty(bookingData.chefBookingAdditionalServices)) {
+                    let service = JSON.parse(bookingData.chefBookingAdditionalServices);
+                    service.map(data => {
+                      servicePrice = servicePrice + parseInt(data.price);
+                    });
+                    setServicePrice(servicePrice);
+                  } else {
+                    setServicePrice(0);
+                  }
+                  if (baserate) {
+                    const value = priceCalculator(
+                      baserate,
+                      bookingData.chefBookingNoOfPeople,
+                      bookingData.chefBookingComplexity,
+                      servicePrice
+                    );
+                    setChefPrice(value);
+                    setNoOfPeople(bookingData.chefBookingNoOfPeople);
+                    if (bookingData.chefBookingNoOfPeople > 5) {
+                      let price = (bookingData.chefBookingNoOfPeople - 5) * (baserate / 2);
+                      setAfterFive(price);
+                      price = 5 * baserate;
+                      setBeforeFive(price);
+                    } else if (bookingData.chefBookingNoOfPeople <= 5) {
+                      let price = bookingData.chefBookingNoOfPeople * baserate;
+                      setBeforeFive(price);
+                    }
+                    if (bookingData.chefBookingNoOfPeople >= 5) {
+                      let remainingCount = bookingData.chefBookingNoOfPeople - 5;
+                      let halfBaseRate = baserate / 2;
+
+                      setHalfBaseRate(halfBaseRate);
+                      setRemainingCount(remainingCount);
+                    }
+                    if (bookingData.chefBookingComplexity > 0) {
+                      setSavedComplexity(bookingData.chefBookingComplexity);
+                      if (bookingData.chefBookingNoOfPeople <= 5) {
+                        setComplexity(
+                          baserate *
+                            bookingData.chefBookingNoOfPeople *
+                            bookingData.chefBookingComplexity -
+                            baserate * bookingData.chefBookingNoOfPeople
+                        );
+                      } else {
+                        let lastprice =
+                          bookingData.chefBookingNoOfPeople > 5
+                            ? (bookingData.chefBookingNoOfPeople - 5) * (baserate / 2)
+                            : 0;
+                        let firstprice = bookingData.chefBookingNoOfPeople * baserate;
+                        let price = firstprice - lastprice;
+                        let first = price * bookingData.chefBookingComplexity;
+                        setComplexity(first - price);
+                      }
+                    } else {
+                      setSavedComplexity(1);
+                    }
+                  }
+                } else {
+                  NavigateToHome();
+                }
+              })
+              .catch(err => {
+                console.log('errr', err);
+              });
           }
-        } else {
-          setSavedComplexity(1);
-        }
-      }
+        })
+        .catch(err => {});
     }
   }, [bookingData, baserate]);
   function onButtonClick() {
@@ -394,6 +503,17 @@ export default function BookingDetail(props) {
       setServicePrice(servicePrice);
     }
   }
+
+  let summary = '';
+  if (isObjectEmpty(bookingData)) {
+    try {
+      summary = JSON.parse(bookingData.chefBookingSummary);
+    } catch (e) {
+      summary = bookingData.chefBookingSummary;
+    }
+  }
+
+  console.log('city', city, state)
   return (
     <React.Fragment>
       <div className="row chefDetail" id="bookingLoopView">
@@ -420,6 +540,19 @@ export default function BookingDetail(props) {
           <div className="product-details-content" style={{ marginTop: '20px' }}>
             <h3>{fullName}</h3>
             {/* <div>{address}</div> */}
+            {userRole && userRole === customer ? (
+              <div>
+                {isStringEmpty(city) || isStringEmpty(state) ?
+                <p>{city}, {state}</p>
+                :
+                null
+                }
+              </div>
+            ) : (
+              <div>
+                {address}
+                </div>
+            )}
 
             {userRole && userRole === chef ? (
               <div className="row" id="booking-row-view">
@@ -468,14 +601,23 @@ export default function BookingDetail(props) {
                     bookingDetails={bookingDetail}
                     userRole={userRole}
                   />
-                  <button
-                    id="chat-button-view"
-                    style={{ height: '41px', marginTop: '10px' }}
-                    onClick={() => onButtonClick()}
-                    className="btn btn-primary"
-                  >
-                    {'Chat'}
-                  </button>
+                  {props.BookingDetails &&
+                    props.BookingDetails.chefBookingHistoryByChefBookingHistId &&
+                    props.BookingDetails.chefBookingHistoryByChefBookingHistId
+                      .chefBookingStatusId &&
+                    props.BookingDetails.chefBookingHistoryByChefBookingHistId.chefBookingStatusId.trim() !==
+                      'PAYMENT_PENDING' &&
+                    props.BookingDetails.chefBookingHistoryByChefBookingHistId.chefBookingStatusId.trim() !==
+                      'PAYMENT_FAILED' && (
+                      <button
+                        id="chat-button-view"
+                        style={{ height: '41px', marginTop: '10px' }}
+                        onClick={() => onButtonClick()}
+                        className="btn btn-primary"
+                      >
+                        {'Chat'}
+                      </button>
+                    )}
                 </div>
               </div>
             )}
@@ -494,13 +636,13 @@ export default function BookingDetail(props) {
                 isStringEmpty(bookingData.chefBookingSummary) &&
                 bookingData.chefBookingSummary !== 'null' && (
                   <div className="col-lg-12" style={{ display: 'flex', paddingTop: '1%' }}>
-                    <div className="col-lg-2 datials-modal" id="describe-booking">
+                    <div className="col-lg-3 datials-modal" id="describe-booking">
                       Event Notes:
                     </div>
                     <div className="col-lg-3">
                       <a className="description-content text">
-                        {bookingData.chefBookingSummary !== 'null'
-                          ? bookingData.chefBookingSummary
+                        {bookingData.chefBookingSummary !== 'null' && bookingData.chefBookingSummary
+                          ? summary
                           : ''}
                       </a>
                     </div>
@@ -509,7 +651,7 @@ export default function BookingDetail(props) {
                   </div>
                 )}
               <div className="col-lg-12" style={{ display: 'flex' }}>
-                <div className="col-lg-2 datials-modal" id="describe-booking">
+                <div className="col-lg-3 datials-modal" id="describe-booking">
                   Booking Date:
                 </div>
                 <div className="col-lg-3">
@@ -520,7 +662,7 @@ export default function BookingDetail(props) {
               </div>
               <br />
               <div className="col-lg-12" style={{ display: 'flex' }}>
-                <div className="col-lg-2 datials-modal" id="describe-booking">
+                <div className="col-lg-3 datials-modal" id="describe-booking">
                   Booking Time:
                 </div>
                 <div className="col-lg-3">
@@ -531,7 +673,7 @@ export default function BookingDetail(props) {
               </div>
               <br />
               <div className="col-lg-12" style={{ display: 'flex' }}>
-                <div className="col-lg-2 datials-modal" id="describe-booking">
+                <div className="col-lg-3 datials-modal" id="describe-booking">
                   Booking Address:
                 </div>
                 <div className="col-lg-3">
@@ -550,7 +692,7 @@ export default function BookingDetail(props) {
                     <div>
                       {isStringEmpty(res.chefId) && (
                         <div className="col-lg-12" style={{ display: 'flex' }}>
-                          <div className="col-lg-2 datials-modal" id="describe-booking">
+                          <div className="col-lg-3 datials-modal" id="describe-booking">
                             {S.CHEF_BOOKING_NOTES}
                           </div>
                           <div className="col-lg-3">
@@ -570,7 +712,7 @@ export default function BookingDetail(props) {
                             display: 'flex',
                           }}
                         >
-                          <div className="col-lg-2 datials-modal" id="describe-booking">
+                          <div className="col-lg-3 datials-modal" id="describe-booking">
                             {S.CUSTOMER_BOOKING_NOTES}
                           </div>
                           <div className="col-lg-3">
@@ -587,7 +729,7 @@ export default function BookingDetail(props) {
                 })}
               {/* </div> */}
               <div className="col-lg-12" style={{ display: 'flex' }}>
-                <div className="col-lg-2 datials-modal" id="describe-booking">
+                <div className="col-lg-3 datials-modal" id="describe-booking">
                   {S.BOOKING_STATUS}
                 </div>
                 <div className="col-lg-3">
@@ -603,7 +745,7 @@ export default function BookingDetail(props) {
               <br />
               {reason && (
                 <div className="col-lg-12" style={{ display: 'flex' }}>
-                  <div className="col-lg-2 datials-modal" id="describe-booking">
+                  <div className="col-lg-3 datials-modal" id="describe-booking">
                     {S.YOUR_REASON}
                   </div>
                   <div className="col-lg-3">
@@ -615,7 +757,7 @@ export default function BookingDetail(props) {
                 </div>
               )}
               <div className="col-lg-12" style={{ display: 'flex' }}>
-                <div className="col-lg-2 datials-modal" id="describe-booking">
+                <div className="col-lg-3 datials-modal" id="describe-booking">
                   Booking Dishes:
                 </div>
                 <div className="col-lg-3">
@@ -651,7 +793,7 @@ export default function BookingDetail(props) {
                   paddingTop: '1%',
                 }}
               >
-                <div className="col-lg-2 datials-modal" id="describe-booking">
+                <div className="col-lg-3 datials-modal" id="describe-booking">
                   Booking Price:
                 </div>
                 <div className="col-lg-3">
@@ -669,7 +811,7 @@ export default function BookingDetail(props) {
               </div>
               {isStringEmpty(bookingData && bookingData.chefBookingNoOfPeople) && (
                 <div className="col-lg-12" style={{ paddingBottom: '8px', display: 'flex' }}>
-                  <div className="col-lg-2 datials-modal" id="describe-booking">
+                  <div className="col-lg-3 datials-modal" id="describe-booking">
                     {S.BOOKING_NO_OF_PEOPLE}
                   </div>
                   <div className="col-lg-3">
@@ -688,7 +830,7 @@ export default function BookingDetail(props) {
               )}
               {isStringEmpty(bookingData && bookingData.chefBookingComplexity) && (
                 <div className="col-lg-12" style={{ display: 'flex' }}>
-                  <div className="col-lg-2 datials-modal" id="describe-booking">
+                  <div className="col-lg-3 datials-modal" id="describe-booking">
                     {S.BOOKING_COMPLEXITY}
                   </div>
                   <div className="col-lg-3 ">
@@ -710,7 +852,7 @@ export default function BookingDetail(props) {
                 hasProperty(bookingData.storeTypes, 'nodes') &&
                 isArrayEmpty(bookingData.storeTypes.nodes) && (
                   <div className="col-lg-12" style={{ display: 'flex' }}>
-                    <div className="col-lg-2 datials-modal" id="describe-booking">
+                    <div className="col-lg-3 datials-modal" id="describe-booking">
                       Booking Store:
                     </div>
                     <div className="col-lg-3">
@@ -732,7 +874,7 @@ export default function BookingDetail(props) {
               {hasProperty(bookingData, 'chefBookingOtherStoreTypes') &&
                 isStringEmpty(bookingData.chefBookingOtherStoreTypes) && (
                   <div className="col-lg-12" style={{ display: 'flex' }}>
-                    <div className="col-lg-2 datials-modal" id="describe-booking">
+                    <div className="col-lg-3 datials-modal" id="describe-booking">
                       Other Store:
                     </div>
                     <div className="col-lg-3">
@@ -748,7 +890,7 @@ export default function BookingDetail(props) {
                 isStringEmpty(bookingData.additionalServiceDetails) &&
                 isArrayEmpty(JSON.parse(bookingData.additionalServiceDetails)) && (
                   <div className="col-lg-12" style={{ paddingBottom: '8px', display: 'flex' }}>
-                    <div className="col-lg-2 datials-modal" id="describe-booking">
+                    <div className="col-lg-3 datials-modal" id="describe-booking">
                       Additional Service:
                     </div>
                     <div className="col-lg-3">
@@ -937,7 +1079,7 @@ export default function BookingDetail(props) {
                 </div>
                 <div className="col-lg-12" style={{ display: 'flex', paddingTop: '1%' }}>
                   <div className="col-lg-2 datials-modal" id="describe-booking">
-                    Chef base rate(${baserate}) X {bookingData.chefBookingNoOfPeople}
+                    Chef base rate(${baserate}) X No.of.guests({bookingData.chefBookingNoOfPeople})
                   </div>
                   <div className="col-lg-3">
                     {(bookingData.chefBookingNoOfPeople < 5 ||
@@ -954,12 +1096,12 @@ export default function BookingDetail(props) {
                 <br />
                 {isObjectEmpty(bookingData) && bookingData.chefBookingNoOfPeople > 5 && (
                   <div className="col-lg-12" style={{ display: 'flex' }}>
-                    <div className="col-lg-2 datials-modal" id="describe-booking">
+                    <div className="col-lg-3 datials-modal" id="describe-booking">
                       Discount
                     </div>
                     <div className="col-lg-3">
                       {/* <a className="description-content text"> */}
-                      <a className="description-content text">$ {afterFive}</a>
+                      <a className="description-content text"> -${afterFive}</a>
                       {/* $ {(getBookingData('people') - 5) * (baserate / 2)} */}
                       {/* </a> */}
                     </div>
@@ -980,7 +1122,7 @@ export default function BookingDetail(props) {
                 <br />
                 {isObjectEmpty(bookingData) && bookingData.chefBookingNoOfPeople <= 5 && (
                   <div className="col-lg-12" style={{ display: 'flex' }}>
-                    <div className="col-lg-2 datials-modal" id="describe-booking">
+                    <div className="col-lg-3 datials-modal" id="describe-booking">
                       Complexity Upcharge:
                     </div>
                     <div className="col-lg-3">
@@ -992,7 +1134,7 @@ export default function BookingDetail(props) {
                 )}
                 {isObjectEmpty(bookingData) && bookingData.chefBookingNoOfPeople > 5 && (
                   <div className="col-lg-12" style={{ display: 'flex' }}>
-                    <div className="col-lg-2 datials-modal" id="describe-booking">
+                    <div className="col-lg-3 datials-modal" id="describe-booking">
                       Complexity Upcharge:
                     </div>
                     <div className="col-lg-3">
@@ -1004,7 +1146,7 @@ export default function BookingDetail(props) {
                 <br />
                 {isObjectEmpty(bookingData) && bookingData.additionalServiceDetails && (
                   <div className="col-lg-12" style={{ display: 'flex' }}>
-                    <div className="col-lg-2 datials-modal" id="describe-booking">
+                    <div className="col-lg-3 datials-modal" id="describe-booking">
                       Additional Services:
                     </div>
                     <div className="col-lg-3">
@@ -1039,7 +1181,7 @@ export default function BookingDetail(props) {
                 <br /> */}
                 {userRole === chef && (
                   <div className="col-lg-12" style={{ display: 'flex' }}>
-                    <div className="col-lg-2 datials-modal" id="describe-booking">
+                    <div className="col-lg-3 datials-modal" id="describe-booking">
                       Rockoly / Payment Charges:
                     </div>
                     <div className="col-lg-3">
@@ -1060,7 +1202,7 @@ export default function BookingDetail(props) {
                 <br />
                 {userRole === chef ? (
                   <div className="col-lg-12" style={{ display: 'flex' }}>
-                    <div className="col-sm-2" id="describe-booking">
+                    <div className="col-lg-3" id="describe-booking">
                       Total amount to pay
                     </div>
                     <div className="col-lg-3">
@@ -1074,10 +1216,10 @@ export default function BookingDetail(props) {
                               bookingData.chefBookingComplexity,
                               servicePrice
                             )
-                          ) -
+                          ).toFixed(2) -
                           parseFloat(
                             (servicePercentValue * bookingData.chefBookingPriceValue) / 100
-                          )
+                          ).toFixed(2)
                         ).toFixed(2) - 0.3}
                       </a>
                     </div>
@@ -1085,7 +1227,7 @@ export default function BookingDetail(props) {
                   </div>
                 ) : (
                   <div className="col-lg-12" style={{ display: 'flex' }}>
-                    <div className="col-sm-2" id="describe-booking">
+                    <div className="col-lg-3" id="describe-booking">
                       Total amount to pay
                     </div>
                     <div className="col-lg-3">
@@ -1125,7 +1267,7 @@ export default function BookingDetail(props) {
                         paddingTop: '1%',
                       }}
                     >
-                      <div className="col-lg-2 datials-modal" id="describe-booking">
+                      <div className="col-lg-3 datials-modal" id="describe-booking">
                         Request Price:
                       </div>
                       <div className="col-lg-3">
@@ -1135,15 +1277,13 @@ export default function BookingDetail(props) {
                             : null}
                         </a>
                       </div>
-
-                      <br />
                       <br />
                     </div>
                   )}
-                  {requestData.chefBookingRequestNoOfPeople &&
+                  {isStringEmpty(requestData.chefBookingRequestNoOfPeople) &&
                     Math.abs(requestData.chefBookingRequestNoOfPeople) > 0 && (
                       <div className="col-lg-12" style={{ paddingBottom: '8px', display: 'flex' }}>
-                        <div className="col-sm-2 datials-modal" id="describe-booking">
+                        <div className="col-sm-3 datials-modal" id="describe-booking">
                           Request No of People:
                         </div>
                         <div className="col-lg-3">
@@ -1160,7 +1300,7 @@ export default function BookingDetail(props) {
                     )}
                   {isStringEmpty(requestData.chefBookingRequestComplexity) && (
                     <div className="col-lg-12" style={{ paddingBottom: '8px', display: 'flex' }}>
-                      <div className="col-lg-2 datials-modal" id="describe-booking">
+                      <div className="col-lg-3 datials-modal" id="describe-booking">
                         Request Complexity:
                       </div>
                       <div className="col-lg-3">
@@ -1176,7 +1316,7 @@ export default function BookingDetail(props) {
                     isStringEmpty(requestData.additionalServiceDetails) &&
                     isArrayEmpty(JSON.parse(requestData.additionalServiceDetails)) && (
                       <div className="col-lg-12" style={{ paddingBottom: '8px', display: 'flex' }}>
-                        <div className="col-lg-2 datials-modal" id="describe-booking">
+                        <div className="col-lg-3 datials-modal" id="describe-booking">
                           Request Additional Service:
                         </div>
 
@@ -1266,7 +1406,7 @@ export default function BookingDetail(props) {
               hasProperty(bookingData.dietaryRestrictionsTypes, 'nodes') &&
               isArrayEmpty(bookingData.dietaryRestrictionsTypes.nodes) && (
                 <div className="col-lg-12" style={{ display: 'flex', paddingTop: '1%' }}>
-                  <div className="col-lg-2 datials-modal" id="describe-booking">
+                  <div className="col-lg-3 datials-modal" id="describe-booking">
                     Booking Dietary:
                   </div>
                   <div className="col-lg-3">
@@ -1288,7 +1428,7 @@ export default function BookingDetail(props) {
             {hasProperty(bookingData, 'chefBookingOtherDietaryRestrictionsTypes') &&
               isStringEmpty(bookingData.chefBookingOtherDietaryRestrictionsTypes) && (
                 <div className="col-lg-12" style={{ paddingBottom: '8px', display: 'flex' }}>
-                  <div className="col-lg-2 datials-modal" id="describe-booking">
+                  <div className="col-lg-3 datials-modal" id="describe-booking">
                     Other Dietary:
                   </div>
                   <div className="col-lg-3">
@@ -1306,7 +1446,7 @@ export default function BookingDetail(props) {
               hasProperty(bookingData.kitchenEquipmentTypes, 'nodes') &&
               isArrayEmpty(bookingData.kitchenEquipmentTypes.nodes) && (
                 <div className="col-lg-12" style={{ display: 'flex' }}>
-                  <div className="col-lg-2 datials-modal" id="describe-booking">
+                  <div className="col-lg-3 datials-modal" id="describe-booking">
                     Booking Kitchen Equipments:
                   </div>
                   <div className="col-lg-3">
@@ -1329,7 +1469,7 @@ export default function BookingDetail(props) {
             {hasProperty(bookingData, 'chefBookingOtherKitchenEquipmentTypes') &&
               isStringEmpty(bookingData.chefBookingOtherKitchenEquipmentTypes) && (
                 <div className="col-lg-12" style={{ display: 'flex' }}>
-                  <div className="col-lg-2 datials-modal" id="describe-booking">
+                  <div className="col-lg-3 datials-modal" id="describe-booking">
                     Other Kitchen Equipments:
                   </div>
                   <div className="col-lg-2">
@@ -1348,7 +1488,7 @@ export default function BookingDetail(props) {
               hasProperty(bookingData.allergyTypes, 'nodes') &&
               isArrayEmpty(bookingData.allergyTypes.nodes) && (
                 <div className="col-lg-12" style={{ paddingBottom: '8px', display: 'flex' }}>
-                  <div className="col-lg-2 datials-modal" id="describe-booking">
+                  <div className="col-lg-3 datials-modal" id="describe-booking">
                     Booking Allergies:
                   </div>
                   <div className="col-lg-3">
@@ -1370,7 +1510,7 @@ export default function BookingDetail(props) {
             {hasProperty(bookingData, 'chefBookingOtherAllergyTypes') &&
               isStringEmpty(bookingData.chefBookingOtherAllergyTypes) && (
                 <div className="col-lg-12" style={{ paddingBottom: '8px', display: 'flex' }}>
-                  <div className="col-lg-2 datials-modal" id="describe-booking">
+                  <div className="col-lg-3 datials-modal" id="describe-booking">
                     Other Allergies:
                   </div>
                   <div className="col-lg-3">

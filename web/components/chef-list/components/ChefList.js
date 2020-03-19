@@ -316,11 +316,16 @@ export const ChefList = props => {
                         chef.chefProfileExtendedsByChefId.nodes.map(node => {
                           return (
                             <div>
-                              {isObjectEmpty(node) && isStringEmpty(node.chefCity) ? (
-                                <p className="address">{node.chefCity}</p>
-                              ) : (
-                                <p>-----</p>
-                              )}
+                              {isObjectEmpty(node) &&
+                                isStringEmpty(node.chefCity) &&
+                                isStringEmpty(node.chefState) && (
+                                  <p className="address">
+                                    {' '}
+                                    {node.chefCity && node.chefState
+                                      ? `${node.chefCity}, ${node.chefState}`
+                                      : null}
+                                  </p>
+                                )}
                               {isObjectEmpty(node) &&
                                 isStringEmpty(chef.pricePerHour) &&
                                 isStringEmpty(node.chefPriceUnit) &&
@@ -345,14 +350,21 @@ export const ChefList = props => {
                           return (
                             <div>
                               {isObjectEmpty(node) &&
-                              isStringEmpty(node.chefAvailableAroundRadiusInValue) ? (
-                                <p className="address">
-                                  {' '}
-                                  Travel around: {node.chefAvailableAroundRadiusInValue} miles
-                                </p>
-                              ) : (
-                                <p>-----</p>
-                              )}
+                                isStringEmpty(node.chefAvailableAroundRadiusInValue) && (
+                                  <p className="address">
+                                    {' '}
+                                    Chef{' '}
+                                    {chefdetails && chefdetails.fullName
+                                      ? chefdetails.fullName
+                                      : null}{' '}
+                                    can travel upto {node.chefAvailableAroundRadiusInValue} miles
+                                    from{' '}
+                                    {node.chefCity && node.chefState
+                                      ? `${node.chefCity}, ${node.chefState}`
+                                      : null}
+                                    .
+                                  </p>
+                                )}
                             </div>
                           );
                         })}

@@ -43,7 +43,7 @@ export default function Login(props) {
       let found = paragraph.match(regex);
 
       logOutUser()
-        .then(result => { })
+        .then(result => {})
         .catch(error => {
           toastMessage(renderError, error);
         });
@@ -79,8 +79,8 @@ export default function Login(props) {
               );
               if (props && props.chefId && props.chefId.chefId) {
                 let obj = {
-                  chefId : props.chefId.chefId
-                }
+                  chefId: props.chefId.chefId,
+                };
                 NavigateToChefDetail(obj);
               } else {
                 if (props.sourceType === 'LOGIN') {
@@ -302,6 +302,7 @@ export default function Login(props) {
                   callback={responseFacebook}
                   cssClass="btn btn-md btn-fb"
                   icon="fab fa-facebook-f pr-1"
+                  disableMobileRedirect={true}
                 />
               </div>
             </div>

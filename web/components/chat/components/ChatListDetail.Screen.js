@@ -268,9 +268,11 @@ export default function ChatDetailScreen(props) {
     if (chatMsgAry && chatMsgAry.nodes && chatMsgAry.nodes.length > 0) {
       let value = _.orderBy(chatMsgAry.nodes, ['createdAt'], ['asc']);
       return value.map((res, index) => {
+        console.log('res', res);
         let nameData = JSON.parse(res.fromEntityDetails);
-
-        if (res.msgType && res.msgType === 'NEW_MESSAGE') {
+        if (res && res.msgType && res.msgType === 'NEW_MESSAGE') {
+          let createdAt = res && res.createdAt ? res.createdAt : null;
+          let message = res && res.msgText ? res.msgText : null;
           return (
             <div>
               <div style={chatListStyle(res)}>
@@ -286,23 +288,20 @@ export default function ChatDetailScreen(props) {
                     <div style={{ height: '30px', width: '30px' }}>
                       <img
                         src={
-                          props.chatListId.pic
+                          props && props.chatListId && props.chatListId.pic
                             ? props.chatListId.pic
                             : require('../../../images/mock-image/default_chef_profile.png')
                         }
                         alt="image"
                         style={{ borderRadius: '50%' }}
                       />
-                      {/* {imageAlign(res)} */}
                     </div>
                     <div style={chatTextStyle(res)}>
                       {/* // todo: Dhilipan the json parse throws error */}
                       {/* <div>{JSON.parse(res.msgText)}</div> */}
-                      <div>{chatDataParser(res.msgText)}</div>
+                      <div>{chatDataParser(message)}</div>
                       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                        <text style={{ fontSize: '13px' }}>
-                          {convertDateandTime(res.createdAt)}
-                        </text>
+                        <text style={{ fontSize: '13px' }}>{convertDateandTime(createdAt)}</text>
                       </div>
                     </div>
                   </div>
@@ -319,11 +318,9 @@ export default function ChatDetailScreen(props) {
                     <div style={chatTextStyle(res)}>
                       {/* // todo: Dhilipan the json parse throws error */}
                       {/* <div>{JSON.parse(res.msgText)}</div> */}
-                      <div>{chatDataParser(res.msgText)}</div>
+                      <div>{chatDataParser(message)}</div>
                       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                        <text style={{ fontSize: '13px' }}>
-                          {convertDateandTime(res.createdAt)}
-                        </text>
+                        <text style={{ fontSize: '13px' }}>{convertDateandTime(createdAt)}</text>
                       </div>
                     </div>
                     <div style={{ height: '50px', width: '50px' }}>
@@ -447,7 +444,10 @@ export default function ChatDetailScreen(props) {
         });
       } else {
         let variables = {
-          pChefId: chatId,
+          pChefId:
+            props && props.chefDetails && props.chefDetails.chefId
+              ? props.chefDetails.chefId
+              : null,
           pCustomerId: state && state.customerId ? state.customerId : null,
           pMsgText: JSON.stringify(inputValue),
         };

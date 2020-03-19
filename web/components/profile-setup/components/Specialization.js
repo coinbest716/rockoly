@@ -99,7 +99,7 @@ const Specialization = props => {
 
   const [getCuisineDataQuery, getCusineData] = useLazyQuery(GET_CUISINE_DATA, {
     // getting image gallery based on chef id
-    variables: { pChefId: state.chefId },
+    variables: { pChefId: props && props.chefId ? props.chefId : null },
     fetchPolicy: 'network-only',
     onError: err => {
       toastMessage('renderError', err);
@@ -108,7 +108,7 @@ const Specialization = props => {
 
   const [getDishDataQuery, getDishesData] = useLazyQuery(GET_DISHES_DATA, {
     // getting image gallery based on chef id
-    variables: { pChefId: state.chefId },
+    variables: { pChefId: props && props.chefId ? props.chefId : null },
     fetchPolicy: 'network-only',
     onError: err => {
       toastMessage('renderError', err);
@@ -161,11 +161,11 @@ const Specialization = props => {
   }, [props]);
 
   useEffect(() => {
-    if (state.chefId) {
+    if (props && util.isStringEmpty(props.chefId)) {
       getCuisineDataQuery();
       getDishDataQuery();
     }
-  }, [state]);
+  }, [props.chefId]);
 
   // useEffect(() => {
   //   if (state.chefId) {
@@ -182,7 +182,7 @@ const Specialization = props => {
               setExtendeId(chefResult);
             })
             .catch(err => {
-              console.log('error', error);
+              //console.log('error', error);
             });
         }
       })
@@ -473,14 +473,14 @@ const Specialization = props => {
           StoreInLocal('SharedProfileScreens', screensValue);
         })
         .catch(err => {
-          console.log('err', err);
+          //console.log('err', err);
         });
     }
   }
 
   function handleCreateOption(value) {
     setLoadingYn(true);
-    let chefId = state.chefId;
+    let chefId = props.chefId;
     insertNewCusine({
       variables: {
         cusineTypeName: value,
@@ -498,7 +498,7 @@ const Specialization = props => {
 
   function handleDishCreateOption(value) {
     setDishLoadingYn(true);
-    let chefId = state.chefId;
+    let chefId = props && props.chefId ? props.chefId : null;
     insertNewDish({
       variables: {
         dishTypeName: value,
@@ -562,20 +562,20 @@ const Specialization = props => {
                   <p className="cuisine">({cuisineCount} items selected)</p>
                 </div>
                 {loadingYn && <Loader />}
-                {cusinesMasterList.length > 0 && (
-                  <CreatableSelect
-                    isMulti={true}
-                    ref={cuisinesRef}
-                    isSearchable={true}
-                    value={selectedCuisines}
-                    onChange={value =>
-                      handleChange(value, setSelectedCuisines, setSelectedCuisinesId, 'cuisine')
-                    }
-                    options={cusinesMasterList}
-                    onCreateOption={value => handleCreateOption(value)}
-                    placeholder="Select Cuisine"
-                  />
-                )}
+                <CreatableSelect
+                  isMulti={true}
+                  ref={cuisinesRef}
+                  isSearchable={true}
+                  value={selectedCuisines}
+                  onChange={value =>
+                    handleChange(value, setSelectedCuisines, setSelectedCuisinesId, 'cuisine')
+                  }
+                  options={
+                    cusinesMasterList && cusinesMasterList.length > 0 ? cusinesMasterList : []
+                  }
+                  onCreateOption={value => handleCreateOption(value)}
+                  placeholder="Select Cuisine"
+                />
               </div>
             </div>
             <div className="card" id="cuisine-specialization">
@@ -597,20 +597,18 @@ const Specialization = props => {
                   <p className="cuisine">({dishCount} items selected)</p>
                 </div>
                 {dishLoadingYn && <Loader />}
-                {dishesMasterList.length > 0 && (
-                  <CreatableSelect
-                    ref={dishesRef}
-                    isMulti={true}
-                    isSearchable={true}
-                    value={selectedDishes}
-                    onChange={value =>
-                      handleChange(value, setSelectedDishes, setSelectedDishesId, 'dish')
-                    }
-                    options={dishesMasterList}
-                    onCreateOption={value => handleDishCreateOption(value)}
-                    placeholder="Select Dish"
-                  />
-                )}
+                <CreatableSelect
+                  ref={dishesRef}
+                  isMulti={true}
+                  isSearchable={true}
+                  value={selectedDishes}
+                  onChange={value =>
+                    handleChange(value, setSelectedDishes, setSelectedDishesId, 'dish')
+                  }
+                  options={dishesMasterList && dishesMasterList.length > 0 ? dishesMasterList : []}
+                  onCreateOption={value => handleDishCreateOption(value)}
+                  placeholder="Select Dish"
+                />
               </div>
             </div>
             {/* Ingredients*/}

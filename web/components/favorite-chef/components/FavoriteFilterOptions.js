@@ -13,7 +13,7 @@ const FavoriteFilterOptions = props => {
 
       evt.currentTarget.className += ' active';
     } catch (error) {
-      console.log(error.message);
+      //console.log(error.message);
     }
   }
   return (

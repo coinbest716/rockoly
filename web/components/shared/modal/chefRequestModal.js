@@ -464,14 +464,14 @@ const ChefRequestModal = props => {
         ? additionalServiceCalc(oldBookingData.chefBookingAdditionalServices, 'old')
         : 0;
       if (noOfGuests <= 5) {
-        price = baseRate;
-        price = price * noOfGuests;
-        price = price * complexity;
-        price = price + additionalServices;
-        firstfve = baseRate * 5;
+        // price = baseRate;
+        // price = price * noOfGuests;
+        // price = price * complexity;
+        // price = price + additionalServices;
+        firstfve = baseRate * noOfGuests;
         complexityCharge = firstfve * complexity - firstfve;
-        chefCharge = price + firstfve + complexityCharge;
-        totalCharge = price;
+        // chefCharge = price + firstfve + complexityCharge;
+        totalCharge = firstfve + complexityCharge + additionalServices;
 
         return (
           <div className="card">
@@ -536,7 +536,8 @@ const ChefRequestModal = props => {
                   fontSize: '17px',
                 }}
               >
-                Chef charge:
+                Chef base rate(${chefValue.chefPricePerHour}) X No.of.guests(
+                {oldBookingData.chefBookingNoOfPeople})
               </div>
               {/* </div> */}
               {/* <div style={{ display: 'flex' }}> */}
@@ -552,7 +553,7 @@ const ChefRequestModal = props => {
                   fontSize: '17px',
                 }}
               >
-                Complexity charge:{' '}
+                Complexity Upcharge:{' '}
               </div>
               {/* </div> */}
               {/* <div style={{ display: 'flex' }}> */}
@@ -584,39 +585,6 @@ const ChefRequestModal = props => {
                   fontSize: '17px',
                 }}
               >
-                {' '}
-                Chef charge:{' '}
-              </div>
-              {/* </div> */}
-              {/* <div style={{ display: 'flex' }}> */}
-              <div className="col-lg-6">${price.toFixed(2)}</div>
-            </div>
-            <div style={{ display: 'flex' }}>
-              <div
-                className="col-lg-6"
-                style={{
-                  fontWeight: 'bold',
-                  display: 'flex',
-                  justifyContent: 'flex-end',
-                  fontSize: '17px',
-                }}
-              >
-                Rockoly charge:{' '}
-              </div>
-              {/* </div> */}
-              {/* <div style={{ display: 'flex' }}> */}
-              <div className="col-lg-6">${serviceCharge.toFixed(2)}</div>
-            </div>
-            <div style={{ display: 'flex' }}>
-              <div
-                className="col-lg-6"
-                style={{
-                  fontWeight: 'bold',
-                  display: 'flex',
-                  justifyContent: 'flex-end',
-                  fontSize: '17px',
-                }}
-              >
                 Total amount to pay:{' '}
               </div>
               {/* </div> */}
@@ -626,14 +594,31 @@ const ChefRequestModal = props => {
           </div>
         );
       } else if (noOfGuests > 5) {
-        price = baseRate * 5;
-        price = price + (noOfGuests - 5) * (baseRate / 2);
-        price = price * complexity;
-        price = price + additionalServices;
-        firstfve = baseRate * 5;
+        // price = baseRate * 5;
+        // price = price + (noOfGuests - 5) * (baseRate / 2);
+        // price = price * complexity;
+        // price = price + additionalServices;
+        // firstfve = baseRate * 5;
+        // afterFive = (noOfGuests - 5) * (baseRate / 2);
+        // complexityCharge = (firstfve + afterFive) * complexity - (firstfve + afterFive);
+        // totalCharge = price;
+
+        firstfve = baseRate * noOfGuests;
         afterFive = (noOfGuests - 5) * (baseRate / 2);
-        complexityCharge = (firstfve + afterFive) * complexity - (firstfve + afterFive);
-        totalCharge = price;
+        let afterDiscount = firstfve - afterFive;
+        complexityCharge = afterDiscount * complexity - afterDiscount;
+        totalCharge = afterDiscount + complexityCharge + additionalServices;
+        console.log(
+          'noOfGuests',
+          baseRate,
+          noOfGuests,
+          firstfve,
+          afterFive,
+          afterDiscount,
+          complexityCharge,
+          totalCharge
+        );
+
         return (
           <div className="card">
             <div className="card-header">
@@ -698,7 +683,8 @@ const ChefRequestModal = props => {
                   fontSize: '17px',
                 }}
               >
-                Chef charge for first 5 guests:{' '}
+                Chef base rate(${chefValue.chefPricePerHour}) X No.of.guests(
+                {oldBookingData.chefBookingNoOfPeople}):{' '}
               </div>
               <div className="col-lg-6">${firstfve.toFixed(2)}</div>
             </div>
@@ -713,9 +699,9 @@ const ChefRequestModal = props => {
                 }}
               >
                 {' '}
-                Chef charge for after 5 guests:{' '}
+                Discount:{' '}
               </div>
-              <div className="col-lg-6">${afterFive.toFixed(2)}</div>
+              <div className="col-lg-6">-${afterFive.toFixed(2)}</div>
             </div>
             <div style={{ display: 'flex' }}>
               <div
@@ -727,7 +713,7 @@ const ChefRequestModal = props => {
                   fontSize: '17px',
                 }}
               >
-                Complexity charge:
+                Complexity Upcharge:
               </div>
               <div className="col-lg-6"> ${complexityCharge.toFixed(2)}</div>
             </div>
@@ -744,34 +730,6 @@ const ChefRequestModal = props => {
                 Additional services:{' '}
               </div>
               <div className="col-lg-6">${additionalServices.toFixed(2)}</div>
-            </div>
-            <div style={{ display: 'flex' }}>
-              <div
-                className="col-lg-6"
-                style={{
-                  fontWeight: 'bold',
-                  display: 'flex',
-                  justifyContent: 'flex-end',
-                  fontSize: '17px',
-                }}
-              >
-                Chef charge:{' '}
-              </div>
-              <div className="col-lg-6">${price.toFixed(2)}</div>
-            </div>
-            <div style={{ display: 'flex' }}>
-              <div
-                className="col-lg-6"
-                style={{
-                  fontWeight: 'bold',
-                  display: 'flex',
-                  justifyContent: 'flex-end',
-                  fontSize: '17px',
-                }}
-              >
-                Rockoly charge:{' '}
-              </div>
-              <div className="col-lg-6">${serviceCharge.toFixed(2)}</div>
             </div>
             <div style={{ display: 'flex' }}>
               <div
@@ -816,6 +774,7 @@ const ChefRequestModal = props => {
       let newNoOfGuests =
         oldBookingData.chefBookingNoOfPeople + newBookingData.chefBookingRequestNoOfPeople;
 
+      console.log('newBookingData', newBookingData);
       baseRate = chefValue.chefPricePerHour;
       noOfGuests = newBookingData.chefBookingRequestNoOfPeople;
       complexity = newBookingData.chefBookingRequestComplexity;
@@ -824,15 +783,21 @@ const ChefRequestModal = props => {
           ? additionalServiceCalc(newBookingData.chefBookingRequestAdditionalServices, 'new')
           : 0;
       if (noOfGuests <= 5) {
-        price = baseRate;
-        price = price * noOfGuests;
-        price = price * complexity;
-        price = price + additionalServices;
-        serviceCharge = (3.5 / 100) * price;
-        firstfve = baseRate * 5;
+        // price = baseRate;
+        // price = price * noOfGuests;
+        // price = price * complexity;
+        // price = price + additionalServices;
+        // serviceCharge = (3.5 / 100) * price;
+        // firstfve = baseRate * 5;
+        // complexityCharge = firstfve * complexity - firstfve;
+        // chefCharge = price + firstfve + complexityCharge;
+        // totalCharge = price;
+
+        firstfve = baseRate * noOfGuests;
         complexityCharge = firstfve * complexity - firstfve;
-        chefCharge = price + firstfve + complexityCharge;
-        totalCharge = price;
+        totalCharge = firstfve + complexityCharge + additionalServices;
+        serviceCharge =
+          (newBookingData.chefBookingRequestServiceChargePriceValue / 100) * totalCharge;
         return (
           <div className="card">
             <div className="card-header">
@@ -937,16 +902,23 @@ const ChefRequestModal = props => {
           </div>
         );
       } else if (noOfGuests > 5) {
-        price = baseRate * 5;
-        price = price + (noOfGuests - 5) * (baseRate / 2);
-        price = price * complexity;
-        price = price + additionalServices;
+        // price = baseRate * 5;
+        // price = price + (noOfGuests - 5) * (baseRate / 2);
+        // price = price * complexity;
+        // price = price + additionalServices;
 
-        serviceCharge = (3.5 / 100) * price;
-        firstfve = baseRate * 5;
+        // firstfve = baseRate * 5;
+        // afterFive = (noOfGuests - 5) * (baseRate / 2);
+        // complexityCharge = (firstfve + afterFive) * complexity - (firstfve + afterFive);
+        // totalCharge = price + serviceCharge;
+
+        firstfve = baseRate * noOfGuests;
         afterFive = (noOfGuests - 5) * (baseRate / 2);
-        complexityCharge = (firstfve + afterFive) * complexity - (firstfve + afterFive);
-        totalCharge = price + serviceCharge;
+        let afterDiscount = firstfve - afterFive;
+        complexityCharge = afterDiscount * complexity - afterDiscount;
+        totalCharge = afterDiscount + complexityCharge + additionalServices;
+        serviceCharge =
+          (newBookingData.chefBookingRequestServiceChargePriceValue / 100) * totalCharge;
         return (
           <div className="card">
             <div className="card-header">
@@ -1109,7 +1081,7 @@ const ChefRequestModal = props => {
       </div>
     );
   } catch (error) {
-    console.log('error', error);
+    //console.log('error', error);
   }
 };
 

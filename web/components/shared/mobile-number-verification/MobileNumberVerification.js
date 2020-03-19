@@ -72,7 +72,7 @@ const MobileNumberVerification = forwardRef((props, ref) => {
 
   const [updateCustomerBasicInfo, { customerData }] = useMutation(UPDATE_CUSTOMER_BASIC_INFO, {
     onCompleted: customerData => {
-      toastMessage('success', 'Mobile number updated successfully');
+      toastMessage('success', 'Mobile verified successfully');
       setIsOTPConfirmFormEnabledYN(false);
       setIsPhoneNoConfirmFormEnabledYN(true);
       setIsVerified(true);
@@ -99,7 +99,7 @@ const MobileNumberVerification = forwardRef((props, ref) => {
             updateCustomerScrrenTag({ variables });
           })
           .catch(err => {
-            console.log('err', err);
+            //console.log('err', err);
           });
       }
     },
@@ -110,10 +110,12 @@ const MobileNumberVerification = forwardRef((props, ref) => {
 
   const [updateChefBasicInfo, { chefData }] = useMutation(UPDATE_CHEF_BASIC_INFO, {
     onCompleted: chefData => {
+      console.log('updateChefBasicInfo', props);
       // setStoredData(chefData);
-      toastMessage('success', 'Mobile number updated successfully');
+      toastMessage('success', 'Mobile verified successfully');
       setIsOTPConfirmFormEnabledYN(false);
       setIsPhoneNoConfirmFormEnabledYN(true);
+      setIsVerified(true);
       if (props.screen === 'register') {
         // To get the updated screens value
         let screensValue = [];
@@ -133,7 +135,7 @@ const MobileNumberVerification = forwardRef((props, ref) => {
             updateChefScrrenTag({ variables });
           })
           .catch(err => {
-            console.log('err', err);
+            //console.log('err', err);
           });
       }
     },
@@ -144,14 +146,14 @@ const MobileNumberVerification = forwardRef((props, ref) => {
 
   const [updateChefScrrenTag, data] = useMutation(UPDATE_CHEF_SCREENS, {
     onCompleted: data => {
-      props.nextStep();
+      // props.nextStep();
     },
     onError: err => {},
   });
 
   const [updateCustomerScrrenTag, datas] = useMutation(UPDATE_CUSTOMER_SCREENS, {
     onCompleted: datas => {
-      props.nextStep();
+      // props.nextStep();
     },
     onError: err => {},
   });
@@ -225,6 +227,7 @@ const MobileNumberVerification = forwardRef((props, ref) => {
     e.preventDefault();
     // To get the updated screens value
     let screensValue = [];
+    console.log('skipFunction', props);
     GetValueFromLocal('SharedProfileScreens')
       .then(result => {
         if (result && result.length > 0) {
@@ -252,7 +255,7 @@ const MobileNumberVerification = forwardRef((props, ref) => {
         props.nextStep();
       })
       .catch(err => {
-        console.log('err', err);
+        //console.log('err', err);
       });
   }
 
@@ -356,68 +359,87 @@ const MobileNumberVerification = forwardRef((props, ref) => {
   }, [mobileNumber, country]);
 
   async function updateMobileNumber(event) {
+    console.log('updateMobileNumber', event);
     event.preventDefault();
-    if (mobileNumber === mobileCallBackValue && props.role === 'customer') {
-      try {
-        let variables = {
-          customerId: props.id,
-          customerSalutation: props.salutation ? props.salutation : 'MR',
-          customerFirstName: props.firstName,
-          customerLastName: props.lastName,
-          customerGender: null,
-          customerDob: props.dob ? props.dob : null,
-          customerMobileNumber: mobileNumberValue,
-          customerMobileCountryCode: countryCode,
-        };
-        await updateCustomerBasicInfo({
-          variables,
-        });
-      } catch (error) {
-        toastMessage('renderError', error.message);
+    if (
+      mobileNumberValue !== '' &&
+      mobileNumberValue !== null &&
+      mobileNumberValue &&
+      countryCode &&
+      countryCode != null &&
+      countryCode != ''
+    ) {
+      if (mobileNumber === mobileCallBackValue && props.role === 'customer') {
+        try {
+          let variables = {
+            customerId: props.id,
+            customerSalutation: props.salutation ? props.salutation : null,
+            customerFirstName: props.firstName,
+            customerLastName: props.lastName,
+            customerGender: null,
+            customerDob: props.dob ? props.dob : null,
+            customerMobileNumber: mobileNumberValue,
+            customerMobileCountryCode: countryCode,
+          };
+          await updateCustomerBasicInfo({
+            variables,
+          });
+        } catch (error) {
+          toastMessage('renderError', error.message);
+        }
+      } else if (props.role === 'customer') {
+        toastMessage('error', 'Please verify your mobile number');
       }
-    } else if (props.role === 'customer') {
-      toastMessage('error', 'Please verify your mobile number');
     }
-    if (mobileNumber === mobileCallBackValue && props.role === 'chef') {
-      try {
-        let variables = {
-          chefId: props.id,
-          chefSalutation:
-            props.salutation === '' || props.salutation === null ? null : props.salutation,
-          chefFirstName: props.firstName,
-          chefLastName: props.lastName,
-          chefGender: props.gender === '' || props.gender === null ? null : props.gender,
-          chefDob: props.dob ? props.dob : null,
-          chefMobileNumber: mobileNumberValue,
-          chefMobileCountryCode: countryCode,
-        };
-        await updateChefBasicInfo({
-          variables,
-        });
-      } catch (error) {
-        toastMessage('renderError', error.message);
+    if (
+      mobileNumberValue !== '' &&
+      mobileNumberValue !== null &&
+      mobileNumberValue &&
+      countryCode &&
+      countryCode != null &&
+      countryCode != ''
+    ) {
+      if (mobileNumber === mobileCallBackValue && props.role === 'chef') {
+        try {
+          let variables = {
+            chefId: props.id,
+            chefSalutation:
+              props.salutation === '' || props.salutation === null ? null : props.salutation,
+            chefFirstName: props.firstName,
+            chefLastName: props.lastName,
+            chefGender: props.gender === '' || props.gender === null ? null : props.gender,
+            chefDob: props.dob ? props.dob : null,
+            chefMobileNumber: mobileNumberValue,
+            chefMobileCountryCode: countryCode,
+          };
+          await updateChefBasicInfo({
+            variables,
+          });
+        } catch (error) {
+          toastMessage('renderError', error.message);
+        }
+      } else if (props.role === 'chef') {
+        toastMessage('error', 'Please verify your mobile number');
       }
-    } else if (props.role === 'chef') {
-      toastMessage('error', 'Please verify your mobile number');
     }
   }
 
   //unlink the existing phone number
-  function unlinkMobileNumber(phoneCredential) {
+  function unlinkMobileNumber(event) {
     if (firebase.auth().currentUser) {
       if (firebase.auth().currentUser.phoneNumber) {
         firebase
           .auth()
           .currentUser.unlink('phone')
           .then(() => {
-            linkMobile(phoneCredential);
+            linkMobile(event);
           })
           .catch(error => {
             setMobileCallBackValue('');
             toastMessage('error', error.message);
           });
       } else {
-        linkMobile(phoneCredential);
+        linkMobile(event);
       }
     } else {
       setMobileCallBackValue('');
@@ -426,43 +448,77 @@ const MobileNumberVerification = forwardRef((props, ref) => {
   }
 
   //Link the mobile number
-  function linkMobile(phoneCredential) {
-    firebase
-      .auth()
-      .currentUser.linkWithCredential(phoneCredential)
-      .then(res => {
-        setLoader(false);
-        updateMobileNumber(event);
-        setOtpSend(false);
-        setMobileNumberEnable(true);
-      })
-      .catch(error => {
+  function linkMobile(event) {
+    setLoader(true);
+    if (otpCode != null && otpCode != '') {
+      let phoneCredential = firebase.auth.PhoneAuthProvider.credential(verificationId, otpCode);
+      if (phoneCredential) {
+        firebase
+          .auth()
+          .currentUser.linkWithCredential(phoneCredential)
+          .then(res => {
+            setLoader(false);
+            updateMobileNumber(event);
+            setOtpSend(false);
+            setMobileNumberEnable(true);
+          })
+          .catch(error => {
+            setLoader(false);
+            setMobileCallBackValue('');
+            toastMessage('error', error.message);
+          });
+      } else {
         setLoader(false);
         setMobileCallBackValue('');
-        toastMessage('error', error.message);
-      });
+      }
+    } else {
+      setLoader(false);
+      toastMessage('error', 'OTP Code is not submitted');
+    }
   }
 
   function confirmOTP(event) {
+    console.log('confirmOTP', event);
     try {
-      setLoader(true);
-      if (otpCode != null && otpCode != '') {
-        let phoneCredential = firebase.auth.PhoneAuthProvider.credential(verificationId, otpCode);
-        setLoader(true);
-        if (phoneCredential) {
-          unlinkMobileNumber(phoneCredential);
-        } else {
-          setLoader(false);
-          setMobileCallBackValue('');
-        }
-      } else {
-        setLoader(false);
-        toastMessage('error', 'OTP Code is not submitted');
-      }
+      unlinkMobileNumber(event);
+
+      // setLoader(true);
+      // if (otpCode != null && otpCode != '') {
+      //   let phoneCredential = firebase.auth.PhoneAuthProvider.credential(verificationId, otpCode);
+      //   if (phoneCredential) {
+      //     firebase
+      //       .auth()
+      //       .signInWithCredential(phoneCredential)
+      //       .then(auth => {
+      //         console.log('confirmOTP', auth);
+      //         setLoader(true);
+      //         unlinkMobileNumber(phoneCredential);
+      //       })
+      //       .catch(err => {
+      //         setLoader(false);
+      //         console.log(err);
+      //         toastMessage('renderError', err.message);
+      //       });
+      //   } else {
+      //     setLoader(false);
+      //     setMobileCallBackValue('');
+      //   }
+      // } else {
+      //   setLoader(false);
+      //   toastMessage('error', 'OTP Code is not submitted');
+      // }
     } catch (error) {
       toastMessage('renderError', error.message);
     }
   }
+
+  console.log(
+    'isVerified',
+    isVerified,
+    props.screen,
+    props.screen !== 'register1',
+    props.screen !== 'basic'
+  );
 
   return (
     <React.Fragment>
@@ -557,6 +613,7 @@ const MobileNumberVerification = forwardRef((props, ref) => {
               <button
                 onClick={event => skipFunction(event)}
                 className="btn btn-primary"
+                id="shared-next-button"
                 style={{ width: 'fit-content' }}
               >
                 Next

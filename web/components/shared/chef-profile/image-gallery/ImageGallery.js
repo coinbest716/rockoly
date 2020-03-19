@@ -243,59 +243,66 @@ const ImageGallery = props => {
   }
 
   function save() {
-    setSaveLoader(true);
+    if (imageFiles.length == 0) {
+      toastMessage('error', 'Please upload pictures to showcase in your gallery');
+    } else {
+      setSaveLoader(true);
 
-    // changing image type an url in object to pAttachmentType,pAttachmentUrl
-    let saveImage = imageFiles;
-    saveImage = saveImage.map(({ type: pAttachmentType, ...data }) => ({
-      pAttachmentType,
-      ...data,
-    }));
-    saveImage = saveImage.map(({ url: pAttachmentUrl, ...data }) => ({ pAttachmentUrl, ...data }));
+      // changing image type an url in object to pAttachmentType,pAttachmentUrl
+      let saveImage = imageFiles;
+      saveImage = saveImage.map(({ type: pAttachmentType, ...data }) => ({
+        pAttachmentType,
+        ...data,
+      }));
+      saveImage = saveImage.map(({ url: pAttachmentUrl, ...data }) => ({
+        pAttachmentUrl,
+        ...data,
+      }));
 
-    attachmentSectionArray.map(attachmentSection => {
-      let attachments = [];
-      if (attachmentSection === 'GALLERY') {
-        attachments = saveImage;
-      }
-
-      attachments = JSON.stringify(attachments);
-
-      updateChefAttachment({
-        variables: {
-          pChefId: chefIdValue,
-          pChefAttachments: attachments,
-          pAttachmentAreaSection: attachmentSection,
-        },
-      }).then(data => {
+      attachmentSectionArray.map(attachmentSection => {
+        let attachments = [];
         if (attachmentSection === 'GALLERY') {
-          if (props.screen && props.screen === 'register') {
-            // To get the updated screens value
-            let screensValue = [];
-            GetValueFromLocal('SharedProfileScreens')
-              .then(result => {
-                if (result && result.length > 0) {
-                  screensValue = result;
-                }
-                screensValue.push('GALLERY');
-                screensValue = _.uniq(screensValue);
-                let variables = {
-                  chefId: props.chefId,
-                  chefUpdatedScreens: screensValue,
-                };
-                updateScreenTag({ variables });
-                if (props.nextStep) props.nextStep();
-                StoreInLocal('SharedProfileScreens', screensValue);
-              })
-              .catch(err => {
-                console.log('err', err);
-              });
-          }
-          toastMessage('success', 'Gallery uploaded successfully');
-          setSaveLoader(false);
+          attachments = saveImage;
         }
+
+        attachments = JSON.stringify(attachments);
+
+        updateChefAttachment({
+          variables: {
+            pChefId: chefIdValue,
+            pChefAttachments: attachments,
+            pAttachmentAreaSection: attachmentSection,
+          },
+        }).then(data => {
+          if (attachmentSection === 'GALLERY') {
+            if (props.screen && props.screen === 'register') {
+              // To get the updated screens value
+              let screensValue = [];
+              GetValueFromLocal('SharedProfileScreens')
+                .then(result => {
+                  if (result && result.length > 0) {
+                    screensValue = result;
+                  }
+                  screensValue.push('GALLERY');
+                  screensValue = _.uniq(screensValue);
+                  let variables = {
+                    chefId: props.chefId,
+                    chefUpdatedScreens: screensValue,
+                  };
+                  updateScreenTag({ variables });
+                  if (props.nextStep) props.nextStep();
+                  StoreInLocal('SharedProfileScreens', screensValue);
+                })
+                .catch(err => {
+                  //console.log('err', err);
+                });
+            }
+            toastMessage('success', 'Gallery uploaded successfully');
+            setSaveLoader(false);
+          }
+        });
       });
-    });
+    }
   }
   function updateCurrentFetch(imageUrl) {
     setOpen(true);

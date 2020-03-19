@@ -28,5 +28,7 @@ export default {
   CHEF_REQUESTED_AMOUNT: 'CHEF_REQUESTED_AMOUNT',
   CHE_REQUESTED_AMOUNT_STRING: 'Chef requested amount',
   STRIPEID_MISSING_MSG: 'Please add your card for payment updation!',
-  COMPLETED_VALIDATION: `You can't complete booking before booking start date!`,
+  COMPLETED_VALIDATION: `Please complete the booking after the event has ended`,
+  NO_OF_MINUTES_FOR_BOOKING_CANCEL: 'NO_OF_MINUTES_FOR_BOOKING_CANCEL',
+  CANCEL_ALERT_MESSAGE: "Booking can't to be cancelled",
 };

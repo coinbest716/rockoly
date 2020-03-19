@@ -40,7 +40,7 @@ class QuickView extends Component {
             });
         }
         catch(error){
-            console.log(error);
+            //console.log(error);
         }
     }
 
@@ -57,7 +57,7 @@ class QuickView extends Component {
             });
         }
         catch(error){
-            console.log(error);
+            //console.log(error);
         }
     }
 

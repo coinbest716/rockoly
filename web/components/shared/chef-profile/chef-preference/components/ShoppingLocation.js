@@ -36,7 +36,7 @@ const ShoppingLocation = props => {
             <p style={{ fontSize: '17px' }}>
               We don't charge the customer for the ingredients. Will you be able to pick up the
               ingredients for the customer at the store of their choice and provide the customer
-              with ingredients receipt.
+              with ingredients receipt?
             </p>
             <label>
               <div
@@ -75,7 +75,7 @@ const ShoppingLocation = props => {
       </section>
     );
   } catch (error) {
-    console.log('error', error);
+    //console.log('error', error);
   }
 };
 

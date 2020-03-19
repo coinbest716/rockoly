@@ -3,6 +3,7 @@ import { StripeProvider, Elements, CardElement } from 'react-stripe-elements';
 import CardForm from './CardForm';
 import { withApollo } from '../../../apollo/apollo';
 import Page from '../../shared/layout/Main';
+import { Back, paymentPage } from './Navigation';
 
 const StripeWrapper = props => {
   const [stripe, setStripe] = useState(null);
@@ -25,6 +26,8 @@ const StripeWrapper = props => {
   function closeAddCardModal(value) {
     if (props.closeAddCardModal) {
       props.closeAddCardModal(value);
+    } else {
+      paymentPage();
     }
   }
 

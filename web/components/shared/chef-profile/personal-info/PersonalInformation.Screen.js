@@ -67,7 +67,7 @@ const PersonalInformationScreen = props => {
             StoreInLocal('SharedProfileScreens', screensValue);
           })
           .catch(err => {
-            console.log('err', err);
+            //console.log('err', err);
           });
       }
       toastMessage(success, 'Awards and Certifications updated successfully');
@@ -106,7 +106,7 @@ const PersonalInformationScreen = props => {
               setExtendeId(chefResult);
             })
             .catch(err => {
-              console.log('error', error);
+              //console.log('error', error);
             });
         }
       })
@@ -207,7 +207,7 @@ const PersonalInformationScreen = props => {
       </React.Fragment>
     );
   } catch (error) {
-    console.log('error', error);
+    //console.log('error', error);
   }
 };
 

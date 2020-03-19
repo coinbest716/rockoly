@@ -257,12 +257,18 @@ const MegaMenu = () => {
       setProfileDetails(data.chefProfileByChefId);
       getTotalCountValue();
     } else {
-      getTotalCountValue();
-      setProfileDetails(null);
+      if (data !== undefined) {
+        if(data && data.chefProfileByChefId === null) {
+          onDataLogout();
+        } 
+      } else {
+         getTotalCountValue();
+         setProfileDetails(null);
+       }
     }
   }, [data]);
   useEffect(() => { //check null condition of query
-    // console.log(getCustomerData)
+
     if (
       util.isObjectEmpty(getCustomerData) &&
       util.hasProperty(getCustomerData, 'data') &&
@@ -273,8 +279,14 @@ const MegaMenu = () => {
       setCustomerProfileDetails(getCustomerData.data.customerProfileByCustomerId);
       getTotalCountValue();
     } else {
-      setCustomerProfileDetails(null);
-      getTotalCountValue();
+      if(getCustomerData && getCustomerData.data !== undefined) {
+       if(getCustomerData && getCustomerData.data && getCustomerData.data.customerProfileByCustomerId === null) {
+          onDataLogout();
+       } 
+      } else {
+        setCustomerProfileDetails(null);
+        getTotalCountValue();
+      }
     }
   }, [getCustomerData]);
 
@@ -372,6 +384,46 @@ const MegaMenu = () => {
     });
 
     useEffect(() => {
+      if(state.role === customer) {
+        GetValueFromLocal('user_ids')
+        .then(result => {
+          if (isObjectEmpty(result)) {
+           if(firebase.auth().currentUser) {
+            getCustomerId(customerId)
+            .then(res => {
+              if(res) {
+                getCustomer()
+              } 
+            }).catch((error) => {
+              console.log('error', error);
+            })
+           }
+          } 
+        }).catch(err => {
+          console.log('err', err);
+        });
+      } else if(state.role === chef) {
+        GetValueFromLocal('user_ids')
+        .then(result => {
+          if (isObjectEmpty(result)) {
+           if(firebase.auth().currentUser) {
+            getChefId(chefId)
+            .then(res => {
+              if(res) {
+                getChefData()
+              } 
+            }).catch((error) => {
+              console.log('error', error);
+            })
+           }
+          } 
+        }).catch(err => {
+          console.log('err', err);
+        });
+      }
+    }, [customerId, chefId, state])
+
+    useEffect(() => {
       if ((url === 'http://localhost:3000/' || url === 'https://webdev.neosme.com/') && 
       roleType === 'Admin') {
         onLogout();
@@ -413,6 +465,38 @@ const MegaMenu = () => {
             setRoleType('');
           } else {
             toastMessage('success', 'Logged out Successfully');
+          }
+          setTimeout(async function () {
+            await StoreInLocal('chef_loggedIn', false);
+            await StoreInLocal('selected_menu', 'home_page');
+            await Router.push(n.HOME);
+          }, 2000);
+          setUserRole(false);
+        })
+        .catch(error => {
+          toastMessage('error', error.message);
+        });
+    } catch (error) {
+      toastMessage('renderError', error.message);
+    }
+  };
+
+
+  
+  async function onDataLogout() {
+    try {
+      firebase
+        .auth()
+        .signOut()
+        .then(async () => {
+          // let keysToRemove = ['user_ids', 'selected_menu'];
+          await localStorage.clear();
+          if ((url === 'http://localhost:3000/' || url === 'https://webdev.neosme.com/') && 
+          roleType === 'Admin') {
+            setRoleType('');
+          } else {
+            // No display toast ... because is an automatic logout
+            // toastMessage('success', 'Logged out Successfully');
           }
           setTimeout(async function () {
             await StoreInLocal('chef_loggedIn', false);
@@ -583,7 +667,7 @@ const MegaMenu = () => {
               </Link> */}
               <div className="logo-header">
                 <Link href="/">
-                  <a className="navbar-brand" style={{ display: 'flex', width: '85px' }}>
+                  <a className="navbar-brand" id="logo-view-container" style={{ display: 'flex', width: '110px' }}>
                     <img
                    
                       src={require("../../../images/mock-image/rockoly-logo.png")}

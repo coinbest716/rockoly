@@ -80,7 +80,7 @@ const ProfilePictureUpload = props => {
             updateScrrenTag({ variables });
           })
           .catch(err => {
-            console.log('err', err);
+            //console.log('err', err);
           });
       }
       toastMessage('success', 'Profile Picture Uploaded Successfully');
@@ -113,7 +113,7 @@ const ProfilePictureUpload = props => {
             StoreInLocal('SharedProfileScreens', screensValue);
           })
           .catch(err => {
-            console.log('err', err);
+            //console.log('err', err);
           });
       }
       toastMessage('success', 'Profile Picture Uploaded Successfully');
@@ -125,11 +125,7 @@ const ProfilePictureUpload = props => {
 
   const [updateScrrenTag, { data, loading, error }] = useMutation(UPDATE_SCREENS, {
     onCompleted: data => {
-      let variables = {
-        customerId: props.id,
-        isRegistrationCompletedYn: true,
-      };
-      updateRegistrationTag({ variables });
+      skipImage();
     },
     onError: err => {},
   });
@@ -240,15 +236,19 @@ const ProfilePictureUpload = props => {
         'ALLERGY',
         'DIETARY',
         'KITCHEN_EQUIPMENT',
-        'PROFILE_PIC',
       ];
       //To check the updated screen values
       GetValueFromLocal('SharedProfileScreens')
         .then(result => {
           if (result && result.length > 0) {
-            if (result.length === 7) {
+            result = _.pull(result, 'PROFILE_PIC');
+            if (result.length === 6) {
+              let variables = {
+                customerId: props.id,
+                isRegistrationCompletedYn: true,
+              };
+              updateRegistrationTag({ variables });
               StoreInLocal('user_ids', chefIds);
-              loginTo();
             } else {
               let screenData = _.pullAll(screenArray, result);
               let screenDetails = screenData.map((res, key) => {
@@ -260,7 +260,7 @@ const ProfilePictureUpload = props => {
           }
         })
         .catch(err => {
-          console.log('err', err);
+          //console.log('err', err);
         });
     }
   }
@@ -268,36 +268,40 @@ const ProfilePictureUpload = props => {
   //For click next step
   function nextStepFunction() {
     // To get the updated screens value
-    let screensValue = [];
-    GetValueFromLocal('SharedProfileScreens')
-      .then(result => {
-        if (result && result.length > 0) {
-          screensValue = result;
-        }
-        if (result && !_.includes(result, 'PROFILE_PIC')) {
-          screensValue.push('PROFILE_PIC');
-          screensValue = _.uniq(screensValue);
-          StoreInLocal('SharedProfileScreens', screensValue);
-          let variables;
-          if (props.role === 'chef') {
-            variables = {
-              chefId: props.id,
-              chefUpdatedScreens: screensValue,
-            };
-            updateChefScreenTag({ variables });
-          } else if (props.role === 'customer') {
-            variables = {
-              customerId: props.id,
-              customerUpdatedScreens: screensValue,
-            };
-            updateScrrenTag({ variables });
+    if (props.role != 'customer' && !ProfileDetails.chefPicId) {
+      toastMessage('error', 'Please upload profile picture');
+    } else {
+      let screensValue = [];
+      GetValueFromLocal('SharedProfileScreens')
+        .then(result => {
+          if (result && result.length > 0) {
+            screensValue = result;
           }
-        }
-        props.nextStep();
-      })
-      .catch(err => {
-        console.log('err', err);
-      });
+          if (result && !_.includes(result, 'PROFILE_PIC')) {
+            screensValue.push('PROFILE_PIC');
+            screensValue = _.uniq(screensValue);
+            StoreInLocal('SharedProfileScreens', screensValue);
+            let variables;
+            if (props.role === 'chef') {
+              variables = {
+                chefId: props.id,
+                chefUpdatedScreens: screensValue,
+              };
+              updateChefScreenTag({ variables });
+            } else if (props.role === 'customer') {
+              variables = {
+                customerId: props.id,
+                customerUpdatedScreens: screensValue,
+              };
+              updateScrrenTag({ variables });
+            }
+          }
+          props.nextStep();
+        })
+        .catch(err => {
+          //console.log('err', err);
+        });
+    }
   }
 
   try {
@@ -381,7 +385,7 @@ const ProfilePictureUpload = props => {
                     props.currentStep === props.totalSteps ? skipImage() : nextStepFunction();
                   }}
                 >
-                  Submit
+                  {props.role === chef ? 'Save' : 'Submit'}
                 </button>
               )}
             </div>

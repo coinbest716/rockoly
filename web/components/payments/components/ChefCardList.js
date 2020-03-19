@@ -69,7 +69,7 @@ const ChefCardList = props => {
     },
     fetchPolicy: 'network-only',
     onError: err => {
-      toastMessage('renderError', err);
+      toastMessage('renderError', err.message);
     },
   });
 
@@ -93,10 +93,19 @@ const ChefCardList = props => {
 
   //Add new account for chef
   const [addChefBankDetails] = useMutation(ADD_CHEF_BANK_DATA, {
-    onCompleted: data => {
+    onCompleted: async data => {
       toastMessage(success, 'Bank details Added Successfully');
-      getChefData();
-      paymentPage();
+      await getChefData({
+        variables: {
+          chefId: chefId ? chefId : null,
+          limit: 10,
+        },
+        fetchPolicy: 'network-only',
+        onError: err => {
+          toastMessage('renderError', err.message);
+        },
+      });
+      await paymentPage();
     },
     onError: err => {
       toastMessage(renderError, err.message);
@@ -130,7 +139,18 @@ const ChefCardList = props => {
 
   //set user data
   useEffect(() => {
-    if (chefId) getChefData();
+    if (chefId && chefId !== null) {
+      getChefData({
+        variables: {
+          chefId: chefId ? chefId : null,
+          limit: 10,
+        },
+        fetchPolicy: 'network-only',
+        onError: err => {
+          toastMessage('renderError', err.message);
+        },
+      });
+    }
   }, [stripeId, chefId]);
 
   //set user data
@@ -183,7 +203,16 @@ const ChefCardList = props => {
               accountId: selectedItem.bank_details.id,
             },
           }).then(data => {
-            getChefData();
+            getChefData({
+              variables: {
+                chefId: chefId ? chefId : null,
+                limit: 10,
+              },
+              fetchPolicy: 'network-only',
+              onError: err => {
+                toastMessage('renderError', err.message);
+              },
+            });
           });
         }
       }
@@ -205,7 +234,16 @@ const ChefCardList = props => {
               isDefaultYn: true,
             },
           }).then(data => {
-            getChefData();
+            getChefData({
+              variables: {
+                chefId: chefId ? chefId : null,
+                limit: 10,
+              },
+              fetchPolicy: 'network-only',
+              onError: err => {
+                toastMessage('renderError', err.message);
+              },
+            });
           });
           updateChefBankData({
             variables: {
@@ -213,7 +251,16 @@ const ChefCardList = props => {
               isDefaultYn: false,
             },
           }).then(data => {
-            getChefData();
+            getChefData({
+              variables: {
+                chefId: chefId ? chefId : null,
+                limit: 10,
+              },
+              fetchPolicy: 'network-only',
+              onError: err => {
+                toastMessage('renderError', err.message);
+              },
+            });
           });
         } else {
           updateChefBankData({
@@ -222,7 +269,16 @@ const ChefCardList = props => {
               isDefaultYn: true,
             },
           }).then(data => {
-            getChefData();
+            getChefData({
+              variables: {
+                chefId: chefId ? chefId : null,
+                limit: 10,
+              },
+              fetchPolicy: 'network-only',
+              onError: err => {
+                toastMessage('renderError', err.message);
+              },
+            });
           });
         }
       } else {
@@ -319,7 +375,6 @@ const ChefCardList = props => {
     window.open(stripeURL, '_self');
     window.location.href = stripeURL;
   }
-  // console.log('chefStripeId', chefStripeId);
   //Get url data from stripe
   useEffect(() => {
     let url = window.location.href;

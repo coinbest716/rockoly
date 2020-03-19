@@ -72,8 +72,8 @@ export default function RegisterForm() {
   }, [data]);
 
   async function checkMobileAndEmailDataExist(emailData, mobileData) {
-    let mobile = mobileData.replace(" ", "");
-    mobile = mobile.replace(" ", "");
+    let mobile = mobileData.replace(' ', '');
+    mobile = mobile.replace(' ', '');
     //Query for check mobile number exist or not
     let data = {
       pEmail: emailData ? emailData : '',
@@ -157,60 +157,63 @@ export default function RegisterForm() {
 
   //On submit
   function signupAction(mobileData) {
-    try {
-      setLoader(true);
-      let userDetail = {
-        firstname: firstName ? firstName : null,
-        lastname: lastName ? lastName : null,
-        dob: dob ? dob : null,
-        mobileNumber: mobileData.mobileNumberValue ? mobileData.mobileNumberValue : null,
-        mobileCountryCode: mobileData.countryCode ? mobileData.countryCode : null,
-      };
-      // countryCode: mobileData.countryCode ? mobileData.countryCode : null,
-      firebase
-        .auth()
-        .createUserWithEmailAndPassword(email, password)
-        .then(user => {
-          const currentUser = firebase.auth().currentUser;
-          currentUser.getIdToken().then(data => {
-            if (currentUser !== null && data) {
-              let variables = {
-                token: data,
-                roleType: chefUser === true ? 'CHEF' : 'CUSTOMER',
-                authenticateType: 'REGISTER',
-                extra: JSON.stringify(userDetail),
-              };
-              registerAuthMutation({ variables });
-              setLoader(false);
-              StoreInLocal('current_user_token', data);
-            } else {
-              setLoader(false);
-              toastMessage('error', 'The current user is not available');
+    if (mobileData && mobileData.mobileNumberValue && mobileData.countryCode) {
+      try {
+        setLoader(true);
+        let userDetail = {
+          firstname: firstName ? firstName : null,
+          lastname: lastName ? lastName : null,
+          dob: dob ? dob : null,
+          mobileNumber: mobileData.mobileNumberValue ? mobileData.mobileNumberValue : null,
+          mobileCountryCode: mobileData.countryCode ? mobileData.countryCode : null,
+        };
+        firebase
+          .auth()
+          .createUserWithEmailAndPassword(email, password)
+          .then(user => {
+            const currentUser = firebase.auth().currentUser;
+            currentUser.getIdToken().then(data => {
+              if (currentUser !== null && data) {
+                let variables = {
+                  token: data,
+                  roleType: chefUser === true ? 'CHEF' : 'CUSTOMER',
+                  authenticateType: 'REGISTER',
+                  extra: JSON.stringify(userDetail),
+                };
+                registerAuthMutation({ variables });
+                setLoader(false);
+                StoreInLocal('current_user_token', data);
+              } else {
+                setLoader(false);
+                toastMessage('error', 'The current user is not available');
+              }
+            });
+          })
+          .catch(error => {
+            setLoader(false);
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            switch (errorCode) {
+              case 'auth/invalid-email':
+                // do something
+                toastMessage('error', 'The email address is not valid');
+                break;
+              case 'auth/wrong-password':
+                toastMessage('error', 'Wrong username or password');
+                break;
+              case 'auth/user-not-found':
+                toastMessage('error', 'User not found');
+                break;
+              default:
+                toastMessage('error', errorMessage);
+              // handle other codes ...
             }
           });
-        })
-        .catch(error => {
-          setLoader(false);
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          switch (errorCode) {
-            case 'auth/invalid-email':
-              // do something
-              toastMessage('error', 'The email address is not valid');
-              break;
-            case 'auth/wrong-password':
-              toastMessage('error', 'Wrong username or password');
-              break;
-            case 'auth/user-not-found':
-              toastMessage('error', 'User not found');
-              break;
-            default:
-              toastMessage('error', errorMessage);
-            // handle other codes ...
-          }
-        });
-    } catch (error) {
-      toastMessage('renderError', error.message);
+      } catch (error) {
+        toastMessage('renderError', error.message);
+      }
+    } else {
+      toastMessage('error', 'Please enter mobile number with country code');
     }
   }
 

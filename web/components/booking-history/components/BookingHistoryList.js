@@ -131,6 +131,7 @@ export default function HistoryList(props) {
         )}
         {isArrayEmpty(bookingArray) ? (
           bookingArray.map((res, index) => {
+            console.log('res', res);
             return (
               <div className="row" id="list-content" style={{ width: '100%' }} key={index}>
                 <div className="col-lg-2 col-md-2 col-sm-12" id="image-view">
@@ -182,9 +183,12 @@ export default function HistoryList(props) {
                             res.chefProfileByChefId.chefProfileExtendedsByChefId &&
                             res.chefProfileByChefId.chefProfileExtendedsByChefId.nodes[0] &&
                             res.chefProfileByChefId.chefProfileExtendedsByChefId.nodes[0]
-                              .chefLocationAddress
-                            ? res.chefProfileByChefId.chefProfileExtendedsByChefId.nodes[0]
-                                .chefLocationAddress
+                              .chefCity &&
+                              res.chefProfileByChefId.chefProfileExtendedsByChefId.nodes[0]
+                              .chefState
+                            ? `${res.chefProfileByChefId.chefProfileExtendedsByChefId.nodes[0]
+                                .chefCity}, ${res.chefProfileByChefId.chefProfileExtendedsByChefId.nodes[0]
+                                .chefState}`
                             : ''
                           : res &&
                             res.customerProfileByCustomerId &&
@@ -192,9 +196,9 @@ export default function HistoryList(props) {
                             res.customerProfileByCustomerId.customerProfileExtendedsByCustomerId
                               .nodes[0] &&
                             res.customerProfileByCustomerId.customerProfileExtendedsByCustomerId
-                              .nodes[0].customerLocationAddress
+                              .nodes[0].customerLocationAddress 
                           ? res.customerProfileByCustomerId.customerProfileExtendedsByCustomerId
-                              .nodes[0].customerLocationAddress
+                          .nodes[0].customerLocationAddress
                           : ''}
                       </a>
                     </h6>
@@ -222,11 +226,11 @@ export default function HistoryList(props) {
                         : res.chefBookingPriceUnit
                       : '$'}
                     {userRole === customer
-                      ? res && res.chefBookingTotalPriceValue
-                        ? res.chefBookingTotalPriceValue.toFixed(2)
+                      ? res && res.chefBookingPriceValue
+                        ? res.chefBookingPriceValue.toFixed(2)
                         : '-'
-                      : res && res.chefBookingPriceValue
-                      ? res.chefBookingPriceValue.toFixed(2)
+                      : res && res.chefBookingTotalPriceValue
+                      ? res.chefBookingTotalPriceValue.toFixed(2)
                       : '-'}
                   </p>
                 </div>

@@ -58,7 +58,7 @@ const CardForm = props => {
     {
       onCompleted: data => {
         // console.log('handleSubmit123 payload data', data);
-        console.log('dsakjhkjhkhkjh123123', data.stripeAttachCardToCustomer.data.customer);
+        // console.log('dsakjhkjhkhkjh123123', data.stripeAttachCardToCustomer.data.customer);
         toastMessage(success, 'Card Added successfully');
         //For closing modal
         if (props.closeAddCardModal) {

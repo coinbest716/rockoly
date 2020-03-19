@@ -3089,7 +3089,7 @@ padding:0px !important;
   border-radius: 5px;
   cursor: pointer;
   background: azure;
-  height: 465px;
+  height: 495px;
   overflow-y: auto;
   box-shadow: 2px 2px 2px 2px lightgrey;
 }
@@ -3098,7 +3098,9 @@ padding:0px !important;
 //     // background: azure;
 //   height: 52vh;
 //   overflow-y: auto;
-height: 350px;
+   height: 380px;
+//    max-height: max-content;
+   overflow: auto;
 }
 #fullchat-view{
     padding: 0px !important;

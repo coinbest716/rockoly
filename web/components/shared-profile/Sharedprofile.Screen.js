@@ -200,7 +200,17 @@ export default function SharedProfile() {
         data.customerProfileByCustomerId.customerUpdatedScreens &&
         data.customerProfileByCustomerId.customerUpdatedScreens.length !== 0
       ) {
+        // if all pages are filled not submit..switch to 3rd page if submit mobile
+        // if (
+        //   data &&
+        //   data.customerProfileByCustomerId &&
+        //   data.customerProfileByCustomerId.customerUpdatedScreens &&
+        //   data.customerProfileByCustomerId.customerUpdatedScreens.length >= 6
+        // ) {
         setIntialCustomerPage(data.customerProfileByCustomerId.customerUpdatedScreens.length + 1);
+        // } else {
+        //   setIntialCustomerPage(3);
+        // }
       } else {
         setIntialCustomerPage(1);
       }
@@ -234,7 +244,17 @@ export default function SharedProfile() {
         chefData.data.chefProfileByChefId.chefUpdatedScreens &&
         chefData.data.chefProfileByChefId.chefUpdatedScreens.length !== 0
       ) {
+        // if (
+        //   chefData &&
+        //   chefData.data &&
+        //   chefData.data.chefProfileByChefId &&
+        //   chefData.data.chefProfileByChefId.chefUpdatedScreens &&
+        //   chefData.data.chefProfileByChefId.chefUpdatedScreens.length >= 12
+        // ) {
+        //   setIntialChefPage(3);
+        // } else {
         setIntialChefPage(chefData.data.chefProfileByChefId.chefUpdatedScreens.length + 1);
+        // }
       } else {
         setIntialChefPage(1);
       }

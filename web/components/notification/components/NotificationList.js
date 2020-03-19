@@ -319,7 +319,9 @@ const NotificationList = props => {
           conversationId: unStringifyObject.message.conversation_hist_id,
           fullName: unStringifyObject.details.name,
           pic: unStringifyObject.details.pic,
-          status: unStringifyObject.booking.chef_booking_status_id.trim(),
+          status: unStringifyObject.booking.chef_booking_status_id
+            ? unStringifyObject.booking.chef_booking_status_id.trim()
+            : null,
         });
       });
     }
@@ -459,6 +461,8 @@ const NotificationList = props => {
         if (parsedData.customer !== null) {
           return parsedData.customer.customer_pic;
         } else return null;
+      } else if (type === 'message') {
+        return parsedData.details.pic;
       }
     } else {
       if (parsedData.details !== null) {
@@ -688,6 +692,7 @@ const NotificationList = props => {
                 )}
                 {chefNotifications && chefNotifications.length > 0 ? (
                   chefNotifications.map(notification => {
+                    console.log('chefNotifications', notification);
                     return (
                       <div
                         id={notification.notificationHistId}
@@ -748,9 +753,11 @@ const NotificationList = props => {
 
                           {notification.notificationAreaType === 'NEW_MESSAGE' ? (
                             <div className="col-md-3" id="notification-status">
-                              {console.log("GGGGGGGGGGGGGGGGGGG",notification.notificationDescription)}
-                              <b>{notification.notificationDescription ? 
-                             notification.notificationDescription : ''}</b>
+                              <b>
+                                {notification.notificationDescription
+                                  ? notification.notificationDescription
+                                  : ''}
+                              </b>
                             </div>
                           ) : (
                             <div className="col-md-3" id="notification-status">

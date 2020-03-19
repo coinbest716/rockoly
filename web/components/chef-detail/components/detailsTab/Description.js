@@ -16,7 +16,6 @@ function convertDateFormat(date) {
 }
 
 const Description = props => {
-
   try {
     return (
       <div className="products-details-tab-content chefDetail">
@@ -25,6 +24,7 @@ const Description = props => {
           util.hasProperty(props.chefDetails, 'chefProfileExtendedsByChefId') &&
           util.hasProperty(props.chefDetails.chefProfileExtendedsByChefId, 'nodes') &&
           props.chefDetails.chefProfileExtendedsByChefId.nodes.map(node => {
+            console.log('node', node, props.chefDetail);
             return (
               <div key={props.chefDetails.chefId}>
                 <div>
@@ -103,8 +103,11 @@ const Description = props => {
                             fontSize: '16px',
                           }}
                         >
-                          This chef can travel up to {node.chefAvailableAroundRadiusInValue} miles
-                          to provide the service
+                          {props && props.chefDetails && props.chefDetails.fullName
+                            ? props.chefDetails.fullName
+                            : 'This chef'}{' '}
+                          can travel up to {node.chefAvailableAroundRadiusInValue} miles from{' '}
+                          {node.chefCity}
                         </div>
                       </div>
                     )}

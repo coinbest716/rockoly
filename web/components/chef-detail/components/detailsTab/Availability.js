@@ -4,7 +4,7 @@ import AvailabilityCalendar from '../../../profile-setup/components/availability
 
 const Availability = props => {
   try {
-    console.log('Availability', props);
+    // console.log('Availability', props);
     return (
       <div className="products-details-tab-content">
         <AvailabilityCalendar

@@ -222,17 +222,23 @@ export const FavoriteChef = props => {
                       ) &&
                       favoriteChef.chefProfileByChefId.chefProfileExtendedsByChefId.nodes.map(
                         chefaddress => {
-                          console.log('chefaddress',chefaddress)
+                          //console.log('chefaddress',chefaddress)
                           return (
                             <div key={chefaddress.chefProfileExtendedId}>
                               {isObjectEmpty(chefaddress) &&
-                              isStringEmpty(chefaddress.chefAddrLine2) ? (
-                                <div className="address">{chefaddress.chefCity}</div>
+                              isStringEmpty(chefaddress.chefCity) &&
+                              isStringEmpty(chefaddress.chefState) ? (
+                                <div className="address">
+                                  {' '}
+                                  {chefaddress.chefCity && chefaddress.chefState
+                                    ? `${chefaddress.chefCity}, ${chefaddress.chefState}`
+                                    : null}
+                                </div>
                               ) : (
                                 <div>-----</div>
                               )}
 
-                              { isStringEmpty(chefaddress.chefPricePerHour) &&
+                              {isStringEmpty(chefaddress.chefPricePerHour) &&
                                 isStringEmpty(chefaddress.chefPriceUnit) &&
                                 chefaddress.chefPricePerHour !== 0 && (
                                   <p className="chefprice">
@@ -266,8 +272,17 @@ export const FavoriteChef = props => {
                               {isObjectEmpty(chefaddress) &&
                               isStringEmpty(chefaddress.chefAvailableAroundRadiusInValue) ? (
                                 <div className="address">
-                                  Travel around : {chefaddress.chefAvailableAroundRadiusInValue}{' '}
-                                  miles
+                                  {' '}
+                                  Chef{' '}
+                                  {favoriteChefData && favoriteChefData.fullName
+                                    ? favoriteChefData.fullName
+                                    : null}{' '}
+                                  can travel upto {chefaddress.chefAvailableAroundRadiusInValue}{' '}
+                                  miles from{' '}
+                                  {chefaddress.chefCity && chefaddress.chefState
+                                    ? `${chefaddress.chefCity}, ${chefaddress.chefState}`
+                                    : null}
+                                  .
                                 </div>
                               ) : (
                                 <div>-----</div>
@@ -291,39 +306,39 @@ export const FavoriteChef = props => {
                     {/* {!isStringEmpty(chef.pricePerHour) && <p className="emptyprice">-----</p>}
                     {isStringEmpty(chef.pricePerHour) && chef.pricePerHour === 0 && <p>-----</p>} */}
                     {favoriteChef.chefProfileByChefId.totalReviewCount > 0 && (
-                    <div className="rating" id="ratingContainer">
-                      <Rating
-                        initialRating={
-                          favoriteChef.chefProfileByChefId.averageRating
-                            ? favoriteChef.chefProfileByChefId.averageRating
-                            : 0
-                        }
-                        className="ratingView"
-                        emptySymbol={
-                          <img
-                            src={s.EMPTY_STAR}
-                            id="emptyStar"
-                            className="rating"
-                            // style={{ backgroundColor: 'red' }}
-                          />
-                        }
-                        fullSymbol="fa fa-star"
-                        fractions={2}
-                        readonly={true}
-                      />
-                      {favoriteChef.chefProfileByChefId.averageRating === null && (
-                        <i className="blackStar">(0)</i>
-                      )}
-                      {favoriteChef.chefProfileByChefId.averageRating !== null && (
-                        <i className="blackStar">
-                          (
-                          {favoriteChef.chefProfileByChefId.averageRating
-                            ? favoriteChef.chefProfileByChefId.averageRating.toFixed(1)
-                            : 0}
-                          )
-                        </i>
-                      )}
-                    </div>
+                      <div className="rating" id="ratingContainer">
+                        <Rating
+                          initialRating={
+                            favoriteChef.chefProfileByChefId.averageRating
+                              ? favoriteChef.chefProfileByChefId.averageRating
+                              : 0
+                          }
+                          className="ratingView"
+                          emptySymbol={
+                            <img
+                              src={s.EMPTY_STAR}
+                              id="emptyStar"
+                              className="rating"
+                              // style={{ backgroundColor: 'red' }}
+                            />
+                          }
+                          fullSymbol="fa fa-star"
+                          fractions={2}
+                          readonly={true}
+                        />
+                        {favoriteChef.chefProfileByChefId.averageRating === null && (
+                          <i className="blackStar">(0)</i>
+                        )}
+                        {favoriteChef.chefProfileByChefId.averageRating !== null && (
+                          <i className="blackStar">
+                            (
+                            {favoriteChef.chefProfileByChefId.averageRating
+                              ? favoriteChef.chefProfileByChefId.averageRating.toFixed(1)
+                              : 0}
+                            )
+                          </i>
+                        )}
+                      </div>
                     )}
                     {/* {chef.totalReviewCount > 0 ?
                       <div>

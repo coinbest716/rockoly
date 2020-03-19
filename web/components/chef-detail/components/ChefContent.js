@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import Link from 'next/link';
 import Rating from 'react-rating';
 import { useLazyQuery, useSubscription } from '@apollo/react-hooks';
@@ -9,6 +9,7 @@ import s from '../ChefDetail.Strings';
 import 'react-toastify/dist/ReactToastify.css';
 import PricingModal from '../../shared/modal/PricingModal';
 import ChatModal from '../../shared/modal/ChatModal';
+import { AppContext } from '../../../context/appContext';
 import {
   getChefId,
   getCustomerId,
@@ -38,13 +39,21 @@ const CHEF_LOCATION_SUBS = gql`
   ${chefLocationSubscription}
 `;
 
+// get conversationid subscription
+const conversationSubscription = gqlTag.subscription.chat.conversationHistoryGQLTAG;
+const CONVERSATION_SUBSCRIPTION_TAG = gql`
+  ${conversationSubscription}
+`;
+
 const ChefContent = props => {
   const [isUIRendered, setIsUIRendered] = useState(false);
   const [chefIdValue, setChefId] = useState(null);
   const [customerIdValue, setCustomerId] = useState(null);
   const [userRole, setUserRole] = useState('');
   const [ProfileDetails, setProfileDetails] = useState([]);
+  const [state, setState] = useContext(AppContext);
   const [showChatPage, setShowChatPage] = useState(false);
+  const [sameUser, setUserIsYn] = useState(false);
 
   let NoReview = 'No Review';
 
@@ -91,7 +100,6 @@ const ChefContent = props => {
       getChefDataByProfile();
     }
   }, customerIdValue);
-
   const { chefProfileSubsdata } = useSubscription(CHEF_SUBSCRIPTION_TAG, {
     variables: { chefId: props.chefId },
     onSubscriptionData: res => {
@@ -104,6 +112,19 @@ const ChefContent = props => {
     variables: { chefId: props.chefId },
     onSubscriptionData: res => {
       if (res.subscriptionData.data.chefProfileExtended) {
+        getChefDataByProfile();
+      }
+    },
+  });
+
+  const { chefConversationSubs } = useSubscription(CONVERSATION_SUBSCRIPTION_TAG, {
+    variables: {
+      tableName: 'chef_customer_conversation',
+      tablePkId: props && props.chefId ? props.chefId : null,
+      tablePkId2: customerIdValue ? customerIdValue : null,
+    },
+    onSubscriptionData: res => {
+      if (res.subscriptionData.data.conversationHistory) {
         getChefDataByProfile();
       }
     },
@@ -147,6 +168,23 @@ const ChefContent = props => {
     setShowChatPage(false);
   }
 
+  useEffect(() => {
+    if (
+      util.isObjectEmpty(state) &&
+      util.hasProperty(state, 'customerProfile') &&
+      util.isObjectEmpty(state.customerProfile)
+    ) {
+      let userId = state.customerProfile.userId;
+      if (util.isObjectEmpty(ProfileDetails)) {
+        if (userId === ProfileDetails.userId) {
+          setUserIsYn(true);
+        } else {
+          setUserIsYn(false);
+        }
+      }
+    }
+  }, [state, ProfileDetails]);
+
   return (
     <React.Fragment>
       {/* {open === true && <BookingForms openModal={openModal} open={open} />} */}
@@ -163,14 +201,23 @@ const ChefContent = props => {
             {ProfileDetails.chefProfileExtendedsByChefId &&
               util.hasProperty(ProfileDetails.chefProfileExtendedsByChefId, 'nodes') &&
               ProfileDetails.chefProfileExtendedsByChefId.nodes.map(node => {
+                console.log('ProfileDetails', node);
                 return (
                   <div key={node.chefProfileExtendedId}>
                     <div className="products-content" key={node.chefProfileExtendedId}>
                       <p className="chef-content-fullname" style={{ fontWeight: 500 }}>
-                        <i className="fas fa-map-marker-alt iconColor"></i>
-                        <span className="location">
-                          {userRole === chef ? node.chefCity : node.chefCity}
-                        </span>
+                        {(userRole === chef || userRole === customer) &&
+                          node.chefCity &&
+                          node.chefState && (
+                            <div>
+                              <i className="fas fa-map-marker-alt iconColor"></i>
+                              <span className="location">
+                                {userRole === chef || userRole === customer
+                                  ? `${node.chefCity}, ${node.chefState}`
+                                  : `${node.chefCity}, ${node.chefState}`}
+                              </span>
+                            </div>
+                          )}
                       </p>
                     </div>
                     {/* {console.log(ProfileDetails)} */}
@@ -187,7 +234,7 @@ const ChefContent = props => {
                           node.chefPricePerHour > 0 &&
                           node.chefPriceUnit.toUpperCase() !== 'USD' && (
                             <div>
-                              {node.chefPriceUnit} {node.chefPricePerHour} 
+                              {node.chefPriceUnit} {node.chefPricePerHour}
                             </div>
                           )}
                         {/* {node.chefPricePerHour &&
@@ -243,16 +290,21 @@ const ChefContent = props => {
                     <span className="chefReviewCount">New Chef</span>
                   )}
                 </div>
-                <div className="chat-btn">
-                  <button
-                    className="btn btn-primary"
-                    id="chef-details-chat"
-                    onClick={() => setShowChatPage(true)}
-                    style={{ width: '100%' }}
-                  >
-                    Ask Questions
-                  </button>
-                </div>
+                {userRole !== '' &&
+                  userRole !== false &&
+                  userRole === customer &&
+                  sameUser === false && (
+                    <div className="chat-btn">
+                      <button
+                        className="btn btn-primary"
+                        id="chef-details-chat"
+                        onClick={() => setShowChatPage(true)}
+                        style={{ width: '100%' }}
+                      >
+                        Ask Questions
+                      </button>
+                    </div>
+                  )}
               </div>
             </div>
           </div>

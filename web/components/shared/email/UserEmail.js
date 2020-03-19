@@ -59,7 +59,7 @@ const UserEmail = props => {
   const childRef = useRef();
   const [startDate, setstartDate] = useState(false);
   const [firstName, setFirstName] = useState('');
-  const [salutation, setSalutation] = useState('MR');
+  const [salutation, setSalutation] = useState('');
   const [salutationValue, setSalutationValue] = useState(0);
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -98,14 +98,20 @@ const UserEmail = props => {
 
   const [updateChefScrrenTag, data] = useMutation(UPDATE_CHEF_SCREENS, {
     onCompleted: data => {
-      props.nextStep();
+      // console.log('data', data);
+      // if (props.nextStep) {
+      //   props.nextStep();
+      // }
     },
     onError: err => {},
   });
 
   const [updateCustomerScrrenTag, datas] = useMutation(UPDATE_CUSTOMER_SCREENS, {
     onCompleted: datas => {
-      props.nextStep();
+      // console.log('data onCompleted', data);
+      // if (props.nextStep) {
+      //   props.nextStep();
+      // }
     },
     onError: err => {},
   });
@@ -143,27 +149,56 @@ const UserEmail = props => {
 
   //Check email and mobile number verified or not
   useEffect(() => {
-    if (firebase.auth().currentUser && firebase.auth().currentUser.emailVerified) {
-      let email = firebase.auth().currentUser.emailVerified;
-      setEmailVerified(email);
+    if (firebase.auth().currentUser) {
+      firebase.auth().currentUser.reload();
+      let userData = firebase.auth().currentUser;
+      console.log('userData', userData);
+      if (userData.emailVerified) {
+        setEmailVerified(userData.emailVerified);
+      }
     }
   }, []);
 
   function handleConfirm() {
     // e.preventDefault();
-    firebase.auth().onAuthStateChanged(function(user) {
-      if (user) {
-        if (firebase.auth().currentUser) {
-          firebase.auth().currentUser.reload();
-          let userData = firebase.auth().currentUser;
-          if (userData.emailVerified) {
-            setEmailVerified(true);
+    // firebase.auth().onAuthStateChanged(function(user) {
+    //   if (user) {
+    // if (firebase.auth().currentUser) {
+    //   firebase.auth().currentUser.reload();
+    //   let userData = firebase.auth().currentUser;
+    //   if (userData.emailVerified) {
+    //     toastMessage(success, 'Email verified successfully!');
+    //     setEmailVerified(true);
+    //   } else {
+    //     toastMessage(error, 'Please verify the email');
+    //   }
+    // }
+    // } else {
+    //   toastMessage(error, 'Please verify the email');
+    // }
+    // });
+
+    const { currentUser } = firebase.auth();
+
+    if (currentUser) {
+      firebase
+        .auth()
+        .currentUser.reload()
+        .then(res => {
+          const user = firebase.auth().currentUser;
+          console.log('firbaseUser', res, user);
+          if (user) {
+            if (user.emailVerified && user.emailVerified === true) {
+              console.log(user.emailVerified);
+              toastMessage(success, 'Email verified successfully!');
+              setEmailVerified(true);
+            } else {
+              console.log('alert');
+              toastMessage(error, 'Please verify the email');
+            }
           }
-        }
-      } else {
-        toastMessage(error, 'Please verify the email');
-      }
-    });
+        });
+    }
   }
   //set cuisine list data
   useEffect(() => {
@@ -238,36 +273,36 @@ const UserEmail = props => {
         .sendEmailVerification()
         .then(res => {
           toastMessage(success, 'Verification email sent successfully!');
-          if (props.screen === 'register') {
-            // To get the updated screens value
-            let screensValue = [];
-            GetValueFromLocal('SharedProfileScreens')
-              .then(result => {
-                if (result && result.length > 0) {
-                  screensValue = result;
-                }
-                screensValue.push('EMAIL_VERIFICATION');
-                screensValue = _.uniq(screensValue);
-                let variables;
-                if (props.role === 'chef') {
-                  variables = {
-                    chefId: props.id,
-                    chefUpdatedScreens: screensValue,
-                  };
-                  updateChefScrrenTag({ variables });
-                } else if (props.role === 'customer') {
-                  variables = {
-                    customerId: props.id,
-                    customerUpdatedScreens: screensValue,
-                  };
-                  updateCustomerScrrenTag({ variables });
-                }
-                StoreInLocal('SharedProfileScreens', screensValue);
-              })
-              .catch(err => {
-                console.log('err', err);
-              });
-          }
+          // if (props.screen === 'register') {
+          //   // To get the updated screens value
+          //   let screensValue = [];
+          //   GetValueFromLocal('SharedProfileScreens')
+          //     .then(result => {
+          //       if (result && result.length > 0) {
+          //         screensValue = result;
+          //       }
+          //       screensValue.push('EMAIL_VERIFICATION');
+          //       screensValue = _.uniq(screensValue);
+          //       let variables;
+          //       if (props.role === 'chef') {
+          //         variables = {
+          //           chefId: props.id,
+          //           chefUpdatedScreens: screensValue,
+          //         };
+          //         updateChefScrrenTag({ variables });
+          //       } else if (props.role === 'customer') {
+          //         variables = {
+          //           customerId: props.id,
+          //           customerUpdatedScreens: screensValue,
+          //         };
+          //         updateCustomerScrrenTag({ variables });
+          //       }
+          //       StoreInLocal('SharedProfileScreens', screensValue);
+          //     })
+          //     .catch(err => {
+          //       //console.log('err', err);
+          //     });
+          // }
           setSendOTP(true);
         })
         .catch(error => {
@@ -277,21 +312,25 @@ const UserEmail = props => {
   }
 
   function emailSkipFunc() {
+    console.log('emailSkipFunc');
     // To get the updated screens value
     let screensValue = [];
     GetValueFromLocal('SharedProfileScreens')
       .then(result => {
+        console.log('result', result, props);
         if (result && result.length > 0) {
           screensValue = result;
         }
-        if (result && !_.includes(result, 'EMAIL_VERIFICATION')) {
+        console.log('emailSkipFunc', !_.includes(result, 'EMAIL_VERIFICATION'));
+        if (!_.includes(result, 'EMAIL_VERIFICATION')) {
+          console.log('variables customer', props);
           screensValue.push('EMAIL_VERIFICATION');
           screensValue = _.uniq(screensValue);
           StoreInLocal('SharedProfileScreens', screensValue);
           let variables;
           if (props.role === 'chef') {
             variables = {
-              chefId: props.id,
+              chefId: props.chefId,
               chefUpdatedScreens: screensValue,
             };
             updateChefScrrenTag({ variables });
@@ -300,13 +339,14 @@ const UserEmail = props => {
               customerId: props.id,
               customerUpdatedScreens: screensValue,
             };
+            console.log('variables customer', variables);
             updateCustomerScrrenTag({ variables });
           }
         }
         props.nextStep();
       })
       .catch(err => {
-        console.log('err', err);
+        //console.log('err', err);
       });
   }
 
@@ -352,6 +392,7 @@ const UserEmail = props => {
                   type="button"
                   onClick={() => handleSubmit()}
                   className="btn btn-primary"
+                  id="shared-next-button"
                   style={{ width: 'fit-content' }}
                 >
                   Verify
@@ -365,6 +406,7 @@ const UserEmail = props => {
                   type="button"
                   onClick={() => handleConfirm()}
                   className="btn btn-primary"
+                  id="shared-next-button"
                   style={{ width: 'fit-content' }}
                 >
                   Confirm
@@ -376,6 +418,7 @@ const UserEmail = props => {
               <div className="basicInfoSave col-sm-2">
                 <button
                   type="button"
+                  id="shared-next-button"
                   onClick={() => emailSkipFunc()}
                   className="btn btn-primary"
                   style={{ width: 'fit-content' }}

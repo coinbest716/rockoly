@@ -410,6 +410,10 @@ const LeftSidebar = props => {
       setSecondChecked(false);
       setthirdChecked(false);
       setfourthChecked(false);
+      setZeroDollor(false);
+      setTwentyDollor(false);
+      setFourtyDollor(false);
+      setSixtyDollor(false);
     }
   }
   return (

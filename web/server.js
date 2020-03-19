@@ -41,6 +41,6 @@ app.prepare().then(() => {
 
   server.listen(PORT, err => {
     if (err) throw err;
-    console.log(`> Read on http://localhost:${PORT}`);
+    //console.log(`> Read on http://localhost:${PORT}`);
   });
 });

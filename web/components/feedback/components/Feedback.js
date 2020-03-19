@@ -27,7 +27,7 @@ export default function Feedback(props) {
   //Initial set value
   const [state, setState] = useContext(AppContext);
   const [fullName, setFullName] = useState('');
-  const [starRating, setStarRating] = useState(2);
+  const [starRating, setStarRating] = useState(5);
   const [compliment, setCompliment] = useState(mockupData);
   const [complimentText, setComplimentText] = useState('');
   const [review, setReview] = useState('');
@@ -67,7 +67,7 @@ export default function Feedback(props) {
   }
 
   async function OnSubmitClick() {
-    if (isArrayEmpty(compliment) && isNumberEmpty(starRating) && isStringEmpty(review)) {
+    if (isNumberEmpty(starRating)) {
       const variables = {
         reviewPoint: starRating,
         reviewDesc: review,
@@ -124,7 +124,7 @@ export default function Feedback(props) {
 
               <div className="section-title">
                 <h2>
-                  {fullName ? fullName : 'Chef Danial'}
+                  {fullName ? fullName : null}
                   {state.role === 'customer' && 's Kitchen'}
                 </h2>
               </div>

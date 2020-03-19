@@ -86,6 +86,7 @@ const Location = forwardRef((props, ref) => {
             : ''
         );
         setCity(data.chefCity);
+        setCountry(data.chefCountry);
         setState(data.chefState);
         if (
           util.isStringEmpty(data.chefAddrLine1) &&
@@ -134,6 +135,7 @@ const Location = forwardRef((props, ref) => {
         setLongitude(util.isStringEmpty(data.customerLocationLng) ? data.customerLocationLng : '');
         setZipCode(util.isStringEmpty(data.customerPostalCode) ? data.customerPostalCode : '');
         setCity(data.customerCity);
+        setCountry(data.customerCountry);
         setState(data.customerState);
       }
     } else if (props.props.role === chef) {
@@ -181,6 +183,7 @@ const Location = forwardRef((props, ref) => {
       );
       setZipCode(util.isStringEmpty(data.chefBookingPostalCode) ? data.chefBookingPostalCode : '');
       setCity(data.chefBookingCity);
+      setCountry(data.chefBookingCountry);
       setState(data.chefBookingState);
     }
   }, [props.details, props.bookingDetail]);
@@ -241,7 +244,7 @@ const Location = forwardRef((props, ref) => {
 
           return variables;
         } else {
-          toastMessage('error', 'Please fill the all fields');
+          toastMessage('error', 'Please fill the all details');
           // const variables = {
           //   fullAddress,
           //   latitude,
@@ -264,6 +267,7 @@ const Location = forwardRef((props, ref) => {
       axios
         .post(`${s.GOOGLEAPI}${latitude},${longitude}${s.KEY}${MAPAPIKEY}`)
         .then(locationData => {
+          console.log('getLocation', locationData);
           if (locationData && locationData.data && locationData.data.results[0]) {
             setDefaultAddress(locationData.data.results[0], 'currentLocation');
           }
@@ -276,6 +280,7 @@ const Location = forwardRef((props, ref) => {
 
   //To set all default address
   function setDefaultAddress(locationData, type) {
+    console.log('locationData', locationData);
     if (type === 'currentLocation') {
       setLatitude(locationData.geometry.location.lat.toString());
       setLongitude(locationData.geometry.location.lng.toString());
@@ -300,29 +305,46 @@ const Location = forwardRef((props, ref) => {
       const address2 = streetAddress2 || route;
       const address3 = streetAddress3 || '';
       let address = '';
-      if (util.isStringEmpty(address2) && util.isStringEmpty(address3)) {
-        address = `${address2},${address3}`;
-      } else if (util.isStringEmpty(address2)) {
-        address = `${address2}`;
-      } else if (util.isStringEmpty(address3)) {
-        address = `${address3}`;
+      let cityValue = '';
+      let value = '';
+      // if (util.isStringEmpty(address2) && util.isStringEmpty(address3)) {
+      //   address = `${address2},${address3}`;
+      // } else if (util.isStringEmpty(address2)) {
+      //   address = `${address2}`;
+      // } else if (util.isStringEmpty(address3)) {
+      //   address = `${address3}`;
+      // }
+      // let addressLine1 = '';
+      // if (util.isStringEmpty(houseNo) && util.isStringEmpty(address1)) {
+      //   addressLine1 = `${houseNo},${address1}`;
+      // } else if (util.isStringEmpty(houseNo)) {
+      //   addressLine1 = `${houseNo}`;
+      // } else if (util.isStringEmpty(address1)) {
+      //   addressLine1 = `${address1}`;
+      // }
+      // if (!util.isStringEmpty(city)) {
+      //   setCity(city1);
+      // } else {
+      //   setCity(city);
+      // }
+
+      if (util.isStringEmpty(city)) {
+        cityValue = `${city}`;
+      } else {
+        cityValue = `${city1}`;
       }
-      let addressLine1 = '';
-      if (util.isStringEmpty(houseNo) && util.isStringEmpty(address1)) {
-        addressLine1 = `${houseNo},${address1}`;
-      } else if (util.isStringEmpty(houseNo)) {
-        addressLine1 = `${houseNo}`;
-      } else if (util.isStringEmpty(address1)) {
-        addressLine1 = `${address1}`;
+
+      if (cityValue) {
+        const n = locationData.formatted_address.indexOf(cityValue);
+        value = locationData.formatted_address.slice(0, n - 2);
+        console.log('value', value);
       }
-      if (!util.isStringEmpty(city)) {
-        setCity(city1);
-      }
-      setHouseNo(addressLine1);
+      // setHouseNo(addressLine1);
+      address = value ? value : '';
       setStreetAddress(address);
       setZipCode(postalCode ? postalCode.toString() : '');
       setCountry(country);
-      setCity(city);
+      setCity(cityValue);
       setState(state);
     }
   }
@@ -484,9 +506,31 @@ const Location = forwardRef((props, ref) => {
               <input
                 type={s.TEXT}
                 className="form-control  inputView"
-                placeholder="City,State"
-                // value=""
-                value={`${city},${state}`}
+                placeholder="City"
+                value={city}
+                onChange={event => onChangeValue(event, setCity)}
+              />
+            )}
+          </div>
+          <div style={{ marginBottom: '2%' }}>
+            {state !== null && state !== '' && (
+              <input
+                type={s.TEXT}
+                className="form-control  inputView"
+                placeholder="State"
+                value={state}
+                onChange={event => onChangeValue(event, setState)}
+              />
+            )}
+          </div>
+          <div style={{ marginBottom: '2%' }}>
+            {country !== null && country !== '' && (
+              <input
+                type={s.TEXT}
+                className="form-control  inputView"
+                placeholder="Country"
+                value={country}
+                onChange={event => onChangeValue(event, setCountry)}
               />
             )}
           </div>

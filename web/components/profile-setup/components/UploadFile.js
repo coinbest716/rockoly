@@ -330,7 +330,10 @@ const UploadFile = props => {
 
   function save() {
     if (licenseFiles.length + otherFiles.length + certificateFiles.length == 0) {
-      toastMessage('error', 'You should upload one file in any of the categories');
+      toastMessage(
+        'error',
+        "Please upload a picture of your driver's license and any certificates you are currently holding."
+      );
     } else {
       setSaveLoader(true);
       // changing license type an url in object to pAttachmentType,pAttachmentUrl
@@ -418,7 +421,7 @@ const UploadFile = props => {
                   StoreInLocal('SharedProfileScreens', screensValue);
                 })
                 .catch(err => {
-                  console.log('err', err);
+                  //console.log('err', err);
                 });
             }
             toastMessage('success', 'Attachments uploaded successfully');

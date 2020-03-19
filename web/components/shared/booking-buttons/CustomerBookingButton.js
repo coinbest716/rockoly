@@ -1,10 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import S from './BookingButtons.String';
+import moment from 'moment';
 import * as util from '../../../utils/checkEmptycondition';
 import AddsModal from '../modal/RequestStatusModal';
 import { NavigateToFeedbackPage } from './Navigation';
 import ChefRequestModal from '../../shared/modal/chefRequestModal';
+import gql from 'graphql-tag';
+import * as gqlTag from '../../../common/gql';
 import AvailabilityCalendar from '../../profile-setup/components/availability/AvailabilityCalendar';
+import { useMutation, useLazyQuery, useQuery } from '@apollo/react-hooks';
+import { getLocalTime } from '../../../utils/DateTimeFormat';
+import { toastMessage, renderError } from '../../../utils/Toast';
+import {
+  isObjectEmpty,
+  hasProperty,
+  isStringEmpty,
+  isArrayEmpty,
+} from '../../../utils/checkEmptycondition';
+
+//Get mins for booking cancel option
+const minsTag = gqlTag.query.setting.getSettingValueGQLTAG;
+const GET_MINS_FOR_BOOKING = gql`
+  ${minsTag}
+`;
 
 const CustomerBookingButton = props => {
   //Initial set value
@@ -18,6 +36,15 @@ const CustomerBookingButton = props => {
   const [cancelRequestModalShow, setCancelRequestModalShow] = useState(false);
   const [editBooking, setEditBooking] = useState(false);
 
+  const [getMinsData, minsData] = useLazyQuery(GET_MINS_FOR_BOOKING, {
+    variables: {
+      pSettingName: S.NO_OF_MINUTES_FOR_BOOKING_CANCEL,
+    },
+    onError: err => {
+      toastMessage('renderError', err);
+    },
+  });
+
   useEffect(() => {
     if (util.isObjectEmpty(props) && util.isObjectEmpty(props.bookingDetails)) {
       setBookingData(props.bookingDetails);
@@ -28,6 +55,39 @@ const CustomerBookingButton = props => {
       setUserRole(props.userRole);
     }
   }, [props]);
+
+  //Calculate the mins for cancel option
+  useEffect(() => {
+    if (
+      isObjectEmpty(minsData) &&
+      hasProperty(minsData, 'data') &&
+      isObjectEmpty(minsData.data) &&
+      hasProperty(minsData.data, 'getSettingValue') &&
+      isStringEmpty(minsData.data.getSettingValue) &&
+      util.isObjectEmpty(bookingData)
+    ) {
+      let chefMinutes = parseInt(minsData.data.getSettingValue);
+      let bookingDate = getLocalTime(bookingData.chefBookingFromTime);
+      let currentDate = getLocalTime(new Date());
+      const diffValue = moment(bookingDate).diff(moment(currentDate), 'minutes');
+
+      console.log('chefMinutes', chefMinutes, diffValue);
+      if (chefMinutes < diffValue) {
+        onClickModel(modalCancelVisible, setModalCancelVisible);
+      } else {
+        toastMessage(renderError, S.CANCEL_ALERT_MESSAGE);
+      }
+    }
+  }, [minsData]);
+
+  function onCancelPress(type) {
+    console.log('type', type);
+    if (type === 'CHEF_ACCEPTED') {
+      getMinsData();
+    } else {
+      onClickModel(modalCancelVisible, setModalCancelVisible);
+    }
+  }
 
   //on click feedback buttton
   function onClickFeedback(res) {
@@ -73,7 +133,7 @@ const CustomerBookingButton = props => {
                 <button
                   type="submit"
                   className="btn btn-warning"
-                  onClick={() => onClickModel(modalCancelVisible, setModalCancelVisible)}
+                  onClick={() => onCancelPress('CUSTOMER_REQUESTED')}
                   id="cancel-button-style"
                 >
                   {S.CANCEL}
@@ -88,7 +148,7 @@ const CustomerBookingButton = props => {
                 <button
                   type="submit"
                   className="btn btn-warning"
-                  onClick={() => onClickModel(modalCancelVisible, setModalCancelVisible)}
+                  onClick={() => onCancelPress('CHEF_ACCEPTED')}
                   id="cancel-button-style"
                 >
                   {S.CANCEL}
@@ -112,7 +172,7 @@ const CustomerBookingButton = props => {
           {(status === S.COMPLETED ||
             status === S.AMT_TRANSFER_FAILED ||
             status === S.AMT_TRANSFER_SUCCESS) &&
-            bookingData.chefBookingCompletedByChefYn === true &&
+            // bookingData.chefBookingCompletedByChefYn === false &&
             bookingData.chefBookingCompletedByCustomerYn === false && (
               <div
                 className="addressText"

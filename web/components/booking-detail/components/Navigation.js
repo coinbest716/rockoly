@@ -22,3 +22,10 @@ export function NavigateToChatPage(props) {
     query: props,
   });
 }
+
+//Navigate to home
+export function NavigateToHome() {
+  Router.push({
+    pathname: n.HOME,
+  });
+}

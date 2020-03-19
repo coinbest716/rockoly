@@ -25,6 +25,7 @@ import KitchenUtensilsUpdate from '../shared/preferences/components/KitchenUtens
 import PriceCalculator from '../shared/chef-profile/pricing-page/PriceCalculator';
 import UserEmail from '../shared/email/UserEmail';
 import * as gqlTag from '../../common/gql';
+import Link from 'next/link';
 import Loader from '../Common/loader';
 import {
   getChefId,
@@ -119,6 +120,7 @@ const ProfileSetupScreen = props => {
   const [isRegistrationCompletedYn, setIsRegistrationCompletedYn] = useState(false);
   const [mobileNumberVerified, setMobileNumberVerified] = useState(false);
   const [emailVerified, setEmailVerified] = useState(false);
+  const [removeModal, setRemoveModal] = useState(false);
 
   const [getCustomerData, { data }] = useLazyQuery(GET_CUSTOMER_DATA, {
     variables: { customerId: customerIdValue },
@@ -184,6 +186,7 @@ const ProfileSetupScreen = props => {
     {
       onCompleted: responseForProfileSubmit => {
         toastMessage('success', 'Submitted successfully');
+        setRemoveModal(false);
       },
       onError: err => {
         toastMessage('error', err);
@@ -303,7 +306,7 @@ const ProfileSetupScreen = props => {
           }
         })
         .catch(err => {
-          console.log('err', err);
+          //console.log('err', err);
         });
     }
   });
@@ -321,6 +324,14 @@ const ProfileSetupScreen = props => {
       }
     });
   });
+
+  function onCloseModal() {
+    try {
+      setRemoveModal(false);
+    } catch (error) {
+      toastMessage('renderError', error.message);
+    }
+  }
 
   return (
     <React.Fragment>
@@ -427,7 +438,7 @@ const ProfileSetupScreen = props => {
                               <div className="basicInfoSubmit">
                                 <button
                                   type="submit"
-                                  onClick={() => onClickSubmit()}
+                                  onClick={() => setRemoveModal(true)}
                                   className="btn btn-primary"
                                 >
                                   {S.SUBMIT}
@@ -448,7 +459,7 @@ const ProfileSetupScreen = props => {
                               <div className="basicInfoSubmit">
                                 <button
                                   type="submit"
-                                  onClick={() => onClickSubmit()}
+                                  onClick={() => setRemoveModal(true)}
                                   className="btn btn-primary"
                                 >
                                   {S.SUBMIT}
@@ -547,6 +558,23 @@ const ProfileSetupScreen = props => {
             )
           )}
         </div>
+        {removeModal === true && (
+          <div className={`bts-popup ${open ? 'is-visible' : ''}`} role="alert">
+            <div className="bts-popup-container">
+              <h6>Ready to submit your profile for review ?</h6>
+              <p>You will be notified of your registration status within 48 hours.</p>
+              <button type="submit" className="btn btn-success" onClick={() => onCloseModal()}>
+                Cancel
+              </button>{' '}
+              <button type="button" className="btn btn-danger" onClick={() => onClickSubmit()}>
+                Ok
+              </button>
+              <Link href="#">
+                <a onClick={() => onCloseModal()} className="bts-popup-close"></a>
+              </Link>
+            </div>
+          </div>
+        )}
       </section>
       {roleType !== 'Admin' && <Footer />}
     </React.Fragment>

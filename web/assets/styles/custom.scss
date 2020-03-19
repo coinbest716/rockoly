@@ -222,7 +222,7 @@ Social Login
   flex: 1 0 0;
   flex-basis: 0px;
   overflow: hidden;
-  height: 88px;
+  height: 65px;
   // padding: 10px !important;
 }
 
@@ -461,6 +461,7 @@ button.btn.btn-primary {
   width: 100%;
   display: flex;
   justify-content: flex-end;
+  padding-bottom: 1%;
   // padding-right: 3%;
 }
 .base-rate-info{
@@ -801,4 +802,140 @@ button.btn.btn-primary {
 .special-msg-view{
   display: flex;
   justify-content: center;
+}
+#set-availablity-row{
+  justify-content: center;
+  align-items: baseline;
+}
+.pricing-modal-container{
+  margin-top: 1%;
+}
+
+@-moz-document url-prefix() { 
+  .navbar-brand {
+    width: 125px !important;
+  }
+  #submit-modal-button{
+    width:auto !important;
+  } 
+  .addCard{
+    width:auto !important;
+  }
+  #tab-container-view{
+    padding-top: 94px !important;
+  }
+  #shared-next-button{
+    width:auto !important;
+  }
+  #recaptcha-container{
+    width:auto !important;
+  }
+  // .availabilityCalendar{
+  //   height: calc(100vh - 133px) !important;
+  //   margin-bottom: 20px !important;
+  // }
+  // .rbc-month-row{
+  //   height: calc(100% - 392px) !important;
+  // }
+}
+@supports (-ms-ime-align: auto) {
+.react-datepicker-popper{
+   width:calc(45vw) !important;
+  //  position:relative !important;
+  //  top:30px !important;
+}
+#logo-view-container{
+  width:125px !important;
+}
+#shared-next-button{
+  width:auto !important;
+}
+#recaptcha-container{
+  width:auto !important;
+}
+.verificaton-button-view{
+  display: flex;
+  justify-content: flex-end !important;
+}
+#submit-modal-button{
+  width: auto !important;
+}
+}
+.react-datepicker-popper{
+  width: max-content !important;
+  z-index: 99999 !important;
+}
+@media(max-width:767px){
+  .react-datepicker-popper[data-placement^="bottom"] .react-datepicker__triangle, .react-datepicker-popper[data-placement^="top"] .react-datepicker__triangle, .react-datepicker__year-read-view--down-arrow, .react-datepicker__month-read-view--down-arrow, .react-datepicker__month-year-read-view--down-arrow, .react-datepicker-popper[data-placement^="bottom"] .react-datepicker__triangle::before, .react-datepicker-popper[data-placement^="top"] .react-datepicker__triangle::before, .react-datepicker__year-read-view--down-arrow::before, .react-datepicker__month-read-view--down-arrow::before, .react-datepicker__month-year-read-view--down-arrow::before{
+    display: none !important;
+  }
+  .react-datepicker__month{
+    margin: 2px !important;
+  }
+  .react-datepicker-popper {
+    transform: translate3d(-38px, 208px, 0px) !important;
+}
+.dropdown-content{
+  margin-bottom: 20px !important;
+}
+#container-view{
+  max-width: 90% !important;
+}
+div#navbar{
+  overflow: auto;
+}
+
+}
+.comero-nav{
+  display: flex;
+  justify-content: center;
+}
+// @media(max-with:991px){
+//   @supports (-ms-ime-align: auto) {
+//     .react-datepicker-popper{
+//        width:calc(80vw) !important;
+//     }
+//     }
+// }
+// .chat-time-view{
+//   white-space: nowrap;
+//   position: relative;
+//   right: 51px;
+// }
+// .chat-name-view{
+//   margin-left: 14px;
+//   width: 60%;
+//   white-space: nowrap;
+//   overflow: hidden;
+//   text-overflow: ellipsis;
+// }
+@media(min-width:1150px) and (max-width:1300px){
+  .chat-user-name{
+    width: calc(100vw - 94vw) !important ;
+  }
+}
+@media(min-width:1076px) and (max-width:1149px){
+  .chat-user-name{
+    width: calc(100vw - 95vw) !important ;
+  }
+}
+@media(min-width:992px) and (max-width:1075px){
+  .chat-user-name{
+    width: calc(100vw - 97vw) !important ;
+  }
+}
+@media(min-width:380px) and (max-width:991px){
+  .chat-user-name{
+    width: calc(100vw - 55vw) !important ;
+  }
+}
+@media(min-width:340px) and (max-width:379px){
+  .chat-user-name{
+    width: calc(100vw - 60vw) !important ;
+  }
+}
+@media(min-width:320px) and (max-width:339px){
+  .chat-user-name{
+    width: calc(100vw - 63vw) !important ;
+  }
 }

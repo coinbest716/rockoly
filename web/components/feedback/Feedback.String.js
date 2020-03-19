@@ -11,6 +11,6 @@ export default {
   FORM_CONTROL: 'form-control',
   FULL_STAR: require('../../images/mock-image/star-yellow.png'),
   EMPTY_STAR: require('../../images/mock-image/star-empty.png'),
-  FILL_DATA: 'Please fill the All fields',
+  FILL_DATA: 'Please fill the all details',
   SUCCESS_MSG: 'Saved Successfully',
 };

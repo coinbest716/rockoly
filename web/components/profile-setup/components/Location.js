@@ -96,7 +96,7 @@ const Location = props => {
             updateChefScreenTag({ variables });
           })
           .catch(err => {
-            console.log('err', err);
+            //console.log('err', err);
           });
       }
       toastMessage(success, 'Saved Successfully');
@@ -143,7 +143,7 @@ const Location = props => {
             updateCustomerScreenTag({ variables });
           })
           .catch(err => {
-            console.log('err', err);
+            //console.log('err', err);
           });
       }
       toastMessage(success, s.SUCCESS_MSG);
@@ -191,7 +191,7 @@ const Location = props => {
         }
       })
       .catch(err => {
-        console.log('err', err);
+        //console.log('err', err);
       });
   }
 
@@ -302,116 +302,144 @@ const Location = props => {
           intialState,
         } = location;
         if (intialState === true) {
-          axios
-            .post(
-              `https://maps.googleapis.com/maps/api/geocode/json?key=${MAPAPIKEY}&address=${streetAddress} ${city} ${state} ${country} ${zipcode}`
-            )
-            .then(locationData => {
-              if (locationData && locationData.data && locationData.data.results[0]) {
-                latitude = locationData.data.results[0].geometry.location.lat.toString();
-                longitude = locationData.data.results[0].geometry.location.lng.toString();
-                if (
-                  locationData.data.results[0].address_components &&
-                  locationData.data.results[0].formatted_address
-                ) {
-                  const results = locationData.data.results[0].address_components;
-                  fullAddress = locationData.data.results[0].formatted_address;
-                  let city1 = findValue(results, 'locality');
-                  let city2 = findValue(results, 'administrative_area_level_2');
-                  let state1 = findValue(results, 'administrative_area_level_1');
-                  let country1 = findValue(results, 'country');
-                  let houseNo = findValue(results, 'HouseNo');
-                  let streetAddress1 = findValue(results, 'neighborhood');
-                  let streetAddress2 = findValue(results, 'sublocality_level_2');
-                  let streetAddress3 = findValue(results, 'sublocality_level_1');
-                  let route = findValue(results, 'route');
-                  let postalCode = findValue(results, 'postal_code');
-                  let address1 = streetAddress1 || '';
-                  let address2 = streetAddress2 || route;
-                  let address3 = streetAddress3 || '';
-                  let address = '';
-                  if (util.isStringEmpty(address2) && util.isStringEmpty(address3)) {
-                    address = `${address2},${address3}`;
-                  } else if (util.isStringEmpty(address2)) {
-                    address = `${address2}`;
-                  } else if (util.isStringEmpty(address3)) {
-                    address = `${address3}`;
+          if (streetAddress && zipcode && city && state && country) {
+            axios
+              .post(
+                `https://maps.googleapis.com/maps/api/geocode/json?key=${MAPAPIKEY}&address=${streetAddress} ${city} ${state} ${country} ${zipcode}`
+              )
+              .then(locationData => {
+                if (locationData.data.status === 'OK') {
+                  console.log('locationData', locationData);
+                  if (locationData && locationData.data && locationData.data.results[0]) {
+                    latitude = locationData.data.results[0].geometry.location.lat.toString();
+                    longitude = locationData.data.results[0].geometry.location.lng.toString();
+                    if (
+                      locationData.data.results[0].address_components &&
+                      locationData.data.results[0].formatted_address
+                    ) {
+                      const results = locationData.data.results[0].address_components;
+                      fullAddress = locationData.data.results[0].formatted_address;
+                      let city1 = findValue(results, 'locality');
+                      let city2 = findValue(results, 'administrative_area_level_2');
+                      let state1 = findValue(results, 'administrative_area_level_1');
+                      let country1 = findValue(results, 'country');
+                      // let houseNo = findValue(results, 'HouseNo');
+                      // let streetAddress1 = findValue(results, 'neighborhood');
+                      // let streetAddress2 = findValue(results, 'sublocality_level_2');
+                      // let streetAddress3 = findValue(results, 'sublocality_level_1');
+                      // let route = findValue(results, 'route');
+                      let postalCode = findValue(results, 'postal_code');
+                      // let address1 = streetAddress1 || '';
+                      // let address2 = streetAddress2 || route;
+                      // let address3 = streetAddress3 || '';
+                      // let address = '';
+                      let cityValue = '';
+                      let value = '';
+                      // let houseNo = '';
+                      // if (util.isStringEmpty(address2) && util.isStringEmpty(address3)) {
+                      //   address = `${address2},${address3}`;
+                      // } else if (util.isStringEmpty(address2)) {
+                      //   address = `${address2}`;
+                      // } else if (util.isStringEmpty(address3)) {
+                      //   address = `${address3}`;
+                      // }
+                      // let addressLine1 = '';
+                      // if (util.isStringEmpty(houseNo) && util.isStringEmpty(address1)) {
+                      //   addressLine1 = `${houseNo},${address1}`;
+                      // } else if (util.isStringEmpty(houseNo)) {
+                      //   addressLine1 = `${houseNo}`;
+                      // } else if (util.isStringEmpty(address1)) {
+                      //   addressLine1 = `${address1}`;
+                      // }
+                      // if (!util.isStringEmpty(city1)) {
+                      //   city1 = city2;
+                      // }
+
+                      if (util.isStringEmpty(city1)) {
+                        cityValue = `${city1}`;
+                      } else {
+                        cityValue = `${city2}`;
+                      }
+
+                      if (cityValue) {
+                        const n = fullAddress.indexOf(cityValue);
+                        value = fullAddress.slice(0, n - 2);
+                        console.log('value111111', value);
+                      }
+
+                      // houseNo = addressLine1;
+                      streetAddress = value ? value : '';
+                      zipCode = postalCode ? postalCode.toString() : '';
+                      country = country1;
+                      city = city1;
+                      state = state1;
+                      if (
+                        util.isStringEmpty(chefProfileExtendedsByChefId) &&
+                        util.isStringEmpty(fullAddress) &&
+                        util.isStringEmpty(latitude) &&
+                        util.isStringEmpty(longitude) &&
+                        // util.isStringEmpty(houseNo) &&
+                        util.isStringEmpty(streetAddress) &&
+                        util.isStringEmpty(zipCode) &&
+                        util.isNumberEmpty(distance)
+                      ) {
+                        const variables = {
+                          chefProfileExtendedId: chefProfileExtendedsByChefId,
+                          chefLocationAddress: fullAddress,
+                          chefLocationLat: latitude,
+                          chefLocationLng: longitude,
+                          chefAddrLine1: houseNo,
+                          chefAddrLine2: streetAddress,
+                          chefPostalCode: zipCode,
+                          chefAvailableAroundRadiusInValue: parseFloat(distance),
+                          chefAvailableAroundRadiusInUnit: 'MILES',
+                          chefCity: city,
+                          chefState: state,
+                          chefCountry: country,
+                        };
+                        updateLocationInfo({
+                          variables,
+                        });
+                      } else if (
+                        util.isStringEmpty(customerProfileExtendedsByCustomerId) &&
+                        util.isStringEmpty(fullAddress) &&
+                        util.isStringEmpty(latitude) &&
+                        util.isStringEmpty(longitude) &&
+                        // util.isStringEmpty(houseNo) &&
+                        util.isStringEmpty(streetAddress) &&
+                        util.isStringEmpty(zipCode)
+                      ) {
+                        const variables = {
+                          customerProfileExtendedId: customerProfileExtendedsByCustomerId,
+                          customerLocationAddress: fullAddress,
+                          customerLocationLat: latitude,
+                          customerLocationLng: longitude,
+                          customerAddrLine1: houseNo,
+                          customerAddrLine2: streetAddress,
+                          customerPostalCode: zipCode,
+                          customerCity: city,
+                          customerState: state,
+                          customerCountry: country,
+                        };
+                        updateCustomerLocationInfo({
+                          variables,
+                        });
+                      }
+                    }
                   }
-                  let addressLine1 = '';
-                  if (util.isStringEmpty(houseNo) && util.isStringEmpty(address1)) {
-                    addressLine1 = `${houseNo},${address1}`;
-                  } else if (util.isStringEmpty(houseNo)) {
-                    addressLine1 = `${houseNo}`;
-                  } else if (util.isStringEmpty(address1)) {
-                    addressLine1 = `${address1}`;
-                  }
-                  if (!util.isStringEmpty(city1)) {
-                    city1 = city2;
-                  }
-                  houseNo = addressLine1;
-                  streetAddress = address;
-                  zipCode = postalCode ? postalCode.toString() : '';
-                  country = country1;
-                  city = city1;
-                  state = state1;
-                  if (
-                    util.isStringEmpty(chefProfileExtendedsByChefId) &&
-                    util.isStringEmpty(fullAddress) &&
-                    util.isStringEmpty(latitude) &&
-                    util.isStringEmpty(longitude) &&
-                    // util.isStringEmpty(houseNo) &&
-                    util.isStringEmpty(streetAddress) &&
-                    util.isStringEmpty(zipCode) &&
-                    util.isNumberEmpty(distance)
-                  ) {
-                    const variables = {
-                      chefProfileExtendedId: chefProfileExtendedsByChefId,
-                      chefLocationAddress: fullAddress,
-                      chefLocationLat: latitude,
-                      chefLocationLng: longitude,
-                      chefAddrLine1: houseNo,
-                      chefAddrLine2: streetAddress,
-                      chefPostalCode: zipCode,
-                      chefAvailableAroundRadiusInValue: parseFloat(distance),
-                      chefAvailableAroundRadiusInUnit: 'MILES',
-                      chefCity: city,
-                      chefState: state,
-                      chefCountry: country,
-                    };
-                    updateLocationInfo({
-                      variables,
-                    });
-                  } else if (
-                    util.isStringEmpty(customerProfileExtendedsByCustomerId) &&
-                    util.isStringEmpty(fullAddress) &&
-                    util.isStringEmpty(latitude) &&
-                    util.isStringEmpty(longitude) &&
-                    // util.isStringEmpty(houseNo) &&
-                    util.isStringEmpty(streetAddress) &&
-                    util.isStringEmpty(zipCode)
-                  ) {
-                    const variables = {
-                      customerProfileExtendedId: customerProfileExtendedsByCustomerId,
-                      customerLocationAddress: fullAddress,
-                      customerLocationLat: latitude,
-                      customerLocationLng: longitude,
-                      customerAddrLine1: houseNo,
-                      customerAddrLine2: streetAddress,
-                      customerPostalCode: zipCode,
-                      customerCity: city,
-                      customerState: state,
-                      customerCountry: country,
-                    };
-                    updateCustomerLocationInfo({
-                      variables,
-                    });
-                  }
+                } else {
+                  toastMessage(
+                    'error',
+                    'Sorry, we cannot fetch latitude and longitude of your location'
+                  );
                 }
-              }
-            })
-            .catch(error => {
-              toastMessage(renderError, error.message);
-            });
+              })
+              .catch(error => {
+                toastMessage('error', 'Unable to fetch latitude and longitude');
+              });
+          } else {
+            toastMessage('error', 'Plese fill all details');
+          }
         } else {
           if (
             util.isStringEmpty(chefProfileExtendedsByChefId) &&
@@ -505,7 +533,7 @@ const Location = props => {
           </form>
           <div className="saveButton" style={{ paddingRight: '2%' }}>
             <button type="submit" className="btn btn-primary" onClick={() => handleSubmit()}>
-              {s.SUBMIT_PROFILE}
+              {props.role === 'chef' ? s.SUBMIT_PROFILE : s.SAVE}
             </button>
           </div>
         </section>

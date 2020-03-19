@@ -79,7 +79,7 @@ const ChefPreference = props => {
             StoreInLocal('SharedProfileScreens', screensValue);
           })
           .catch(err => {
-            console.log('err', err);
+            //console.log('err', err);
           });
       }
       toastMessage('success', 'Updated Successfully');
@@ -117,7 +117,7 @@ const ChefPreference = props => {
               setExtendeId(chefResult);
             })
             .catch(err => {
-              console.log('error', error);
+              //console.log('error', error);
             });
         }
       })
@@ -196,12 +196,14 @@ const ChefPreference = props => {
     let isSameValuePresent = false;
     if (!shopYn) {
       toastMessage('error', 'Please select shopping location');
-    } else if (service && service.length > 0) {
-      service.map((item, key) => {
-        if (item.price == '' || item.price == 0 || item.price == null) {
-          isSameValuePresent = true;
-        }
-      });
+    } else {
+      service &&
+        service.length > 0 &&
+        service.map((item, key) => {
+          if (item.price == '' || item.price == 0 || item.price == null) {
+            isSameValuePresent = true;
+          }
+        });
       if (isSameValuePresent) {
         toastMessage('error', 'Please fill the price Values');
       } else {
@@ -266,7 +268,7 @@ const ChefPreference = props => {
       </React.Fragment>
     );
   } catch (error) {
-    console.log('error', error);
+    //console.log('error', error);
   }
 };
 

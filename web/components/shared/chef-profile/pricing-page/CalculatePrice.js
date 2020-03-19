@@ -288,10 +288,13 @@ const CalculatePrice = props => {
       let remainingMemberCount = 0;
       let halfOfBaseRate = 0;
       let chefCharge = 0;
+      let totalAmount = 0;
       let chefValue = chefDetail;
       baseRate = chefValue ? chefValue.chefPricePerHour : null;
       noOfGuests = props.pricingForm ? props.pricingForm.noOfGuests : props.guest;
       complexity = props.complexity;
+
+      console.log('props', props);
 
       additionalServices = props.additionalServices
         ? props.additionalServices
@@ -305,15 +308,15 @@ const CalculatePrice = props => {
         // price = price * complexity;
         // price = price + additionalServices;
 
-        firstfve = baseRate * 5;
-        console.log('complexity if', complexity);
-        chefCharge = price + serviceCharge + firstfve + complexityCharge;
+        // firstfve = baseRate * 5;
+        // chefCharge = price + serviceCharge + firstfve + complexityCharge;
         // totalCharge = price + serviceCharge;
         firstfve = baseRate * noOfGuests;
         complexityCharge = complexity && complexity !== null ? firstfve * complexity - firstfve : 0;
-        console.log('complexityCharge', complexityCharge);
         totalCharge = firstfve + complexityCharge + additionalServices;
-        serviceCharge = (2.5 / 100) * totalCharge;
+        serviceCharge = (serviceAmount / 100) * totalCharge + 0.3;
+        totalAmount = totalCharge - serviceCharge;
+
         return (
           <div className="card">
             <div className="card-header">
@@ -386,7 +389,7 @@ const CalculatePrice = props => {
                   fontSize: '17px',
                 }}
               >
-                Chef base rate(${baseRate}) X {noOfGuests}
+                Chef base rate(${baseRate}) X No.of.guests({noOfGuests})
               </div>
               <div className="col-lg-2">${firstfve.toFixed(2)} </div>
             </div>
@@ -414,9 +417,9 @@ const CalculatePrice = props => {
                   borderRight: '1px solid #D3D3D3',
                 }}
               >
-                Additional services
+                Rockoly / Payment Charges:
               </div>
-              <div className="col-lg-2"> ${additionalServices.toFixed(2)}</div>
+              <div className="col-lg-2"> ${serviceCharge.toFixed(2)}</div>
             </div>
             {/* <div style={{ display: 'flex', borderBottom: '1px solid #D3D3D3' }}>
               <div
@@ -451,7 +454,7 @@ const CalculatePrice = props => {
                 className="col-lg-2"
                 style={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}
               >
-                ${totalCharge.toFixed(2)}
+                ${totalAmount.toFixed(2)}
               </div>
             </div>
           </div>
@@ -464,14 +467,17 @@ const CalculatePrice = props => {
 
         firstfve = baseRate * noOfGuests;
         afterFive = (noOfGuests - 5) * (baseRate / 2);
-        complexityCharge = (firstfve - afterFive) * complexity - (firstfve - afterFive);
+
         price = firstfve - afterFive;
-        price = price + complexityCharge;
-        price = price + additionalServices;
-        serviceCharge = (2.5 / 100) * price;
-        totalCharge = price;
+        complexityCharge = price * complexity - price;
+        // price = price + complexityCharge;
+        // price = price + additionalServices;
+        totalCharge = price + complexityCharge + additionalServices;
+
+        serviceCharge = (serviceAmount / 100) * totalCharge + 0.3;
         remainingMemberCount = noOfGuests - 5;
         halfOfBaseRate = baseRate / 2;
+        totalAmount = totalCharge - serviceCharge;
         return (
           <div>
             <h4 style={{ color: '#08AB93', fontSize: '18px' }}>Calculated Details Details:</h4>
@@ -558,7 +564,7 @@ const CalculatePrice = props => {
               >
                 Discount
               </div>
-              <div className="col-lg-2">${afterFive.toFixed(2)}</div>
+              <div className="col-lg-2">-${afterFive.toFixed(2)}</div>
             </div>
             <div style={{ display: 'flex', borderBottom: '1px solid #D3D3D3' }}>
               <div
@@ -601,9 +607,9 @@ const CalculatePrice = props => {
                   fontSize: '17px',
                 }}
               >
-                Additional services:
+                Rockoly / Payment Charges:
               </div>
-              <div className="col-lg-2">${additionalServices.toFixed(2)}</div>
+              <div className="col-lg-2">${serviceCharge.toFixed(2)}</div>
             </div>
             {/* <div style={{ display: 'flex', borderBottom: '1px solid #D3D3D3' }}>
               <div
@@ -632,7 +638,7 @@ const CalculatePrice = props => {
               >
                 Total amount to pay:{' '}
               </div>
-              <div className="col-lg-2">${totalCharge.toFixed(2)}</div>
+              <div className="col-lg-2">${totalAmount.toFixed(2)}</div>
             </div>
           </div>
         );
@@ -680,11 +686,10 @@ const CalculatePrice = props => {
         price = price * complexity;
         price = price + additionalServices;
         firstfve = baseRate * 5;
-        console.log('complexity if', complexity);
         complexityCharge = complexity ? firstfve * complexity - firstfve : null;
         chefCharge = price + serviceCharge + firstfve + complexityCharge;
         totalCharge = price + serviceCharge;
-        serviceCharge = (2.5 / 100) * price;
+        serviceCharge = (serviceAmount / 100) * price + 0.3;
         totalCharge = price;
         firstfve = baseRate * noOfGuests;
         complexityCharge = firstfve * complexity - firstfve;
@@ -835,7 +840,7 @@ const CalculatePrice = props => {
         price = price + (noOfGuests - 5) * (baseRate / 2);
         price = price * complexity;
         price = price + additionalServices;
-        serviceCharge = (2.5 / 100) * price;
+        serviceCharge = (serviceAmount / 100) * price + 0.3;
         totalCharge = price;
         firstfve = baseRate * 5;
         afterFive = (noOfGuests - 5) * (baseRate / 2);
@@ -1033,7 +1038,7 @@ const CalculatePrice = props => {
         complexityCharge = firstfve * complexity - firstfve;
         chefCharge = price + serviceCharge + firstfve + complexityCharge;
         totalCharge = price + serviceCharge;
-        serviceCharge = (2.5 / 100) * price;
+        serviceCharge = (serviceAmount / 100) * price + 0.3;
         totalCharge = price;
         firstfve = baseRate * noOfGuests;
         complexityCharge = firstfve * complexity - firstfve;
@@ -1184,7 +1189,7 @@ const CalculatePrice = props => {
         price = price + (noOfGuests - 5) * (baseRate / 2);
         price = price * complexity;
         price = price + additionalServices;
-        serviceCharge = (2.5 / 100) * price;
+        serviceCharge = (serviceAmount / 100) * price + 0.3;
         totalCharge = price;
         firstfve = baseRate * 5;
         afterFive = (noOfGuests - 5) * (baseRate / 2);
@@ -1354,7 +1359,7 @@ const CalculatePrice = props => {
       </div>
     );
   } catch (error) {
-    console.log('error', error);
+    //console.log('error', error);
   }
 };
 

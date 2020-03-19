@@ -161,3 +161,11 @@
   display: flex;
   margin-bottom: 10px !important;
 }
+#describe-booking{
+  max-width:15% !important;
+}
+@media(min-width:200px) and (max-width:1024px){
+  #describe-booking{
+    max-width: 100% !important;
+  }
+}

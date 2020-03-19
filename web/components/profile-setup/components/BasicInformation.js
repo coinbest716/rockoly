@@ -132,7 +132,7 @@ const BasicInformation = props => {
         setEmail(util.isStringEmpty(data.customerEmail) ? data.customerEmail : '');
         setDob(
           util.isStringEmpty(data.customerDob)
-            ? moment(new Date(data.customerDob)).format('MM-DD-YYYY')
+            ? moment(new Date(data.customerDob)).format('MM/DD/YYYY')
             : ''
         );
         setMobileNumber(
@@ -160,7 +160,7 @@ const BasicInformation = props => {
 
         setDob(
           util.isStringEmpty(data.chefDob)
-            ? moment(new Date(data.chefDob)).format('MM-DD-YYYY')
+            ? moment(new Date(data.chefDob)).format('MM/DD/YYYY')
             : ''
         );
         setMobileNumber(util.isStringEmpty(data.chefMobileNumber) ? data.chefMobileNumber : '');
@@ -225,22 +225,59 @@ const BasicInformation = props => {
     if (invalidDate === false) {
       let sliceDate = moment(dob).format('YYYY');
       let dobSlice = moment(new Date()).format('YYYY');
-      if (parseInt(dobSlice) - parseInt(sliceDate) >= 18) {
+      if (util.isStringEmpty(dob) && sliceDate && dobSlice) {
+        if (parseInt(dobSlice) - parseInt(sliceDate) >= 18) {
+          try {
+            e.preventDefault();
+
+            // const mobileData = await childRef.current.getMobileNumberValue();
+
+            //setMobileNumber(mobileData.mobileNumberValue);
+
+            // if (gender !== '') {
+            // if (salutationValue !== 0) {
+            // if (mobileData.mobileNumber === mobileData.mobileCallBackValue) {
+            // const checkMobileNumberAndEmail = await checkMobileAndEmailDataExistsOrNot(
+            //   email,
+            //   mobileData.countryCode + ' ' + mobileData.mobileNumberValue,
+            //   userId
+            // );
+            if (props.role === customer) {
+              customerUserSubmit();
+              // customerUserSubmit()
+            } else if (props.role === chef) {
+              updateChefBasicInfo({
+                variables: {
+                  chefId: props.id,
+                  chefSalutation: null,
+                  chefFirstName: firstName,
+                  chefLastName: lastName ? lastName : null,
+                  chefGender: null,
+                  chefDob: util.isStringEmpty(dob) ? moment(dob, 'MM/DD/YYYY').format() : null,
+                  // chefMobileNumber: mobileData.mobileNumberValue,
+                  // chefMobileCountryCode: mobileData.countryCode,
+                },
+              });
+            } else {
+              toastMessage(error, 'MOBILE_NO_IS_ALREADY_EXISTS');
+            }
+            // } else {
+            //   toastMessage(error, 'Please verify your phone number');
+            // }
+            // } else {
+            //   toastMessage('error', 'Enter gender to submit');
+            // }
+          } catch (error) {
+            // console.log('toastMessage', error);
+            toastMessage(error, error);
+          }
+          //
+        } else {
+          toastMessage('error', 'AGE_LIMIT');
+        }
+      } else {
         try {
           e.preventDefault();
-
-          // const mobileData = await childRef.current.getMobileNumberValue();
-
-          //setMobileNumber(mobileData.mobileNumberValue);
-
-          // if (gender !== '') {
-          // if (salutationValue !== 0) {
-          // if (mobileData.mobileNumber === mobileData.mobileCallBackValue) {
-          // const checkMobileNumberAndEmail = await checkMobileAndEmailDataExistsOrNot(
-          //   email,
-          //   mobileData.countryCode + ' ' + mobileData.mobileNumberValue,
-          //   userId
-          // );
           if (props.role === customer) {
             customerUserSubmit();
             // customerUserSubmit()
@@ -252,29 +289,18 @@ const BasicInformation = props => {
                 chefFirstName: firstName,
                 chefLastName: lastName ? lastName : null,
                 chefGender: null,
-                chefDob: util.isStringEmpty(dob) ? moment(dob, 'MM-DD-YYYY').format() : null,
-                // chefMobileNumber: mobileData.mobileNumberValue,
-                // chefMobileCountryCode: mobileData.countryCode,
+                chefDob: util.isStringEmpty(dob) ? moment(dob, 'MM/DD/YYYY').format() : null,
               },
             });
           } else {
             toastMessage(error, 'MOBILE_NO_IS_ALREADY_EXISTS');
           }
-          // } else {
-          //   toastMessage(error, 'Please verify your phone number');
-          // }
-          // } else {
-          //   toastMessage('error', 'Enter gender to submit');
-          // }
         } catch (error) {
           // console.log('toastMessage', error);
           toastMessage(error, error);
         }
-        //
-      } else {
-        toastMessage('error', 'AGE_LIMIT');
       }
-    } else {
+    } else if (invalidDate === true) {
       toastMessage(error, 'Please enter valid date format');
     }
   }
@@ -288,14 +314,14 @@ const BasicInformation = props => {
           customerFirstName: firstName,
           customerLastName: lastName ? lastName : null,
           customerGender: null,
-          customerDob: util.isStringEmpty(dob) ? moment(dob, 'MM-DD-YYYY').format() : null,
+          customerDob: util.isStringEmpty(dob) ? moment(dob, 'MM/DD/YYYY').format() : null,
           // customerMobileNumber: mobileData.mobileNumberValue,
           // customerMobileCountryCode: mobileData.countryCode,
         },
       });
     } catch (error) {
       toastMessage(renderError, error.message);
-      console.log(error.message);
+      //console.log(error.message);
     }
   }
   function onSelectSalutation(event) {
@@ -318,6 +344,7 @@ const BasicInformation = props => {
   useEffect(() => {
     let dobDateValue = new Date(dob);
     if (dobDateValue && dob) {
+      console.log('dobDateValue', dobDateValue, dob);
       if (dob.match(/^(0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])[\/\-]\d{4}$/)) {
         const dateStr = dobDateValue.toString().split('/');
         if (dateStr && dateStr[0] === 'Invalid Date') {
@@ -425,7 +452,6 @@ const BasicInformation = props => {
                           name="lname"
                           data-error="Please enter your last name"
                           value={lastName}
-                          format="MM-DD-YYYY"
                           onChange={event => onChangeValue(event, setLastName)}
                         />
                       </div>
@@ -521,7 +547,7 @@ const BasicInformation = props => {
                         <input
                           type="text"
                           className="form-control"
-                          placeholder="Enter your data of birth"
+                          placeholder="Enter your data of birth (MM/DD/YYYY)"
                           id="dob"
                           name="dob"
                           data-error="Please enter your dob"
@@ -560,6 +586,7 @@ const BasicInformation = props => {
                 type="submit"
                 onClick={event => handleSubmit(event)}
                 className="btn btn-primary"
+                id="shared-next-button"
                 style={{ width: 'fit-content' }}
               >
                 Save

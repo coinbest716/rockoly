@@ -34,7 +34,6 @@ export const socialAuthUser = (data, type) => {
           });
       })
       .catch(error => {
-        console.log('error', error);
         const errorCode = error.code;
         const errorMessage = error.message;
         switch (errorCode) {

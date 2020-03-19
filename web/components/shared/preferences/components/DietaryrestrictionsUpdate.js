@@ -96,7 +96,7 @@ const DietaryRestrictions = props => {
           updateScrrenTag({ variables });
         })
         .catch(err => {
-          console.log('err', err);
+          //console.log('err', err);
         });
       if (props.screenName !== 'booking') {
         toastMessage('success', 'Dietary Restrictions updated successfully');
@@ -108,7 +108,7 @@ const DietaryRestrictions = props => {
       if (props && props.screenName && props.screenName === 'booking') {
         if (props && props.DietFormCallBack) {
           // props.DietFormCallBack(variables);
-          variables = {
+          let variables = {
             chefId: props.response.chef_id ? props.response.chef_id : null,
             customerId: props.response.customer_id ? props.response.customer_id : null,
             locationAddress: props.response.chef_booking_location_address

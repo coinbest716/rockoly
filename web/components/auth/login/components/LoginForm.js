@@ -48,7 +48,7 @@ const GET_CHEF_DATA = gql`
 `;
 
 export default function LoginForm(props) {
-  console.log('dsalkjlkjlkj123123123', props);
+  // console.log('dsalkjlkjlkj123123123', props);
   const childRef = useRef();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -183,7 +183,7 @@ export default function LoginForm(props) {
     if (data !== undefined) {
       if (isObjectEmpty(data.authenticate) && isObjectEmpty(data.authenticate.data)) {
         let redirect_url = localStorage.getItem('redirected_path');
-        console.log('dsakjkjhkh1h23123123', redirect_url);
+        // console.log('dsakjkjhkh1h23123123', redirect_url);
         //for customer login
         if (chefUser === false) {
           getCustomerAuthData(data.authenticate.data)

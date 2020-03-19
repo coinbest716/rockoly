@@ -17,8 +17,8 @@ const ChefDetail = props => {
     return (
       <React.Fragment>
         <Page>
-          <section className="products-details-area pt-30">
-            <div className="container" id="chef-detail-screen" style={{ paddingTop: '2%' }}>
+          <section className="products-details-area pt-10">
+            <div className="container" id="chef-detail-screen">
               <div className="row">
                 {/* {!props.chefIdToDisplay.chefId &&
                      setLoading(true) 

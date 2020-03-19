@@ -29,6 +29,7 @@ import {
   endTimeLimit,
   getTimestamp,
   getTimeOnly,
+  getTimeFirefoxOnly,
   getDate,
   getIsoDate,
   convert12to24Hours,
@@ -127,9 +128,11 @@ const RequestStatusModal = props => {
   const [setTimeGql, { setTime }] = useMutation(SET_FROM_TO_TIME, {
     onCompleted: paymentData => {
       toastMessage(success, toastContent);
+      closeModal();
     },
     onError: err => {
-      // toastMessage(renderError, err.message);
+      toastMessage(renderError, err.message);
+      closeModal();
     },
   });
 
@@ -337,14 +340,27 @@ const RequestStatusModal = props => {
   function calculateTime() {
     if (props && props.bookingDetail && props.bookingDetail.chefBookingFromTime) {
       if (props && props.bookingDetail && props.bookingDetail.chefBookingFromTime) {
-        let fromTime = getDateWithTimeLocalWithoutFormat(props.bookingDetail.chefBookingFromTime);
-        fromTime = alterTime(fromTime, initalTimeInterval, 'sub');
-        // fromTime = getTimeOnly(fromTime);
-        setInitialTime(fromTime);
+        console.log('calculateTime', props.bookingDetail.chefBookingFromTime);
+        // let fromTime = getDateWithTimeLocalWithoutFormat(props.bookingDetail.chefBookingFromTime);
+        // fromTime = alterTime(fromTime, initalTimeInterval, 'sub');
 
-        let toTime = getDateWithTimeLocalWithoutFormat(props.bookingDetail.chefBookingToTime);
-        toTime = alterTime(toTime, initalTimeInterval, 'add');
-        setEndTime(toTime);
+        let gmtDateFromTime = moment.utc(props.bookingDetail.chefBookingFromTime);
+        let localFromTime = gmtDateFromTime.local().format('MM-DD-YYYY h:mm a');
+        let subFromTime = moment(localFromTime, 'MM-DD-YYYY h:mm a').subtract(
+          initalTimeInterval,
+          'hours'
+        );
+
+        // fromTime = getTimeOnly(fromTime);
+        setInitialTime(subFromTime);
+
+        let gmtDateToTime = moment.utc(props.bookingDetail.chefBookingToTime);
+        let localToTime = gmtDateToTime.local().format('MM-DD-YYYY h:mm a');
+        let addToTime = moment(localToTime, 'MM-DD-YYYY h:mm a').add(initalTimeInterval, 'hours');
+
+        // let toTime = getDateWithTimeLocalWithoutFormat(props.bookingDetail.chefBookingToTime);
+        // toTime = alterTime(toTime, initalTimeInterval, 'add');
+        setEndTime(addToTime);
         // toTime = getTimeOnly(toTime);
       }
       // toTime = getTimeOnly(toTime);
@@ -359,20 +375,20 @@ const RequestStatusModal = props => {
       new Date(endTime) > new Date(initialTime) &&
       updatedStatus === 'CHEF_ACCEPTED'
     ) {
-      let variables = {
-        chefBookingHistId: historyId,
-        chefBookingStatusId: updatedStatus,
-        chefBookingCompletedByCustomerYn: completedByCustomer,
-        chefBookingCompletedByChefYn: completedByChef,
-        chefBookingChefRejectOrCancelReason: reasonByChef,
-        chefBookingCustomerRejectOrCancelReason: reasonByCustomer,
-      };
-      await updateBookingInfo({
-        variables,
-      });
-      // setTime({
+      // let variables = {
+      //   chefBookingHistId: historyId,
+      //   chefBookingStatusId: updatedStatus,
+      //   chefBookingCompletedByCustomerYn: completedByCustomer,
+      //   chefBookingCompletedByChefYn: completedByChef,
+      //   chefBookingChefRejectOrCancelReason: reasonByChef,
+      //   chefBookingCustomerRejectOrCancelReason: reasonByCustomer,
+      // };
+      // await updateBookingInfo({
+      //   variables,
+      // });
+      // // setTime({
 
-      variables = {
+      let variables = {
         chefBookingHistId: historyId,
         chefBookingStatusId: 'CHEF_ACCEPTED',
         chefBookingBlockFromTime: moment(initialTime)
@@ -462,14 +478,14 @@ const RequestStatusModal = props => {
         if (props.type === S.Reject) {
           setToastContent('You rejected the request');
         }
-        if (
-          props.type === S.CANCEL &&
-          props.bookingDetail.chefBookingStatusId.trim() === S.CHEF_ACCEPTED
-        ) {
-          getMinsData();
-        } else {
-          onSubmitBooking();
-        }
+        // if (
+        //   props.type === S.CANCEL &&
+        //   props.bookingDetail.chefBookingStatusId.trim() === S.CHEF_ACCEPTED
+        // ) {
+        //   getMinsData();
+        // } else {
+        onSubmitBooking();
+        // }
       } else {
         toastMessage(renderError, S.REQUIRED_REASON);
       }
@@ -644,9 +660,9 @@ const RequestStatusModal = props => {
                     <div className="row">
                       <div className="col-sm-6">
                         {/* {renderTimePicker(fromTime, setFromTime, 'start')} */}
-                        {getTimeOnly(initialTime)}
+                        {getTimeFirefoxOnly(initialTime)}
                       </div>
-                      <div className="col-sm-6">{getTimeOnly(endTime)}</div>
+                      <div className="col-sm-6">{getTimeFirefoxOnly(endTime)}</div>
                     </div>
                   </div>
                   <label className="comment" id="labelStyle">
@@ -661,7 +677,7 @@ const RequestStatusModal = props => {
                       style={{ border: '1px solid' }}
                       className="form-control booking_notes"
                       rows="6"
-                      placeholder={S.GIVE_YOUR_NOTES}
+                      placeholder={S.ENTER_NOTES}
                       required={true}
                       value={notes}
                       onChange={event => setNotes(event.target.value)}

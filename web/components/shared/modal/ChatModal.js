@@ -16,6 +16,8 @@ const ChatModal = props => {
     }
   }
 
+  console.log('props', props);
+
   return (
     <Modal open={true} onClose={closeModal} center closeOnOverlayClick={false}>
       <div className="alertModal">

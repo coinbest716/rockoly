@@ -48,8 +48,9 @@ const UnAvailabiltyModal = props => {
   const [loader, setLoader] = useState(false);
   const [open, setOpen] = useState(true);
   const [selectedAll, setSelectedAll] = useState(false);
+  const [removeModal, setRemoveModal] = useState(false);
   const [addedDate, setAddedDate] = useState('');
-
+  const [deleteItem, setDeleteItem] = useState('');
   //getting chef availaibity data
   const [getChefAvailabilityData, { data, loading }] = useLazyQuery(GET_CHEF_AVAILABILITY, {
     variables: {
@@ -145,6 +146,14 @@ const UnAvailabiltyModal = props => {
   //   }
   // }
 
+   function onCloseModal() {
+    try {
+      setRemoveModal(false);
+    } catch (error) {
+      toastMessage('renderError', error.message);
+    }
+  }
+
   //loader
   function renderLoader() {
     if (loader && loader === true && loading === true) {
@@ -177,6 +186,7 @@ const UnAvailabiltyModal = props => {
 
   //Delete date
   function deleteSingleDate(data) {
+    console.log('data', data);
     setChefAvailabilityList(_.pull(chefAvailabilityList, data));
     deleteDate(data);
   }
@@ -221,6 +231,7 @@ const UnAvailabiltyModal = props => {
           pType: 'DELETE',
         },
       });
+      setRemoveModal(false)
     } else {
       toastMessage(error, 'Please select delete items');
     }
@@ -254,9 +265,16 @@ const UnAvailabiltyModal = props => {
     }
   }
 
+  function handleDelete(res) {
+    setRemoveModal(true)
+    setDeleteItem(res);
+  }
+
+  console.log('addedDate', addedDate);
+
   return (
     <div className={`bts-popup ${open ? 'is-visible' : ''}`} role="alert">
-      <div className="bts-popup-container">
+      <div className="bts-popup-container" id="unavailablity-modal-view">
         {renderLoader()}
         <div className="login-content">
           <div className="section-title">
@@ -268,8 +286,8 @@ const UnAvailabiltyModal = props => {
             <label className="label" id="labelId">
               {S.ADD_UNAVAILABLE_DATE}
             </label>
-            <div className="row">
-              <div className="col-sm-8">
+            <div className="row" id="set-availablity-row">
+              <div>
                 <ModernDatepicker
                   className="calanderStyle"
                   date={addedDate}
@@ -283,7 +301,7 @@ const UnAvailabiltyModal = props => {
                   color={'#d9b44a'}
                 />
               </div>
-              <div className="col-sm-4">
+              <div>
                 <button
                   type="button"
                   id="addButton"
@@ -314,6 +332,8 @@ const UnAvailabiltyModal = props => {
           <div className="container" id="unAvailabilityRow">
             {chefAvailabilityList &&
               chefAvailabilityList.map((res, index) => {
+                console.log('res', res);
+                let value = res && res.title ? moment(res.title).format('MM-DD-YYYY') : null;
                 return (
                   <div className="row" id="availabilityRow">
                     <div className="col-sm-8">
@@ -334,14 +354,14 @@ const UnAvailabiltyModal = props => {
                                 <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
                               </svg>
                             </span> */}
-                          <span>{res.title}</span>
+                          <span>{value}</span>
                           {/* </label> */}
                         </div>
                       </div>
                     </div>
                     <div className="col-sm-4">
                       <Link href="#">
-                        <a onClick={() => deleteSingleDate(res)}>
+                        <a onClick={() => handleDelete(res)}>
                           <i className="far fa-trash-alt" color="red"></i>
                         </a>
                       </Link>
@@ -355,6 +375,22 @@ const UnAvailabiltyModal = props => {
           </Link>
         </div>
       </div>
+      {removeModal === true && (
+          <div className={`bts-popup ${open ? 'is-visible' : ''}`} role="alert">
+            <div className="bts-popup-container">
+              <h6>Are you sure you want to delete this date ?</h6>
+              <button type="submit" className="btn btn-success" onClick={() => onCloseModal()}>
+                Cancel
+              </button>{' '}
+              <button type="button" className="btn btn-danger" onClick={() => deleteSingleDate(deleteItem)}>
+                Ok
+              </button>
+              <Link href="#">
+                <a onClick={() => onCloseModal()} className="bts-popup-close"></a>
+              </Link>
+            </div>
+          </div>
+        )}
     </div>
   );
 };

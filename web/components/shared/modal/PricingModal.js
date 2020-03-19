@@ -127,7 +127,6 @@ const PricingModal = props => {
   });
 
   useEffect(() => {
-    console.log('props', props);
     let val = [];
     let data = props.bookingDetail;
     if (util.isObjectEmpty(data)) {
@@ -215,6 +214,63 @@ const PricingModal = props => {
       }
     }
   }, [props.bookingDetail, storeList]);
+
+  useEffect(() => {
+    let data = props.bookingDetail;
+    let serviceData = [];
+    if (
+      util.isObjectEmpty(data) &&
+      util.hasProperty(data, 'chefProfileByChefId') &&
+      util.isObjectEmpty(data.chefProfileByChefId)
+    ) {
+      let temp = false;
+      let detail = data.chefProfileByChefId;
+      if (
+        util.hasProperty(detail, 'chefProfileExtendedsByChefId') &&
+        util.isObjectEmpty(detail.chefProfileExtendedsByChefId) &&
+        util.hasProperty(detail.chefProfileExtendedsByChefId, 'nodes')
+      ) {
+        let count = 0;
+        if (
+          util.hasProperty(
+            detail.chefProfileExtendedsByChefId.nodes[0],
+            'additionalServiceDetails'
+          ) &&
+          util.isStringEmpty(detail.chefProfileExtendedsByChefId.nodes[0].additionalServiceDetails)
+        ) {
+          setAvailableService(
+            JSON.parse(detail.chefProfileExtendedsByChefId.nodes[0].additionalServiceDetails)
+          );
+          if (
+            util.hasProperty(data, 'additionalServiceDetails') &&
+            util.isStringEmpty(data.additionalServiceDetails)
+          ) {
+            let dataService = JSON.parse(data.additionalServiceDetails);
+            let fullService = JSON.parse(
+              detail.chefProfileExtendedsByChefId.nodes[0].additionalServiceDetails
+            );
+
+            fullService.map((item, key) => {
+              dataService.map((val, index) => {
+                if (val.id.trim() === item.id.trim()) {
+                  temp = true;
+                } else {
+                  temp = false;
+                }
+              });
+              serviceData.push(temp);
+            });
+
+            setIsValuePresent(serviceData);
+          }
+        } else {
+          setAvailableService([]);
+        }
+      }
+    } else {
+      setProfileDetails([]);
+    }
+  }, [props.bookingDetail]);
 
   const [insertNewDish, { dishData }] = useMutation(INSERT_DISH, {
     onCompleted: dishData => {
@@ -317,6 +373,7 @@ const PricingModal = props => {
   useEffect(() => {
     let data = [];
     let temp = [];
+    let serviceData = [];
     if (props.bookingDetails && util.isObjectEmpty(props.bookingDetails)) {
       setBookingData(props.bookingDetails);
       setRange(props.bookingDetails.chefBookingNoOfPeople);
@@ -356,6 +413,58 @@ const PricingModal = props => {
         setmultiple1(false);
         setmultiple2(false);
         setmultiple3(true);
+      }
+
+      if (
+        util.isObjectEmpty(props.bookingDetails) &&
+        util.hasProperty(props.bookingDetails, 'chefProfileByChefId') &&
+        util.isObjectEmpty(props.bookingDetails.chefProfileByChefId)
+      ) {
+        let temp = false;
+        let detail = props.bookingDetails.chefProfileByChefId;
+        if (
+          util.hasProperty(detail, 'chefProfileExtendedsByChefId') &&
+          util.isObjectEmpty(detail.chefProfileExtendedsByChefId) &&
+          util.hasProperty(detail.chefProfileExtendedsByChefId, 'nodes')
+        ) {
+          if (
+            util.hasProperty(
+              detail.chefProfileExtendedsByChefId.nodes[0],
+              'additionalServiceDetails'
+            ) &&
+            util.isStringEmpty(
+              detail.chefProfileExtendedsByChefId.nodes[0].additionalServiceDetails
+            )
+          ) {
+            setAvailableService(
+              JSON.parse(detail.chefProfileExtendedsByChefId.nodes[0].additionalServiceDetails)
+            );
+            if (
+              util.hasProperty(props.bookingDetails, 'additionalServiceDetails') &&
+              util.isStringEmpty(props.bookingDetails.additionalServiceDetails)
+            ) {
+              let dataService = JSON.parse(props.bookingDetails.additionalServiceDetails);
+              let fullService = JSON.parse(
+                detail.chefProfileExtendedsByChefId.nodes[0].additionalServiceDetails
+              );
+              fullService.map((item, key) => {
+                dataService.map((val, index) => {
+                  if (val.id.trim() === item.id.trim()) {
+                    temp = true;
+                  } else {
+                    temp = false;
+                  }
+                });
+                serviceData.push(temp);
+              });
+              setIsValuePresent(serviceData);
+            }
+          } else {
+            setAvailableService([]);
+          }
+        }
+      } else {
+        setProfileDetails([]);
       }
 
       if (
@@ -892,10 +1001,20 @@ const PricingModal = props => {
   }
 
   function onSelectCheckbox(value, index) {
-    let newVal = JSON.parse(ProfileDetails.chefAdditionalServices);
+    let newVal;
+
+    if (util.isArrayEmpty(JSON.parse(ProfileDetails.chefAdditionalServices))) {
+      newVal = JSON.parse(ProfileDetails.chefAdditionalServices);
+    }
+
     let deleteArray = isvaluePresent;
-    deleteArray[index] = !isvaluePresent[index];
-    setAdditionalServices(deleteArray);
+    if (isvaluePresent[index] === false && props.screen === 'request') {
+      deleteArray[index] = !isvaluePresent[index];
+      setIsValuePresent(deleteArray);
+    } else {
+      deleteArray[index] = !isvaluePresent[index];
+      setIsValuePresent(deleteArray);
+    }
 
     deleteArray.map((res, index) => {
       if (res) {
@@ -937,21 +1056,44 @@ const PricingModal = props => {
     setStoreValue(newVal);
   }
   function onCheckboxClicked(value, checkbox, state, type) {
-    setComplexity(value);
-    if (type === 'multiple1') {
-      // checkbox(!state);
-      setmultiple1(true);
-      setmultiple2(false);
-      setmultiple3(false);
-    } else if (type === 'multiple2') {
-      setmultiple1(false);
-      setmultiple2(true);
-      setmultiple3(false);
-    } else if (type === 'multiple3') {
-      setmultiple1(false);
-      setmultiple2(false);
-      setmultiple3(true);
+    if (util.isObjectEmpty(props.bookingDetails) && props.screen === 'request') {
+      if (value < props.bookingDetails.chefBookingComplexity) {
+        toastMessage('error', 'Complexity should be greater than previously selecteed complexity');
+      } else {
+        setComplexity(value);
+        if (type === 'multiple1') {
+          // checkbox(!state);
+          setmultiple1(true);
+          setmultiple2(false);
+          setmultiple3(false);
+        } else if (type === 'multiple2') {
+          setmultiple1(false);
+          setmultiple2(true);
+          setmultiple3(false);
+        } else if (type === 'multiple3') {
+          setmultiple1(false);
+          setmultiple2(false);
+          setmultiple3(true);
+        }
+      }
+    } else {
+      setComplexity(value);
+      if (type === 'multiple1') {
+        // checkbox(!state);
+        setmultiple1(true);
+        setmultiple2(false);
+        setmultiple3(false);
+      } else if (type === 'multiple2') {
+        setmultiple1(false);
+        setmultiple2(true);
+        setmultiple3(false);
+      } else if (type === 'multiple3') {
+        setmultiple1(false);
+        setmultiple2(false);
+        setmultiple3(true);
+      }
     }
+
     // checkbox(!state);
   }
 
@@ -1016,7 +1158,7 @@ const PricingModal = props => {
 
   try {
     return (
-      <div>
+      <div className="pricing-modal-container">
         <Modal
           open={Isopen}
           id="inactive"
@@ -1293,11 +1435,7 @@ const PricingModal = props => {
                                       className="inp-cbx"
                                       id={data.name}
                                       type="checkbox"
-                                      checked={
-                                        savedService.includes(data.id)
-                                          ? savedService.includes(data.id)
-                                          : undefined
-                                      }
+                                      checked={isvaluePresent[index]}
                                       onClick={() => onSelectCheckbox(data, index)}
                                     />
                                     {/* savedAllergies.includes(res.allergyTypeId) */}
@@ -1468,7 +1606,7 @@ const PricingModal = props => {
       </div>
     );
   } catch (error) {
-    console.log('error', error);
+    //console.log('error', error);
   }
 };
 

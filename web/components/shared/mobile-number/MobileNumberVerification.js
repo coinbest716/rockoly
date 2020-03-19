@@ -180,7 +180,7 @@ const MobileVerification = props => {
       setUserId(chefDetails.userId ? chefDetails.userId : '');
       setSalutation(chefDetails.chefSalutation ? chefDetails.chefSalutation : '');
       setFirstName(chefDetails.chefFirstName ? chefDetails.chefFirstName : '');
-      setLastName(chefDetails.customerLastName ? chefDetails.customerLastName : '');
+      setLastName(chefDetails.chefLastName ? chefDetails.chefLastName : '');
       setGender(chefDetails.chefGender ? chefDetails.chefGender : '');
       setDob(chefDetails.chefDob ? chefDetails.chefDob : '');
     }

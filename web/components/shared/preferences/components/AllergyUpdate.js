@@ -100,7 +100,7 @@ const AllergyUpdate = props => {
           updateScrrenTag({ variables });
         })
         .catch(err => {
-          console.log('err', err);
+          //console.log('err', err);
         });
       if (props.screenName !== 'booking') {
         toastMessage(success, 'Allergies updated successfully');
@@ -120,7 +120,7 @@ const AllergyUpdate = props => {
               : savedAllergies,
           customerOtherAllergyTypes: typedAllergies ? JSON.stringify(typedAllergies) : null,
         };
-        variables = {
+        let variables = {
           chefId: props.response.chef_id ? props.response.chef_id : null,
           customerId: props.response.customer_id ? props.response.customer_id : null,
           locationAddress: props.response.chef_booking_location_address

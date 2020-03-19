@@ -34,7 +34,16 @@ const CustomerCardList = props => {
   const [cardData, setCardData] = useState({});
   const [addModalOpen, setAddModalOpen] = useState(false);
 
-  const [getCustomerData, { data, loading }] = useLazyQuery(GET_CUSTOMER_DATA);
+  const [getCustomerData, { data, loading }] = useLazyQuery(GET_CUSTOMER_DATA, {
+    variables: {
+      customerId: stripeId ? stripeId : null,
+      limit: 10,
+    },
+    fetchPolicy: 'network-only',
+    onError: err => {
+      // toastMessage('renderError', err);
+    },
+  });
 
   const [removeCustomerCard] = useMutation(REMOVE_CUSTOMER_CARD, {
     onCompleted: data => {
@@ -83,6 +92,7 @@ const CustomerCardList = props => {
 
   //set user data
   useEffect(() => {
+    console.log('useEffect');
     if (
       utils.isObjectEmpty(data) &&
       utils.hasProperty(data, 'stripeGetCustomerCards') &&
@@ -90,7 +100,9 @@ const CustomerCardList = props => {
       utils.isObjectEmpty(data.stripeGetCustomerCards.data) &&
       utils.isArrayEmpty(data.stripeGetCustomerCards.data.data)
     ) {
+      console.log('useEffect before IF');
       let listData = data.stripeGetCustomerCards.data.data;
+      console.log('useEffect', data.stripeGetCustomerCards.data.data);
       setCardListData(listData);
       setStripeId(null);
     } else {
@@ -109,13 +121,23 @@ const CustomerCardList = props => {
   function onConfirmRemove() {
     try {
       if (utils.isObjectEmpty(selectedItem)) {
+        console.log("selectedItem.customer",selectedItem.customer)
         removeCustomerCard({
           variables: {
             customerId: selectedItem.customer,
             cardId: selectedItem.id,
           },
         }).then(data => {
-          getCustomerData();
+          getCustomerData({
+            variables: {
+              customerId: selectedItem.customer ? selectedItem.customer : null,
+              limit: 10,
+            },
+            fetchPolicy: 'network-only',
+            onError: err => {
+              toastMessage('renderError', err);
+            },
+          });
         });
       }
     } catch (error) {
@@ -155,7 +177,14 @@ const CustomerCardList = props => {
 
   //To close the add card modal
   function closeAddCardModal(value) {
+    console.log('closeAddCardModal', value);
     // getCustomerData();
+    getCustomerData({
+      variables: {
+        customerId: value,
+        limit: 10,
+      },
+    });
     setStripeId(value);
     setAddModalOpen(false);
   }
@@ -187,6 +216,7 @@ const CustomerCardList = props => {
   try {
     let cartItems = cardListData.length
       ? cardListData.map((res, index) => {
+          console.log('cardListData', cardListData);
           return (
             <div>
               {props && props.type && props.type === 'page' ? (
@@ -287,7 +317,7 @@ const CustomerCardList = props => {
         {utils.isObjectEmpty(cardData) && props && props.type === 'modal' && (
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <button
-              style={{ width: 'fit-content' }}
+              style={{ width: 'auto' }}
               type="button"
               className="btn btn-primary"
               onClick={() => selectCard()}

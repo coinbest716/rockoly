@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import moment from 'moment';
 import S from './BookingButtons.String';
 import * as util from '../../../utils/checkEmptycondition';
+import gql from 'graphql-tag';
+import * as gqlTag from '../../../common/gql';
 import AddsModal from '../modal/RequestStatusModal';
 import CompleteConfirmModal from '../modal/CompleteConfirmModal';
 import Loader from '../../Common/loader';
@@ -9,6 +11,19 @@ import { NavigateToFeedbackPage } from './Navigation';
 import PricingModal from '../modal/PricingModal';
 import { toastMessage, success, renderError, error } from '../../../utils/Toast';
 import { getLocalTime } from '../../../utils/DateTimeFormat';
+import { useMutation, useLazyQuery, useQuery } from '@apollo/react-hooks';
+import {
+  isObjectEmpty,
+  hasProperty,
+  isStringEmpty,
+  isArrayEmpty,
+} from '../../../utils/checkEmptycondition';
+
+//Get mins for booking cancel option
+const minsTag = gqlTag.query.setting.getSettingValueGQLTAG;
+const GET_MINS_FOR_BOOKING = gql`
+  ${minsTag}
+`;
 
 const ChefBookingButton = props => {
   //Initial set value
@@ -25,6 +40,15 @@ const ChefBookingButton = props => {
   const [modalEditVisible, setModalEditVisible] = useState(false);
   const [isDateExceed, setIsDateExceed] = useState(false);
 
+  const [getMinsData, minsData] = useLazyQuery(GET_MINS_FOR_BOOKING, {
+    variables: {
+      pSettingName: S.NO_OF_MINUTES_FOR_BOOKING_CANCEL,
+    },
+    onError: err => {
+      toastMessage('renderError', err);
+    },
+  });
+
   useEffect(() => {
     if (util.isObjectEmpty(props) && util.isObjectEmpty(props.bookingDetails)) {
       setBookingData(props.bookingDetails);
@@ -36,6 +60,30 @@ const ChefBookingButton = props => {
       setBookingId(props.bookingDetails.chefBookingHistId);
     }
   }, [props]);
+
+  //Calculate the mins for cancel option
+  useEffect(() => {
+    if (
+      isObjectEmpty(minsData) &&
+      hasProperty(minsData, 'data') &&
+      isObjectEmpty(minsData.data) &&
+      hasProperty(minsData.data, 'getSettingValue') &&
+      isStringEmpty(minsData.data.getSettingValue) &&
+      util.isObjectEmpty(bookingData)
+    ) {
+      let chefMinutes = parseInt(minsData.data.getSettingValue);
+      let bookingDate = getLocalTime(bookingData.chefBookingFromTime);
+      let currentDate = getLocalTime(new Date());
+      const diffValue = moment(bookingDate).diff(moment(currentDate), 'minutes');
+
+      console.log('chefMinutes', chefMinutes, diffValue);
+      if (chefMinutes < diffValue) {
+        onClickModel(modalCancelVisible, setModalCancelVisible);
+      } else {
+        toastMessage(renderError, S.CANCEL_ALERT_MESSAGE);
+      }
+    }
+  }, [minsData]);
 
   useEffect(() => {
     if (util.isObjectEmpty(bookingData)) {
@@ -89,7 +137,14 @@ const ChefBookingButton = props => {
         bookingData.chefProfileByChefId &&
         bookingData.chefProfileByChefId.defaultStripeUserId
       ) {
-        onClickModel(value, setState);
+        console.log('bookingData', bookingData);
+        let bookingDate = getLocalTime(bookingData.chefBookingFromTime);
+        let currentDate = getLocalTime(new Date());
+        const diffValue = moment(bookingDate).diff(moment(currentDate), 'minutes');
+        console.log('diffValue', diffValue);
+        if (diffValue < 0 || diffValue === 0) {
+          onClickModel(value, setState);
+        }
       } else {
         toastMessage(renderError, 'Please add a new Bank/Account details in Manage Payments');
       }
@@ -108,12 +163,10 @@ const ChefBookingButton = props => {
         util.isObjectEmpty(bookingData) &&
         util.isStringEmpty(bookingData.chefProfileByChefId.defaultStripeUserId)
       ) {
-        let bookingDate = getLocalTime(bookingData.chefBookingFromTime);
+        let bookingDate = getLocalTime(bookingData.chefBookingToTime);
         let currentDate = getLocalTime(new Date());
         const diffValue = moment(bookingDate).diff(moment(currentDate), 'minutes');
-        console.log('diffValue', diffValue);
         if (diffValue <= 0) {
-          console.log('diffValue if', diffValue);
           onClickModel(value, setState);
         } else {
           toastMessage(renderError, S.COMPLETED_VALIDATION);
@@ -123,6 +176,20 @@ const ChefBookingButton = props => {
       }
     }
   }
+
+  function onCancelPress() {
+    getMinsData();
+  }
+
+  let diffValue;
+
+  if (util.isObjectEmpty(bookingData)) {
+    let bookingDate = getLocalTime(bookingData.chefBookingFromTime);
+    let currentDate = getLocalTime(new Date());
+    diffValue = moment(bookingDate).diff(moment(currentDate), 'minutes');
+  }
+
+  console.log('diffValue', diffValue);
 
   return (
     <React.Fragment>
@@ -165,7 +232,7 @@ const ChefBookingButton = props => {
                   <button
                     type="button"
                     className="btn btn-warning"
-                    onClick={() => onClickModel(modalCancelVisible, setModalCancelVisible)}
+                    onClick={() => onCancelPress()}
                     id="cancel-button-style"
                   >
                     {S.CANCEL}{' '}
@@ -185,17 +252,20 @@ const ChefBookingButton = props => {
                   >
                     {S.COMPLETE}{' '}
                   </button>
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={() =>
-                      onClickCompleteEdtit(modalEditVisible, setModalEditVisible, 'edit')
-                    }
-                    id="cancel-button-styl"
-                    style={{ marginTop: '10px', color: '#fff' }}
-                  >
-                    {S.EDIT}
-                  </button>
+                  {diffValue === 0 ||
+                    (diffValue < 0 && (
+                      <button
+                        type="button"
+                        className="btn btn-primary"
+                        onClick={() =>
+                          onClickCompleteEdtit(modalEditVisible, setModalEditVisible, 'edit')
+                        }
+                        id="cancel-button-styl"
+                        style={{ marginTop: '10px', color: '#fff' }}
+                      >
+                        {S.EDIT}
+                      </button>
+                    ))}
                 </div>
               )}
             {(status === 'AMOUNT_TRANSFER_SUCCESS' || status === 'COMPLETED') &&

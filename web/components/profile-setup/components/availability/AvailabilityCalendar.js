@@ -153,6 +153,7 @@ const AvailabilityCalendar = props => {
       fromDate: fromDate(),
       toDate: futureMonth(),
     },
+    fetchPolicy: 'network-only',
     onError: err => {
       toastMessage('renderError', err);
     },
@@ -175,11 +176,13 @@ const AvailabilityCalendar = props => {
   }, [customerData]);
   //get chef id
   useEffect(() => {
+    console.log('getCurrentDate', getCurrentDate);
     updateTimes(getCurrentDate, 'month'); //set month start and end date
   }, []);
 
   //requery to get chef availability based on date ,when calendar month start/end date changed
   useEffect(() => {
+    console.log('currentMonthStartDate', currentMonthStartDate, currentMonthEndDate);
     getChefAvailabilityData();
   }, [currentMonthStartDate, currentMonthEndDate]);
 
@@ -204,7 +207,7 @@ const AvailabilityCalendar = props => {
               await setCustomerId(customerResult);
             })
             .catch(err => {
-              console.log('error', err);
+              //console.log('error', err);
             });
         } else {
           //chef user
@@ -220,6 +223,7 @@ const AvailabilityCalendar = props => {
 
   //set chef data after getting from backend
   useEffect(() => {
+    console.log('avilableData', data);
     if (
       util.isObjectEmpty(data) &&
       util.isObjectEmpty(data.listChefAvailabilityByDateRange) &&
@@ -227,6 +231,7 @@ const AvailabilityCalendar = props => {
     ) {
       let chefData = [];
       let details = data.listChefAvailabilityByDateRange.nodes;
+      console.log('details', details);
       //pushed data based on calendar objects
       details.map((res, index) => {
         if (
@@ -363,10 +368,6 @@ const AvailabilityCalendar = props => {
           setSelectedEvent(event);
 
           if (moment(new Date()).format('MM-DD-YYYY') == moment(event.start).format('MM-DD-YYYY')) {
-            console.log(
-              'setIsSameDate',
-              moment(new Date()).format('MM-DD-YYYY') == moment(event.start).format('MM-DD-YYYY')
-            );
             setIsSameDate(true);
           } else {
             setIsSameDate(false);

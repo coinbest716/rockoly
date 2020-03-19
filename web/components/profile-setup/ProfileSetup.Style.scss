@@ -172,8 +172,8 @@
   margin-left: 10px;
 }
 #unAvailabilityRow{
-  height: 150px;
-  overflow-y: scroll;
+  max-height: 150px;
+  overflow-y: auto;
 }
 .nonAvailability{
   color: #007bff;
@@ -245,9 +245,9 @@ a:hover {
   // color: red;
   text-decoration: underline;
 }
-#addButton {
-  margin-bottom: 10px;
-}
+// #addButton {
+//   margin-bottom: 10px;
+// }
 .cXcRCo {
   z-index: 999;
 }
@@ -379,4 +379,16 @@ a:hover {
     padding-left: 30px !important;
     margin-top: 20px;
   }
+}
+#unavailablity-modal-view{
+  height: 90% !important;
+  width: 100% !important;
+  overflow: auto;
+}
+#set-availablity-row > div > div > div {
+  border: 1px solid lightgrey !important;
+  margin-bottom: 10px !important;
+}
+#set-availablity-row > div > div > div > div > div{
+  border-bottom: 1px solid lightgrey !important;
 }

@@ -259,7 +259,7 @@ export default function BookingHistory() {
       hasProperty(data.listBookingByDateRange, 'nodes') &&
       isArrayEmpty(data.listBookingByDateRange.nodes)
     ) {
-      console.log('dsakjkjkjhkjh123123', data);
+      // console.log('dsakjkjkjhkjh123123', data);
       setResultBookingData(data.listBookingByDateRange.nodes);
     } else {
       setResultBookingData([]);

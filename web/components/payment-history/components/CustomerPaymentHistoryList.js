@@ -100,7 +100,7 @@ const CustomerHistoryList = () => {
   //get payment data
 
   useEffect(() => {
-    console.log('chefData', chefData);
+    //console.log('chefData', chefData);
     if (
       util.isObjectEmpty(chefData) &&
       util.hasProperty(chefData, 'data') &&

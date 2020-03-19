@@ -87,7 +87,7 @@ const BookingRequestScreen = () => {
       isArrayEmpty(data.listBookingByDateRange.nodes)
     ) {
       let bookingData = data.listBookingByDateRange.nodes;
-      console.log('jjjjjjjjjjjjjjjj', fromDate(), bookingData);
+      // console.log('jjjjjjjjjjjjjjjj', fromDate(), bookingData);
 
       let bookingValue = [];
       bookingData.map(res => {

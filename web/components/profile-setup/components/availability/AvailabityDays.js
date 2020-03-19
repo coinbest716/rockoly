@@ -13,6 +13,7 @@ import UnAvailabiltyModal from './UnAvailabilityModal';
 import * as gqlTag from '../../../../common/gql';
 import { availabilityDays } from '../../const/Availability';
 import * as util from '../../../../utils/checkEmptycondition';
+import moment from 'moment';
 import { toastMessage, error, renderError, success } from '../../../../utils/Toast';
 import { loginTo } from './Navigation';
 import {
@@ -124,7 +125,7 @@ const AvailabilityDays = props => {
             StoreInLocal('SharedProfileScreens', screensValue);
           })
           .catch(err => {
-            console.log('err', err);
+            //console.log('err', err);
           });
       }
       toastMessage(success, 'Availability saved Successfully');
@@ -446,6 +447,7 @@ const AvailabilityDays = props => {
               <div>
                 {unAvailableData &&
                   unAvailableData.map((res, index) => {
+                    let value = res && res.title ? moment(res.title).format('MM-DD-YYYY') : null;
                     return (
                       <div className="row">
                         <div className="col-sm-8">
@@ -466,7 +468,7 @@ const AvailabilityDays = props => {
                                 <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
                               </svg>
                             </span> */}
-                              <span style={{ fontSize: '14px' }}>{res.title}</span>
+                              <span style={{ fontSize: '14px' }}> {value}</span>
                               {/* </label> */}
                             </div>
                           </div>

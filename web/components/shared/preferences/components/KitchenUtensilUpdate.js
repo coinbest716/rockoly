@@ -128,7 +128,7 @@ const KitchenUtensilsUpdate = props => {
           updateScrrenTag({ variables });
         })
         .catch(err => {
-          console.log('err', err);
+          //console.log('err', err);
         });
       if (props.screenName !== 'booking') {
         toastMessage(success, 'Kitchen equipments updated successfully');
@@ -138,7 +138,7 @@ const KitchenUtensilsUpdate = props => {
         props.nextStep();
       }
       if (props && props.screenName && props.screenName === 'booking') {
-        variables = {
+        let variables = {
           chefId: props.response.chef_id ? props.response.chef_id : null,
           customerId: props.response.customer_id ? props.response.customer_id : null,
           locationAddress: props.response.chef_booking_location_address

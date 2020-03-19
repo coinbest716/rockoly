@@ -57,7 +57,7 @@ const AVAILABILITY_SUBSCRIPTION = gql`
 `;
 
 const DetailsTab = props => {
-  console.log('props', props);
+  //console.log('props', props);
   const [isUIRendered, setIsUIRendered] = useState(false);
   const [chefIdValue, setChefId] = useState(null);
   const [customerIdValue, setCustomerId] = useState(null);
@@ -83,7 +83,7 @@ const DetailsTab = props => {
   });
 
   useEffect(() => {
-    console.log('data', data);
+    //console.log('data', data);
     if (
       util.hasProperty(data, 'chefProfileByChefId') &&
       util.isObjectEmpty(data.chefProfileByChefId)
@@ -97,7 +97,7 @@ const DetailsTab = props => {
   }, [data]);
 
   useEffect(() => {
-    console.log('customerData', customerData.data);
+    //console.log('customerData', customerData.data);
     if (
       util.hasProperty(customerData.data, 'customerProfileByCustomerId') &&
       util.isObjectEmpty(customerData.data.customerProfileByCustomerId)
@@ -213,9 +213,8 @@ const DetailsTab = props => {
   }
 
   try {
-    console.log('checkAvailbility', customerProfileDetails, ProfileDetails);
     return (
-      <div className="col-lg-12 col-md-12" style={{ paddingTop: 121 }}>
+      <div className="col-lg-12 col-md-12" style={{ paddingTop: 115 }}>
         {isUIRendered === true && (
           <div className="tab products-details-tab">
             <div className="row">

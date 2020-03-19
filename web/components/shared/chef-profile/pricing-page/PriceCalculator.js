@@ -224,7 +224,10 @@ const PriceCalculator = props => {
       util.isObjectEmpty(chefData.data.chefProfileByChefId)
     ) {
       let detail = chefData.data.chefProfileByChefId;
-      
+      setmultiple1(true);
+      setmultiple2(false);
+      setmultiple3(false);
+      setComplexity(1);
       if (
         util.hasProperty(detail, 'chefProfileExtendedsByChefId') &&
         util.hasProperty(detail.chefProfileExtendedsByChefId, 'nodes')
@@ -240,10 +243,11 @@ const PriceCalculator = props => {
           setAvailableService(
             JSON.parse(detail.chefProfileExtendedsByChefId.nodes[0].additionalServiceDetails)
           );
-          JSON.parse(detail.chefProfileExtendedsByChefId.nodes[0].additionalServiceDetails).map(data=>{
+          JSON.parse(detail.chefProfileExtendedsByChefId.nodes[0].additionalServiceDetails).map(
+            data => {
               service.push(data.id);
-          })
-          
+            }
+          );
         } else {
           setAvailableService([]);
         }
@@ -318,21 +322,15 @@ const PriceCalculator = props => {
       let details = props.ProfileDetails.chefProfileExtendedsByChefId.nodes[0];
       setProfileDetails(details);
       if (
-        util.hasProperty(
-          details,
-          'additionalServiceDetails'
-        ) &&
+        util.hasProperty(details, 'additionalServiceDetails') &&
         util.isStringEmpty(details.additionalServiceDetails)
       ) {
-        setAvailableService(
-          JSON.parse(details.additionalServiceDetails)
-        );
-
+        setAvailableService(JSON.parse(details.additionalServiceDetails));
       } else {
         setAvailableService([]);
       }
     }
-  }, [props.ProfileDetails])
+  }, [props.ProfileDetails]);
 
   useEffect(() => {
     if (
@@ -465,7 +463,7 @@ const PriceCalculator = props => {
                   <div className="col-lg-6">
                     <div style={{ paddingRight: '2%' }}>
                       <input
-                        style={{ marginRight: '4%',width: '100%'}}
+                        style={{ marginRight: '4%', width: '100%' }}
                         type="range"
                         min={ProfileDetails.noOfGuestsMin ? ProfileDetails.noOfGuestsMin : 1}
                         max={ProfileDetails.noOfGuestsMax ? ProfileDetails.noOfGuestsMax : 150}
@@ -478,9 +476,7 @@ const PriceCalculator = props => {
                         }}
                       ></input>
                       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <div>
-                          {ProfileDetails.noOfGuestsMin ? ProfileDetails.noOfGuestsMin : 1}
-                        </div>
+                        <div>{ProfileDetails.noOfGuestsMin ? ProfileDetails.noOfGuestsMin : 1}</div>
                         <div>{range}</div>
                         <div>
                           {ProfileDetails.noOfGuestsMax ? ProfileDetails.noOfGuestsMax : 150}
@@ -532,8 +528,7 @@ const PriceCalculator = props => {
                                       </div>
                                     </div>
                                   </div>
-                                  <div>
-                                  </div>
+                                  <div></div>
                                 </div>
                               );
                             }
@@ -570,8 +565,7 @@ const PriceCalculator = props => {
                                       </div>
                                     </div>
                                   </div>
-                                  <div>
-                                  </div>
+                                  <div></div>
                                 </div>
                               );
                             }
@@ -607,8 +601,7 @@ const PriceCalculator = props => {
                                       </div>
                                     </div>
                                   </div>
-                                  <div>
-                                  </div>
+                                  <div></div>
                                 </div>
                               );
                             }
@@ -640,7 +633,6 @@ const PriceCalculator = props => {
                                         ? savedService.includes(data.id)
                                         : undefined
                                     }
-                                   
                                     onClick={() => onSelectCheckbox(data, index)}
                                   />
                                   <label className="cbx" htmlFor={data.name}>
@@ -740,20 +732,22 @@ const PriceCalculator = props => {
               </div>
             </div> */}
             <br />
-            {calculatePriceYn &&
-                  <CalculatePrice ProfileDetails={ProfileDetails}
-                    guest={range}
-                    complexity={complexityValue}
-                    chefId={props.chefId}
-                    additionalServices={additionalServices}
-                    screen="profile" />
-                }
+            {calculatePriceYn && (
+              <CalculatePrice
+                ProfileDetails={ProfileDetails}
+                guest={range}
+                complexity={complexityValue}
+                chefId={props.chefId}
+                additionalServices={additionalServices}
+                screen="profile"
+              />
+            )}
           </div>
         )}
       </div>
     );
   } catch (error) {
-    console.log('error', error);
+    //console.log('error', error);
   }
 };
 

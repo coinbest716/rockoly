@@ -81,7 +81,7 @@ const BaserateScreen = props => {
             StoreInLocal('SharedProfileScreens', screensValue);
           })
           .catch(err => {
-            console.log('err', err);
+            //console.log('err', err);
           });
       }
     },
@@ -127,7 +127,7 @@ const BaserateScreen = props => {
               setExtendeId(chefResult);
             })
             .catch(err => {
-              console.log('error', error);
+              //console.log('error', error);
             });
         }
       })
@@ -189,7 +189,15 @@ const BaserateScreen = props => {
   }
 
   function onSavingValues() {
-    if (parseInt(minGuests) > parseInt(maxGuests) || parseInt(minGuests) == parseInt(maxGuests)) {
+    if (!parseInt(minGuests) || !parseInt(maxGuests)) {
+      toastMessage(
+        'error',
+        'Please select a minimum and maximum number of guests you are able to cook for.'
+      );
+    } else if (
+      parseInt(minGuests) > parseInt(maxGuests) ||
+      parseInt(minGuests) == parseInt(maxGuests)
+    ) {
       toastMessage('error', 'Maximum no of guests should be greater');
     } else if (baseRateValue == 0) {
       toastMessage('error', 'Please enter base rate');
@@ -252,7 +260,7 @@ const BaserateScreen = props => {
       </React.Fragment>
     );
   } catch (error) {
-    console.log('error', error);
+    //console.log('error', error);
   }
 };
 

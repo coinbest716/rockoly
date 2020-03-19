@@ -194,7 +194,18 @@ export default function ChatListScreen(props) {
                       style={{ borderRadius: '50%', width: '50px', height: '50px' }}
                     />
                     {res && (res.conversationName != '' || res.conversationName != null) && (
-                      <b style={{ marginLeft: '14px' }}>{res.conversationName}</b>
+                      <b
+                        className="chat-user-name"
+                        style={{
+                          marginLeft: '14px',
+                          width: 'calc(100vw - 92vw)',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                        }}
+                      >
+                        {res.conversationName}
+                      </b>
                     )}
 
                     {res &&
@@ -219,11 +230,12 @@ export default function ChatListScreen(props) {
                     <div
                       style={{
                         position: 'relative',
-                        left: '35px',
+                        left: '65px',
                         bottom: '25px',
                         fontSize: '13px',
-                        marginLeft: '11%',
+                        // marginLeft: '11%',
                         paddingRight: '10%',
+                        width: '88%',
                       }}
                     >
                       {getDateWithTimeLocal(chefBookingDetails.chef_booking_from_time)} {' / '}

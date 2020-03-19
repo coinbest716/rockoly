@@ -84,7 +84,7 @@ const Complexity = props => {
             StoreInLocal('SharedProfileScreens', screensValue);
           })
           .catch(err => {
-            console.log('err', err);
+            //console.log('err', err);
           });
       }
       toastMessage('success', 'Complexity updated successfully');
@@ -131,7 +131,7 @@ const Complexity = props => {
               setExtendeId(chefResult);
             })
             .catch(err => {
-              console.log('error', error);
+              //console.log('error', error);
             });
         }
       })
@@ -539,7 +539,7 @@ const Complexity = props => {
       </section>
     );
   } catch (error) {
-    console.log('error', error);
+    //console.log('error', error);
   }
 };
 

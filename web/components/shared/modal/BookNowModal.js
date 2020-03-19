@@ -145,107 +145,13 @@ const BookNowModal = props => {
   const [createOrStore, response] = useMutation(CREATE_OR_STORE_BOOKING, {
     onCompleted: response => {
       response = response.createOrSaveBooking.data;
-      let stripeCustomerId,
-        cardId,
-        chefId,
-        customerId,
-        fromTime,
-        toTime,
-        notes,
-        dishTypeId,
-        summary,
-        allergyTypeIds,
-        otherAllergyTypes,
-        dietaryRestrictionsTypesIds,
-        otherDietaryRestrictionsTypes,
-        kitchenEquipmentTypeIds,
-        otherKitchenEquipmentTypes,
-        storeTypeIds,
-        otherStoreTypes,
-        noOfGuests,
-        locationAddress,
-        locationLat,
-        locationLng,
-        addrLine1,
-        addrLine2,
-        state,
-        country,
-        city,
-        postalCode,
-        complexity = null;
-      if (props.bookingValues) {
-        chefId = props.bookingValues.chefId;
-        customerId = props.bookingValues.customerId;
-        fromTime = props.bookingValues.fromTime;
-        toTime = props.bookingValues.toTime;
-        dishTypeId = selectedDishesId ? selectedDishesId : null;
-        notes = notesValue != null ? JSON.stringify(notesValue) : null;
+      if (props.onClickNo) {
+        props.onClickNo('closeAll');
       }
-      if (props.bookingLocation) {
-        locationAddress = props.bookingLocation.locationAddress;
-        locationLat = props.bookingLocation.locationLat;
-        locationLng = props.bookingLocation.locationLng;
-        addrLine1 = props.bookingLocation.addrLine1;
-        addrLine2 = props.bookingLocation.addrLine2;
-        state = props.bookingLocation.state;
-        country = props.bookingLocation.country;
-        city = props.bookingLocation.city;
-        postalCode = props.bookingLocation.postalCode;
-        summary = props.bookingLocation.bookingSummary;
-      }
-      if (props.dietValues) {
-        dietaryRestrictionsTypesIds = props.dietValues.customerDietaryRestrictionsTypeId;
-        otherDietaryRestrictionsTypes = props.dietValues.customerOtherDietaryRestrictionsTypes;
-      }
-      if (props.allergyValues) {
-        allergyTypeIds = props.allergyValues.customerAllergyTypeId;
-      }
-      if (props.kitchenUtensils) {
-        kitchenEquipmentTypeIds = props.kitchenUtensils.customerKitchenEquipmentTypeId;
-        otherKitchenEquipmentTypes = props.kitchenUtensils.customerOtherKitchenEquipmentTypes;
-      }
-      noOfGuests = range !== null ? parseInt(range) : ProfileDetails.noOfGuestsMin;
-      complexity = complexityValue;
-      let variables = {
-        stripeCustomerId: stripeId,
-        cardId: customerCardId,
-        chefId,
-        customerId,
-        fromTime,
-        toTime,
-        notes,
-        dishTypeId,
-        summary: props.bookingValues.bookingSummary ? props.bookingValues.bookingSummary : null,
-        allergyTypeIds,
-        otherAllergyTypes: otherAllergyTypes ? JSON.stringify(otherAllergyTypes) : null,
-        dietaryRestrictionsTypesIds,
-        otherDietaryRestrictionsTypes: otherDietaryRestrictionsTypes
-          ? JSON.stringify(otherDietaryRestrictionsTypes)
-          : null,
-        kitchenEquipmentTypeIds,
-        otherKitchenEquipmentTypes: otherKitchenEquipmentTypes
-          ? JSON.stringify(otherKitchenEquipmentTypes)
-          : null,
-        storeTypeIds: props.pricingForm.storeTypeIds,
-        otherStoreTypes: props.pricingForm.otherStoreTypes
-          ? JSON.stringify(props.pricingForm.otherStoreTypes)
-          : null,
-        noOfGuests: props.pricingForm.noOfGuests,
-        complexity: props.pricingForm.complexity,
-        additionalServices: props.pricingForm.additionalServices,
-        locationAddress,
-        locationLat,
-        locationLng,
-        addrLine1,
-        addrLine2,
-        state,
-        country,
-        city,
-        postalCode,
-      };
-      bookingDataTag({
-        variables,
-      });
+      closePriceModal();
+      toastMessage(success, 'Booking created Successfully');
+      let bookingDetail = response;
+      NavigateToBookongDetail(bookingDetail);
     },
     onError: err => {
       toastMessage(renderError, err.message);
@@ -909,13 +815,20 @@ const BookNowModal = props => {
   }
 
   function handleDishCreateOption(value) {
-    let customerId = bookingData.customerId;
+    console.log('handleDishCreateOption', props.response, props.bookingDetail);
+    let customerId = '';
+    if (util.isObjectEmpty(props.response)) {
+      customerId = props.response.customer_id;
+    } else {
+      customerId = props.ProfileDetails.customerId;
+    }
+
     insertNewDish({
       variables: {
         dishTypeName: value,
         dishTypeDesc: value,
         chefId: null,
-        customerId: customerId,
+        customerId: customerId ? customerId : null,
       },
     });
   }
@@ -1015,6 +928,7 @@ const BookNowModal = props => {
       noOfGuests = props.pricingForm ? props.pricingForm.noOfGuests : props.guest;
       complexity = props.pricingForm ? props.pricingForm.complexity : props.complexity;
 
+      console.log('BookNowModal', props);
       additionalServices = props.pricingForm
         ? props.pricingForm.additionalServices
           ? additionalServiceCalc(props.pricingForm.additionalServices, 'old')
@@ -1027,7 +941,7 @@ const BookNowModal = props => {
         price = price * noOfGuests;
         price = price * complexity;
         price = price + additionalServices;
-        serviceCharge = (2.5 / 100) * price;
+        serviceCharge = (serviceAmount / 100) * price;
         chefCharge = price + serviceCharge + firstfve + complexityCharge;
         // totalCharge = price + serviceCharge;
         // totalCharge = price + serviceCharge;
@@ -1208,7 +1122,7 @@ const BookNowModal = props => {
         price = firstfve - afterFive;
         price = price + complexityCharge;
         price = price + additionalServices;
-        serviceCharge = (2.5 / 100) * price;
+        serviceCharge = (serviceAmount / 100) * price;
         totalCharge = price;
         remainingMemberCount = noOfGuests - 5;
         halfOfBaseRate = baseRate / 2;
@@ -1286,7 +1200,7 @@ const BookNowModal = props => {
                   fontSize: '17px',
                 }}
               >
-                Chef base rate(${baseRate}) X {noOfGuests}
+                Chef base rate(${baseRate}) X No.of.guests({noOfGuests})
               </div>
               <div className="col-lg-2">${firstfve.toFixed(2)}</div>
             </div>
@@ -1304,7 +1218,7 @@ const BookNowModal = props => {
               >
                 Discount
               </div>
-              <div className="col-lg-2">${afterFive.toFixed(2)}</div>
+              <div className="col-lg-2">-${afterFive.toFixed(2)}</div>
             </div>
             <div style={{ display: 'flex', borderBottom: '1px solid #D3D3D3' }}>
               <div
@@ -1526,7 +1440,7 @@ const BookNowModal = props => {
       </div>
     );
   } catch (error) {
-    console.log('error', error);
+    //console.log('error', error);
   }
 };
 
