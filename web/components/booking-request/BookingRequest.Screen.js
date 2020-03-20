@@ -38,8 +38,8 @@ const REQUEST_SUBSCRIPTION = gql`
 `;
 const BookingRequestScreen = () => {
   const [state, setState] = useContext(AppContext);
-  const [bookingDetails, setBookingDetails] = useState({});
-  const [allBookingDetails, setallBookingDetails] = useState({});
+  const [bookingDetails, setBookingDetails] = useState([]);
+  const [allBookingDetails, setallBookingDetails] = useState([]);
   const [SelectedDateValue, setSelectedDateValue] = useState('');
   const [RequestAvailableDate, setRequestAvailableDate] = useState();
   const [bookingCount, setBookingCount] = useState(0);
@@ -80,6 +80,7 @@ const BookingRequestScreen = () => {
   });
 
   useEffect(() => {
+    let bookingValue = [];
     if (
       isObjectEmpty(data) &&
       hasProperty(data, 'listBookingByDateRange') &&
@@ -87,9 +88,7 @@ const BookingRequestScreen = () => {
       isArrayEmpty(data.listBookingByDateRange.nodes)
     ) {
       let bookingData = data.listBookingByDateRange.nodes;
-      // console.log('jjjjjjjjjjjjjjjj', fromDate(), bookingData);
 
-      let bookingValue = [];
       bookingData.map(res => {
         if (
           res.chefBookingStatusId.trim() !== S.PAYMENT_PENDING &&
@@ -135,11 +134,15 @@ const BookingRequestScreen = () => {
   //set the current all booking request
   function bookingRequestForMonth(date) {
     let details = [];
-    if (allBookingDetails.length >= 1) {
+    if (isArrayEmpty(allBookingDetails)) {
       allBookingDetails.map(bookingDetail => {
         let bookingData = moment(bookingDetail.chefBookingFromTime).format('YYYY-MM-DD');
-        let monthStartDate = moment(getCurrentMonth(date).fromDate).format('YYYY-MM-DD');
-        let monthEndDate = moment(getCurrentMonth(date).toDate).format('YYYY-MM-DD');
+        let monthStartDate = moment(getCurrentMonth(date).fromDate, 'MM-DD-YYYY HH:mm:ss').format(
+          'YYYY-MM-DD'
+        );
+        let monthEndDate = moment(getCurrentMonth(date).toDate, 'MM-DD-YYYY HH:mm:ss').format(
+          'YYYY-MM-DD'
+        );
         if (
           bookingData >= monthStartDate &&
           bookingData <= monthEndDate &&

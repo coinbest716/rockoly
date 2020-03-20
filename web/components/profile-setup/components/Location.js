@@ -288,6 +288,7 @@ const Location = props => {
     try {
       const location = await childRef.current.getLocationValue();
       if (location !== null) {
+        console.log('location', location);
         let {
           fullAddress,
           latitude,
@@ -368,20 +369,22 @@ const Location = props => {
                       }
 
                       // houseNo = addressLine1;
-                      streetAddress = value ? value : '';
-                      zipCode = postalCode ? postalCode.toString() : '';
+                      streetAddress = value ? value : streetAddress;
+                      zipCode = postalCode ? postalCode.toString() : zipCode;
                       country = country1;
                       city = city1;
                       state = state1;
+                      console.log('postalCode', postalCode, zipCode);
                       if (
-                        util.isStringEmpty(chefProfileExtendedsByChefId) &&
-                        util.isStringEmpty(fullAddress) &&
-                        util.isStringEmpty(latitude) &&
-                        util.isStringEmpty(longitude) &&
+                        util.isStringEmpty(chefProfileExtendedsByChefId)
+                        // &&
+                        // util.isStringEmpty(fullAddress) &&
+                        // util.isStringEmpty(latitude) &&
+                        // util.isStringEmpty(longitude) &&
                         // util.isStringEmpty(houseNo) &&
-                        util.isStringEmpty(streetAddress) &&
-                        util.isStringEmpty(zipCode) &&
-                        util.isNumberEmpty(distance)
+                        // util.isStringEmpty(streetAddress) &&
+                        // util.isStringEmpty(zipCode) &&
+                        // util.isNumberEmpty(distance)
                       ) {
                         const variables = {
                           chefProfileExtendedId: chefProfileExtendedsByChefId,
@@ -397,17 +400,19 @@ const Location = props => {
                           chefState: state,
                           chefCountry: country,
                         };
+                        console.log('chef variables', variables);
                         updateLocationInfo({
                           variables,
                         });
                       } else if (
-                        util.isStringEmpty(customerProfileExtendedsByCustomerId) &&
-                        util.isStringEmpty(fullAddress) &&
-                        util.isStringEmpty(latitude) &&
-                        util.isStringEmpty(longitude) &&
-                        // util.isStringEmpty(houseNo) &&
-                        util.isStringEmpty(streetAddress) &&
-                        util.isStringEmpty(zipCode)
+                        util.isStringEmpty(customerProfileExtendedsByCustomerId)
+                        //  &&
+                        // util.isStringEmpty(fullAddress) &&
+                        // util.isStringEmpty(latitude) &&
+                        // util.isStringEmpty(longitude) &&
+                        // // util.isStringEmpty(houseNo) &&
+                        // util.isStringEmpty(streetAddress) &&
+                        // util.isStringEmpty(zipCode)
                       ) {
                         const variables = {
                           customerProfileExtendedId: customerProfileExtendedsByCustomerId,
@@ -421,6 +426,7 @@ const Location = props => {
                           customerState: state,
                           customerCountry: country,
                         };
+                        console.log('customer variables', variables);
                         updateCustomerLocationInfo({
                           variables,
                         });
@@ -442,14 +448,15 @@ const Location = props => {
           }
         } else {
           if (
-            util.isStringEmpty(chefProfileExtendedsByChefId) &&
-            util.isStringEmpty(fullAddress) &&
-            util.isStringEmpty(latitude) &&
-            util.isStringEmpty(longitude) &&
-            // util.isStringEmpty(houseNo) &&
-            util.isStringEmpty(streetAddress) &&
-            util.isStringEmpty(zipCode) &&
-            util.isNumberEmpty(distance)
+            util.isStringEmpty(chefProfileExtendedsByChefId)
+            //  &&
+            // util.isStringEmpty(fullAddress) &&
+            // util.isStringEmpty(latitude) &&
+            // util.isStringEmpty(longitude) &&
+            // // util.isStringEmpty(houseNo) &&
+            // util.isStringEmpty(streetAddress) &&
+            // util.isStringEmpty(zipCode) &&
+            // util.isNumberEmpty(distance)
           ) {
             const variables = {
               chefProfileExtendedId: chefProfileExtendedsByChefId,
@@ -468,14 +475,16 @@ const Location = props => {
             await updateLocationInfo({
               variables,
             });
+            console.log('chef variables 1111111111', variables);
           } else if (
-            util.isStringEmpty(customerProfileExtendedsByCustomerId) &&
-            util.isStringEmpty(fullAddress) &&
-            util.isStringEmpty(latitude) &&
-            util.isStringEmpty(longitude) &&
-            // util.isStringEmpty(houseNo) &&
-            util.isStringEmpty(streetAddress) &&
-            util.isStringEmpty(zipCode)
+            util.isStringEmpty(customerProfileExtendedsByCustomerId)
+            // &&
+            // util.isStringEmpty(fullAddress) &&
+            // util.isStringEmpty(latitude) &&
+            // util.isStringEmpty(longitude) &&
+            // // util.isStringEmpty(houseNo) &&
+            // util.isStringEmpty(streetAddress) &&
+            // util.isStringEmpty(zipCode)
           ) {
             const variables = {
               customerProfileExtendedId: customerProfileExtendedsByCustomerId,
@@ -492,6 +501,7 @@ const Location = props => {
             await updateCustomerLocationInfo({
               variables,
             });
+            console.log('customer variables 1111111111', variables);
           }
         }
       }

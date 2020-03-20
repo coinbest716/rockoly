@@ -28,6 +28,7 @@ const Location = forwardRef((props, ref) => {
   //set cuisine list data
 
   useEffect(() => {
+    console.log('initialLoad', props.props);
     if (props.props.role === customer) {
       let customerData = props.props.details;
       if (
@@ -51,13 +52,26 @@ const Location = forwardRef((props, ref) => {
       ) {
         let data =
           customerData.customerProfileByCustomerId.customerProfileExtendedsByCustomerId.nodes[0];
+        setHouseNo(util.isStringEmpty(data.customerAddrLine1) ? data.customerAddrLine1 : null);
+        setStreetAddress(util.isStringEmpty(data.customerAddrLine2) ? data.customerAddrLine2 : '');
+        setFullAddress(
+          util.isStringEmpty(data.customerLocationAddress) ? data.customerLocationAddress : ''
+        );
+        setLatitude(util.isStringEmpty(data.customerLocationLat) ? data.customerLocationLat : '');
+        setLongitude(util.isStringEmpty(data.customerLocationLng) ? data.customerLocationLng : '');
+        setZipCode(util.isStringEmpty(data.customerPostalCode) ? data.customerPostalCode : '');
+        setCity(data.customerCity);
+        setCountry(data.customerCountry);
+        setState(data.customerState);
         if (
-          util.isStringEmpty(data.customerAddrLine1) &&
+          // util.isStringEmpty(data.customerAddrLine1) &&
           util.isStringEmpty(data.customerAddrLine2) &&
           util.isStringEmpty(data.customerLocationAddress) &&
           util.isStringEmpty(data.customerPostalCode) &&
           util.isStringEmpty(data.customerCity) &&
-          util.isStringEmpty(data.customerState)
+          util.isStringEmpty(data.customerState) &&
+          util.isStringEmpty(data.customerLocationLat) &&
+          util.isStringEmpty(data.customerLocationLng)
         ) {
           setInitialState(false);
         }
@@ -89,12 +103,14 @@ const Location = forwardRef((props, ref) => {
         setCountry(data.chefCountry);
         setState(data.chefState);
         if (
-          util.isStringEmpty(data.chefAddrLine1) &&
+          // util.isStringEmpty(data.chefAddrLine1) &&
           util.isStringEmpty(data.chefAddrLine2) &&
           util.isStringEmpty(data.chefLocationAddress) &&
           util.isStringEmpty(data.chefPostalCode) &&
           util.isStringEmpty(data.chefCity) &&
-          util.isStringEmpty(data.chefState)
+          util.isStringEmpty(data.chefState) &&
+          util.isStringEmpty(data.chefLocationLat) &&
+          util.isStringEmpty(data.chefLocationLng)
         ) {
           setInitialState(false);
         }
@@ -168,23 +184,37 @@ const Location = forwardRef((props, ref) => {
     }
     if (props.bookingDetail && util.isObjectEmpty(props.bookingDetail)) {
       let data = props.bookingDetail;
-      setHouseNo(util.isStringEmpty(data.chefBookingAddrLine1) ? data.chefBookingAddrLine1 : null);
-      setStreetAddress(
-        util.isStringEmpty(data.chefBookingAddrLine2) ? data.chefBookingAddrLine2 : ''
-      );
-      setFullAddress(
-        util.isStringEmpty(data.chefBookingLocationAddress) ? data.chefBookingLocationAddress : ''
-      );
-      setLatitude(
-        util.isStringEmpty(data.chefBookingLocationLat) ? data.chefBookingLocationLat : ''
-      );
-      setLongitude(
-        util.isStringEmpty(data.chefBookingLocationLng) ? data.chefBookingLocationLng : ''
-      );
-      setZipCode(util.isStringEmpty(data.chefBookingPostalCode) ? data.chefBookingPostalCode : '');
-      setCity(data.chefBookingCity);
-      setCountry(data.chefBookingCountry);
-      setState(data.chefBookingState);
+      console.log('Customer Location', data);
+      if (
+        util.isObjectEmpty(data) &&
+        util.hasProperty(data, 'customerProfileByCustomerId') &&
+        util.isObjectEmpty(data.customerProfileByCustomerId) &&
+        util.hasProperty(
+          data.customerProfileByCustomerId,
+          'customerProfileExtendedsByCustomerId'
+        ) &&
+        util.isObjectEmpty(data.customerProfileByCustomerId.customerProfileExtendedsByCustomerId) &&
+        util.hasProperty(
+          data.customerProfileByCustomerId.customerProfileExtendedsByCustomerId,
+          'nodes'
+        ) &&
+        util.isObjectEmpty(
+          data.customerProfileByCustomerId.customerProfileExtendedsByCustomerId.nodes[0]
+        )
+      ) {
+        let val = data.customerProfileByCustomerId.customerProfileExtendedsByCustomerId.nodes[0];
+        setHouseNo(util.isStringEmpty(val.customerAddrLine1) ? val.customerAddrLine1 : null);
+        setStreetAddress(util.isStringEmpty(val.customerAddrLine2) ? val.customerAddrLine2 : '');
+        setFullAddress(
+          util.isStringEmpty(val.customerLocationAddress) ? val.customerLocationAddress : ''
+        );
+        setLatitude(util.isStringEmpty(val.customerLocationLat) ? val.customerLocationLat : '');
+        setLongitude(util.isStringEmpty(val.customerLocationLng) ? val.customerLocationLng : '');
+        setZipCode(util.isStringEmpty(val.customerPostalCode) ? val.customerPostalCode : '');
+        setCity(val.customerCity);
+        setCountry(val.customerCountry);
+        setState(val.customerState);
+      }
     }
   }, [props.details, props.bookingDetail]);
 

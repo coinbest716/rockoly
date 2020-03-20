@@ -132,6 +132,12 @@ export const byIdGQLTAG = `query chefBookingHistoryByChefBookingHistId($chefBook
           customerLocationAddress
           customerLocationLat
           customerLocationLng
+          customerPostalCode
+          customerCity
+          customerCountry
+          customerState
+          customerAddrLine1
+          customerAddrLine2
         }
       }
     }

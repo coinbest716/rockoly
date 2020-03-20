@@ -81,7 +81,6 @@ export default function BookingDetail(props) {
   const [serviceCentsValue, setServiceCentsValue] = useState(null);
   const [servicePercentValue, setServicePercentValue] = useState(null);
 
-
   const [serviceCent, serviceCentData] = useLazyQuery(STRIPE_SERVICE_CENTS, {
     variables: {
       pSettingName: 'STRIPE_SERVICE_CHARGE_IN_CENTS',
@@ -175,8 +174,8 @@ export default function BookingDetail(props) {
               const chefDetail =
                 bookingValue.chefProfileByChefId.chefProfileExtendedsByChefId.nodes[0];
               setAddress(chefDetail.chefLocationAddress);
-              setCity(chefDetail.chefCity)
-              setState(chefDetail.chefState)
+              setCity(chefDetail.chefCity);
+              setState(chefDetail.chefState);
               setBaseRate(chefDetail.chefPricePerHour);
             }
             setFullName(bookingValue.chefProfileByChefId.fullName);
@@ -217,9 +216,9 @@ export default function BookingDetail(props) {
                 bookingValue.customerProfileByCustomerId.customerProfileExtendedsByCustomerId
                   .nodes[0];
               setAddress(chefDetail.customerLocationAddress);
-              console.log('chefDetail', chefDetail)
-              setCity(chefDetail.customerCity)
-              setState(chefDetail.customerState)
+              console.log('chefDetail', chefDetail);
+              setCity(chefDetail.customerCity);
+              setState(chefDetail.customerState);
             }
             setFullName(bookingValue.customerProfileByCustomerId.fullName);
             setImage(bookingValue.customerProfileByCustomerId.customerPicId);
@@ -513,7 +512,6 @@ export default function BookingDetail(props) {
     }
   }
 
-  console.log('city', city, state)
   return (
     <React.Fragment>
       <div className="row chefDetail" id="bookingLoopView">
@@ -542,16 +540,14 @@ export default function BookingDetail(props) {
             {/* <div>{address}</div> */}
             {userRole && userRole === customer ? (
               <div>
-                {isStringEmpty(city) || isStringEmpty(state) ?
-                <p>{city}, {state}</p>
-                :
-                null
-                }
+                {isStringEmpty(city) || isStringEmpty(state) ? (
+                  <p>
+                    {city}, {state}
+                  </p>
+                ) : null}
               </div>
             ) : (
-              <div>
-                {address}
-                </div>
+              <div>{address}</div>
             )}
 
             {userRole && userRole === chef ? (
@@ -1209,18 +1205,20 @@ export default function BookingDetail(props) {
                       <a className="description-content text">
                         ${' '}
                         {(
-                          parseFloat(
-                            priceCalculator(
-                              baserate,
-                              bookingData.chefBookingNoOfPeople,
-                              bookingData.chefBookingComplexity,
-                              servicePrice
-                            )
-                          ).toFixed(2) -
-                          parseFloat(
-                            (servicePercentValue * bookingData.chefBookingPriceValue) / 100
-                          ).toFixed(2)
-                        ).toFixed(2) - 0.3}
+                          (
+                            parseFloat(
+                              priceCalculator(
+                                baserate,
+                                bookingData.chefBookingNoOfPeople,
+                                bookingData.chefBookingComplexity,
+                                servicePrice
+                              )
+                            ).toFixed(2) -
+                            parseFloat(
+                              (servicePercentValue * bookingData.chefBookingPriceValue) / 100
+                            ).toFixed(2)
+                          ).toFixed(2) - 0.3
+                        ).toFixed(2)}
                       </a>
                     </div>
                     <br />

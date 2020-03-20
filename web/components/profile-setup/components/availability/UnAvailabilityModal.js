@@ -336,7 +336,7 @@ const UnAvailabiltyModal = props => {
                 let value = res && res.title ? moment(res.title).format('MM-DD-YYYY') : null;
                 return (
                   <div className="row" id="availabilityRow">
-                    <div className="col-sm-8">
+                    <div className="col-sm-8" id="date-view-content">
                       <div className="buy-checkbox-btn" id="checkBoxView">
                         <div className="item">
                           {/* <input
@@ -359,7 +359,7 @@ const UnAvailabiltyModal = props => {
                         </div>
                       </div>
                     </div>
-                    <div className="col-sm-4">
+                    <div className="col-sm-4" id="delete-icon-modal">
                       <Link href="#">
                         <a onClick={() => handleDelete(res)}>
                           <i className="far fa-trash-alt" color="red"></i>

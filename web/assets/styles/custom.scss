@@ -884,6 +884,12 @@ button.btn.btn-primary {
 div#navbar{
   overflow: auto;
 }
+#unavailablity-modal-view{
+  padding:10px !important
+}
+.ProfileSetup #unAvailabilityRow {
+  max-height: 100% !important;
+}
 
 }
 .comero-nav{
@@ -909,7 +915,7 @@ div#navbar{
 //   overflow: hidden;
 //   text-overflow: ellipsis;
 // }
-@media(min-width:1150px) and (max-width:1300px){
+@media(min-width:1150px) and (max-width:1400px){
   .chat-user-name{
     width: calc(100vw - 94vw) !important ;
   }
@@ -937,5 +943,17 @@ div#navbar{
 @media(min-width:320px) and (max-width:339px){
   .chat-user-name{
     width: calc(100vw - 63vw) !important ;
+  }
+}
+@media(max-width:767px){
+  #date-view-content{
+    max-width: fit-content !important;
+  }
+  #delete-icon-modal{
+    max-width: fit-content !important;
+  }
+  #availabilityRow{
+    display: flex !important;
+    justify-content: center !important;
   }
 }

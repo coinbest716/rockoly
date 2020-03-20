@@ -132,6 +132,9 @@ const BookingLocationModal = props => {
   const [chefLang, setChefLang] = useState('');
   const [chefDistance, setChefDistance] = useState(0);
   const [chefAddress, setChefAddress] = useState('');
+  const [chefCity, setChefCity] = useState('');
+  const [chefState, setChefState] = useState('');
+  const [fullName, setFullName] = useState('');
 
   const getDishesData = useQuery(GET_DISHES_DATA, {
     // getting image gallery based on chef id
@@ -266,7 +269,6 @@ const BookingLocationModal = props => {
     let data = props.bookingDetail;
     if (util.isObjectEmpty(data)) {
       setBookingDetail(data);
-      setChefAddress(data.chefBookingLocationAddress ? data.chefBookingLocationAddress : '');
       if (
         util.isObjectEmpty(data.chefProfileByChefId) &&
         util.hasProperty(data.chefProfileByChefId, 'chefProfileExtendedsByChefId') &&
@@ -278,8 +280,15 @@ const BookingLocationModal = props => {
         setChefDistance(
           value.chefAvailableAroundRadiusInValue ? value.chefAvailableAroundRadiusInValue : 0
         );
+        setChefAddress(value.chefLocationAddress ? value.chefLocationAddress : '');
+        setChefCity(value.chefCity ? value.chefCity : '');
+        setChefState(value.chefState ? value.chefState : '');
         setChefLat(value.chefLocationLat ? value.chefLocationLat : '');
         setChefLang(value.chefLocationLng ? value.chefLocationLng : '');
+      }
+
+      if (util.isObjectEmpty(data.chefProfileByChefId)) {
+        setFullName(data.chefProfileByChefId.fullName);
       }
     }
   }, [props.bookingDetail]);
@@ -471,6 +480,8 @@ const BookingLocationModal = props => {
         data.chefAvailableAroundRadiusInValue ? data.chefAvailableAroundRadiusInValue : 0
       );
       setChefAddress(data.chefLocationAddress ? data.chefLocationAddress : '');
+      setChefCity(data.chefCity ? data.chefCity : '');
+      setChefState(data.chefState ? data.chefState : '');
       setPricePerHour(util.isNumberEmpty(data.chefPricePerHour) ? data.chefPricePerHour : 1);
       setPriceUnit(
         util.isStringEmpty(data.chefPriceUnit)
@@ -482,6 +493,10 @@ const BookingLocationModal = props => {
       setMinNoofHours(
         data.minimumNoOfMinutesForBooking ? data.minimumNoOfMinutesForBooking / 60 : 0
       );
+    }
+
+    if (util.isObjectEmpty(chefDetails.chefProfileByChefId)) {
+      setFullName(chefDetails.chefProfileByChefId.fullName);
     }
   }, []);
 
@@ -1033,10 +1048,13 @@ const BookingLocationModal = props => {
                         <div className="container">
                           <div className="signup-content">
                             <h5 className="locationHeader">CHEF LOCATION</h5>
-                            <div className={'locationText'}>{chefAddress}</div>
+                            <div className={'locationText'}>
+                              {chefCity},{chefState}
+                            </div>
                             <h5 className="locationHeader">CHEF MILES</h5>
                             <div className={'locationText'}>
-                              Chef can travel around {chefDistance} miles to provide the service
+                              {fullName} is happy to travel {chefDistance} miles from {chefCity},
+                              {chefState}
                             </div>
                             <div className={'locationText'}>
                               NOTES: Please select location around {chefDistance} miles from chef
