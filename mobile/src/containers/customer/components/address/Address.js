@@ -348,8 +348,8 @@ class Address extends PureComponent {
           city: details.chefCity,
           state: details.chefState,
           country: details.chefCountry,
-          // latitude: details.chefLocationLat,
-          // longitude: details.chefLocationLng,
+          latitude: details.chefLocationLat,
+          longitude: details.chefLocationLng,
           fullAddress: details.chefLocationAddress,
         })
       }
@@ -369,8 +369,8 @@ class Address extends PureComponent {
           zipcode: details.customerPostalCode,
           city: details.customerCity,
           state: details.customerState,
-          // latitude: details.customerLocationLat,
-          // longitude: details.customerLocationLng,
+          latitude: details.customerLocationLat,
+          longitude: details.customerLocationLng,
           country: details.customerCountry,
           fullAddress: details.customerLocationAddress,
         })
@@ -630,12 +630,12 @@ class Address extends PureComponent {
                 state: stateValue,
                 country: countryValue,
               }, () => {
-                  if(getValue ) {
-                    this.sendLocationValue() 
-                  } 
-                  if(!getValue ) {
-                    this.saveLocation()
-                  }
+                  // if(getValue ) {
+                  //   this.sendLocationValue() 
+                  // } 
+                  // if(!getValue ) {
+                  //   this.saveLocation()
+                  // }
               })
               
             } else {
@@ -646,6 +646,7 @@ class Address extends PureComponent {
               Alert.alert('Info', 'Unable to fetch latitude and longitude')
             })
           } else {
+            console.log('check 1 Unable to fetch latitude and longitude')
             Alert.alert('Info', 'Please fill all details')
           }
         } else {
@@ -657,10 +658,11 @@ class Address extends PureComponent {
           }
         }
       }else {
+        console.log('check 2 Unable to fetch latitude and longitude')
         Alert.alert('Info', 'Please fill all details')
       }
     }else if(latitude === '' && longitude === '') {
-        console.log('onAddLocation', latitude, longitude, streetAddress, city, state, country, zipcode)
+        console.log('debugging onAddLocation', latitude, longitude, streetAddress, city, state, country, zipcode)
         if(streetAddress && zipcode && city && state && country) {
           axios
           .post(
@@ -712,7 +714,7 @@ class Address extends PureComponent {
               streetValue = wholeAddress.slice(0, n - 2)
               console.log('value', value)
             }
-  
+            
             this.setState({
               fullAddress: wholeAddress,
               latitude: value.data.results[0].geometry.location.lat,
@@ -740,6 +742,7 @@ class Address extends PureComponent {
             Alert.alert('Info', 'Unable to fetch latitude and longitude')
           })
         } else {
+          console.log('check 3 Unable to fetch latitude and longitude')
           Alert.alert('Info', 'Please fill all details')
         }
       } else {
@@ -820,6 +823,7 @@ class Address extends PureComponent {
         }
       )
     } else {
+      console.log('check 4 Unable to fetch latitude and longitude')
       Alert.alert('Info', 'Please fill all details')
     }
    } 

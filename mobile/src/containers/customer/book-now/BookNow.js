@@ -703,6 +703,12 @@ class BookNow extends PureComponent {
                     chefProfile.chefProfileExtendedsByChefId.nodes &&
                     chefProfile.chefProfileExtendedsByChefId.nodes.length &&
                     chefProfile.chefProfileExtendedsByChefId.nodes[0].chefCity}
+                  ,
+                  {chefProfile &&
+                    chefProfile.chefProfileExtendedsByChefId &&
+                    chefProfile.chefProfileExtendedsByChefId.nodes &&
+                    chefProfile.chefProfileExtendedsByChefId.nodes.length &&
+                    chefProfile.chefProfileExtendedsByChefId.nodes[0].chefState}
                 </Text>
               </View>
               {this.renderRating()}

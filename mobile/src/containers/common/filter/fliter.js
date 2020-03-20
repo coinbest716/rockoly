@@ -1154,7 +1154,7 @@ class Filter extends Component {
                     selectedItems={dishItemsValue}
                     selectText={Languages.filter.labels.select_dish}
                     searchInputPlaceholderText={Languages.filter.labels.search}
-                    onChangeInput={text => console.log(text)}
+                    // onChangeInput={text => console.log(text)}
                     tagRemoveIconColor="#CCC"
                     tagBorderColor="#CCC"
                     tagTextColor="#CCC"
@@ -1201,7 +1201,7 @@ class Filter extends Component {
                     selectedItems={cuisineItemsValue}
                     selectText={Languages.filter.labels.select_cuisine}
                     searchInputPlaceholderText={Languages.filter.labels.search}
-                    onChangeInput={text => console.log(text)}
+                    // onChangeInput={text => console.log(text)}
                     tagRemoveIconColor="#CCC"
                     tagBorderColor="#CCC"
                     tagTextColor="#CCC"

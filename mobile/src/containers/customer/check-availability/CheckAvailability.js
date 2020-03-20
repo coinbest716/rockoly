@@ -252,12 +252,13 @@ class CheckAvailability extends Component {
   }
 
   setList = async ({bookingHistory}) => {
+    console.log('bookingHistory', bookingHistory)
     if (bookingHistory.length > 0) {
       const temp = []
       await bookingHistory.map((item, key) => {
         const obj = {
-          bookingStartTime: GMTToLocal(item.chefBookingFromTime, DATE_TYPE.TIME),
-          bookingEndTime: GMTToLocal(item.chefBookingToTime, DATE_TYPE.TIME),
+          bookingStartTime: GMTToLocal(item.chefBookingBlockFromTime, DATE_TYPE.TIME),
+          bookingEndTime: GMTToLocal(item.chefBookingBlockToTime, DATE_TYPE.TIME),
         }
         temp.push(obj)
       })

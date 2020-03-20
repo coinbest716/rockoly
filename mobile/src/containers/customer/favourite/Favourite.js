@@ -143,6 +143,7 @@ class Favourite extends PureComponent {
   renderRow = ({item: eachItem, index}) => {
     let location = 'No Location'
     let fullName = 'No Name'
+    let state = 'No state'
     let price = '-'
     let averageRating = 0
     let reviewCount = 0
@@ -187,6 +188,9 @@ class Favourite extends PureComponent {
         if (chefProfile.chefProfileExtendedsByChefId.nodes[0].chefCity) {
           location = chefProfile.chefProfileExtendedsByChefId.nodes[0].chefCity
         }
+        if (chefProfile.chefProfileExtendedsByChefId.nodes[0].chefState) {
+          state = chefProfile.chefProfileExtendedsByChefId.nodes[0].chefState
+        }
         if (chefProfile.chefProfileExtendedsByChefId.nodes[0].chefPricePerHour) {
           price = chefProfile.chefProfileExtendedsByChefId.nodes[0].chefPricePerHour
         }
@@ -214,7 +218,7 @@ class Favourite extends PureComponent {
           <View style={styles.locationView}>
             <Icon name="map-marker" type="MaterialCommunityIcons" style={styles.locationIcon} />
             <Text style={styles.locationStyling} numberOfLines={1}>
-              {location}
+              {location},{state}
             </Text>
           </View>
           <Text style={styles.messageDescription}>

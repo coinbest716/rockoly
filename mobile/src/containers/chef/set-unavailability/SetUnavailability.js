@@ -16,7 +16,7 @@ import {
 } from '@services'
 import styles from './styles'
 import {Languages} from '@translations'
-import {commonDateFormat, getRandomID} from '@utils'
+import {commonDateFormat, getRandomID, usDateFormat} from '@utils'
 
 class SetUnavailabilty extends Component {
   constructor(props) {
@@ -227,7 +227,7 @@ class SetUnavailabilty extends Component {
     ) {
       return (
         <View key={item.chefNotAvailId} style={styles.itemView}>
-          <Text style={styles.dateText}>{item.chefNotAvailDate}</Text>
+          <Text style={styles.dateText}>{moment(item.chefNotAvailDate).format('MM-DD-YYYY')}</Text>
           <Icon
             name="delete"
             type="MaterialCommunityIcons"
@@ -317,7 +317,7 @@ class SetUnavailabilty extends Component {
               }}>
               <Text>
                 {displayDate !== null
-                  ? displayDate
+                  ? moment(displayDate).format('MM-DD-YYYY')
                   : Languages.set_unavailability.set_unavailability_lable.select_date}
               </Text>
             </Button>

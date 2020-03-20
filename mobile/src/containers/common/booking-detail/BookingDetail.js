@@ -1245,6 +1245,7 @@ onEditPress= () =>{
     let userData = {}
     let fullName = 'No Name'
     let location = 'No Location'
+    let state = 'No State'
     let picId
     let fromTime
     let toTime
@@ -1307,7 +1308,7 @@ onEditPress= () =>{
     let complexityUpcharge = 0
     let TotalCharge = 0
     let totalAmountToPay1 = 0
- console.log('reqest',stripeCents,stripePercentage)
+ console.log('bookingDetail',bookingDetail)
 
 
 
@@ -1554,6 +1555,7 @@ onEditPress= () =>{
               userData.chefProfileExtendedsByChefId.nodes[0] !== null
             ) {
               location = userData.chefProfileExtendedsByChefId.nodes[0].chefCity
+              state = userData.chefProfileExtendedsByChefId.nodes[0].chefState
             }
           }
         }
@@ -1729,10 +1731,18 @@ console.log ('stipeCents',bookingDetail)
                       <Icon type="FontAwesome5" name="comment-dots" style={Styles.iconStyle3} />
                     </TouchableOpacity>
                   </View>
-                  <View style={Styles.iconNameView2}>
+                  {
+                    isChef ? 
+                    <View style={Styles.iconNameView2}>
                     <Icon type="FontAwesome5" name="map-marker-alt" style={Styles.iconStyle2} />
-                    <Text style={Styles.text2}>{location}</Text>
-                  </View>
+                       <Text style={Styles.text2}>{location}</Text>
+                  </View>:
+                  <View style={Styles.iconNameView2}>
+                  <Icon type="FontAwesome5" name="map-marker-alt" style={Styles.iconStyle2} />
+                     <Text style={Styles.text2}>{location},{state}</Text>
+                </View>
+                  }
+              
                   {!isChef && (
                   this.renderRating()
                   )}

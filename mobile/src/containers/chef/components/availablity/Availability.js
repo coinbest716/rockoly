@@ -386,7 +386,7 @@ class Availabilty extends Component {
     ) {
       return (
         <View key={item.chefNotAvailId} style={Styles.itemView}>
-          <Text style={Styles.dateText}>{item.chefNotAvailDate}</Text>
+          <Text style={Styles.dateText}>{moment(item.chefNotAvailDate).format('MM-DD-YYYY')}</Text>
         </View>
       )
     }

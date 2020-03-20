@@ -102,8 +102,8 @@ const styles = StyleSheet.create({
     height: 100,
   },
   accountNameLabel: {
-    textAlign: 'center', 
-    marginTop: 10, 
+    textAlign: 'center',
+    marginTop: 10,
     color: Theme.Colors.primary,
   },
 })

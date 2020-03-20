@@ -494,7 +494,7 @@ export default class BookPrice extends Component {
       storeId = storeTypeIdValue
     }
 
-    if (complexitySelected === '') {
+    if (complexitySelected === '' || complexitySelected === null) {
       Alert.alert('Info', 'Please select complexity')
       return
     }

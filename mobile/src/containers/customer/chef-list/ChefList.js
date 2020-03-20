@@ -825,6 +825,7 @@ class ChefList extends PureComponent {
 
   renderRow = ({item: details, index}) => {
     let address = 'No Location'
+    let state = 'No state'
     let fullName = 'No Name'
     let price
     let averageRating = 0
@@ -842,6 +843,9 @@ class ChefList extends PureComponent {
       const chefProfile = details.chefProfileExtendedsByChefId.nodes[0]
       if (details.fullName) {
         fullName = details.fullName
+      }
+      if (chefProfile && chefProfile.chefState && chefProfile.chefState !== null) {
+        state = chefProfile.chefState
       }
       if (chefProfile && chefProfile.chefCity && chefProfile.chefCity !== null) {
         address = chefProfile.chefCity
@@ -884,7 +888,7 @@ class ChefList extends PureComponent {
           <View style={styles.locationView}>
             <Icon name="map-marker" type="MaterialCommunityIcons" style={styles.locationIcon} />
             <Text style={styles.locationStyling} numberOfLines={1}>
-              {address}
+              {address},{state}
             </Text>
           </View>
           <Text style={styles.messageDescription}>
@@ -1005,12 +1009,14 @@ class ChefList extends PureComponent {
     const limit = 2
     let count = 1
     let text = ``
-
+    console.log('dishItems', dishItems, dishTypes)
     if (dishItems) {
       dishItems.map((item, index) => {
+        console.log('item', item)
         const temp = _.find(dishTypes, {dishTypeId: item})
         if (limit >= count) {
           text += `${temp.dishTypeDesc} `
+
           if (dishItems.length !== 1 && limit - 1 !== index) {
             text += `, `
           }

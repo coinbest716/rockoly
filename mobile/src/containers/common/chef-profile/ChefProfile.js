@@ -130,6 +130,9 @@ class ProfileView extends PureComponent {
             ProfileViewService.getProfileDetails(user.chefId, user.customerId)
             // ChefProfileService.chefProfileSubs(user.chefId)
           }
+          if (user && user.chefId && user.customerId) {
+            BasicProfileService.chatSubscriptionForChef(user.chefId, user.customerId)
+          }
         }
       }
     )
@@ -411,6 +414,7 @@ class ProfileView extends PureComponent {
     let gratuity = 'No Gratuity'
     let maxGuest = 0
     let minGuest = 0
+    let state = 'No state'
     let discount = 0
     let personCounts = 0
     let additionalPrice = 0
@@ -427,7 +431,6 @@ class ProfileView extends PureComponent {
     let awards = ''
     let certificate = []
     let complexity = []
-
     if (userData !== undefined && userData !== null && userData !== {}) {
       userDetails = userData
 
@@ -450,6 +453,9 @@ class ProfileView extends PureComponent {
           (chefProfile.chefLocationAddress !== null || chefProfile.chefAddrLine2 !== null)
         ) {
           userLocation = isChef ? chefProfile.chefLocationAddress : chefProfile.chefCity
+        }
+        if (chefProfile.chefState) {
+          state = chefProfile.chefState
         }
         if (chefProfile.chefDesc) {
           chefDesc = JSON.parse(JSON.stringify(chefProfile.chefDesc))
@@ -574,10 +580,20 @@ class ProfileView extends PureComponent {
                     </TouchableOpacity>
                   ) : null}
                 </View>
-                <View style={styles.addressView}>
-                  <Icon type="FontAwesome5" name="map-marker-alt" style={styles.locationIcon} />
-                  <Text style={styles.addressText}>{userLocation}</Text>
-                </View>
+                {isLoggedIn && !isChef ? (
+                  <View style={styles.addressView}>
+                    <Icon type="FontAwesome5" name="map-marker-alt" style={styles.locationIcon} />
+                    <Text style={styles.addressText}>
+                      {userLocation},{state}
+                    </Text>
+                  </View>
+                ) : (
+                  <View style={styles.addressView}>
+                    <Icon type="FontAwesome5" name="map-marker-alt" style={styles.locationIcon} />
+                    <Text style={styles.addressText}>{userLocation}</Text>
+                  </View>
+                )}
+
                 {this.renderRating()}
               </View>
             </View>

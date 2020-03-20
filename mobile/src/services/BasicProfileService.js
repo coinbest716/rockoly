@@ -103,6 +103,35 @@ class BasicProfileService extends BaseService {
     }
   }
 
+  chatSubscriptionForChef = async (chefId, customerId) => {
+    try {
+      const gqlValue = GQL.subscription.chat.conversationHistoryGQLTAG
+      const query = gql`
+        ${gqlValue}
+      `
+      const subs = this.client.subscribe({
+        query,
+        variables: {
+          tableName: 'chef_customer_conversation',
+          tablePkId: chefId,
+          tablePkId2: customerId,
+        },
+      })
+      subs.subscribe(
+        () => {
+          this.emit(UPDATE_BASIC_PROFILE_EVENT.UPDATING_DATA, true)
+        },
+        e => {
+          console.log('ERROR: profileSubscriptionForChef', e)
+        }
+      )
+      return subs
+    } catch (e) {
+      console.log('ERROR: profileSubscriptionForChef', e)
+      return null
+    }
+  }
+
   updateChefProfile = values => {
     return new Promise((resolve, reject) => {
       try {
