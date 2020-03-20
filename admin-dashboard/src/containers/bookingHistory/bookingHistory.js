@@ -278,10 +278,6 @@ export class BookingHistory extends Component {
     filteredInfo = filteredInfo || {}
     const statusFilter = [
       {
-        text: CommonLabels.PAYMENT_PENDING,
-        value: gqlValue.status.PAYMENT_PENDING,
-      },
-      {
         text: CommonLabels.PAYMENT_FAILED,
         value: 'PAYMENT_FAILED',
       },

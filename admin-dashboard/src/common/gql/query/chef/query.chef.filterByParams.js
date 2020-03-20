@@ -59,6 +59,7 @@ export function filterByParamsGQLTAG(params) {
               chefAvailableAroundRadiusInUnit
               minimumNoOfMinutesForBooking
               chefCity
+              chefState
 
             }
           }

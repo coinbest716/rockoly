@@ -4,6 +4,8 @@ export const byIdGQLTAG = `query chefBookingHistoryByChefBookingHistId($chefBook
     customerId
     chefBookingFromTime
     chefBookingToTime
+    chefBookingBlockFromTime
+    chefBookingBlockToTime
     chefBookingStatusId
     chefBookingPriceValue
     chefBookingPriceUnit
@@ -111,6 +113,7 @@ export const byIdGQLTAG = `query chefBookingHistoryByChefBookingHistId($chefBook
           chefPricePerHour
           chefPriceUnit
           chefCity
+          chefState
           chefAvailableAroundRadiusInValue
           chefAvailableAroundRadiusInUnit
           additionalServiceDetails
@@ -212,7 +215,7 @@ export const byIdGQLTAG = `query chefBookingHistoryByChefBookingHistId($chefBook
       }
     }
   }
-}`
+}`;
 /*
   {
     "chefBookingHistId":"893e44ed-bec3-4fa4-88ce-416852e75d41"

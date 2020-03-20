@@ -81,6 +81,8 @@ export function listWithFiltersGQLTAG(params) {
             customerId
             chefBookingFromTime
             chefBookingToTime
+            chefBookingBlockFromTime
+            chefBookingBlockToTime
             chefBookingStatusId
             chefBookingPriceValue
             chefBookingPriceUnit
@@ -126,6 +128,7 @@ export function listWithFiltersGQLTAG(params) {
                 nodes{
                   chefLocationAddress
                   chefCity
+                  chefState
                 }
               }
             }
