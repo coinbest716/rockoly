@@ -31,7 +31,7 @@ Open rockolychef\ios\rockoly.xcworkspace in xcode and run the app
 
 To take release build in iOS
 
-     Change the device to Generic iOS Device in the top left and then goto product and select the Archive to take release build
+Change the device to Generic iOS Device in the top left and then goto product and select the Archive to take release build
 
                                                (or)
 
@@ -75,27 +75,3 @@ Fetching Location: https://github.com/FaridSafi/react-native-gifted-chat
 
 
 Other components refer rockolychef\package.json
-
-
-Build interface
-
-Android
-
-To login to facebook in debug build we need to add key hashes  in
-
-https://developers.facebook.com/apps/499226790899527/settings/basic/
-
-To generate hashkey follow the steps in given link https://confluence.atlassian.com/bitbucket/set-up-an-ssh-key-728138079.html
-
-    Windows
-
-         Follow the steps below the headings
-
-         Set up SSH for Git on Windows
-
-    iOS
-
-        Follow the steps below the headings
-
-        Set up SSH on macOS/Linux
-
