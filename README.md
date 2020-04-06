@@ -71,7 +71,7 @@ Icons: https://github.com/oblador/react-native-vector-icons
 
 Fetching Location: https://github.com/FaridSafi/react-native-gifted-chat
 
-  10. Chat : https://github.com/FaridSafi/react-native-gifted-chat
+Chat : https://github.com/FaridSafi/react-native-gifted-chat
 
 
 Other components refer rockolychef\package.json
