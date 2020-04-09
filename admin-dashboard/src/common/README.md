@@ -1,1 +1,0 @@
-This project is shared between mobile , web and admin.
