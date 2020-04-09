@@ -1,0 +1,9 @@
+[submodule "admin-dashboard/src/common"]
+	path = admin-dashboard/src/common
+	url = https://github.com/mishazgithub/RockolyCommon.git
+[submodule "mobile/src/common"]
+	path = mobile/src/common
+	url = https://github.com/mishazgithub/RockolyCommon.git
+[submodule "web/common"]
+	path = web/common
+	url = https://github.com/mishazgithub/RockolyCommon.git
