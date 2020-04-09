@@ -942,8 +942,8 @@ class CustomerProfile extends Component {
       <View style={styles.container}>
         <Header showBack={false} title={Languages.customerProfile.title} showBell />
         <ScrollView>
-          {isLoggedIn && isChef && <Text style={styles.accountNameLabel}>I'm a chef</Text>}
-          {isLoggedIn && !isChef && <Text style={styles.accountNameLabel}>I'm a customer</Text>}
+          {/* {isLoggedIn && isChef && <Text style={styles.accountNameLabel}>I'm a chef</Text>}
+          {isLoggedIn && !isChef && <Text style={styles.accountNameLabel}>I'm a customer</Text>} */}
           <View style={styles.topContainer}>
             {isLoggedIn ? (
               <Image source={pic} style={styles.profileImage} resizeMode="contain" />

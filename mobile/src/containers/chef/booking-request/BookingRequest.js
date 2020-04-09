@@ -763,6 +763,9 @@ class BookingRequest extends Component {
     }
   }
 
+  // show Booking status
+  
+
   showStatus = (
     bookingStatus,
     customerCompleteStatus,

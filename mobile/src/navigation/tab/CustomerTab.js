@@ -11,6 +11,7 @@ import {
   ConversationList,
   CustomerProfile,
   ChefList,
+  Favourite,
 } from '@containers'
 import RouteNames from '../config/RouteNames'
 import {StackNavConfig} from '../helpers/NavHelper'
@@ -33,7 +34,33 @@ const CustomerTabNavigator = createBottomTabNavigator(
             css={{width: 30, height: 30}}
             icon={Images.customerTab.FindChefIcon}
             tintColor={tintColor}
-            name={Languages.customerTab.findChef}
+            name={Languages.customerTab.search}
+          />
+        ),
+      },
+    },
+    [RouteNames.FAVOURITE_STACK]: {
+      screen: Favourite,
+      navigationOptions: {
+        tabBarIcon: ({tintColor}) => (
+          <TabBarIcon
+            css={{width: 30, height: 30}}
+            icon={Images.customerTab.FavoriteChefIcon}
+            tintColor={tintColor}
+            name={Languages.customerTab.saved}
+          />
+        ),
+      },
+    },
+    [RouteNames.BOOKING_HISTORY_STACK]: {
+      screen: BookingHistory,
+      navigationOptions: {
+        tabBarIcon: ({tintColor}) => (
+          <TabBarIcon
+            css={{width: 30, height: 30}}
+            icon={Images.customerTab.BookingHistoryIcon}
+            tintColor={tintColor}
+            name={Languages.customerTab.events}
           />
         ),
       },
@@ -51,19 +78,7 @@ const CustomerTabNavigator = createBottomTabNavigator(
         ),
       },
     },
-    [RouteNames.BOOKING_HISTORY_STACK]: {
-      screen: BookingHistory,
-      navigationOptions: {
-        tabBarIcon: ({tintColor}) => (
-          <TabBarIcon
-            css={{width: 30, height: 30}}
-            icon={Images.customerTab.BookingHistoryIcon}
-            tintColor={tintColor}
-            name={Languages.customerTab.bookingHistory}
-          />
-        ),
-      },
-    },
+
     [RouteNames.CUSTOMER_PROFILE_STACK]: {
       screen: CustomerProfile,
       navigationOptions: {
@@ -72,7 +87,7 @@ const CustomerTabNavigator = createBottomTabNavigator(
             css={{width: 30, height: 30}}
             icon={Images.customerTab.ProfileIcon}
             tintColor={tintColor}
-            name={Languages.customerTab.account}
+            name={Languages.customerTab.profile}
           />
         ),
       },

@@ -5,20 +5,27 @@ import {TabBar, TabBarIcon} from '@components'
 import {Languages} from '@translations'
 import {Images} from '@images'
 import {Theme} from '@theme'
-import {BookingRequest, ChefProfile, CustomerProfile, ConversationList} from '@containers'
+import {
+  BookingRequest,
+  ChefProfile,
+  CustomerProfile,
+  ConversationList,
+  BookingHistory,
+  Home,
+} from '@containers'
 import RouteNames from '../config/RouteNames'
 
 const ChefTabNavigator = createBottomTabNavigator(
   {
-    [RouteNames.BOOKING_REQUEST_STACK]: {
-      screen: BookingRequest,
+    [RouteNames.HOME_STACK]: {
+      screen: Home,
       navigationOptions: {
         tabBarIcon: ({tintColor}) => (
           <TabBarIcon
             css={{width: 30, height: 30}}
-            icon={Images.chefTab.BookingRequestIcon}
+            icon={Images.chefTab.HomeIcon}
             tintColor={tintColor}
-            name={Languages.chefTab.booking}
+            name={Languages.chefTab.home}
           />
         ),
       },
@@ -36,15 +43,41 @@ const ChefTabNavigator = createBottomTabNavigator(
         ),
       },
     },
-    [RouteNames.CHEF_PROFILE_STACK]: {
-      screen: ChefProfile,
+    // [RouteNames.CHEF_PROFILE_STACK]: {
+    //   screen: ChefProfile,
+    //   navigationOptions: {
+    //     tabBarIcon: ({tintColor}) => (
+    //       <TabBarIcon
+    //         css={{width: 30, height: 30}}
+    //         icon={Images.customerTab.ProfileIcon}
+    //         tintColor={tintColor}
+    //         name={Languages.chefTab.profile}
+    //       />
+    //     ),
+    //   },
+    // },
+    [RouteNames.BOOKING_HISTORY]: {
+      screen: BookingHistory,
       navigationOptions: {
         tabBarIcon: ({tintColor}) => (
           <TabBarIcon
             css={{width: 30, height: 30}}
-            icon={Images.customerTab.ProfileIcon}
+            icon={Images.customerTab.BookingHistoryIcon}
             tintColor={tintColor}
-            name={Languages.chefTab.profile}
+            name={Languages.chefTab.reservations}
+          />
+        ),
+      },
+    },
+    [RouteNames.BOOKING_REQUEST_STACK]: {
+      screen: BookingRequest,
+      navigationOptions: {
+        tabBarIcon: ({tintColor}) => (
+          <TabBarIcon
+            css={{width: 30, height: 30}}
+            icon={Images.chefTab.BookingRequestIcon}
+            tintColor={tintColor}
+            name={Languages.chefTab.calender}
           />
         ),
       },
@@ -55,9 +88,9 @@ const ChefTabNavigator = createBottomTabNavigator(
         tabBarIcon: ({tintColor}) => (
           <TabBarIcon
             css={{width: 30, height: 30}}
-            icon={Images.chefTab.SettingsIcon}
+            icon={Images.customerTab.ProfileIcon}
             tintColor={tintColor}
-            name={Languages.chefTab.settings}
+            name={Languages.chefTab.profile}
             customerKey={RouteNames.CHEF_SETTING_STACK}
           />
         ),

@@ -667,6 +667,7 @@ class BasicEditProfile extends PureComponent {
           showBack
           navigation={navigation}
           showTitle
+          showSetting
           title={Languages.basicEditProfile.title}
         />
         {isFetching ? (

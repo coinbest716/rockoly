@@ -16,6 +16,7 @@ const FindChefIcon = require('@images/tab-icons/customer/find_chef.png')
 const BookingRequestIcon = require('@images/tab-icons/chef/booking_request.png')
 const PaymentsIcon = require('@images/tab-icons/chef/payments.png')
 const SettingsIcon = require('@images/tab-icons/chef/settings.png')
+const HomeIcon = require('@images/tab-icons/chef/home.png')
 // chef tab icons
 
 // banner
@@ -62,6 +63,7 @@ const Images = {
     BookingRequestIcon,
     PaymentsIcon,
     SettingsIcon,
+    HomeIcon,
   },
   chef: {
     chefBanner,

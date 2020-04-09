@@ -5,9 +5,10 @@
  */
 
 import React, {Component} from 'react'
-import {SafeAreaView, StatusBar, View, StyleSheet, Alert} from 'react-native'
+import {SafeAreaView, StatusBar, View, Linking, StyleSheet, Alert} from 'react-native'
 import {Text, Root} from 'native-base'
 import NetInfo from '@react-native-community/netinfo'
+import DeepLinking from 'react-native-deep-linking'
 import {ApolloProvider} from 'react-apollo'
 
 import firebase from 'react-native-firebase'
@@ -59,7 +60,26 @@ export default class App extends Component {
     firebase.notifications().android.createChannel(channel)
     await PushNotificationService.checkPermission()
     PushNotificationService.createNotificationListeners()
+    console.log('url debugging')
+    DeepLinking.addScheme('https://dev.rockoly.com')
+    Linking.addEventListener('url', this.handleUrl)
+    Linking.getInitialURL()
+      .then(url => {
+        console.log('url debugging', url)
+        if (url) {
+          Linking.openURL(url)
+        }
+      })
+      .catch(err => console.error('An error occurred', err))
     // notifications
+  }
+
+  handleUrl = ({url}) => {
+    Linking.canOpenURL(url).then(supported => {
+      if (supported) {
+        DeepLinking.evaluateUrl(url)
+      }
+    })
   }
 
   showNetworkAlert = () => {

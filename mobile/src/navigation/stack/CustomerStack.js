@@ -12,7 +12,6 @@ import {
   ChangePassword,
   CardManagement,
   BookNow,
-  Favourite,
   OTPVerification,
   BookingDetailScreen,
   SetLocation,
@@ -117,9 +116,6 @@ const CustomerStack = createStackNavigator(
     },
     [RouteNames.SET_LOCATION_SCREEN]: {
       screen: SetLocation,
-    },
-    [RouteNames.FAVOURITE_STACK]: {
-      screen: Favourite,
     },
     [RouteNames.BASIC_EDIT_PROFILE]: {
       screen: BasicEditProfile,

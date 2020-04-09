@@ -7,7 +7,6 @@ import {StackNavConfig} from '../helpers/NavHelper'
 import {
   Notifications,
   SetAvailability,
-  BookingHistory,
   OTPVerification,
   BookingDetailScreen,
   SetLocation,
@@ -104,9 +103,6 @@ const ChefStack = createStackNavigator(
     },
     [RouteNames.REG_MOBILE_VERIFICATION]: {
       screen: RegMobileVerification,
-    },
-    [RouteNames.BOOKING_HISTORY]: {
-      screen: BookingHistory,
     },
     [RouteNames.BOOKING_DETAIL_SCREEN]: {
       screen: BookingDetailScreen,

@@ -270,7 +270,7 @@ class Favourite extends PureComponent {
     const {favList, isFetching, isFetchingMore, canLoadMore} = this.state
     return (
       <View style={[styles.container]}>
-        <Header showBack navigation={navigation} title={Languages.FavouriteChef.title} />
+        <Header navigation={navigation} title={Languages.FavouriteChef.title} />
         <CommonList
           keyExtractor="chefId"
           data={favList}

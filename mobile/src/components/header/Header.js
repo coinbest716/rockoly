@@ -18,6 +18,7 @@ class Header extends React.PureComponent {
       showBack: props.showBack,
       showDetail: props.showDetail,
       showBell: props.showBell,
+      showSetting: props.showSetting,
       title: props.title,
       navigateBackTo: props.navigateBackTo,
       notificationCount: 0,
@@ -37,6 +38,7 @@ class Header extends React.PureComponent {
     this.setState({
       showBack: props.showBack,
       showBell: props.showBell,
+      showSetting: props.showSetting,
       showDetail: props.showDetail,
       bookingHisId: props.bookingHisId,
       title: props.title,
@@ -162,6 +164,31 @@ class Header extends React.PureComponent {
     )
   }
 
+  renderSettingIcon = () => {
+    const {showSetting} = this.state
+    const {navigation} = this.props
+    if (!showSetting) {
+      return <View style={styles.bellView} />
+    }
+
+    return (
+      <TouchableOpacity
+        // style={[styles.bellView]}
+        onPress={() => {
+          navigation.navigate(RouteNames.CUSTOMER_PROFILE_STACK)
+        }}>
+        <Icon
+          type="FontAwesome"
+          name="cog"
+          style={[styles.bellContent, styles.iconColor]}
+          onPress={() => {
+            navigation.navigate(RouteNames.CUSTOMER_PROFILE_STACK)
+          }}
+        />
+      </TouchableOpacity>
+    )
+  }
+
   onReset = () => {
     const {navigation} = this.props
     ResetStack(navigation, RouteNames.CUSTOMER_MAIN_TAB, {})
@@ -206,16 +233,15 @@ class Header extends React.PureComponent {
   }
 
   render() {
-    const {showBell, showDetail} = this.state
+    const {showBell, showDetail, showSetting} = this.state
+    console.log('showSetting', showSetting)
     return (
       <View style={styles.container}>
         {this.renderBack()}
         {this.renderTitle()}
-        {showBell ? (
-          <View style={styles.bellView}>{this.renderBellIcon()}</View>
-        ) : (
-          <View style={styles.bellView}>{this.renderDetialIcon()}</View>
-        )}
+        {showBell && <View style={styles.bellView}>{this.renderBellIcon()}</View>}
+        {showDetail && <View style={styles.bellView}>{this.renderDetialIcon()}</View>}
+        {showSetting && <View style={styles.bellView}>{this.renderSettingIcon()}</View>}
       </View>
     )
   }

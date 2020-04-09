@@ -14,8 +14,7 @@ const styles = StyleSheet.create({
   topContainer: {
     marginHorizontal: 20,
     marginVertical: 10,
-    flexDirection: 'column',
-    alignItems: 'center',
+    flexDirection: 'row',
   },
   profileImage: {
     alignSelf: 'center',

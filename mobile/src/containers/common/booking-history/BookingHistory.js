@@ -1246,21 +1246,21 @@ class BookingHistory extends PureComponent {
           styles.container,
           //  {backgroundColor: background}
         ]}>
-        {isChef && isLoggedIn === true ? (
+        {/* {isChef && isLoggedIn === true ? (
           <Header
             showBack
             navigation={navigation}
             showTitle
             title={Languages.booking_History.title}
           />
-        ) : (
-          <Header
-            navigation={navigation}
-            showTitle
-            title={Languages.booking_History.title}
-            showBell
-          />
-        )}
+        ) : ( */}
+        <Header
+          navigation={navigation}
+          showTitle
+          title={Languages.booking_History.title}
+          showBell
+        />
+        {/* )} */}
         {isLoggedIn ? (
           <View style={{flex: 1}}>
             {isLoggedIn && (

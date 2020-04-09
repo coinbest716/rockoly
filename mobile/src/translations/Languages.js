@@ -11,12 +11,19 @@ export default new LocalizedStrings({
       favoriteChef: 'Favorite Chef',
       bookingHistory: 'Booking History',
       account: 'Account',
+      search: 'Search',
+      saved: 'Saved',
+      events: 'Events',
+      profile: 'Profile',
     },
     chefTab: {
+      home: 'Home',
       booking: 'Booking',
       payments: 'Payments',
       profile: 'Profile',
       settings: 'Settings',
+      reservations: 'Reservations',
+      calender: 'Calendar',
     },
     chefList: {
       SearchPlaceHolder: 'Search Chef by Location',
@@ -844,6 +851,7 @@ export default new LocalizedStrings({
         colon: ':',
         dollar: '$',
         select_valid_time: "Please select serving time during chef's available hours",
+        select_current_date_valid_time: 'Please select a serving time in the future',
         minimum_booking_hours: 'Minimum Booking Hours',
         booked_time: 'Booked Time',
         next: 'Next',
@@ -1069,6 +1077,23 @@ export default new LocalizedStrings({
     awards: {
       btnLabel: {
         save: 'Save',
+      },
+    },
+    home: {
+      bankAlert: {
+        no_bank_account: 'Please setup banking account',
+      },
+      bookingRequests: {
+        no_request: 'No Requests',
+      },
+      reviews: {
+        no_review: 'No Reviews',
+      },
+      stats: {
+        no_stats: 'No Stats',
+      },
+      reservations: {
+        no_reservations: 'No Reservations',
       },
     },
   },

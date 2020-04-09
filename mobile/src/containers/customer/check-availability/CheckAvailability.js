@@ -57,6 +57,7 @@ class CheckAvailability extends Component {
       chefProfile: {},
       unit: '',
       isInvalid: false,
+      currentDateIsYn: false,
       bookingTimings: [],
       about: '',
     }
@@ -297,6 +298,7 @@ class CheckAvailability extends Component {
       about,
       bookingHistId,
       pickerSelectedTime,
+      currentDateIsYn,
     } = this.state
     const {navigation} = this.props
     const displayFromTime = moment(selectedItem.fromTime, dbTimeFormat).format(displayTimeFormat)
@@ -336,12 +338,16 @@ class CheckAvailability extends Component {
       // time checking
       const from1 = moment(`${selectedDate} ${selectedFromTime}`, displayDateTimeFormat)
       if (moment(from1).isSameOrBefore(moment())) {
-        Alert.alert('Please select valid time')
+        Alert.alert(Languages.checkAvailability.buttonLabels.select_current_date_valid_time)
         return
       }
     }
 
     if (!selectedDate || !selectedFromTime || !selectedToTime || isInvalid) {
+      if (currentDateIsYn) {
+        Alert.alert(Languages.checkAvailability.buttonLabels.select_current_date_valid_time)
+        return
+      }
       Alert.alert(Languages.checkAvailability.buttonLabels.select_valid_time)
       return
     }
@@ -568,6 +574,7 @@ class CheckAvailability extends Component {
       chefProfile,
       bookingTimings,
       about,
+      currentDateIsYn,
     } = this.state
 
     const displaySelectedFromTime = selectedFromTime == null ? 'Select' : selectedFromTime
@@ -676,7 +683,19 @@ class CheckAvailability extends Component {
             </Button>
           </View>
         </View>
-        {isInvalid ? (
+        {isInvalid && currentDateIsYn && (
+          <Text
+            style={{
+              color: Theme.Colors.error,
+              textAlign: 'center',
+              marginTop: 15,
+              fontSize: 16,
+              paddingHorizontal: 10,
+            }}>
+            {Languages.checkAvailability.buttonLabels.select_current_date_valid_time}
+          </Text>
+        )}
+        {isInvalid && currentDateIsYn === false && (
           <Text
             style={{
               color: Theme.Colors.error,
@@ -687,7 +706,7 @@ class CheckAvailability extends Component {
             }}>
             {Languages.checkAvailability.buttonLabels.select_valid_time}
           </Text>
-        ) : null}
+        )}
         {/* {isInvalid === false && (
             <View>
               {selectedFromTime !== null && selectedToTime !== null && (
@@ -751,6 +770,7 @@ class CheckAvailability extends Component {
         if (moment(from1).isSameOrBefore(moment())) {
           this.setState({
             isInvalid: true,
+            currentDateIsYn: true,
           })
           return
         }

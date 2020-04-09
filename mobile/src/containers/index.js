@@ -47,6 +47,7 @@ import Availability from './chef/components/availablity/Availability'
 import chefRequestPrice from './chef/chef-request-price/chefRequestPrice'
 import priceCalculation from './chef/priceClaculator/priceCalculator'
 import ChefEditProfile from './chef/chef-edit-profile/ChefEditProfile'
+import Home from './chef/home/home'
 // chef
 
 // common
@@ -86,6 +87,7 @@ import RegMobileVerification from './auth/reg-mobile-verification/RegMobileVerif
 export {
   CustomerEditProfile,
   ChefEditProfile,
+  Home,
   BookNow,
   SetUnavailability,
   StripeWebView,

@@ -25,6 +25,7 @@ export default {
   // customer tab stack
 
   // chef tab stack
+  HOME_STACK: 'HOME_STACK',
   BOOKING_REQUEST_STACK: 'BOOKING_REQUEST_STACK',
   PAYMENTS_STACK: 'PAYMENTS_STACK',
   CHEF_PROFILE_STACK: 'CHEF_PROFILE_STACK',
