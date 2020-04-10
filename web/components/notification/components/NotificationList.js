@@ -755,7 +755,7 @@ const NotificationList = props => {
                             <div className="col-md-3" id="notification-status">
                               <b>
                                 {notification.notificationDescription
-                                  ? notification.notificationDescription
+                                  ? JSON.parse(notification.notificationDescription)
                                   : ''}
                               </b>
                             </div>

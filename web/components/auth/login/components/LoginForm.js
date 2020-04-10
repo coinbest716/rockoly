@@ -92,7 +92,7 @@ export default function LoginForm(props) {
       let found = paragraph.match(regex);
 
       logOutUser()
-        .then(result => {})
+        .then(result => { })
         .catch(error => {
           toastMessage('renderError', error);
         });
@@ -118,6 +118,7 @@ export default function LoginForm(props) {
     ) {
       // console.log('dsalklkjlkjlkj123123123');
       ChefList();
+      // Router.push('/');
     } else if (
       customerData &&
       customerData.data &&
@@ -182,10 +183,13 @@ export default function LoginForm(props) {
   async function setAuthData(data) {
     if (data !== undefined) {
       if (isObjectEmpty(data.authenticate) && isObjectEmpty(data.authenticate.data)) {
+
         let redirect_url = localStorage.getItem('redirected_path');
         // console.log('dsakjkjhkh1h23123123', redirect_url);
         //for customer login
         if (chefUser === false) {
+          console.log("setAuthData if")
+
           getCustomerAuthData(data.authenticate.data)
             .then(customerRes => {
               StoreInLocal('user_ids', customerRes);
@@ -195,22 +199,30 @@ export default function LoginForm(props) {
               setLoader(false);
               toastMessage('success', 'Logged In Successfully');
               if (isObjectEmpty(props) && isObjectEmpty(props.chefId)) {
+
                 if (redirect_url) {
                   let url = `${'/booking-detail' + redirect_url}`;
                   url = url.replace(/['"]+/g, '');
+                  StoreInLocal('logRole', 'CHEFLOGGED');
+                  console.log("SUCCESS");
                   Router.push(url);
                 } else {
                   NavigateToChefDetail(props.chefId);
                 }
               } else {
+
                 setCustomerId(customerRes.customerId);
                 getCustomerData(customerRes.customerId);
                 if (redirect_url) {
                   let url = `${'/booking-detail' + redirect_url}`;
                   url = url.replace(/['"]+/g, '');
+                  console.log("setAuthData if props", redirect_url)
+                  localStorage.removeItem('logRole');
+                  StoreInLocal('logRole', 'CHEFLOGGED');
                   Router.push(url);
                 } else {
                   // loginTo();
+                  // Router.push('/');
                   ChefList();
                 }
               }
@@ -221,6 +233,7 @@ export default function LoginForm(props) {
         }
         //for chef login
         else {
+          console.log("getChefAuthData")
           getChefAuthData(data.authenticate.data)
             .then(chefRes => {
               StoreInLocal('user_ids', chefRes);

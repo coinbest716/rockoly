@@ -724,7 +724,7 @@ const BookNowModal = props => {
         variables,
       });
     } else {
-      toastMessage('error', 'Complexity should be greater than previously selecteed complexity');
+      toastMessage('error', 'Complexity should be greater than previously selected complexity');
     }
   }
 
