@@ -982,7 +982,7 @@ class CustomerProfile extends Component {
 
           {isLoggedIn ? this.userContent() : this.loginContent()}
 
-          {isLoggedIn && !isChef && (
+          {isLoggedIn && (
             <View>
               {/* <View style={styles.userContent}>
                 <Image source={pic} style={styles.profileImage} resizeMode="contain" />

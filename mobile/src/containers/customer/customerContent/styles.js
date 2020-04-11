@@ -95,6 +95,10 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     marginLeft: 5,
   },
+  test1: {
+    marginHorizontal: 5,
+    marginVertical: 5,
+  },
   emailStyle: {
     marginBottom: 5,
   },
