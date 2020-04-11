@@ -6,6 +6,9 @@ import RouteNames from '../config/RouteNames'
 import {StackNavConfig} from '../helpers/NavHelper'
 import {
   Notifications,
+  ChefAccount,
+  AccountSetting,
+  ChefPricing,
   SetAvailability,
   OTPVerification,
   BookingDetailScreen,
@@ -39,6 +42,7 @@ import {
   Attachment,
   Availability,
   ChefEditProfile,
+  CustomerProfile,
   CustomerRegProfile,
   chefRequestPrice,
   EmailVerification,
@@ -73,6 +77,18 @@ const ChefStack = createStackNavigator(
     },
     [RouteNames.OPTION_LIST]: {
       screen: OptionList,
+    },
+    [RouteNames.ACCOUNT_SETTING]: {
+      screen: AccountSetting,
+    },
+    [RouteNames.CHEF_PRICING]: {
+      screen: ChefPricing,
+    },
+    [RouteNames.CHEF_PROFILE_STACK]: {
+      screen: CustomerProfile,
+    },
+    [RouteNames.CHEF_ACCOUNT]: {
+      screen: ChefAccount,
     },
     [RouteNames.RATE_SERVICE]: {
       screen: RateService,

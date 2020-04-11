@@ -399,7 +399,8 @@ class ProfileView extends PureComponent {
 
   onEditProifile = () => {
     const {navigation} = this.props
-    navigation.navigate(RouteNames.CHEF_SETUP_PROFILE)
+    navigation.navigate(RouteNames.CHEF_PROFILE_STACK)
+    // navigation.navigate(RouteNames.ACCOUNT_SETTING)
   }
 
   render() {
@@ -539,7 +540,7 @@ class ProfileView extends PureComponent {
     }
     return (
       <View style={[styles.container]}>
-        <Header showBack={!isChef} navigation={navigation} showTitle title="Profile" />
+        <Header showBack={!isChef} navigation={navigation} showTitle title="Profile" showBell />
         {isLoading === true ? (
           <Spinner mode="full" />
         ) : (
@@ -568,7 +569,7 @@ class ProfileView extends PureComponent {
 
                   {isLoggedIn && isChef ? (
                     <TouchableOpacity onPress={() => this.onEditProifile()}>
-                      <Icon type="FontAwesome5" name="edit" style={styles.iconStyle3} />
+                      <Icon type="FontAwesome5" name="cog" style={styles.iconStyle3} />
                     </TouchableOpacity>
                   ) : null}
                   {isLoggedIn && !isChef && currentUser.userId !== userDetails.userId ? (

@@ -11,16 +11,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: Theme.Colors.primary,
   },
-  iconNameView: {
-    display: 'flex',
-    flexDirection: 'row',
-    flex: 1,
-    justifyContent: 'space-between',
-  },
-  iconStyle3: {
-    fontSize: 22,
-    color: Theme.Colors.primary,
-  },
   topContainer: {
     marginHorizontal: 20,
     marginVertical: 10,

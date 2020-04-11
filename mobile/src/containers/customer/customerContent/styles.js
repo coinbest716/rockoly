@@ -76,12 +76,24 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0.3,
   },
   userInfo: {
-    marginHorizontal: 10,
-    marginVertical: 10,
+    display: 'flex',
+    flexDirection: 'column',
+    // marginLeft: 25,
+    width: '70%',
+    flex: 1,
   },
   nameStyle: {
     fontSize: 18,
     color: Theme.Colors.primary,
+  },
+  text: {
+    color: 'black',
+    fontSize: 16,
+    fontWeight: 'bold',
+    width: '70%',
+    textTransform: 'capitalize',
+    flexWrap: 'wrap',
+    marginLeft: 5,
   },
   emailStyle: {
     marginBottom: 5,

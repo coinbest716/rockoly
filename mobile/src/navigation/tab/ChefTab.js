@@ -5,14 +5,7 @@ import {TabBar, TabBarIcon} from '@components'
 import {Languages} from '@translations'
 import {Images} from '@images'
 import {Theme} from '@theme'
-import {
-  BookingRequest,
-  ChefProfile,
-  CustomerProfile,
-  ConversationList,
-  BookingHistory,
-  Home,
-} from '@containers'
+import {BookingRequest, ChefProfile, ConversationList, BookingHistory, Home} from '@containers'
 import RouteNames from '../config/RouteNames'
 
 const ChefTabNavigator = createBottomTabNavigator(
@@ -83,7 +76,7 @@ const ChefTabNavigator = createBottomTabNavigator(
       },
     },
     [RouteNames.CHEF_SETTING_STACK]: {
-      screen: CustomerProfile,
+      screen: ChefProfile,
       navigationOptions: {
         tabBarIcon: ({tintColor}) => (
           <TabBarIcon

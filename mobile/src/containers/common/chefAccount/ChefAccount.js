@@ -20,7 +20,7 @@ import {
 import {Languages} from '@translations'
 import {STORAGE_KEY_NAME} from '@utils'
 
-class CustomerProfile extends Component {
+class ChefAccount extends Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -242,17 +242,7 @@ class CustomerProfile extends Component {
 
   onRate = () => {
     const {navigation} = this.props
-    navigation.navigate(RouteNames.ACCOUNT_SETTING, {screen: 'RATE'})
-  }
-
-  onChefProfile = () => {
-    const {navigation} = this.props
-    navigation.navigate(RouteNames.CHEF_ACCOUNT, {screen: 'RATE'})
-  }
-
-  onChefPrice = () => {
-    const {navigation} = this.props
-    navigation.navigate(RouteNames.CHEF_PRICING, {screen: 'RATE'})
+    navigation.navigate(RouteNames.CHEF_EDIT_PROFILE, {screen: 'RATE'})
   }
 
   onPrice = () => {
@@ -679,25 +669,10 @@ class CustomerProfile extends Component {
     const {isMobileVerified, isEmailVerified} = this.state
     return (
       <View style={styles.contentContainer}>
+        {/* <ListItem itemDivider>
+          <Text>Verification </Text>
+        </ListItem>
         <CustomListItem
-          iconName="account-edit"
-          label={Languages.customerProfile.options.account}
-          onPress={this.onRate}
-          type="MaterialCommunityIcons"
-        />
-        <CustomListItem
-          iconName="chef-hat"
-          label="Customer Profile"
-          onPress={this.onChefProfile}
-          type="MaterialCommunityIcons"
-        />
-        {/* <CustomListItem
-          iconName="currency-usd"
-          label={Languages.customerProfile.options.pricing}
-          onPress={this.onChefPrice}
-          type="MaterialCommunityIcons"
-        /> */}
-        {/* <CustomListItem
           iconName={isMobileVerified === false ? 'cellphone' : 'check-decagram'}
           label={
             isMobileVerified === false
@@ -717,8 +692,13 @@ class CustomerProfile extends Component {
           onPress={this.onEmailVerification}
           type="MaterialCommunityIcons"
         /> */}
-        {/* 
-        <ListItem itemDivider>
+        {/* <CustomListItem
+          iconName="gmail"
+          type="MaterialCommunityIcons"
+          label={Languages.customerProfile.options.email}
+          onPress={this.onEmailPress}
+        /> */}
+        {/* <ListItem itemDivider>
           <Text>Basic details </Text>
         </ListItem>
         <CustomListItem
@@ -742,9 +722,7 @@ class CustomerProfile extends Component {
           onPress={this.onBookingStepOnePress}
           type="MaterialCommunityIcons"
         /> */}
-        {/* <ListItem itemDivider>
-          <Text>Food</Text>
-        </ListItem>
+
         <CustomListItem
           type="MaterialCommunityIcons"
           iconName="food-off"
@@ -762,7 +740,7 @@ class CustomerProfile extends Component {
           iconName="microwave"
           label={Languages.customerProfile.options.equipment}
           onPress={this.onEquipmentPress}
-        /> */}
+        />
         {/* <CustomListItem
           type="MaterialCommunityIcons"
           iconName="food"
@@ -771,8 +749,8 @@ class CustomerProfile extends Component {
         /> */}
         {/* <ListItem itemDivider>
           <Text>Address</Text>
-        </ListItem>
-        <CustomListItem
+        </ListItem> */}
+        {/* <CustomListItem
           iconName="map-marker"
           type="MaterialCommunityIcons"
           label={Languages.customerProfile.options.set_location}
@@ -783,139 +761,21 @@ class CustomerProfile extends Component {
   }
 
   renderChefContent = () => {
-    const {isMobileVerified, isEmailVerified} = this.state
     return (
       <View style={styles.contentContainer}>
         <CustomListItem
           iconName="account-edit"
-          label={Languages.customerProfile.options.account}
-          onPress={this.onRate}
-          type="MaterialCommunityIcons"
-        />
-        <CustomListItem
-          iconName="chef-hat"
-          label={Languages.customerProfile.options.chefProfile}
-          onPress={this.onChefProfile}
-          type="MaterialCommunityIcons"
-        />
-        <CustomListItem
-          iconName="currency-usd"
-          label={Languages.customerProfile.options.pricing}
-          onPress={this.onChefPrice}
-          type="MaterialCommunityIcons"
-        />
-        {/* <ListItem itemDivider>
-          <Text>Verification </Text>
-        </ListItem>
-        <CustomListItem
-          iconName={isMobileVerified === false ? 'cellphone' : 'check-decagram'}
-          label={
-            isMobileVerified === false
-              ? Languages.customerProfile.options.verify_mob
-              : Languages.customerProfile.options.verified
-          }
-          onPress={this.goToVerifyMobileNumber}
-          type="MaterialCommunityIcons"
-        /> */}
-        {/* <CustomListItem
-          iconName={isEmailVerified === true ? 'email-check' : 'email'}
-          label={
-            isEmailVerified === true
-              ? Languages.customerProfile.options.emailVerified
-              : Languages.customerProfile.options.emailVerification
-          }
-          onPress={this.onEmailVerification}
-          type="MaterialCommunityIcons"
-        /> */}
-        {/* <CustomListItem
-          iconName="gmail"
-          type="MaterialCommunityIcons"
-          label={Languages.customerProfile.options.email}
-          onPress={this.onSetLocationPress}
-        /> */}
-        {/* <ListItem itemDivider>
-          <Text>Basic details </Text>
-        </ListItem>
-     */}
-        {/* <CustomListItem
-          iconName="shield-account"
-          label={Languages.customerProfile.options.profile_Pic}
-          onPress={this.onProfilePic}
-          type="MaterialCommunityIcons"
-        /> */}
-        {/* <ListItem itemDivider>
-          <Text>General </Text>
-        </ListItem>
-        <CustomListItem
-          iconName="information"
-          label={Languages.customerProfile.options.intro_message}
-          onPress={this.onIntroMessage}
-          type="MaterialCommunityIcons"
-        /> */}
-        {/* <ListItem itemDivider>
-          <Text>Price </Text>
-        </ListItem>
-        <CustomListItem
-          iconName="currency-usd"
-          label={Languages.customerProfile.options.rate}
-          onPress={this.onRate}
-          type="MaterialCommunityIcons"
-        /> */}
-        {/* <CustomListItem
-          iconName="calculator-variant"
-          label={Languages.customerProfile.options.priceCal}
-          onPress={this.onPrice}
-          type="MaterialCommunityIcons"
-        /> */}
-
-        {/* <CustomListItem
-          iconName="account-group"
-          label={Languages.customerProfile.options.number_of_guests}
-          onPress={this.onService}
-          type="MaterialCommunityIcons"
-        /> */}
-
-        {/* <CustomListItem
-          iconName="room-service"
-          label={Languages.customerProfile.options.option_list}
-          onPress={this.onOptionList}
-          type="MaterialCommunityIcons"
-        /> */}
-        {/* <CustomListItem
-          iconName="chevron-triple-up"
-          label={Languages.customerProfile.options.complexity}
-          onPress={this.onComplexity}
-          type="MaterialCommunityIcons"
-        /> */}
-        {/* <ListItem itemDivider>
-          <Text>Profile setup </Text>
-        </ListItem>
-        <CustomListItem
-          iconName="text"
-          label={Languages.customerProfile.options.chef_experience}
+          label="Basics"
           onPress={this.onChefExperience}
           type="MaterialCommunityIcons"
-        /> */}
-        {/* <CustomListItem
-          iconName="trophy-award"
-          label={Languages.customerProfile.options.awards}
-          onPress={this.onAwards}
-          type="MaterialCommunityIcons"
         />
-
         <CustomListItem
           iconName="image"
           label={Languages.customerProfile.options.gallery}
           onPress={this.onGallery}
           type="MaterialCommunityIcons"
-        /> */}
-        {/* <CustomListItem
-          iconName="image"
-          label={Languages.customerProfile.options.gallery_Attachment}
-          onPress={this.onGalleryAttach}
-          type="MaterialCommunityIcons"
-        /> */}
-        {/* <CustomListItem
+        />
+        <CustomListItem
           iconName="file-document-edit"
           label={Languages.customerProfile.options.license}
           onPress={this.onAttachment}
@@ -923,22 +783,10 @@ class CustomerProfile extends Component {
         />
         <CustomListItem
           iconName="calendar"
-          label={Languages.customerProfile.options.set_availability}
+          label="Availability"
           onPress={this.goToSetAvailability}
           type="MaterialCommunityIcons"
         />
-        <CustomListItem
-          iconName="map-marker"
-          type="MaterialCommunityIcons"
-          label={Languages.customerProfile.options.set_location}
-          onPress={this.onSetLocationPress}
-        /> */}
-        {/* <CustomListItem
-          iconName="chef-hat"
-          label={Languages.customerProfile.options.profile_setup}
-          onPress={this.onProfileSetup}
-          type="MaterialCommunityIcons"
-        /> */}
       </View>
     )
   }
@@ -972,60 +820,14 @@ class CustomerProfile extends Component {
     console.log('picid', picId)
     return (
       <View style={styles.container}>
-        <Header showBack title="Profile" showBell />
+        <Header showBack title="Chef Profile" showBell />
         <ScrollView>
-          {!isLoggedIn && (
-            <View style={styles.topContainer}>
-              <Image source={Images.logo.mainLogo} style={styles.logo} resizeMode="contain" />
-            </View>
-          )}
-
-          {isLoggedIn ? this.userContent() : this.loginContent()}
-
-          {isLoggedIn && !isChef && (
+          {isLoggedIn && (
             <View>
-              {/* <View style={styles.userContent}>
-                <Image source={pic} style={styles.profileImage} resizeMode="contain" />
-
-                {this.userInfoContent()}
-              </View> */}
-              {/* {this.renderStatus()} */}
               {isChef && this.renderChefContent()}
               {isChef === false && this.renderCustomerContent()}
-              {/* <CustomListItem
-                iconName="card"
-                label={Languages.customerProfile.options.manage_payments_methods}
-                onPress={this.itemOnPress}
-              /> */}
-              {/* <ListItem itemDivider>
-                <Text>Payment details</Text>
-              </ListItem>
-             
-              {isLoggedIn && !isChef && (
-                <CustomListItem
-                  type="MaterialCommunityIcons"
-                  iconName="history"
-                  label={Languages.customerProfile.options.payment_history}
-                  onPress={this.onPaymentHistory}
-                />
-              )}
-              {isChef && (
-                <CustomListItem
-                  iconName="card"
-                  label={Languages.chefTab.payments}
-                  onPress={this.onPayments}
-                />
-              )}
-              {isChef && (
-                <CustomListItem
-                  type="MaterialCommunityIcons"
-                  iconName="history"
-                  label={Languages.customerProfile.options.booking_history}
-                  onPress={this.onBookingHistory}
-                />
-              )} */}
-              {/* 
-              {!isChef && (
+
+              {/* {!isChef && (
                 <View>
                   <ListItem itemDivider>
                     <Text>Others</Text>
@@ -1038,64 +840,6 @@ class CustomerProfile extends Component {
                   />
                 </View>
               )} */}
-              {/* <ListItem itemDivider>
-                <Text>Update Account details</Text>
-              </ListItem> */}
-              <CustomListItem
-                iconName="account-switch"
-                type="MaterialCommunityIcons"
-                label={
-                  isChef
-                    ? Languages.customerProfile.options.switch_to_customer
-                    : Languages.customerProfile.options.switch_to_chef
-                }
-                onPress={this.switchAlert}
-              />
-              {/* <CustomListItem
-                iconName="bell-outline"
-                type="MaterialCommunityIcons"
-                label={Languages.customerProfile.options.notification_settings}
-                onPress={this.onNotificationSettings}
-              /> */}
-              {showchangePassword === true && (
-                <CustomListItem
-                  type="MaterialCommunityIcons"
-                  iconName="lock-reset"
-                  label={Languages.customerProfile.options.change_password}
-                  onPress={this.onChangePassword}
-                />
-              )}
-
-              <CustomListItem
-                type="MaterialCommunityIcons"
-                iconName="face-agent"
-                label={Languages.customerProfile.options.aboutus}
-                onPress={this.onContactUs}
-              />
-              <CustomListItem
-                type="MaterialCommunityIcons"
-                iconName="file-document"
-                label={Languages.customerProfile.options.legal}
-                onPress={this.onTerms}
-              />
-              {/* <CustomListItem
-                type="MaterialCommunityIcons"
-                iconName="account-box"
-                label={Languages.customerProfile.options.contactus}
-                onPress={this.onContactUs}
-              />
-              <CustomListItem
-                type="MaterialCommunityIcons"
-                iconName="file-document-edit"
-                label={Languages.customerProfile.options.terms}
-                onPress={this.onTerms}
-              /> */}
-              <CustomListItem
-                iconName="logout"
-                label={Languages.customerProfile.options.logout}
-                onPress={this.logout}
-                type="MaterialCommunityIcons"
-              />
             </View>
           )}
         </ScrollView>
@@ -1127,6 +871,6 @@ const CustomListItem = ({onPress, iconName, label, type}) => {
   )
 }
 
-CustomerProfile.contextType = AuthContext
+ChefAccount.contextType = AuthContext
 
-export default CustomerProfile
+export default ChefAccount

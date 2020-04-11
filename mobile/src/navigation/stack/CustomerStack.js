@@ -10,6 +10,7 @@ import {
   Register,
   ForgotPassword,
   ChangePassword,
+  ChefPricing,
   CardManagement,
   BookNow,
   OTPVerification,
@@ -19,6 +20,7 @@ import {
   Feedback,
   CheckAvailability,
   Filter,
+  AccountSetting,
   CustomerPaymentHistory,
   CustomerPreferences,
   NotificationSettings,
@@ -39,6 +41,8 @@ import {
   BookDietary,
   BookKitchenEquipment,
   BookAllergy,
+  CustomerProfile,
+  ChefAccount,
   ExtraPayment,
   EmailVerification,
   RegEmailVerification,
@@ -65,6 +69,12 @@ const CustomerStack = createStackNavigator(
     [RouteNames.CHEF_REG_PROFILE]: {
       screen: ChefRegProfile,
     },
+    [RouteNames.ACCOUNT_SETTING]: {
+      screen: AccountSetting,
+    },
+    [RouteNames.CHEF_PRICING]: {
+      screen: ChefPricing,
+    },
     [RouteNames.EMAIL_VERIFICATION]: {
       screen: EmailVerification,
     },
@@ -82,6 +92,12 @@ const CustomerStack = createStackNavigator(
     },
     [RouteNames.DIETARY]: {
       screen: Dietary,
+    },
+    [RouteNames.CHEF_PROFILE_STACK]: {
+      screen: CustomerProfile,
+    },
+    [RouteNames.CHEF_ACCOUNT]: {
+      screen: ChefAccount,
     },
     [RouteNames.FAVOURITE_CUISINE]: {
       screen: FavouriteCuisine,
