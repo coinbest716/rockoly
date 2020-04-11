@@ -341,7 +341,7 @@ export default function BookingDetail(props) {
                     }
                   }
                 } else {
-                  NavigateToHome();
+                  // NavigateToHome();
                 }
               })
               .catch(err => {});
@@ -414,7 +414,7 @@ export default function BookingDetail(props) {
                     }
                   }
                 } else {
-                  NavigateToHome();
+                  // NavigateToHome();
                 }
               })
               .catch(err => {
@@ -564,7 +564,7 @@ export default function BookingDetail(props) {
                     'CUSTOMER_REQUESTED                  ' ? (
                     <button
                       id="chat-button-view"
-                      style={{ marginLeft: '30px', height: '41px' }}
+                      style={{ marginLeft: '33px', height: '41px' }}
                       onClick={() => onButtonClick()}
                       className="btn btn-primary"
                     >
@@ -573,7 +573,7 @@ export default function BookingDetail(props) {
                   ) : (
                     <button
                       id="chat-button-view"
-                      style={{ marginLeft: '30px', height: '41px' }}
+                      style={{ marginLeft: '15px', height: '41px' }}
                       onClick={() => onButtonClick()}
                       className="btn btn-primary"
                     >

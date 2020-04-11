@@ -67,7 +67,7 @@ export const getIsoDate = (date, time) => {
 // get timestamp
 export const getTimestamp = date => {
   try {
-    return new Date(date);
+    return new Date(new Date(date).getTime() + new Date(date).getTimezoneOffset() * 60 * 1000);
   } catch (error) {
     toastMessage(renderError, error.message);
   }

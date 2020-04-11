@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react';
 import S from './BookingStatus.String';
 import * as util from '../../../utils/checkEmptycondition';
 import AddsModal from '../modal/RequestStatusModal';
+import { getLocalTime } from '../../../utils/DateTimeFormat';
 
 const ChefBookingStatus = props => {
   //Initial set value
   const [bookingData, setBookingData] = useState({});
   const [status, setStatus] = useState('');
   const [fullName, setFullName] = useState('Customer');
+  const [isDateExceed, setIsDateExceed] = useState(false);
 
   useEffect(() => {
     if (util.isObjectEmpty(props) && util.isObjectEmpty(props.bookingDetails)) {
@@ -22,6 +24,16 @@ const ChefBookingStatus = props => {
       ) {
         setFullName(props.bookingDetails.customerProfileByCustomerId.fullName);
       }
+
+      console.log('props.bookingDetails', props.bookingDetails);
+
+      let bookingDate = getLocalTime(props.bookingDetails.chefBookingFromTime);
+      let currentDate = getLocalTime(new Date());
+      if (bookingDate < currentDate) {
+        setIsDateExceed(false);
+      } else {
+        setIsDateExceed(true);
+      }
     }
   }, [props]);
 
@@ -35,10 +47,13 @@ const ChefBookingStatus = props => {
           {(status === S.REFUND_AMOUNT_SUCCESS || status === S.REFUND_AMOUNT_FAILED) && (
             <div className="infoText">{S.REFUND_CHEF_TEXT}</div>
           )}
-          {status === S.CUSTOMER_REQUESTED && (
+          {status === S.CUSTOMER_REQUESTED && isDateExceed && (
             <div className="infoText">
               {fullName} {S.REQUESTED_BOOKING}
             </div>
+          )}
+          {status === S.CUSTOMER_REQUESTED && !isDateExceed && (
+            <div className="infoText">Booking Expired</div>
           )}
           {status === S.CHEF_ACCEPTED && <div className="infoText">{S.YOU_HAVE_ACCEPTED}</div>}
           {status === S.CHEF_REJECTED && <div className="infoText">{S.YOU_HAVE_REJECTED}</div>}

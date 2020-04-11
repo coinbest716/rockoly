@@ -181,6 +181,7 @@ const ProfileSetupScreen = props => {
     },
   });
 
+console.log("UPDATE_CHEF_PROFILE_SUBMIT",UPDATE_CHEF_PROFILE_SUBMIT)
   const [updateChefProfileSubmit, responseForProfileSubmit] = useMutation(
     UPDATE_CHEF_PROFILE_SUBMIT,
     {

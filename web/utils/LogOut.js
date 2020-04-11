@@ -11,17 +11,32 @@ export const logOutUser = name => {
         .auth()
         .signOut()
         .then(async () => {
-          await localStorage.clear();
-          await StoreInLocal('chef_loggedIn', false);
-          await StoreInLocal('selected_menu', 'home_page');
-          if (name && name !== 'intialAdmin') {
-            await Router.push('/');
+          if(name == 'intialAdmin'){
+             localStorage.removeItem("user_role");
+            //  localStorage.removeItem("current_user_token");
+             localStorage.removeItem("selected_menu");
+             localStorage.removeItem("user_ids");
+             localStorage.removeItem("SharedProfileScreens");
+
+            await StoreInLocal('chef_loggedIn', false);
+            await StoreInLocal('selected_menu', 'home_page');
+            resolve(true);
+
+          }else{
+            let bookingId = localStorage.getItem('bookingId');
+            await localStorage.clear();
+            await StoreInLocal('bookingId', bookingId);
+            await StoreInLocal('chef_loggedIn', false);
+            await StoreInLocal('selected_menu', 'home_page');
+            if (name && name !== 'intialAdmin') {
+              await Router.push('/');
+            }
+            if (name === 'shared-profile') {
+              await Router.push('/');
+              toastMessage('success', 'Logged out Successfully');
+            }
+            resolve(true);
           }
-          if (name === 'shared-profile') {
-            await Router.push('/');
-            toastMessage('success', 'Logged out Successfully');
-          }
-          resolve(true);
         })
         .catch(err => {
           toastMessage(error, err.message);

@@ -628,7 +628,7 @@ const PricingIntroModal = props => {
       if (savedRange > range) {
         toastMessage('error', 'Number of guests should be greater than previously selected guests');
       } else
-        toastMessage('error', 'Complexity should be greater than previously selecteed complexity');
+        toastMessage('error', 'Complexity should be greater than previously selected complexity');
     }
   }
 

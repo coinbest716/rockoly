@@ -110,7 +110,7 @@ const ChefImage = props => {
                 className="avatar"
                 id="chef-content-profile"
                 alt="image"
-                style={{ borderRadius: '5%', height: '150px', width: '100%', height: '171px' }}
+                style={{ borderRadius: '5%', width: '100%', objectFit: 'contain', height: '171px' }}
               />
             )}
           {isUIRendered === true &&

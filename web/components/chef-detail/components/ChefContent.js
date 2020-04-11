@@ -90,10 +90,10 @@ const ChefContent = props => {
               // console.log("customerResult",customerResult)
               // getCustomerData();
             })
-            .catch(err => {});
+            .catch(err => { });
         }
       })
-      .catch(err => {});
+      .catch(err => { });
   }, []);
   useEffect(() => {
     if (customerIdValue) {
@@ -151,7 +151,7 @@ const ChefContent = props => {
       .then(res => {
         setUserRole(res);
       })
-      .catch(err => {});
+      .catch(err => { });
   });
 
   function openModal() {
@@ -261,6 +261,7 @@ const ChefContent = props => {
               >
                 <div className="review-item"></div>
                 {ProfileDetails.averageRating > 0 && (
+                  <div>
                   <Rating
                     initialRating={ProfileDetails.averageRating}
                     className="ratingView"
@@ -273,39 +274,39 @@ const ChefContent = props => {
                     fractions={2}
                     readonly={true}
                   />
-                )}
-
-                <div className="review-text-view">
                   <span>
                     {ProfileDetails.averageRating > 0 && Math.round(ProfileDetails.averageRating)}{' '}
                   </span>{' '}
-                  {util.isStringEmpty(ProfileDetails.totalReviewCount) &&
-                    ProfileDetails.totalReviewCount > 0 && (
-                      <span className="chefReviewCount">
-                        {ProfileDetails.totalReviewCount} Reviews
-                      </span>
-                    )}
-                  {(!util.isStringEmpty(ProfileDetails.totalReviewCount) ||
-                    ProfileDetails.totalReviewCount === 0) && (
-                    <span className="chefReviewCount">New Chef</span>
-                  )}
-                </div>
-                {userRole !== '' &&
-                  userRole !== false &&
-                  userRole === customer &&
-                  sameUser === false && (
-                    <div className="chat-btn">
-                      <button
-                        className="btn btn-primary"
-                        id="chef-details-chat"
-                        onClick={() => setShowChatPage(true)}
-                        style={{ width: '100%' }}
-                      >
-                        Ask Questions
-                      </button>
-                    </div>
-                  )}
+                  </div>
+                )}
               </div>
+            </div>
+
+            <div className="review-text-view">
+
+              {util.isStringEmpty(ProfileDetails.totalReviewCount) &&
+                ProfileDetails.totalReviewCount > 0 && (
+                  <span className="chefReviewCount">{ProfileDetails.totalReviewCount} Reviews</span>
+                )}
+              {!util.isStringEmpty(ProfileDetails.totalReviewCount) &&
+                ProfileDetails.totalReviewCount === 0 && (
+                  <span className="chefReviewCount">New Chef</span>
+                )}
+              {userRole !== '' &&
+                userRole !== false &&
+                userRole === customer &&
+                sameUser === false && (
+                  <div className="chat-btn">
+                    <button
+                      className="btn btn-primary"
+                      id="chef-details-chat"
+                      onClick={() => setShowChatPage(true)}
+                      style={{ width: '100%' }}
+                    >
+                      Ask Questions
+                    </button>
+                  </div>
+                )}
             </div>
           </div>
         )}
@@ -344,11 +345,7 @@ const ChefContent = props => {
             util.hasProperty(ProfileDetails, 'bookingCompletedCount') &&
             util.isStringEmpty(ProfileDetails.bookingCompletedCount) && (
               <div>
-                <div
-                  className="description-name"
-                  id="pro-border-style"
-                  style={{ borderRightStyle: 'groove' }}
-                >
+                <div className="description-name" id="pro-border-style">
                   <div className="top-pro-view" style={{ width: 'maxContent' }}>
                     <span>
                       <img
@@ -359,10 +356,10 @@ const ChefContent = props => {
                     </span>
                     {/* <i class="fal fa-shield-check"></i> */}
                     {ProfileDetails.bookingCompletedCount >= 100 ? (
-                      <span style={{ padding: '3px', paddingRight: '8px' }}>Master Chef</span>
+                      <span style={{ padding: '5px', paddingRight: '8px' }}>Master Chef</span>
                     ) : (
-                      <span style={{ padding: '3px', paddingRight: '8px' }}>New Chef</span>
-                    )}
+                        <span style={{ padding: '5px', paddingRight: '8px' }}>New Chef</span>
+                      )}
                   </div>
                 </div>
               </div>

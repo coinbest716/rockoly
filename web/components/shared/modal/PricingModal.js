@@ -974,7 +974,7 @@ const PricingModal = props => {
       if (savedRange > range) {
         toastMessage('error', 'Number of guests should be greater than previously selected guests');
       } else
-        toastMessage('error', 'Complexity should be greater than previously selecteed complexity');
+        toastMessage('error', 'Complexity should be greater than previously selected complexity');
     }
   }
 
@@ -1058,7 +1058,7 @@ const PricingModal = props => {
   function onCheckboxClicked(value, checkbox, state, type) {
     if (util.isObjectEmpty(props.bookingDetails) && props.screen === 'request') {
       if (value < props.bookingDetails.chefBookingComplexity) {
-        toastMessage('error', 'Complexity should be greater than previously selecteed complexity');
+        toastMessage('error', 'Complexity should be greater than previously selected complexity');
       } else {
         setComplexity(value);
         if (type === 'multiple1') {

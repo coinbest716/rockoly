@@ -72,6 +72,90 @@
     overflow: hidden;
     // width: calc(100% - 36px);
 }
+.overview{
+        background-color: white;
+        // width: 212px;
+        // border: 5px solid #08AB93 !important;
+        padding: 50px;
+        margin: 20px;
+        // height: 347px;
+        cursor: pointer;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        transition: 0.3s;
+        border-radius: 5px;
+      }
+      .statusMsg {
+        font-size: larger;
+        margin-bottom: 1%;
+        display: flex;
+      }
+      .verification{
+        font-size: larger;
+        color: red;
+        margin-top: 11px;
+        font-weight: bolder;
+      }
+      .verificationSuccess{
+        font-size: larger;
+        color: #08AB93;
+        margin-top: 11px;
+        font-weight: bolder;
+      }
+.blocks{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.response-view{
+    font-weight: bolder;
+    color: #08AB93;
+  }
+  .tickIcon{
+    font-size: 23px;
+    padding-left: 10px;
+    color: green;
+  }
+  .crossIcon{
+    font-size: 23px;
+    padding-left: 10px;
+    color: red;
+  }
+  .h4{
+    color: #08AB93;
+  }
+  .request{
+    border: 1px solid #08AB93 !important;
+    margin-bottom: 1px;
+    // width: 50px;
+    // height: 50px;
+    // border-radius: 50%;
+  }
+  .profile-pic{
+    border-radius: 50%;
+    width: 58px;
+    height: 70px;
+  }
+  .request-name{
+    margin-top: 15px;
+    margin-left: 7px;
+  }
+  .button{
+    height: 44px;
+    margin-top: 30px;
+    margin-left: 46px;
+  }
+  .scroll{
+    height: 347px;
+    position: relative;
+    /* overflow: scroll; */
+    overflow-y: scroll;
+  }
+  .bts-popup .bts-popup-container a {
+    color: #000 !important;
+}
+.bts-popup .bts-popup-container a:hover {
+  color: #08AB93 !important;
+}
 @media(max-width:1075px){
 #home-search-button{
     margin-right: 12px;
