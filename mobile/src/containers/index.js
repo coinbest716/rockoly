@@ -23,6 +23,7 @@ import BookKitchenEquipment from './customer/book-kitchen-equipment/BookKitchenE
 import BookAllergy from './customer/book-allergy/BookAllergy'
 import ExtraPayment from './customer/extra-payment/ExtraPayment'
 import ChangeBookLocation from './customer/change-book-location/ChangeBookLocation'
+import CustomerContent from './customer/customerContent/customerContent'
 // customer
 
 // chef
@@ -66,6 +67,9 @@ import AboutUs from './common/aboutUs/AboutUs'
 import ContactUs from './common/contactUs/ContactUs'
 import TermsAndPolicy from './common/terms-and-policy/TermsAndPolicy'
 import ConversationList from './common/conversation-list/ConversationList'
+import ChefAccount from './common/chefAccount/ChefAccount'
+import AccountSetting from './common/accountSetting/AccountSetting'
+import ChefPricing from './common/ChefPricing/chefPricing'
 import ChatDetail from './common/chat-detail/ChatDetail'
 
 // common
@@ -87,6 +91,9 @@ import RegMobileVerification from './auth/reg-mobile-verification/RegMobileVerif
 export {
   CustomerEditProfile,
   ChefEditProfile,
+  ChefPricing,
+  AccountSetting,
+  ChefAccount,
   Home,
   BookNow,
   SetUnavailability,
@@ -99,6 +106,7 @@ export {
   BookingHistory,
   Favourite,
   CustomerProfile,
+  CustomerContent,
   BookingRequest,
   Login,
   Register,

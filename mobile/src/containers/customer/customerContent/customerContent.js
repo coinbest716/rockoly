@@ -1,7 +1,7 @@
 /** @format */
 
 import React, {Component} from 'react'
-import {ScrollView, Image, View, Alert, Switch} from 'react-native'
+import {ScrollView, Image, View, Alert, TouchableOpacity, Switch} from 'react-native'
 import {Text, ListItem, Icon, Right, Left, Button, Body, Toast} from 'native-base'
 import firebase from 'react-native-firebase'
 import styles from './styles'
@@ -20,7 +20,7 @@ import {
 import {Languages} from '@translations'
 import {STORAGE_KEY_NAME} from '@utils'
 
-class CustomerProfile extends Component {
+class CustomerContent extends Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -185,7 +185,7 @@ class CustomerProfile extends Component {
 
   loginContent = () => {
     return (
-      <View style={styles.text}>
+      <View style={styles.test1}>
         <Text>Welcome to Rockoly. Please click login/register to get started.</Text>
         <View style={styles.loginBtnView}>
           <CommonButton
@@ -562,6 +562,12 @@ class CustomerProfile extends Component {
     navigation.navigate(RouteNames.NOTIFICATION_SETTINGS_SCREEN)
   }
 
+  onEditProifile = () => {
+    const {navigation} = this.props
+    navigation.navigate(RouteNames.CHEF_PROFILE_STACK)
+    // navigation.navigate(RouteNames.ACCOUNT_SETTING)
+  }
+
   onFavoiteChef = () => {
     const {navigation} = this.props
     navigation.navigate(RouteNames.FAVOURITE_STACK)
@@ -586,6 +592,7 @@ class CustomerProfile extends Component {
           <Text style={styles.nameStyle}>
             {profile.chefFirstName} {profile.chefLastName}
           </Text>
+
           <Text style={styles.emailStyle}>{profile.chefEmail}</Text>
           <Text style={styles.emailStyle}>{profile.mobileNoWithCountryCode}</Text>
         </View>
@@ -594,9 +601,14 @@ class CustomerProfile extends Component {
     if (!isChef && profile) {
       return (
         <View style={styles.userInfo}>
-          <Text style={styles.nameStyle}>
-            {profile.customerFirstName} {profile.customerLastName}
-          </Text>
+          <View style={styles.iconNameView}>
+            <Text style={styles.nameStyle}>
+              {profile.customerFirstName} {profile.customerLastName}
+            </Text>
+            <TouchableOpacity onPress={() => this.onEditProifile()}>
+              <Icon type="FontAwesome5" name="cog" style={styles.iconStyle3} />
+            </TouchableOpacity>
+          </View>
           <Text style={styles.emailStyle}>{profile.customerEmail}</Text>
           <Text style={styles.emailStyle}>{profile.mobileNoWithCountryCode}</Text>
         </View>
@@ -972,7 +984,7 @@ class CustomerProfile extends Component {
     console.log('picid', picId)
     return (
       <View style={styles.container}>
-        <Header showBack title="Profile" showBell />
+        <Header title="Profile" showBell />
         <ScrollView>
           {!isLoggedIn && (
             <View style={styles.topContainer}>
@@ -982,16 +994,16 @@ class CustomerProfile extends Component {
 
           {isLoggedIn ? this.userContent() : this.loginContent()}
 
-          {isLoggedIn && (
+          {isLoggedIn && !isChef && (
             <View>
-              {/* <View style={styles.userContent}>
+              <View style={styles.userContent}>
                 <Image source={pic} style={styles.profileImage} resizeMode="contain" />
 
                 {this.userInfoContent()}
-              </View> */}
+              </View>
               {/* {this.renderStatus()} */}
-              {isChef && this.renderChefContent()}
-              {isChef === false && this.renderCustomerContent()}
+              {/* {isChef && this.renderChefContent()}
+              {isChef === false && this.renderCustomerContent()} */}
               {/* <CustomListItem
                 iconName="card"
                 label={Languages.customerProfile.options.manage_payments_methods}
@@ -1041,7 +1053,7 @@ class CustomerProfile extends Component {
               {/* <ListItem itemDivider>
                 <Text>Update Account details</Text>
               </ListItem> */}
-              <CustomListItem
+              {/* <CustomListItem
                 iconName="account-switch"
                 type="MaterialCommunityIcons"
                 label={
@@ -1050,23 +1062,23 @@ class CustomerProfile extends Component {
                     : Languages.customerProfile.options.switch_to_chef
                 }
                 onPress={this.switchAlert}
-              />
+              /> */}
               {/* <CustomListItem
                 iconName="bell-outline"
                 type="MaterialCommunityIcons"
                 label={Languages.customerProfile.options.notification_settings}
                 onPress={this.onNotificationSettings}
               /> */}
-              {showchangePassword === true && (
+              {/* {showchangePassword === true && (
                 <CustomListItem
                   type="MaterialCommunityIcons"
                   iconName="lock-reset"
                   label={Languages.customerProfile.options.change_password}
                   onPress={this.onChangePassword}
                 />
-              )}
+              )} */}
 
-              <CustomListItem
+              {/* <CustomListItem
                 type="MaterialCommunityIcons"
                 iconName="face-agent"
                 label={Languages.customerProfile.options.aboutus}
@@ -1077,7 +1089,7 @@ class CustomerProfile extends Component {
                 iconName="file-document"
                 label={Languages.customerProfile.options.legal}
                 onPress={this.onTerms}
-              />
+              /> */}
               {/* <CustomListItem
                 type="MaterialCommunityIcons"
                 iconName="account-box"
@@ -1090,12 +1102,12 @@ class CustomerProfile extends Component {
                 label={Languages.customerProfile.options.terms}
                 onPress={this.onTerms}
               /> */}
-              <CustomListItem
+              {/* <CustomListItem
                 iconName="logout"
                 label={Languages.customerProfile.options.logout}
                 onPress={this.logout}
                 type="MaterialCommunityIcons"
-              />
+              /> */}
             </View>
           )}
         </ScrollView>
@@ -1127,6 +1139,6 @@ const CustomListItem = ({onPress, iconName, label, type}) => {
   )
 }
 
-CustomerProfile.contextType = AuthContext
+CustomerContent.contextType = AuthContext
 
-export default CustomerProfile
+export default CustomerContent

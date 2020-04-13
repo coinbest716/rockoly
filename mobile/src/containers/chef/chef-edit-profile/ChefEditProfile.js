@@ -42,7 +42,7 @@ class CustomerEditProfile extends PureComponent {
       },
       CHEF_EXPERIENCE: {
         type: 'CHEF_EXPERIENCE',
-        title: 'Specialties / Experience',
+        title: 'Basics',
       },
       COMPLEXITY: {
         type: 'COMPLEXITY',
