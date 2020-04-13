@@ -131,7 +131,6 @@ export default function HistoryList(props) {
         )}
         {isArrayEmpty(bookingArray) ? (
           bookingArray.map((res, index) => {
-            console.log('res', res);
             return (
               <div className="row" id="list-content" style={{ width: '100%' }} key={index}>
                 <div className="col-lg-2 col-md-2 col-sm-12" id="image-view">

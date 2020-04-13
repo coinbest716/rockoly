@@ -7,6 +7,7 @@ import getConfig from 'next/config';
 import axios from 'axios';
 import dynamic from 'next/dynamic';
 import moment from 'moment';
+import { firebase } from '../../../config/firebaseConfig';
 import { bannerData } from '../const/BannerData';
 import { toastMessage } from '../../../utils/Toast';
 import { AccordionItemPanel } from 'react-accessible-accordion';
@@ -121,9 +122,9 @@ const Banner = props => {
       dateTime: dateFormat,
     },
     fetchPolicy: 'network-only',
-    onError: err => {
-      toastMessage('renderError', err);
-    },
+    // onError: err => {
+    //   toastMessage('renderError', err);
+    // },
   });
 
   const [updateChefProfileSubmitFn, { responseForProfileSubmit }] = useMutation(
@@ -145,6 +146,7 @@ const Banner = props => {
 
   //get chef id
   useEffect(() => {
+   
     //get user role
     getUserTypeRole()
       .then(async res => {
@@ -183,7 +185,14 @@ const Banner = props => {
       getChefListByProfile();
       getChefDataByProfile();
     }
+    // else{
+    //   getChefListByProfile();
+    // }
   }, chefIdValue);
+
+  // useEffect(() =>{
+  //   getChefListByProfile();
+  // },[])
   useEffect(() => {
     // getting customer's details
     if (
@@ -223,8 +232,7 @@ const Banner = props => {
       let details = chefData.data.chefProfileByChefId;
       setIsRegistrationCompletedYn(details.isRegistrationCompletedYn);
       setChefStatusId(details.chefStatusId.trim());
-      setMobileNumberVerified(details.isEmailVerifiedYn);
-      setEmailVerified(details.isMobileNoVerifiedYn);
+      console.log("details.chefStatusId.trim()",details.chefStatusId.trim());
       let reason = details.chefRejectOrBlockReason ? chefDetails.chefRejectOrBlockReason : '';
       setReason(reason);
     } else {
@@ -233,7 +241,7 @@ const Banner = props => {
   }, [chefData]);
 
   useEffect(() => {
-    // console.log("listData",listData);
+    console.log("listData OUT",listData);
     if (
       util.isObjectEmpty(listData) &&
       util.hasProperty(listData, 'data') &&
@@ -241,6 +249,7 @@ const Banner = props => {
       util.hasProperty(listData.data, 'chefProfileByChefId') &&
       util.isObjectEmpty(listData.data.chefProfileByChefId)
     ) {
+      console.log("listData if",listData.data.chefProfileByChefId);
       let details = listData.data.chefProfileByChefId;
       let request = details.outstandingRequests;
       let listRequest = details.reviews;
@@ -253,7 +262,7 @@ const Banner = props => {
       if (details.totalEarnings) {
         setEarnings(details.totalEarnings);
       } else {
-        setEarnings(0);
+        setEarnings(0.000);
       }
       if (details.totalReviewCount) {
         setReview(details.totalReviewCount);
@@ -270,7 +279,8 @@ const Banner = props => {
       } else {
         setReservationList([]);
       }
-    } else {
+    } else{
+      console.log("listData else",listData)
       setProfileDetails(null);
       setRequestList([])
       setEarnings(0)
@@ -279,6 +289,21 @@ const Banner = props => {
       setReservationList([]);
     }
   }, [listData]);
+
+  
+  //Check email and mobile number verified or not
+  useEffect(() => {
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        if (user.phoneNumber) {
+          setMobileNumberVerified(true);
+        }
+        if (user.emailVerified) {
+          setEmailVerified(true);
+        }
+      }
+    });
+  });
 
   function getLocation(location) {
     if (props.getLocation) {
@@ -636,7 +661,7 @@ const Banner = props => {
                   {/* reviewList */}
                   <div class="col-lg-6 overview">
                     <h4>Stats</h4>
-                    <h5>Earnings : $ {earnings}</h5>
+                    <h5>Earnings : $ {earnings ? earnings.toFixed(2) : '0'}</h5>
                     <h5>Review Counts : {review}</h5>
                   </div>
                 </div>

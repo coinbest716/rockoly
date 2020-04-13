@@ -9,7 +9,7 @@ export const menuOptions = [
     // isCustomer: true,
     // isCommon: true,
     // isChef: true,
-  },  
+  },
   {
     title: 'Search',
     routing: n.HOME,
@@ -17,12 +17,12 @@ export const menuOptions = [
     isCommon: true,
     isCustomer: true,
     // isChef: true,
-  },  {
+  }, {
     title: 'Favorite Chefs',
     routing: n.FAVORITE_CHEFS_LIST,
     isCustomer: true,
     keyName: 'favorite_chefs',
-  },{
+  }, {
     title: 'Inbox',
     routing: n.CHAT,
     keyName: 'chat',
@@ -49,25 +49,42 @@ export const menuOptions = [
     keyName: 'chef_list',
     isCommon: true,
   },
+  // {
+  //   title: 'Events',
+  //   routing: n.BOOKING_HISTORY,
+  //   isCustomer: true,
+  //   keyName: 'booking_history',
+  // },
   {
     title: 'Events',
     routing: n.BOOKING_HISTORY,
     isCustomer: true,
     keyName: 'booking_history',
-  },{
+    subMenu: [
+      {
+        title: 'Past Booking',
+        routing: '/past-customer-bookings',
+      },
+      {
+        title: 'Future Booking',
+        routing: '/future-customer-bookings',
+      },
+    ],
+  },
+  {
     title: 'Inbox',
     routing: n.CHAT,
     keyName: 'chat',
     isCustomer: true,
   },
-  // {
+  // // {
   //   title: 'Payments',
   //   routing: n.PAYMENT_HISTORY,
   //   isChef: true,
   //   isCustomer: true,
   //   keyName: 'payments',
   // },
-  
+
   {
     title: 'About us',
     routing: n.ABOUT_US,
