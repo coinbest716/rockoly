@@ -2,9 +2,10 @@ import React, { useState, useEffect, useContext } from 'react';
 import gql from 'graphql-tag';
 import Select from 'react-select';
 import ModernDatepicker from 'react-modern-datepicker';
+import moment from 'moment';
 import { useQuery, useLazyQuery, useSubscription } from '@apollo/react-hooks';
 import _ from 'lodash';
-
+import Router from 'next/router';
 import HistoryList from './components/BookingHistoryList';
 import S from './BookingHistory.String';
 import Page from '../shared/layout/Main';
@@ -71,9 +72,25 @@ export default function BookingHistory() {
   const [bookingCount, setbookingCount] = useState();
 
   const [countValue, setCountValue] = useState();
+
+  const [pathName,setPathName] = useState('');
+
   // get gql tag
   let bookingGQLTag = null;
   let bookingGQL = null;
+  bookingGQLTag = gqlTag.query.booking.listWithFiltersGQLTAG({
+    customerId: customerIdValue,
+    pFromTime: bookingFromDate,
+    pToTime: bookingToDate,
+    statusId: optionValue ? optionValue : [],
+    first: firstParams,
+  });
+
+  useEffect(() => {
+    if (isObjectEmpty(Router) && isObjectEmpty(Router.router) && isStringEmpty(Router.router.route)) {
+      setPathName(Router.router.pathname);
+    }
+  },[Router]);
 
   if (userRole === chef) {
     bookingGQLTag = gqlTag.query.booking.listWithFiltersGQLTAG({
@@ -83,11 +100,27 @@ export default function BookingHistory() {
       statusId: optionValue ? optionValue : [],
       first: firstParams,
     });
-  } else {
+  } else if(pathName=='/booking-history'){
     bookingGQLTag = gqlTag.query.booking.listWithFiltersGQLTAG({
       customerId: customerIdValue,
       pFromTime: bookingFromDate,
       pToTime: bookingToDate,
+      statusId: optionValue ? optionValue : [],
+      first: firstParams,
+    });
+  }else if(pathName == "/past-customer-bookings"){
+    bookingGQLTag = gqlTag.query.booking.listPastOrFutureBookingsGQLTAG({
+      customerId: customerIdValue,
+      isPastBookings: true,
+      chefBookingDate :  moment(new Date()).utc().format('YYYY-MM-DDTHH:mm:ss'),
+      statusId: optionValue ? optionValue : [],
+      first: firstParams,
+    });
+  }else if(pathName == "/future-customer-bookings"){
+    bookingGQLTag = gqlTag.query.booking.listPastOrFutureBookingsGQLTAG({
+      customerId: customerIdValue,
+      isFutureBookings: true,
+      chefBookingDate :  moment(new Date()).utc().format('YYYY-MM-DDTHH:mm:ss'),
       statusId: optionValue ? optionValue : [],
       first: firstParams,
     });
@@ -259,10 +292,25 @@ export default function BookingHistory() {
       hasProperty(data.listBookingByDateRange, 'nodes') &&
       isArrayEmpty(data.listBookingByDateRange.nodes)
     ) {
-      // console.log('dsakjkjkjhkjh123123', data);
       setResultBookingData(data.listBookingByDateRange.nodes);
-    } else {
+    } else if(pathName == '/booking-history') {
       setResultBookingData([]);
+    }
+  }, [data]);
+
+  useEffect(() => {
+    if (
+      isObjectEmpty(data) &&
+      hasProperty(data, 'allChefBookingHistories') &&
+      isObjectEmpty(data.allChefBookingHistories) &&
+      hasProperty(data.allChefBookingHistories, 'nodes') &&
+      isArrayEmpty(data.allChefBookingHistories.nodes)
+    ) {
+      setResultBookingData(data.allChefBookingHistories.nodes);
+    } else if(pathName == '/past-customer-bookings'){
+      setResultBookingData([]);
+    }else if(pathName == '/future-customer-bookings'){
+
     }
   }, [data]);
 
