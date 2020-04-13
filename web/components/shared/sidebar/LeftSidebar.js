@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
+//TODO: Nested sidebar menu
+// import { Menu } from 'antd';
+import 'antd/dist/antd.css';
 import Link from 'next/link';
 import { useQuery, useMutation } from '@apollo/react-hooks';
 import gql from 'graphql-tag';
@@ -11,6 +14,9 @@ import SideMenu from '../sidemenu/sidemenu';
 import { firebase } from '../../../config/firebaseConfig';
 import { AppContext } from '../../../context/appContext';
 import * as util from '../../../utils/checkEmptycondition';
+
+//TODO: Nested sidebar menu
+// const { SubMenu } = Menu;
 
 //customer email update
 const updateCustomerEmailData = gqlTag.mutation.customer.updateIsEmailVerifiedYnGQLTAG;
@@ -36,6 +42,9 @@ const UPDATE_CHEF_MOBILE_INFO = gql`
 `;
 
 const LeftSidebar = props => {
+  //TODO: Nested sidebar menu
+  // const rootSubmenuKeys = ['sub1', 'sub2', 'sub4'];
+  // const [openKeys, setOpenKeys] = useState(['sub1']);
   const [currentSelection, setCurrentSelection] = useState(false);
   const [selectedMenu, setSelectedMenu] = useState(parseInt(props.selectedMenuKey));
   const [mobileNumberVerified, setMobileNumberVerified] = useState(false);
@@ -152,9 +161,64 @@ const LeftSidebar = props => {
     }
   }, [state, emailVerified, mobileNumberVerified]);
 
+  //TODO: Nested sidebar menu
+  // function onOpenChange(openKeysData) {
+  //   const latestOpenKey = openKeysData.find(key => openKeys.indexOf(key) === -1);
+
+  //   if (rootSubmenuKeys.indexOf(latestOpenKey) === -1) {
+  //     setOpenKeys(openKeysData);
+  //   } else {
+  //     setOpenKeys(latestOpenKey ? [latestOpenKey] : []);
+  //   }
+  // }
+
   try {
     return (
-      // <SideMenu options = {props.role!=="customer" ? profileSetupMenu : props.role==='customer' ? profileSetupCustomerMenu : [] }/>
+      //TODO: Nested sidebar menu
+      // <Menu mode="inline" openKeys={openKeys} onOpenChange={onOpenChange}>
+      //   <SubMenu
+      //     key="sub1"
+      //     title={
+      //       <span>
+      //         <span>Navigation One</span>
+      //       </span>
+      //     }
+      //   >
+      //     <Menu.Item key="1">Option 1</Menu.Item>
+      //     <Menu.Item key="2">Option 2</Menu.Item>
+      //     <Menu.Item key="3">Option 3</Menu.Item>
+      //     <Menu.Item key="4">Option 4</Menu.Item>
+      //   </SubMenu>
+      //   <SubMenu
+      //     key="sub2"
+      //     title={
+      //       <span>
+      //         <span>Navigation Two</span>
+      //       </span>
+      //     }
+      //   >
+      //     <Menu.Item key="5">Option 5</Menu.Item>
+      //     <Menu.Item key="6">Option 6</Menu.Item>
+      //     <SubMenu key="sub3" title="Submenu">
+      //       <Menu.Item key="7">Option 7</Menu.Item>
+      //       <Menu.Item key="8">Option 8</Menu.Item>
+      //     </SubMenu>
+      //   </SubMenu>
+      //   <SubMenu
+      //     key="sub4"
+      //     title={
+      //       <span>
+      //         <span>Navigation Three</span>
+      //       </span>
+      //     }
+      //   >
+      //     <Menu.Item key="9">Option 9</Menu.Item>
+      //     <Menu.Item key="10">Option 10</Menu.Item>
+      //     <Menu.Item key="11">Option 11</Menu.Item>
+      //     <Menu.Item key="12">Option 12</Menu.Item>
+      //   </SubMenu>
+      // </Menu>
+
       <div>
         {profileSetupMenu &&
           props.role !== 'customer' &&
