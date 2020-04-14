@@ -3,8 +3,8 @@
 import gql from 'graphql-tag'
 import {Alert} from 'react-native'
 import {Toast} from 'native-base'
-import BaseService from './BaseService'
 import {GQL} from '@common'
+import BaseService from './BaseService'
 
 export const BOOKING_HISTORY_LIST_EVENT = {
   BOOKING_HISTORY_LIST: 'BOOKING_HISTORY/BOOKING_HISTORY_LIST',
@@ -184,7 +184,7 @@ class BookingHistoryService extends BaseService {
   }
 
   getBookingHistoryList2 = async gqlValue => {
-    console.log('getBookingHistoryList')
+    console.log('getBookingHistoryList2')
 
     try {
       const query = gql`
@@ -196,7 +196,7 @@ class BookingHistoryService extends BaseService {
           fetchPolicy: 'network-only',
         })
         .then(({data}) => {
-          console.log('data getBookingHistoryList', data)
+          console.log('data getBookingHistoryList2', data)
           if (
             data &&
             data.listBookingByDateRange &&
@@ -240,6 +240,41 @@ class BookingHistoryService extends BaseService {
           ) {
             this.emit(BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_LIST, {
               bookingHistory: data.listBookingByDateRange.nodes,
+            })
+          } else {
+            this.emit(BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_LIST, {bookingHistory: []})
+          }
+        })
+        .catch(() => {
+          this.emit(BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_LIST, {bookingHistory: []})
+        })
+    } catch (e) {
+      this.emit(BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_LIST, {bookingHistory: []})
+    }
+  }
+
+  getPastFutureBookingHistoryList = async gqlValue => {
+    console.log('getBookingHistoryList')
+
+    try {
+      const query = gql`
+        ${gqlValue}
+      `
+      this.client
+        .query({
+          query,
+          fetchPolicy: 'network-only',
+        })
+        .then(({data}) => {
+          console.log('data getBookingHistoryList', data)
+          if (
+            data &&
+            data.allChefBookingHistories &&
+            data.allChefBookingHistories.nodes &&
+            data.allChefBookingHistories.nodes.length
+          ) {
+            this.emit(BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_LIST, {
+              bookingHistory: data.allChefBookingHistories.nodes,
             })
           } else {
             this.emit(BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_LIST, {bookingHistory: []})
