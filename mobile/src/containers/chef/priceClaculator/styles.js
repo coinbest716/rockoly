@@ -1,6 +1,6 @@
 /** @format */
 
-import {StyleSheet, I18nManager} from 'react-native'
+import {StyleSheet, Platform} from 'react-native'
 import {Theme} from '@theme'
 
 const styles = StyleSheet.create({
@@ -21,6 +21,10 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginVertical: 15,
   },
+  verifytBtn: {
+    width: 'auto',
+    alignSelf: 'center',
+  },
   textAreaStyle: {
     borderRadius: 15,
   },
@@ -32,6 +36,12 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'flex-start',
     width: '80%',
+  },
+  iconStyle: {
+    marginTop: Platform.OS === 'ios' ? 1.5 : null,
+    fontSize: 21,
+    paddingRight: 0,
+    alignSelf: 'center',
   },
   cardStyle: {
     paddingHorizontal: 10,

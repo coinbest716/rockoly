@@ -679,25 +679,29 @@ class CustomerProfile extends Component {
     const {isMobileVerified, isEmailVerified} = this.state
     return (
       <View style={styles.contentContainer}>
+        <ListItem itemDivider>
+          <Text>Account Settings</Text>
+        </ListItem>
         <CustomListItem
           iconName="account-edit"
-          label={Languages.customerProfile.options.account}
-          onPress={this.onRate}
+          label="Personal Information"
+          onPress={this.onBasicProfile}
           type="MaterialCommunityIcons"
         />
         <CustomListItem
-          iconName="chef-hat"
-          label="Customer Profile"
-          onPress={this.onChefProfile}
+          iconName="map-marker"
           type="MaterialCommunityIcons"
+          label={Languages.customerProfile.options.set_location}
+          onPress={this.onSetLocationPress}
         />
-        {/* <CustomListItem
-          iconName="currency-usd"
-          label={Languages.customerProfile.options.pricing}
-          onPress={this.onChefPrice}
+        <CustomListItem iconName="card" label="Payments and payouts" onPress={this.itemOnPress} />
+        <CustomListItem
+          iconName="bell-outline"
           type="MaterialCommunityIcons"
-        /> */}
-        {/* <CustomListItem
+          label="Notifications"
+          onPress={this.onNotificationSettings}
+        />
+        <CustomListItem
           iconName={isMobileVerified === false ? 'cellphone' : 'check-decagram'}
           label={
             isMobileVerified === false
@@ -716,7 +720,15 @@ class CustomerProfile extends Component {
           }
           onPress={this.onEmailVerification}
           type="MaterialCommunityIcons"
-        /> */}
+        />
+
+        <CustomListItem
+          iconName="book-open-page-variant"
+          type="MaterialCommunityIcons"
+          label="Your Guidebook"
+          onPress={this.onNotificationSettings}
+        />
+
         {/* 
         <ListItem itemDivider>
           <Text>Basic details </Text>
@@ -742,8 +754,8 @@ class CustomerProfile extends Component {
           onPress={this.onBookingStepOnePress}
           type="MaterialCommunityIcons"
         /> */}
-        {/* <ListItem itemDivider>
-          <Text>Food</Text>
+        <ListItem itemDivider>
+          <Text>Customer Profile</Text>
         </ListItem>
         <CustomListItem
           type="MaterialCommunityIcons"
@@ -762,21 +774,12 @@ class CustomerProfile extends Component {
           iconName="microwave"
           label={Languages.customerProfile.options.equipment}
           onPress={this.onEquipmentPress}
-        /> */}
+        />
         {/* <CustomListItem
           type="MaterialCommunityIcons"
           iconName="food"
           label={Languages.customerProfile.options.cuisine}
           onPress={this.onCuisinePress}
-        /> */}
-        {/* <ListItem itemDivider>
-          <Text>Address</Text>
-        </ListItem>
-        <CustomListItem
-          iconName="map-marker"
-          type="MaterialCommunityIcons"
-          label={Languages.customerProfile.options.set_location}
-          onPress={this.onSetLocationPress}
         /> */}
       </View>
     )
@@ -786,27 +789,28 @@ class CustomerProfile extends Component {
     const {isMobileVerified, isEmailVerified} = this.state
     return (
       <View style={styles.contentContainer}>
+        <ListItem itemDivider>
+          <Text>Account Settings</Text>
+        </ListItem>
         <CustomListItem
           iconName="account-edit"
-          label={Languages.customerProfile.options.account}
-          onPress={this.onRate}
+          label="Personal Information"
+          onPress={this.onBasicProfile}
           type="MaterialCommunityIcons"
         />
         <CustomListItem
-          iconName="chef-hat"
-          label={Languages.customerProfile.options.chefProfile}
-          onPress={this.onChefProfile}
+          iconName="map-marker"
           type="MaterialCommunityIcons"
+          label={Languages.customerProfile.options.set_location}
+          onPress={this.onSetLocationPress}
         />
+        <CustomListItem iconName="card" label="Payments and payouts" onPress={this.itemOnPress} />
         <CustomListItem
-          iconName="currency-usd"
-          label={Languages.customerProfile.options.pricing}
-          onPress={this.onChefPrice}
+          iconName="bell-outline"
           type="MaterialCommunityIcons"
+          label="Notifications"
+          onPress={this.onNotificationSettings}
         />
-        {/* <ListItem itemDivider>
-          <Text>Verification </Text>
-        </ListItem>
         <CustomListItem
           iconName={isMobileVerified === false ? 'cellphone' : 'check-decagram'}
           label={
@@ -816,8 +820,8 @@ class CustomerProfile extends Component {
           }
           onPress={this.goToVerifyMobileNumber}
           type="MaterialCommunityIcons"
-        /> */}
-        {/* <CustomListItem
+        />
+        <CustomListItem
           iconName={isEmailVerified === true ? 'email-check' : 'email'}
           label={
             isEmailVerified === true
@@ -826,23 +830,75 @@ class CustomerProfile extends Component {
           }
           onPress={this.onEmailVerification}
           type="MaterialCommunityIcons"
-        /> */}
-        {/* <CustomListItem
-          iconName="gmail"
+        />
+
+        <CustomListItem
+          iconName="book-open-page-variant"
           type="MaterialCommunityIcons"
-          label={Languages.customerProfile.options.email}
-          onPress={this.onSetLocationPress}
+          label="Your Guidebook"
+          onPress={this.onIntroMessage}
+        />
+        {/* <CustomListItem
+          iconName="account-edit"
+          label={Languages.customerProfile.options.account}
+          onPress={this.onRate}
+          type="MaterialCommunityIcons"
         /> */}
-        {/* <ListItem itemDivider>
-          <Text>Basic details </Text>
+        <ListItem itemDivider>
+          <Text>Chef Profile</Text>
         </ListItem>
-     */}
-        {/* <CustomListItem
-          iconName="shield-account"
-          label={Languages.customerProfile.options.profile_Pic}
-          onPress={this.onProfilePic}
+        <CustomListItem
+          iconName="account-edit"
+          label="Basics"
+          onPress={this.onChefExperience}
           type="MaterialCommunityIcons"
-        /> */}
+        />
+        <CustomListItem
+          iconName="image"
+          label={Languages.customerProfile.options.gallery}
+          onPress={this.onGallery}
+          type="MaterialCommunityIcons"
+        />
+        <CustomListItem
+          iconName="file-document-edit"
+          label={Languages.customerProfile.options.license}
+          onPress={this.onAttachment}
+          type="MaterialCommunityIcons"
+        />
+        <CustomListItem
+          iconName="calendar"
+          label="Availability"
+          onPress={this.goToSetAvailability}
+          type="MaterialCommunityIcons"
+        />
+        <ListItem itemDivider>
+          <Text>Pricing</Text>
+        </ListItem>
+        <CustomListItem
+          iconName="calculator-variant"
+          label={Languages.customerProfile.options.priceCal}
+          onPress={this.onPrice}
+          type="MaterialCommunityIcons"
+        />
+        <CustomListItem
+          iconName="currency-usd"
+          label="Base Price"
+          onPress={this.onRate}
+          type="MaterialCommunityIcons"
+        />
+        <CustomListItem
+          iconName="chevron-triple-up"
+          label={Languages.customerProfile.options.complexity}
+          onPress={this.onComplexity}
+          type="MaterialCommunityIcons"
+        />
+        <CustomListItem
+          iconName="room-service"
+          label={Languages.customerProfile.options.option_list}
+          onPress={this.onOptionList}
+          type="MaterialCommunityIcons"
+        />
+
         {/* <ListItem itemDivider>
           <Text>General </Text>
         </ListItem>
@@ -852,79 +908,11 @@ class CustomerProfile extends Component {
           onPress={this.onIntroMessage}
           type="MaterialCommunityIcons"
         /> */}
-        {/* <ListItem itemDivider>
-          <Text>Price </Text>
-        </ListItem>
-        <CustomListItem
-          iconName="currency-usd"
-          label={Languages.customerProfile.options.rate}
-          onPress={this.onRate}
-          type="MaterialCommunityIcons"
-        /> */}
-        {/* <CustomListItem
-          iconName="calculator-variant"
-          label={Languages.customerProfile.options.priceCal}
-          onPress={this.onPrice}
-          type="MaterialCommunityIcons"
-        /> */}
 
-        {/* <CustomListItem
-          iconName="account-group"
-          label={Languages.customerProfile.options.number_of_guests}
-          onPress={this.onService}
-          type="MaterialCommunityIcons"
-        /> */}
-
-        {/* <CustomListItem
-          iconName="room-service"
-          label={Languages.customerProfile.options.option_list}
-          onPress={this.onOptionList}
-          type="MaterialCommunityIcons"
-        /> */}
-        {/* <CustomListItem
-          iconName="chevron-triple-up"
-          label={Languages.customerProfile.options.complexity}
-          onPress={this.onComplexity}
-          type="MaterialCommunityIcons"
-        /> */}
-        {/* <ListItem itemDivider>
-          <Text>Profile setup </Text>
-        </ListItem>
-        <CustomListItem
-          iconName="text"
-          label={Languages.customerProfile.options.chef_experience}
-          onPress={this.onChefExperience}
-          type="MaterialCommunityIcons"
-        /> */}
         {/* <CustomListItem
           iconName="trophy-award"
           label={Languages.customerProfile.options.awards}
           onPress={this.onAwards}
-          type="MaterialCommunityIcons"
-        />
-
-        <CustomListItem
-          iconName="image"
-          label={Languages.customerProfile.options.gallery}
-          onPress={this.onGallery}
-          type="MaterialCommunityIcons"
-        /> */}
-        {/* <CustomListItem
-          iconName="image"
-          label={Languages.customerProfile.options.gallery_Attachment}
-          onPress={this.onGalleryAttach}
-          type="MaterialCommunityIcons"
-        /> */}
-        {/* <CustomListItem
-          iconName="file-document-edit"
-          label={Languages.customerProfile.options.license}
-          onPress={this.onAttachment}
-          type="MaterialCommunityIcons"
-        />
-        <CustomListItem
-          iconName="calendar"
-          label={Languages.customerProfile.options.set_availability}
-          onPress={this.goToSetAvailability}
           type="MaterialCommunityIcons"
         />
         <CustomListItem
@@ -1036,11 +1024,11 @@ class CustomerProfile extends Component {
                     label={Languages.customerTab.favoriteChef}
                     onPress={this.onFavoiteChef}
                   />
-                </View>
+                </View> 
               )} */}
-              {/* <ListItem itemDivider>
-                <Text>Update Account details</Text>
-              </ListItem> */}
+              <ListItem itemDivider>
+                <Text />
+              </ListItem>
               <CustomListItem
                 iconName="account-switch"
                 type="MaterialCommunityIcons"
@@ -1057,6 +1045,9 @@ class CustomerProfile extends Component {
                 label={Languages.customerProfile.options.notification_settings}
                 onPress={this.onNotificationSettings}
               /> */}
+              <ListItem itemDivider>
+                <Text>Others</Text>
+              </ListItem>
               {showchangePassword === true && (
                 <CustomListItem
                   type="MaterialCommunityIcons"
@@ -1090,6 +1081,9 @@ class CustomerProfile extends Component {
                 label={Languages.customerProfile.options.terms}
                 onPress={this.onTerms}
               /> */}
+              <ListItem itemDivider>
+                <Text />
+              </ListItem>
               <CustomListItem
                 iconName="logout"
                 label={Languages.customerProfile.options.logout}

@@ -95,6 +95,40 @@ class ChefPreferenceService extends BaseService {
     })
   }
 
+  updatePriceCalculator = ({params}) => {
+    console.log('data', params.ChefId)
+    return new Promise((resolve, reject) => {
+      try {
+        const gqlValue = GQL.mutation.chef.updateChefPriceCalculatorGQLTAG
+        const mutation = gql`
+          ${gqlValue}
+        `
+        console.log('gqlValue', gqlValue)
+        this.client
+          .mutate({
+            mutation,
+            variables: {
+              pData: JSON.stringify(params),
+            },
+          })
+          .then(({data, errors}) => {
+            console.log('updatePriceCalculator', data, errors)
+            if (errors) {
+              reject(errors[0].message)
+            } else if (data && data.updateChefPriceCalculator) {
+              resolve(data.updateChefPriceCalculator)
+            }
+          })
+          .catch(e => {
+            reject(e)
+          })
+      } catch (e) {
+        console.log('error', e)
+        reject(e)
+      }
+    })
+  }
+
   updateChefWorkData = inputData => {
     console.log('inputData', inputData)
     return new Promise((resolve, reject) => {
