@@ -1,26 +1,12 @@
 /** @format */
 
 import React, {Component} from 'react'
-import {View, ScrollView, Platform, Alert} from 'react-native'
-import {
-  Item,
-  Textarea,
-  Text,
-  CheckBox,
-  ListItem,
-  Body,
-  Icon,
-  Button,
-  Label,
-  Toast,
-  Card,
-  Picker,
-  CardItem,
-} from 'native-base'
+import {View, ScrollView, Platform, Alert, RefreshControl} from 'react-native'
+import {Text, CheckBox, ListItem, Icon, Body, Input, Item, Card, Toast, CardItem} from 'native-base'
 import KeyboardSpacer from 'react-native-keyboard-spacer'
 import Slider from '@react-native-community/slider'
 import _ from 'lodash'
-import {CommonButton, Spinner, Header} from '@components'
+import {Spinner, Header, CommonButton} from '@components'
 import {Theme} from '@theme'
 import {
   AuthContext,
@@ -30,13 +16,11 @@ import {
   PRICE_EVENT,
   BookingDetailService,
   SettingsService,
-  BOOKING_DETAIL_EVENT,
-  BookingHistoryService,
+  ChefPreferenceService,
 } from '@services'
-import {LocalToGMT} from '@utils'
+import {RouteNames, ResetAction} from '@navigation'
 import {Languages} from '@translations'
 import styles from './styles'
-import {RouteNames} from '@navigation'
 
 export default class priceCalculation extends Component {
   constructor(props) {
@@ -47,11 +31,13 @@ export default class priceCalculation extends Component {
       guestMin: 0,
       guestMax: 0,
       stripeCents: 0,
+      chefPrice: 0,
       stripePercentage: 0,
       guestCount: 0,
       foodCostMin: 1,
       foodCostMax: 500,
       complexity: [],
+      complexityValue: [],
       foodCost: 1,
       additionalServices: [],
       bookingData: {},
@@ -59,11 +45,11 @@ export default class priceCalculation extends Component {
       additionalPrice: [],
       shopName: undefined,
       otherShopName: '',
+      refreshing: false,
+      additionalServiceTypeId: [],
       additionalServiceData: [],
       storeData: [],
-      storeTypeIdValue: [],
       bookingDetail: {},
-      chefProfile: {},
       additionalServiceValues: [],
       invalidGuest: false,
       invalidComplexity: false,
@@ -74,6 +60,7 @@ export default class priceCalculation extends Component {
     const {navigation} = this.props
     ProfileViewService.on(PROFILE_VIEW_EVENT.PROFILE_VIEW, this.setList)
     PriceCalculationService.on(PRICE_EVENT.STORE, this.getStoreList)
+
     this.onLoadData()
     this.loadStoreData()
   }
@@ -152,9 +139,11 @@ export default class priceCalculation extends Component {
       ) {
         const chefData = profileDetails.chefProfileByChefId.chefProfileExtendedsByChefId.nodes[0]
 
+        console.log('chefData', chefData)
         this.setState(
           {
             chefDetail: chefData,
+            chefPrice: chefData.chefPricePerHour ? chefData.chefPricePerHour.toString() : null,
             guestCount: chefData.noOfGuestsMin,
             guestMin: chefData.noOfGuestsMin ? chefData.noOfGuestsMin : 0,
             // guestCount: chefData.noOfGuestsMin ? chefData.noOfGuestsMin : 0,
@@ -295,6 +284,79 @@ export default class priceCalculation extends Component {
     )
   }
 
+  getIdValue = async () => {
+    const {additionalServices} = this.state
+    const val = []
+    await additionalServices.map((itemVal, key) => {
+      if (itemVal.checked === true) {
+        const obj = {
+          service: itemVal.id,
+          price: itemVal.price,
+        }
+        val.push(obj)
+      }
+    })
+    this.setState({
+      additionalServiceTypeId: val,
+    })
+  }
+
+  onChangePriceValue = (index, data, checked) => {
+    console.log('onServiceChecked', index, checked, data)
+    const {additionalServices} = this.state
+    const temp = additionalServices
+    if (temp[index]) {
+      temp[index].price = data
+    }
+    this.setState(
+      {
+        additionalServices: temp,
+      },
+      async () => {
+        const val = []
+        const services = []
+        const additionalServiceValues = []
+        await additionalServices.map((itemVal, index) => {
+          if (itemVal.checked === true) {
+            const value = parseFloat(itemVal.price)
+            const priceVal = value.toFixed(2)
+            const obj = {
+              service: itemVal.id,
+              price: parseFloat(priceVal),
+            }
+            const additionalData = {
+              id: itemVal.id,
+              price: itemVal.price,
+              checked: itemVal.checked,
+              name: itemVal.name,
+              desc: itemVal.desc,
+            }
+            additionalServiceValues.push(additionalData)
+            services.push(obj)
+            val.push(parseFloat(priceVal))
+          }
+        })
+        this.setState(
+          {
+            additionalPrice: val,
+            additionalServiceData: services,
+            additionalServiceValues,
+          },
+          () => {}
+        )
+      }
+    )
+
+    this.setState(
+      {
+        additionalServices: temp,
+      },
+      async () => {
+        await this.getIdValue()
+      }
+    )
+  }
+
   // onChecked = (index, checked) => {
   //   console.log('onChecked', index, checked)
   //   const {complexity} = this.state
@@ -363,10 +425,17 @@ export default class priceCalculation extends Component {
     )
   }
 
-  onSelected = complexcityLevel => {
+  onAdd = () => {
+    const {navigation} = this.props
+    navigation.navigate(RouteNames.CHEF_EDIT_PROFILE, {screen: RouteNames.OPTION_LIST})
+  }
+
+  onSelected = (complexcityLevel, Complexity) => {
+    console.log('Complexity', Complexity)
     this.setState(
       {
         complexitySelected: complexcityLevel,
+        complexityValue: Complexity,
       },
       () => {
         this.checkComplexity()
@@ -436,6 +505,12 @@ export default class priceCalculation extends Component {
     })
   }
 
+  onChangeBaseRate = value => {
+    this.setState({
+      chefPrice: value,
+    })
+  }
+
   getTotalPrice = (selectedValue, chefPrice, guestCount, additionalPrice) => {
     console.log('getTotalPrice', selectedValue, chefPrice, guestCount, additionalPrice)
     let chefTotalCharge = 0
@@ -452,9 +527,86 @@ export default class priceCalculation extends Component {
     }
   }
 
+  onSave = () => {
+    const {currentUser} = this.context
+    const {chefPrice, guestMin, guestCount, complexityValue, additionalServiceData} = this.state
+
+    if (chefPrice <= 0) {
+      Alert.alert('Minimum amount should be greater then 0')
+      return
+    }
+
+    if (guestMin === 0 || guestCount === 0) {
+      Alert.alert(
+        'Info',
+        'Please select a minimum and maximum number of guests you are able to cook for.'
+      )
+      return
+    }
+    if (guestMin === null || guestCount === null) {
+      Alert.alert(
+        'Info',
+        'Please select a minimum and maximum number of guests you are able to cook for.'
+      )
+      return
+    }
+
+    if (guestMin > guestCount) {
+      Alert.alert('Info', 'Min count should be greater than Max count')
+      return
+    }
+    console.log('minGuestCount', currentUser)
+    if (
+      currentUser &&
+      currentUser !== null &&
+      currentUser !== undefined &&
+      guestMin !== 0 &&
+      guestCount !== 0
+    ) {
+      const params = {
+        pChefId: currentUser.chefId,
+        pNoOfGuestsMin: guestMin,
+        pNoOfGuestsMax: guestCount,
+        pChefPricePerHour: chefPrice ? parseInt(chefPrice) : null,
+        pChefComplexity: [complexityValue],
+        pChefAdditionalServices: additionalServiceData,
+      }
+      console.log('params', params)
+      this.setState(
+        {
+          isLoading: true,
+        },
+        () => {
+          ChefPreferenceService.updatePriceCalculator({params})
+            .then(data => {
+              this.setState({isLoading: false})
+              Toast.show({
+                text: 'Saved sucessfully',
+                duration: 3000,
+              })
+            })
+            .catch(error => {
+              this.setState({isLoading: false})
+              console.log('rate error', error)
+            })
+        }
+      )
+    } else {
+      Alert.alert('Info', 'Please fill up the form')
+    }
+  }
+
   onChangeGuestCount = value => {
     this.setState({
       guestCount: value,
+    })
+  }
+
+  onRefresh = () => {
+    this.setState({refreshing: true}, () => {
+      setTimeout(() => {
+        this.setState({refreshing: false})
+      }, 3000)
     })
   }
 
@@ -515,11 +667,12 @@ export default class priceCalculation extends Component {
       originalComplexity,
       invalidGuest,
       invalidComplexity,
+      chefPrice,
+      refreshing,
       hideRequestBtn,
     } = this.state
-    console.log('chefDetail', stripeCents, stripePercentage)
+    console.log('chefDetail', additionalServices)
     console.log('bookingDetail', bookingDetail)
-    let chefPrice
     let chefCharge
     let rockolyCharge
     let stripePercentagevalue
@@ -540,15 +693,12 @@ export default class priceCalculation extends Component {
     let chefTotal = 0
     const newPrice = 0
 
-    if (chefDetail.chefPricePerHour) {
-      chefPrice = chefDetail.chefPricePerHour
-    }
     if (guestCount) {
       discount = (guestCount - 5) * (chefPrice / 2)
     }
 
     if (chefDetail.chefPricePerHour && guestCount) {
-      chefCharge = chefDetail.chefPricePerHour * guestCount
+      chefCharge = chefPrice * guestCount
     }
 
     if (chefCharge && discount) {
@@ -683,8 +833,28 @@ export default class priceCalculation extends Component {
               marginHorizontal: 10,
               flexDirection: 'column',
             }}>
+            <RefreshControl refreshing={refreshing} onRefresh={this.onRefresh} />
+            <Text
+              style={{
+                color: 'black',
+                textAlign: 'center',
+                fontSize: 18,
+                fontWeight: '800',
+                marginVertical: 5,
+              }}>
+              Find out what guests will pay for your palce.
+            </Text>
             <Text style={{color: 'black'}}>Chef Base Rate</Text>
-            <Text style={{marginTop: 10}}>${chefPrice}</Text>
+            <View style={{flexDirection: 'row'}}>
+              <Icon name="currency-usd" type="MaterialCommunityIcons" style={styles.iconStyle} />
+              <Input
+                onChangeText={this.onChangeBaseRate}
+                value={chefPrice}
+                placeholder={Languages.rateService.placeholderLabel.base_rate}
+                style={styles.baseText}
+                keyboardType="number-pad"
+              />
+            </View>
           </View>
           {/* <View
             style={{
@@ -744,7 +914,7 @@ export default class priceCalculation extends Component {
                           <ListItem
                             style={{borderBottomWidth: 0}}
                             key={index}
-                            onPress={() => this.onSelected(item.complexcityLevel)}>
+                            onPress={() => this.onSelected(item.complexcityLevel, item)}>
                             {this.radioButton({
                               selected: item.complexcityLevel === this.state.complexitySelected,
                               selectedColor: Theme.Colors.primary,
@@ -786,40 +956,91 @@ export default class priceCalculation extends Component {
             <CardItem header bordered>
               <Text style={{color: 'black'}}>Select Additional Services Provided by Chef</Text>
             </CardItem>
-
-            {additionalServices &&
-              additionalServices.length > 0 &&
-              additionalServices.map((item, index) => {
-                return (
-                  <View>
-                    <View>
-                      <ListItem style={{borderBottomWidth: 0}}>
-                        {item.disabled === true ? (
-                          <CheckBox checked={item.checked} color={Theme.Colors.lightgrey} />
-                        ) : (
-                          <CheckBox
-                            checked={item.checked}
-                            onPress={() => this.onServiceChecked(index, item.checked)}
-                            color={Theme.Colors.primary}
+            <ScrollView>
+              {additionalServices &&
+                additionalServices.length > 0 &&
+                additionalServices.map((item, index) => {
+                  console.log('item', item)
+                  return (
+                    <ListItem style={{borderBottomWidth: 0}}>
+                      {item.disabled === true ? (
+                        <CheckBox checked={item.checked} color={Theme.Colors.lightgrey} />
+                      ) : (
+                        <CheckBox
+                          checked={item.checked}
+                          onPress={() => this.onServiceChecked(index, item.checked)}
+                          color={Theme.Colors.primary}
+                        />
+                      )}
+                      <Body>
+                        <Text>{item.name}</Text>
+                      </Body>
+                      <Item
+                        style={{
+                          width: 110,
+                          borderBottomWidth: 0,
+                          alignSelf: 'center',
+                          backgroundColor: '#F1F1F1',
+                          borderRadius: 20,
+                          marginHorizontal: 5,
+                        }}>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            marginHorizontal: 10,
+                          }}>
+                          <Icon
+                            name="currency-usd"
+                            type="MaterialCommunityIcons"
+                            style={styles.iconStyle}
                           />
-                        )}
-                        <Body>
-                          <Text>{item.name}</Text>
-                        </Body>
-                      </ListItem>
-                    </View>
-                    <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-                      <Label style={styles.label}>Price</Label>
-                      <Text>${item.price}</Text>
-                    </View>
-                  </View>
-                )
-              })}
+                          <Input
+                            onChangeText={value =>
+                              this.onChangePriceValue(index, value, item.checked)
+                            }
+                            value={item.price}
+                            keyboardType="number-pad"
+                            placeholder={Languages.optionList.placeholderLabel.price}
+                            style={styles.gratuityText}
+                          />
+                        </View>
+                      </Item>
+                    </ListItem>
+                    // <View>
+                    //   <View>
+                    //     <ListItem style={{borderBottomWidth: 0}}>
+                    //       {item.disabled === true ? (
+                    //         <CheckBox checked={item.checked} color={Theme.Colors.lightgrey} />
+                    //       ) : (
+                    //         <CheckBox
+                    //           checked={item.checked}
+                    //           onPress={() => this.onServiceChecked(index, item.checked)}
+                    //           color={Theme.Colors.primary}
+                    //         />
+                    //       )}
+                    //       <Body>
+                    //         <Text>{item.name}</Text>
+                    //       </Body>
+                    //     </ListItem>
+                    //   </View>
+                    //   <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
+                    //     <Label style={styles.label}>Price</Label>
+                    //     <Text>${item.price}</Text>
+                    //   </View>
+                    // </View>
+                  )
+                })}
+            </ScrollView>
+            <CommonButton
+              btnText="Add Service"
+              containerStyle={styles.saveBtn}
+              onPress={this.onAdd}
+            />
           </Card>
           {invalidGuest === false && invalidComplexity === false && (
             <Card style={styles.cardStyle}>
               <CardItem header bordered>
-                <Text style={{color: 'black'}}>Charges</Text>
+                <Text style={{color: 'black'}}>Price Breakdown</Text>
               </CardItem>
               <View style={styles.iconText}>
                 <Text style={styles.heading}>No of guests</Text>
@@ -940,6 +1161,11 @@ export default class priceCalculation extends Component {
               </View>
             </View>
           )} */}
+          <CommonButton
+            btnText="Save and apply"
+            containerStyle={styles.saveBtn}
+            onPress={this.onSave}
+          />
           {Platform.OS === 'ios' && <KeyboardSpacer />}
         </ScrollView>
       </View>

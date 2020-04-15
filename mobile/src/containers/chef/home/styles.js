@@ -53,7 +53,8 @@ export default {
     paddingVertical: 5,
     paddingHorizontal: 20,
     flexDirection: 'row',
-  },parentItem: {
+  },
+  parentItem: {
     flex: 1,
     display: 'flex',
     backgroundColor: 'white',
@@ -84,10 +85,10 @@ export default {
     textTransform: 'capitalize',
     fontWeight: 'bold',
     fontSize: 16,
-    marginBottom : 10
+    marginBottom: 10,
   },
-  statsStyle:{
-    color : '#08AB93',
+  statsStyle: {
+    color: '#08AB93',
     fontWeight: 'bold',
     fontSize: 16,
     marginLeft : 10

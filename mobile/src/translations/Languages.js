@@ -290,7 +290,7 @@ export default new LocalizedStrings({
       title: 'Payment Method',
       serviced_received: 'Payment received for services',
       manage_payment_lable: {
-        connect_stripe: 'Connect stripe',
+        connect_stripe: 'Add a new payment method',
         ok: 'Ok',
         cancel: 'Cancel',
         star: '**** **** **** ',
@@ -553,6 +553,7 @@ export default new LocalizedStrings({
       ok: 'Ok',
       buttonLabels: {
         submit: 'Submit',
+        more: 'More',
         empty_data_message: 'No Booking Items',
         complete_booking_after: 'You complete a booking after',
         from_date: 'From Date',

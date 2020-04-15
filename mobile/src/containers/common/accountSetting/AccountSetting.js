@@ -825,39 +825,6 @@ class AccountSetting extends Component {
               )} */}
 
               <CustomListItem iconName="card" label="Payments" onPress={this.itemOnPress} />
-              <CustomListItem
-                iconName="bell-outline"
-                type="MaterialCommunityIcons"
-                label="Notifications"
-                onPress={this.onNotificationSettings}
-              />
-              <CustomListItem
-                iconName={isMobileVerified === false ? 'cellphone' : 'check-decagram'}
-                label={
-                  isMobileVerified === false
-                    ? Languages.customerProfile.options.verify_mob
-                    : Languages.customerProfile.options.verified
-                }
-                onPress={this.goToVerifyMobileNumber}
-                type="MaterialCommunityIcons"
-              />
-              <CustomListItem
-                iconName={isEmailVerified === true ? 'email-check' : 'email'}
-                label={
-                  isEmailVerified === true
-                    ? Languages.customerProfile.options.emailVerified
-                    : Languages.customerProfile.options.emailVerification
-                }
-                onPress={this.onEmailVerification}
-                type="MaterialCommunityIcons"
-              />
-
-              <CustomListItem
-                iconName="book-open-page-variant"
-                type="MaterialCommunityIcons"
-                label="Your Guidebook"
-                onPress={this.onNotificationSettings}
-              />
             </View>
           )}
         </ScrollView>
