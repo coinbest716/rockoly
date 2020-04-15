@@ -11,15 +11,15 @@ import {Images} from '@images'
 import {Languages} from '@translations'
 import {CommonButton, Header, Spinner, CommonList} from '@components'
 import {RouteNames} from '@navigation'
-import styles from './styles'
 import {GQL} from '@common'
 import {Theme} from '@theme'
 import {GMTToLocal, DATE_TYPE, displayDateFormat, displayDateTimeFormat} from '@utils'
+import {SettingsService, SETTING_KEY_NAME, COMMON_LIST_NAME, CommonService} from '@services'
 import {AuthContext} from '../../../AuthContext'
 import BookingHistoryService, {
   BOOKING_HISTORY_LIST_EVENT,
 } from '../../../services/BookingHistoryService'
-import {SettingsService, SETTING_KEY_NAME, COMMON_LIST_NAME, CommonService} from '@services'
+import styles from './styles'
 import BookingModal from '../booking-modal/Modal'
 
 const customerData = [
@@ -159,6 +159,7 @@ class BookingHistory extends PureComponent {
       totalCount: 0,
       canLoadMore: false,
       totalCountStatusValue: 0,
+      pastFutureData: '',
     }
   }
 
@@ -463,13 +464,109 @@ class BookingHistory extends PureComponent {
     }
   }
 
+  getPastFutureData = type => {
+    this.setState(
+      {
+        pastFutureData: type,
+      },
+      () => {
+        const {userRole, currentUser} = this.context
+        const {first, offset, bookingStatusValue} = this.state
+
+        let gqlValue
+
+        if (currentUser !== undefined && currentUser !== null && currentUser !== {}) {
+          if (userRole === 'CUSTOMER') {
+            if (
+              currentUser.customerId !== undefined &&
+              currentUser.customerId !== null &&
+              currentUser.customerId !== ''
+            ) {
+              const gqlData = {
+                customerId: currentUser.customerId,
+                chefBookingDate: moment(new Date())
+                  .utc()
+                  .format('YYYY-MM-DDTHH:mm:ss'),
+                first,
+                offset,
+                statusId:
+                  bookingStatusValue === ''
+                    ? [
+                        '"CUSTOMER_REQUESTED"',
+                        '"CHEF_ACCEPTED"',
+                        '"COMPLETED"',
+                        '"AMOUNT_TRANSFER_FAILED"',
+                        '"AMOUNT_TRANSFER_SUCCESS"',
+                        '"CHEF_REJECTED"',
+                        '"CANCELLED_BY_CHEF"',
+                        '"CANCELLED_BY_CUSTOMER"',
+                        '"PAYMENT_PENDING"',
+                        '"PAYMENT_FAILED"',
+                        '"REFUND_AMOUNT_SUCCESS"',
+                        '"REFUND_AMOUNT_FAILED"',
+                        '"CHEF_REQUESTED_AMOUNT"',
+                      ]
+                    : bookingStatusValue,
+              }
+              if (type === 'PAST') {
+                gqlData.isPastBookings = true
+              } else if (type === 'FUTURE') {
+                gqlData.isFutureBookings = true
+              }
+              gqlValue = GQL.query.booking.listPastOrFutureBookingsGQLTAG(gqlData)
+              BookingHistoryService.getPastFutureBookingHistoryList(gqlValue)
+            }
+          } else if (userRole === 'CHEF') {
+            if (
+              currentUser.chefId !== undefined &&
+              currentUser.chefId !== null &&
+              currentUser.chefId !== ''
+            ) {
+              const gqlData = {
+                chefId: currentUser.chefId,
+                chefBookingDate: moment(new Date())
+                  .utc()
+                  .format('YYYY-MM-DDTHH:mm:ss'),
+                first,
+                offset,
+                statusId:
+                  bookingStatusValue === ''
+                    ? [
+                        '"CUSTOMER_REQUESTED"',
+                        '"CHEF_ACCEPTED"',
+                        '"AMOUNT_TRANSFER_SUCCESS"',
+                        '"CHEF_REJECTED"',
+                        '"CANCELLED_BY_CHEF"',
+                        '"CANCELLED_BY_CUSTOMER"',
+                        '"COMPLETED"',
+                        '"AMOUNT_TRANSFER_FAILED"',
+                        '"REFUND_AMOUNT_SUCCESS"',
+                        '"REFUND_AMOUNT_FAILED"',
+                        '"CHEF_REQUESTED_AMOUNT"',
+                      ]
+                    : bookingStatusValue,
+              }
+              if (type === 'PAST') {
+                gqlData.isPastBookings = true
+              } else if (type === 'FUTURE') {
+                gqlData.isFutureBookings = true
+              }
+              gqlValue = GQL.query.booking.listPastOrFutureBookingsGQLTAG(gqlData)
+              BookingHistoryService.getPastFutureBookingHistoryList(gqlValue)
+            }
+          }
+        }
+      }
+    )
+  }
+
   setList = async ({bookingHistory}) => {
     // this.setState({
     // isNextFetching: false,
     // isFetching: false,
     // isFetchingMore: false,
     // })
-    const {totalCount} = this.state
+    const {totalCount, pastFutureData} = this.state
     // if (
     //   bookingHistory !== undefined &&
     //   bookingHistory !== null &&
@@ -518,6 +615,7 @@ class BookingHistory extends PureComponent {
     const pastIndex = _.findIndex(bookingHistoryValue, function(x) {
       return x.type === 'PAST'
     })
+    const loadMore = pastFutureData ? false : bookingHistoryValue.length < totalCount
     this.setState({
       all: bookingHistoryValue,
       current: currentBooking,
@@ -526,7 +624,7 @@ class BookingHistory extends PureComponent {
       todayIndex,
       upcomingIndex,
       pastIndex,
-      canLoadMore: bookingHistoryValue.length < totalCount,
+      canLoadMore: loadMore,
       isFetching: false,
       isFetchingMore: false,
     })
@@ -553,7 +651,7 @@ class BookingHistory extends PureComponent {
   }
 
   onLoadMore = async () => {
-    const {first, all, canLoadMore} = this.state
+    const {first, all, canLoadMore, pastFutureData} = this.state
     // const newOffset = favList.length
     const newFirst = all.length + first
     if (!canLoadMore) {
@@ -1264,29 +1362,43 @@ class BookingHistory extends PureComponent {
         {isLoggedIn ? (
           <View style={{flex: 1}}>
             {isLoggedIn && (
-              <Item
-                picker
-                style={{
-                  width: 150,
-                  justifyContent: 'flex-end',
-                  alignSelf: 'flex-end',
-                  borderBottomColor: 'white',
-                }}>
-                <Picker
-                  note
-                  mode="dropdown"
-                  iosIcon={<Icon name="arrow-down" />}
-                  // style={{width: 150, justifyContent: 'flex-end', alignSelf: 'flex-end'}}
-                  placeholder={Languages.booking_History.buttonLabels.selectStatus}
-                  placeholderStyle={{color: '#000000'}}
-                  placeholderIconColor="#007aff"
-                  selectedValue={bookingStatusValue}
-                  onValueChange={(value, index) => this.onStatusChanged(value, index)}>
-                  {value.map((item, index) => {
-                    return <Picker.Item label={item.label} value={item.value} key={index} />
-                  })}
-                </Picker>
-              </Item>
+              <View style={styles.dateViewStyle}>
+                <Button style={styles.pastFutureBtn} onPress={() => this.getPastFutureData('PAST')}>
+                  <Text style={styles.timeTextSelect}>
+                    {Languages.booking_History.buttonLabels.past}
+                  </Text>
+                </Button>
+                <Button
+                  style={styles.pastFutureBtn}
+                  onPress={() => this.getPastFutureData('FUTURE')}>
+                  <Text style={styles.timeTextSelect}>
+                    {Languages.booking_History.buttonLabels.future}
+                  </Text>
+                </Button>
+                <Item
+                  picker
+                  style={{
+                    width: 150,
+                    justifyContent: 'flex-end',
+                    alignSelf: 'flex-end',
+                    borderBottomColor: 'white',
+                  }}>
+                  <Picker
+                    note
+                    mode="dropdown"
+                    iosIcon={<Icon name="arrow-down" />}
+                    // style={{width: 150, justifyContent: 'flex-end', alignSelf: 'flex-end'}}
+                    placeholder={Languages.booking_History.buttonLabels.selectStatus}
+                    placeholderStyle={{color: '#000000'}}
+                    placeholderIconColor="#007aff"
+                    selectedValue={bookingStatusValue}
+                    onValueChange={(value, index) => this.onStatusChanged(value, index)}>
+                    {value.map((item, index) => {
+                      return <Picker.Item label={item.label} value={item.value} key={index} />
+                    })}
+                  </Picker>
+                </Item>
+              </View>
             )}
 
             {isLoggedIn && (

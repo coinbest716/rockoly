@@ -30,4 +30,66 @@ export default {
     lineHeight: 22,
     textAlign: 'center',
   },
+  userImage: {
+    width: '100%',
+    height: 80,
+    overflow: 'hidden',
+    paddingLeft: 10,
+    // borderRadius: 5,
+  },
+  dateStyling: {
+    paddingLeft: 5,
+    // marginTop: 5,
+    lineHeight: 22,
+    fontSize: 14,
+  },
+  itemHourText: {
+    fontSize: 14,
+    lineHeight: 22,
+  },
+  item: {
+    flex: 1,
+    display: 'flex',
+    paddingVertical: 5,
+    paddingHorizontal: 20,
+    flexDirection: 'row',
+  },parentItem: {
+    flex: 1,
+    display: 'flex',
+    backgroundColor: 'white',
+    // borderBottomWidth: 1,
+    // borderBottomColor: '#e8ecf0',
+    flexDirection: 'column',
+  },
+  nameSpacing: {
+    flex: 2.3,
+    justifyContent: 'space-around',
+    paddingHorizontal: 10,
+    paddingBottom: 5,
+    flexDirection: 'column',
+    // backgroundColor: 'red',
+  },
+  itemHourText: {
+    fontSize: 14,
+    lineHeight: 22,
+  },
+  infoView: {
+    display: 'flex',
+    flex: 2,
+    flexDirection: 'row',
+  },
+  itemTitleText: {
+    // color: 'black',
+    // marginLeft: 10,
+    textTransform: 'capitalize',
+    fontWeight: 'bold',
+    fontSize: 16,
+    marginBottom : 10
+  },
+  statsStyle:{
+    color : '#08AB93',
+    fontWeight: 'bold',
+    fontSize: 16,
+    marginLeft : 10
+  }
 }

@@ -577,6 +577,7 @@ export default new LocalizedStrings({
         requested_amount: 'Requested amount',
         accept_booking: 'Accepted',
         reviewed: 'Reviewed',
+        future: 'Future',
       },
       questions: {
         accept: 'Are you sure you want to accept this request?',
