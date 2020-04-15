@@ -1307,6 +1307,7 @@ const mutationResolvers = {
 
     let ssoType = null;
     let name = [];
+    let chefReferralEmail = null;
     let email = null;
     let mobileNumber = null;
     let mobileCountryCode = null;
@@ -1383,9 +1384,15 @@ const mutationResolvers = {
             } else {
               name[1] = null;
             }
+            if (extra.hasOwnProperty('pChefReferralEmail')) {
+              chefReferralEmail = extra.pChefReferralEmail;
+            } else {
+              chefReferralEmail = null;
+            }
           } else {
             name[0] = null;
             name[1] = null;
+            chefReferralEmail = null;
           }
         } else {
           name = res.name.split(' ');
@@ -1402,9 +1409,15 @@ const mutationResolvers = {
           } else {
             name[1] = null;
           }
+          if (extra.hasOwnProperty('pChefReferralEmail')) {
+            chefReferralEmail = extra.pChefReferralEmail;
+          } else {
+            chefReferralEmail = null;
+          }
         } else {
           name[0] = null;
           name[1] = null;
+          chefReferralEmail = null;
         }
       }
 
@@ -1463,9 +1476,9 @@ const mutationResolvers = {
         'pEmail': email,
         'pSSOUid': res.user_id,
         'pSSOType': ssoType,
-        'pType': authenticateType
+        'pType': authenticateType,
+        'pChefReferralEmail': chefReferralEmail
       };
-
       return payload;
 
     }).catch(function (error) {
