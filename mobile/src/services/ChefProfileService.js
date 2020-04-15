@@ -6,13 +6,14 @@ import firebase from 'react-native-firebase'
 import _ from 'lodash'
 
 import {Toast} from 'native-base'
+import {GQL} from '@common'
 import BaseService from './BaseService'
 
-import {GQL} from '@common'
 // import {GQL} from '@common'
 
 export const PROFILE_DETAIL_EVENT = {
   GET_CHEF_PROFILE_DETAIL: 'PROFILE/GET_CHEF_PROFILE_DETAIL',
+  GET_CHEF_FULL_PROFILE_DETAIL: 'PROFILE/GET_CHEF_FULL_PROFILE_DETAIL',
   DISHES: 'PROFILE/DISHES',
   CUISINES: 'PROFILE/CUSINES',
   DISHTYPES: 'CHEFLIST/DISHTYPES',
@@ -34,6 +35,7 @@ class ChefProfileService extends BaseService {
   constructor() {
     super()
     this.profileDetails = {}
+    this.profileFullDetails = {}
     this.cuisineData = []
     this.dishesData = []
     this.dishTypesData = []
@@ -425,6 +427,35 @@ class ChefProfileService extends BaseService {
       } else {
         this.profileDetails = data
         this.emit(PROFILE_DETAIL_EVENT.GET_CHEF_PROFILE_DETAIL, {profileDetails: data})
+      }
+    } catch (err) {
+      console.log('catch', err)
+      Alert.alert('Info', JSON.stringify(err.message))
+    }
+  }
+
+  getChefFullProfileDetail = async (chefId, dateTime) => {
+    const gqlValue = GQL.query.chef.listAllDetailsGQLTAG
+    const query = gql`
+      ${gqlValue}
+    `
+    try {
+      const {data} = await this.client.query({
+        query,
+        variables: {
+          chefId,
+          dateTime,
+        },
+        fetchPolicy: 'network-only',
+      })
+      console.log('data fetchProfileDetails', data)
+      if (data === undefined) {
+        console.log('error')
+      } else if (data.code) {
+        console.log('error')
+      } else {
+        this.profileFullDetails = data
+        this.emit(PROFILE_DETAIL_EVENT.GET_CHEF_FULL_PROFILE_DETAIL, {profileFullDetails: data})
       }
     } catch (err) {
       console.log('catch', err)

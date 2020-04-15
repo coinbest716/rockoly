@@ -14,43 +14,83 @@ import {
   Input,
   Toast,
 } from 'native-base'
+import moment from 'moment'
 import {View, ScrollView, Alert} from 'react-native'
 import {Header, Spinner} from '@components'
-import styles from './styles'
-import {AuthContext} from '../../../AuthContext'
+import {ChefProfileService, PROFILE_DETAIL_EVENT} from '@services'
 import {RouteNames} from '@navigation'
 import {Languages} from '@translations'
 
 import {Theme} from '@theme'
+import {AuthContext} from '../../../AuthContext'
+import styles from './styles'
 
 class Home extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      bankAccount: false,
-      isFetching: true,
+      chefIdValue: {},
+      isFromTimePickerVisible: false,
+      isToTimePickerVisible: false,
+      isFetching: false,
     }
   }
 
   async componentDidMount() {
-    const {getProfile} = this.context
-    const profile = await getProfile()
-    if (
-      profile.hasOwnProperty('defaultStripeUserId') &&
-      profile.defaultStripeUserId &&
-      profile.defaultStripeUserId !== null
-    ) {
-      this.setState({
-        bankAccount: false,
-        isFetching: false,
-      })
-    } else {
-      this.setState({
-        bankAccount: true,
-        isFetching: false,
-      })
+    ChefProfileService.on(PROFILE_DETAIL_EVENT.GET_CHEF_FULL_PROFILE_DETAIL, this.setList)
+
+    const {isLoggedIn, currentUser} = this.context
+    // this.loadData()
+    if (isLoggedIn === true) {
+      if (currentUser !== undefined && currentUser !== null && currentUser !== {}) {
+        this.setState(
+          {
+            chefIdValue: currentUser,
+            isFetching: true,
+          },
+          () => {
+            ChefProfileService.getChefFullProfileDetail(
+              currentUser.chefId,
+              moment(new Date())
+                .utc()
+                .format('YYYY-MM-DDTHH:mm:ss')
+            )
+          }
+        )
+      }
     }
   }
+
+  componentWillUnmount() {
+    ChefProfileService.off(PROFILE_DETAIL_EVENT.GET_CHEF_FULL_PROFILE_DETAIL, this.setList)
+  }
+
+  setList = ({profileFullDetails}) => {
+    this.setState({
+      isFetching: false,
+    })
+    console.log('profileFullDetails', profileFullDetails)
+  }
+
+  // async componentDidMount() {
+  //   const {getProfile} = this.context
+  //   const profile = await getProfile()
+  //   if (
+  //     profile.hasOwnProperty('defaultStripeUserId') &&
+  //     profile.defaultStripeUserId &&
+  //     profile.defaultStripeUserId !== null
+  //   ) {
+  //     this.setState({
+  //       bankAccount: false,
+  //       isFetching: false,
+  //     })
+  //   } else {
+  //     this.setState({
+  //       bankAccount: true,
+  //       isFetching: false,
+  //     })
+  //   }
+  // }
 
   render() {
     const {bankAccount, isFetching} = this.state
