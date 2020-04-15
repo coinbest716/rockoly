@@ -18,8 +18,8 @@ import { Images } from '@images'
 import moment from 'moment'
 import firebase from 'react-native-firebase'
 import { View, ScrollView, Alert, TouchableOpacity, Image } from 'react-native'
-import { Header, Spinner } from '@components'
-import { ChefProfileService, PROFILE_DETAIL_EVENT } from '@services'
+import { Header, Spinner,CommonButton } from '@components'
+import { ChefProfileService, PROFILE_DETAIL_EVENT,TabBarService } from '@services'
 import { RouteNames } from '@navigation'
 import { Languages } from '@translations'
 import { Theme } from '@theme'
@@ -45,7 +45,8 @@ class Home extends Component {
       reviewList: [],
       reservationList: [],
       isEmailVerified: false,
-      isMobileVerified: false
+      isMobileVerified: false,
+      chefStatus: '',
     }
   }
   async componentDidMount() {
@@ -71,10 +72,7 @@ class Home extends Component {
         )
       }
     }
-
-    const {currentUserFirebase} = firebase.auth()
-    console.log("currentUserFirebase",currentUserFirebase);
-
+    console.log("currentUserFirebase", this.context);
   }
   componentWillUnmount() {
     ChefProfileService.off(PROFILE_DETAIL_EVENT.GET_CHEF_FULL_PROFILE_DETAIL, this.setList)
@@ -88,7 +86,7 @@ class Home extends Component {
       this.setState({ isEmailVerified: false });
     } else {
       this.setState({ isEmailVerified: true });
-    } 
+    }
     if (firebase.auth()._user.phoneNumber) {
       this.setState({ isMobileVerified: true });
     } else {
@@ -112,6 +110,7 @@ class Home extends Component {
         reviewCount,
         reviewList,
         reservationsList,
+        chefStatus: details.chefStatusId.trim()
       })
     } else {
       this.setState({
@@ -128,6 +127,27 @@ class Home extends Component {
     navigation.navigate(RouteNames.BOOKING_DETAIL_SCREEN, {
       bookingHistId: details.chefBookingHistId,
     })
+  }
+  submitForReview = () => {
+    const {isChef, isLoggedIn, currentUser} = this.context
+
+    if (isChef && isLoggedIn) {
+      ChefProfileService.submitProfileForReview(currentUser.chefId)
+        .then(res => {
+          if (res) {
+            TabBarService.hideInfo()
+            Toast.show({
+              text: 'Profile submitted for review',
+              duration: 5000,
+            })
+          } else {
+            Alert.alert(
+              Languages.customerProfile.alert.error_title,
+              Languages.customerProfile.alert.error_2
+            )
+          }
+        })
+    }
   }
   // async componentDidMount() {
   //   const {getProfile} = this.context
@@ -150,7 +170,7 @@ class Home extends Component {
   // }
   render() {
     const { bankAccount, isFetching, reviewList, requestList,
-      reservationsList, reviewCount, earnings, isMobileVerified, isEmailVerified } = this.state
+      reservationsList, reviewCount, earnings, isMobileVerified, isEmailVerified, chefStatus } = this.state
     return (
       <View style={styles.mainView}>
         <Header title="Home" showBell={false} />
@@ -158,20 +178,28 @@ class Home extends Component {
           <Spinner mode="full" />
         ) : (
             <ScrollView style={{ marginHorizontal: '5%', paddingBottom: '10%' }}>
-              {/* {bankAccount === true && ( */}
               <Card style={styles.cardStyle}>
                 <Label style={styles.label}>Alerts</Label>
-               
-                  {isEmailVerified ?
-                    <Text style={{color: '#08AB93',fontWeight: 'bold'}}>Email address has been verified</Text>
-                    :
-                    <Text style={{color: 'red',fontWeight: 'bold'}}>You didn't verify your email address</Text>
-                  }
-                  {isMobileVerified ?
-                    <Text style={{color: '#08AB93',fontWeight: 'bold'}}>Mobile Number has been verified</Text>
-                    :
-                    <Text style={{color: 'red',fontWeight: 'bold'}}>You didn't verify your mobile number</Text>
-                  }
+              <Text style={{ color: '#08AB93', fontWeight: 'bold' }}>
+                Your profile status : {chefStatus}</Text>
+                {(chefStatus.trim() == 'PENDING' || chefStatus.trim() == 'REJECTED') &&
+                    <CommonButton
+                    btnText="Submit for Review"
+                    textStyle={{fontSize: 15}}
+                    containerStyle={styles.primaryBtn}
+                    onPress={() => this.submitForReview()}
+                  />
+                }
+                {isEmailVerified ?
+                  <Text style={{ color: '#08AB93', fontWeight: 'bold' }}>Email address has been verified</Text>
+                  :
+                  <Text style={{ color: 'red', fontWeight: 'bold' }}>You didn't verify your email address</Text>
+                }
+                {isMobileVerified ?
+                  <Text style={{ color: '#08AB93', fontWeight: 'bold' }}>Mobile Number has been verified</Text>
+                  :
+                  <Text style={{ color: 'red', fontWeight: 'bold' }}>You didn't verify your mobile number</Text>
+                }
               </Card>
               <Card style={styles.cardStyle}>
                 <Label style={styles.label}>Requests</Label>
