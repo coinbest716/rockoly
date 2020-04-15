@@ -553,6 +553,7 @@ export default new LocalizedStrings({
       ok: 'Ok',
       buttonLabels: {
         submit: 'Submit',
+        more: 'More',
         empty_data_message: 'No Booking Items',
         complete_booking_after: 'You complete a booking after',
         from_date: 'From Date',
@@ -577,6 +578,7 @@ export default new LocalizedStrings({
         requested_amount: 'Requested amount',
         accept_booking: 'Accepted',
         reviewed: 'Reviewed',
+        future: 'Future',
       },
       questions: {
         accept: 'Are you sure you want to accept this request?',

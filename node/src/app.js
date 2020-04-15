@@ -12,6 +12,9 @@ import configuration from '@feathersjs/configuration';
 import express from '@feathersjs/express';
 import socketio from '@feathersjs/socketio';
 
+//TODO - Can add more crons
+import './cron';
+
 const logger = require('./logger');
 const middleware = require('./middleware');
 const services = require('./services');

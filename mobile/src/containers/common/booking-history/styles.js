@@ -304,6 +304,17 @@ const styles = StyleSheet.create({
     // marginTop: 40,
     marginVertical: 5,
   },
+  pastFutureBtn: {
+    backgroundColor: '#F1F1F1',
+    width: '20%',
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    textAlign: 'center',
+    alignSelf: 'center',
+    borderRadius: 20,
+    marginVertical: 5,
+  },
   itemHourText: {
     // color: 'black',
     fontSize: 14,

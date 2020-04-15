@@ -7,11 +7,12 @@
     "parameterLimit": 100000
   },
   "postgresDB": {
-    "host": "172.105.48.206",
+    "host": "rockolydb.csdnml5hy38j.us-east-2.rds.amazonaws.com",
     "port": 5432,
     "user": "postgres",
-    "password": "PrMwRcT7R2Req8g5",
-    "dbName": "chef",
+    "password": "JPRFDhfP%232XVU-Zb",
+    "passwordWithOutEncoded": "JPRFDhfP#2XVU-Zb",
+    "dbName": "rockoly_dev",
     "schema": "public"
   },
   "postgraphile": {
@@ -61,7 +62,7 @@
     },
     "auth": {
       "user": "info@rockoly.com",
-      "pass": "nYrts8duwCy3fC4x"
+      "pass": "JPRFDhfP#2XVU-Zb"
     }
   },
   "sms": {
