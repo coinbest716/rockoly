@@ -11,7 +11,7 @@ const connectionData = {
   port: postgresConfig.port,
   database: postgresConfig.dbName,
   user: postgresConfig.user,
-  password: postgresConfig.password
+  password: postgresConfig.passwordWithOutEncoded
 };
 
 // 2: set pg-promise with config
