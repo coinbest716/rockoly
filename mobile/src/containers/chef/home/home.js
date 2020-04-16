@@ -18,7 +18,10 @@ import moment from 'moment'
 import firebase from 'react-native-firebase'
 import {View, ScrollView, Alert, TouchableOpacity, Image} from 'react-native'
 import {Header, Spinner, CommonButton} from '@components'
-import {ChefProfileService, PROFILE_DETAIL_EVENT, TabBarService} from '@services'
+import {ChefProfileService, PROFILE_DETAIL_EVENT, TabBarService,
+   BookingHistoryService, BOOKING_HISTORY_LIST_EVENT,
+   BasicProfileService, UPDATE_BASIC_PROFILE_EVENT,
+  } from '@services'
 import {RouteNames, ResetStack} from '@navigation'
 import {Languages} from '@translations'
 import {Theme} from '@theme'
@@ -51,7 +54,7 @@ class Home extends Component {
   }
 
   async componentDidMount() {
-    const {currentUser, isLoggedIn, getProfile} = this.context
+    const {currentUser, isLoggedIn, getProfile, isChef} = this.context
     const {navigation} = this.props
 
     const profile = await getProfile()
@@ -59,21 +62,23 @@ class Home extends Component {
       ResetStack(navigation, RouteNames.CHEF_REG_PROFILE)
     }
     ChefProfileService.on(PROFILE_DETAIL_EVENT.GET_CHEF_FULL_PROFILE_DETAIL, this.setList)
+    BookingHistoryService.on(BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_UPDATING, this.reload)
+    BasicProfileService.on(UPDATE_BASIC_PROFILE_EVENT.UPDATING_DATA, this.updateInfo)
+  
     // this.loadData()
     if (isLoggedIn === true) {
       if (currentUser !== undefined && currentUser !== null && currentUser !== {}) {
+        if (isLoggedIn && isChef && currentUser.chefId) {
+          BookingHistoryService.bookingSubsByChef(currentUser.chefId)
+          BasicProfileService.profileSubscriptionForChef(currentUser.chefId)
+        } 
         this.setState(
           {
             chefIdValue: currentUser,
             isFetching: true,
           },
           () => {
-            ChefProfileService.getChefFullProfileDetail(
-              currentUser.chefId,
-              moment(new Date())
-                .utc()
-                .format('YYYY-MM-DDTHH:mm:ss')
-            )
+            this.fetchData()
           }
         )
       }
@@ -83,6 +88,8 @@ class Home extends Component {
 
   componentWillUnmount() {
     ChefProfileService.off(PROFILE_DETAIL_EVENT.GET_CHEF_FULL_PROFILE_DETAIL, this.setList)
+    BookingHistoryService.off(BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_UPDATING, this.reload)
+    BasicProfileService.off(UPDATE_BASIC_PROFILE_EVENT.UPDATING_DATA, this.updateInfo)
   }
 
   setList = ({profileFullDetails}) => {
@@ -129,6 +136,40 @@ class Home extends Component {
         reservationsList: [],
       })
     }
+  }
+
+  fetchData = () => {
+    const {currentUser } = this.context
+    if (currentUser !== undefined && currentUser !== null && currentUser !== {}) {
+        ChefProfileService.getChefFullProfileDetail(
+          currentUser.chefId,
+          moment(new Date())
+            .utc()
+            .format('YYYY-MM-DDTHH:mm:ss')
+        )
+    }
+  }
+
+  reload = () => {
+    this.setState(
+      {
+        isFetching: true,
+      },
+      () => {
+        this.fetchData()
+      }
+    )
+  }
+
+  updateInfo = () => {
+      this.setState(
+        {
+          isFetching: true,
+        },
+        () => {
+          this.fetchData()
+        }
+      )
   }
 
   itemPressed = details => {

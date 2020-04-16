@@ -69,8 +69,8 @@ class EmailVerification extends PureComponent {
   }
 
   onBack = () => {
-    const {navigation} = this.props
-    navigation.goBack()
+    const {props} = this.props
+    props.navigation.goBack()
   }
 
   sendOtp = () => {
