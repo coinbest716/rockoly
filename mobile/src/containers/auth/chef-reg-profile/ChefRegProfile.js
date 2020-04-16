@@ -23,7 +23,7 @@ import {
 } from '@containers'
 import {Theme} from '@theme'
 import styles from './styles'
-import {BasicProfileService, AuthContext, CHEF_REG_FLOW_STEPS} from '@services'
+import {BasicProfileService, AuthContext, CHEF_REG_FLOW_STEPS, ChefProfileService, TabBarService} from '@services'
 
 const secondIndicatorStyles = {
   stepIndicatorSize: 25,
@@ -72,6 +72,7 @@ class ChefRegProfile extends PureComponent {
     this.state = {
       currentPage: 0,
       savedData: [],
+      profileComplete: false,
     }
   }
 
@@ -109,16 +110,20 @@ class ChefRegProfile extends PureComponent {
   }
 
   onFinish = () => {
-    const {savedData} = this.state
+    const {savedData, profileComplete} = this.state
     const {currentUser} = this.context
     const {navigation} = this.props
 
     let uncompletedSteps
 
     if (savedData && savedData.length === CHEF_REG_FLOW_STEPS.length) {
-      BasicProfileService.updateRegProfileFlag(true, currentUser.chefId)
+      if(profileComplete === false) {
+        BasicProfileService.updateRegProfileFlag(true, currentUser.chefId)
         .then(res => {
           if (res) {
+            this.setState({
+              profileComplete: true,
+            })
               ChefProfileService.submitProfileForReview(currentUser.chefId)
                 .then(res => {
                   if (res) {
@@ -151,6 +156,33 @@ class ChefRegProfile extends PureComponent {
         .catch(e => {
           console.log('debuggging error on saving reg flag', e)
         })
+      } else {
+        ChefProfileService.submitProfileForReview(currentUser.chefId)
+        .then(res => {
+          console.log('ressss', res)
+          if (res) {
+            TabBarService.hideInfo()
+            Toast.show({
+              text: 'Profile submitted for review',
+              duration: 5000,
+            })
+            ResetStack(navigation, RouteNames.CHEF_MAIN_TAB)
+          } else {
+            Alert.alert(
+              Languages.customerProfile.alert.error_title,
+              Languages.customerProfile.alert.error_2
+            )
+          }
+        })
+        .catch(e => {
+          console.log('errorrrr', e)
+          Alert.alert(
+            Languages.customerProfile.alert.error_title,
+            Languages.customerProfile.alert.error_1
+          )
+        })
+      }
+     
     } else {
       uncompletedSteps = CHEF_REG_FLOW_STEPS.filter(value => !savedData.includes(value))
       let message = 'Please fill out these screens: '
