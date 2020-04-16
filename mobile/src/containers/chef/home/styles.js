@@ -93,6 +93,17 @@ export default {
     fontSize: 16,
     marginLeft: 10,
   },
+  primaryBtn: {
+    backgroundColor: Theme.Colors.primary,
+    marginTop: 5,
+    marginBottom: 10,
+    minHeight: 20,
+    padding: 3,
+    borderRadius: 50,
+    width: '50%',
+    fontSize: 20,
+    alignItems: 'center',
+  },
   moreText: {
     justifyContent: 'center',
     alignItems: 'center',

@@ -24,7 +24,7 @@ import {Theme} from '@theme'
 import {Images} from '@images'
 import {Spinner, CommonButton} from '@components'
 import {Languages} from '@translations'
-import {RouteNames, ResetStack} from '@navigation'
+import {RouteNames} from '@navigation'
 import {
   GMTToLocal,
   fetchDate,
@@ -77,111 +77,106 @@ class BookingRequest extends Component {
     const {navigation} = this.props
 
     if (isLoggedIn) {
-      const profile = await getProfile()
-      if (!profile.isRegistrationCompletedYn) {
-        ResetStack(navigation, RouteNames.CHEF_REG_PROFILE)
-      } else {
-        this.setState({
-          showInitalLoader: false,
-        })
-        BookingHistoryService.on(
-          BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_LIST,
-          this.setBookingRequestList
-        )
-        BookingHistoryService.on(
-          BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_STATUS_UPDATED,
-          this.loadInitialData
-        )
-        // NotificationListService.on(NOTIFICATION_LIST_EVENT.UPDATING_NOTIFICATION_LIST, this.updatedList)
-        // Subscription call
-        BookingHistoryService.on(
-          BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_UPDATING,
-          this.updatedList
-        )
-        NotificationListService.on(
-          NOTIFICATION_LIST_EVENT.UPDATING_NOTIFICATION_LIST,
-          this.loadNotification()
-        )
-        BookingHistoryService.bookingSubsByChef(currentUser.chefId)
-        this.onAddBackHandler()
-        this.loadInitialData()
-        this.checkProfileApproved()
-        this.fetchBookingCancelTime()
+      this.setState({
+        showInitalLoader: false,
+      })
+      BookingHistoryService.on(
+        BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_LIST,
+        this.setBookingRequestList
+      )
+      BookingHistoryService.on(
+        BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_STATUS_UPDATED,
+        this.loadInitialData
+      )
+      // NotificationListService.on(NOTIFICATION_LIST_EVENT.UPDATING_NOTIFICATION_LIST, this.updatedList)
+      // Subscription call
+      BookingHistoryService.on(
+        BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_UPDATING,
+        this.updatedList
+      )
+      NotificationListService.on(
+        NOTIFICATION_LIST_EVENT.UPDATING_NOTIFICATION_LIST,
+        this.loadNotification()
+      )
+      BookingHistoryService.bookingSubsByChef(currentUser.chefId)
+      this.onAddBackHandler()
+      this.loadInitialData()
+      this.checkProfileApproved()
+      this.fetchBookingCancelTime()
 
-        // opening notification
-        await firebase
-          .notifications()
-          .getInitialNotification()
-          .then(async notificationOpen => {
-            if (notificationOpen) {
-              const {notification} = notificationOpen
-              try {
-                // get last seen notification
-                const lastSeenNotificationId = await AsyncStorage.getItem('notificationId')
+      // opening notification
+      await firebase
+        .notifications()
+        .getInitialNotification()
+        .then(async notificationOpen => {
+          if (notificationOpen) {
+            const {notification} = notificationOpen
+            try {
+              // get last seen notification
+              const lastSeenNotificationId = await AsyncStorage.getItem('notificationId')
 
-                // if some notification seen already
-                if (lastSeenNotificationId !== null) {
-                  // check if old notification see to new notification
-                  if (lastSeenNotificationId === notification.notificationId) {
-                    console.log('same notification id')
-                    const notificationData = await AsyncStorage.getItem('notificationData')
-                    if (notificationData !== null) {
-                      const value = JSON.parse(notificationData)
-                      console.log('value11111', value)
-                      if (value) {
-                        console.log('if notification id')
-                        if (value.bookingHistId) {
-                          NotificationListService.navigateAndMarkBookingNotification(
-                            navigation,
-                            value.bookingHistId,
-                            value.seen,
-                            value.data
-                          )
-                          await AsyncStorage.removeItem('notificationData')
-                        } else if (value.conversationHistId) {
-                          NotificationListService.navigateAndMarkMessageNotification(
-                            navigation,
-                            value.conversationHistId,
-                            value.seen,
-                            value.data,
-                            value.name,
-                            value.pic,
-                            value.statusId,
-                            value.bookingHistId,
-                            value.fromTime,
-                            value.toTime
-                          )
-                        }
+              // if some notification seen already
+              if (lastSeenNotificationId !== null) {
+                // check if old notification see to new notification
+                if (lastSeenNotificationId === notification.notificationId) {
+                  console.log('same notification id')
+                  const notificationData = await AsyncStorage.getItem('notificationData')
+                  if (notificationData !== null) {
+                    const value = JSON.parse(notificationData)
+                    console.log('value11111', value)
+                    if (value) {
+                      console.log('if notification id')
+                      if (value.bookingHistId) {
+                        NotificationListService.navigateAndMarkBookingNotification(
+                          navigation,
+                          value.bookingHistId,
+                          value.seen,
+                          value.data
+                        )
                         await AsyncStorage.removeItem('notificationData')
+                      } else if (value.conversationHistId) {
+                        NotificationListService.navigateAndMarkMessageNotification(
+                          navigation,
+                          value.conversationHistId,
+                          value.seen,
+                          value.data,
+                          value.name,
+                          value.pic,
+                          value.statusId,
+                          value.bookingHistId,
+                          value.fromTime,
+                          value.toTime
+                        )
                       }
-                    } else {
-                      console.log('else notification id')
-                      return
+                      await AsyncStorage.removeItem('notificationData')
                     }
+                  } else {
+                    console.log('else notification id')
+                    return
                   }
-                  await AsyncStorage.setItem('notificationId', notification.data.notificationHistId)
-                  this.navigateToNotification(notification)
                 }
-                // if no notification is seen last and this is 1st notification
-                else {
-                  await AsyncStorage.setItem('notificationId', notification.data.notificationHistId)
-                  this.navigateToNotification(notification)
-                }
-              } catch (e) {
-                // don't mind, this is a problem only if the current RN instance has been reloaded by a CP mandatory update
+                await AsyncStorage.setItem('notificationId', notification.data.notificationHistId)
+                this.navigateToNotification(notification)
               }
-
-              console.log('notification booking request', notification, notification.data.role)
-              await AsyncStorage.setItem('notificationId', notification.notificationId)
+              // if no notification is seen last and this is 1st notification
+              else {
+                await AsyncStorage.setItem('notificationId', notification.data.notificationHistId)
+                this.navigateToNotification(notification)
+              }
+            } catch (e) {
+              // don't mind, this is a problem only if the current RN instance has been reloaded by a CP mandatory update
             }
-          })
-        // if (isLoggedIn) {
-        //   const profile = await getProfile()
-        //   if (isChef && profile.totalUnreadCount >= 0) {
-        //     firebase.notifications().setBadge(profile.totalUnreadCount)
-        //   }
-        // }
-      }
+
+            console.log('notification booking request', notification, notification.data.role)
+            await AsyncStorage.setItem('notificationId', notification.notificationId)
+          }
+        })
+      // if (isLoggedIn) {
+      //   const profile = await getProfile()
+      //   if (isChef && profile.totalUnreadCount >= 0) {
+      //     firebase.notifications().setBadge(profile.totalUnreadCount)
+      //   }
+      // }
     }
   }
 
@@ -764,7 +759,6 @@ class BookingRequest extends Component {
   }
 
   // show Booking status
-  
 
   showStatus = (
     bookingStatus,

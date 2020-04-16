@@ -267,6 +267,7 @@ class Favourite extends PureComponent {
 
   render() {
     const {navigation} = this.props
+    const {isLoggedIn} = this.context
     const {favList, isFetching, isFetchingMore, canLoadMore} = this.state
     return (
       <View style={[styles.container]}>
@@ -280,7 +281,7 @@ class Favourite extends PureComponent {
           canLoadMore={canLoadMore}
           loadMore={this.onLoadMore}
           reload={this.reload}
-          emptyDataMessage={Languages.FavouriteChef.options.chef_empty_msg}
+          emptyDataMessage={isLoggedIn ? Languages.FavouriteChef.options.chef_empty_msg : Languages.FavouriteChef.options.chef_login_empty_msg}
         />
       </View>
     )

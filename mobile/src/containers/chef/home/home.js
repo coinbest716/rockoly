@@ -17,9 +17,9 @@ import {Images} from '@images'
 import moment from 'moment'
 import firebase from 'react-native-firebase'
 import {View, ScrollView, Alert, TouchableOpacity, Image} from 'react-native'
-import {Header, Spinner} from '@components'
-import {ChefProfileService, PROFILE_DETAIL_EVENT} from '@services'
-import {RouteNames} from '@navigation'
+import {Header, Spinner, CommonButton} from '@components'
+import {ChefProfileService, PROFILE_DETAIL_EVENT, TabBarService} from '@services'
+import {RouteNames, ResetStack} from '@navigation'
 import {Languages} from '@translations'
 import {Theme} from '@theme'
 import {
@@ -46,12 +46,19 @@ class Home extends Component {
       reservationList: [],
       isEmailVerified: false,
       isMobileVerified: false,
+      chefStatus: '',
     }
   }
 
   async componentDidMount() {
+    const {currentUser, isLoggedIn, getProfile} = this.context
+    const {navigation} = this.props
+
+    const profile = await getProfile()
+    if (!profile.isRegistrationCompletedYn) {
+      ResetStack(navigation, RouteNames.CHEF_REG_PROFILE)
+    }
     ChefProfileService.on(PROFILE_DETAIL_EVENT.GET_CHEF_FULL_PROFILE_DETAIL, this.setList)
-    const {isLoggedIn, currentUser} = this.context
     // this.loadData()
     if (isLoggedIn === true) {
       if (currentUser !== undefined && currentUser !== null && currentUser !== {}) {
@@ -71,9 +78,7 @@ class Home extends Component {
         )
       }
     }
-
-    const {currentUserFirebase} = firebase.auth()
-    console.log('currentUserFirebase', currentUserFirebase)
+    console.log('currentUserFirebase', this.context)
   }
 
   componentWillUnmount() {
@@ -113,6 +118,7 @@ class Home extends Component {
         reviewCount,
         reviewList,
         reservationsList,
+        chefStatus: details.chefStatusId.trim(),
       })
     } else {
       this.setState({
@@ -130,6 +136,27 @@ class Home extends Component {
     navigation.navigate(RouteNames.BOOKING_DETAIL_SCREEN, {
       bookingHistId: details.chefBookingHistId,
     })
+  }
+
+  submitForReview = () => {
+    const {isChef, isLoggedIn, currentUser} = this.context
+
+    if (isChef && isLoggedIn) {
+      ChefProfileService.submitProfileForReview(currentUser.chefId).then(res => {
+        if (res) {
+          TabBarService.hideInfo()
+          Toast.show({
+            text: 'Profile submitted for review',
+            duration: 5000,
+          })
+        } else {
+          Alert.alert(
+            Languages.customerProfile.alert.error_title,
+            Languages.customerProfile.alert.error_2
+          )
+        }
+      })
+    }
   }
 
   // async componentDidMount() {
@@ -162,6 +189,7 @@ class Home extends Component {
       earnings,
       isMobileVerified,
       isEmailVerified,
+      chefStatus,
     } = this.state
     const {navigation} = this.props
     return (
@@ -171,10 +199,19 @@ class Home extends Component {
           <Spinner mode="full" />
         ) : (
           <ScrollView style={{marginHorizontal: '5%', paddingBottom: '10%'}}>
-            {/* {bankAccount === true && ( */}
             <Card style={styles.cardStyle}>
               <Label style={styles.label}>Alerts</Label>
-
+              <Text style={{color: '#08AB93', fontWeight: 'bold'}}>
+                Your profile status : {chefStatus}
+              </Text>
+              {(chefStatus.trim() == 'PENDING' || chefStatus.trim() == 'REJECTED') && (
+                <CommonButton
+                  btnText="Submit for Review"
+                  textStyle={{fontSize: 15}}
+                  containerStyle={styles.primaryBtn}
+                  onPress={() => this.submitForReview()}
+                />
+              )}
               {isEmailVerified ? (
                 <Text style={{color: '#08AB93', fontWeight: 'bold'}}>
                   Email address has been verified

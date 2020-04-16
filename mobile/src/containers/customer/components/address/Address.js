@@ -1155,7 +1155,7 @@ class Address extends PureComponent {
             :
               <CommonButton
               disabled={isLoading}
-              btnText={showFinishText ? 'Submit' : Languages.setLocation.labels.save}
+              btnText={showFinishText ? 'Submit for review' : Languages.setLocation.labels.save}
               containerStyle={styles.locationBtn}
               onPress={this.onAddLocation}
             />
