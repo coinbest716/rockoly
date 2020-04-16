@@ -18,7 +18,7 @@ export default class RegEmailVerification extends Component {
     return (
       <View style={{flex: 1}}>
         <Header showBack title={Languages.EmailVerification.title} showBell={false} />
-        <EmailVerification />
+        <EmailVerification props={this.props} />
         {Platform.OS === 'ios' && <KeyboardSpacer />}
       </View>
     )

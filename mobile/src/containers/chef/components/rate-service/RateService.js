@@ -183,14 +183,14 @@ export default class RateService extends Component {
               }
               if (showService) {
                 Toast.show({
-                  text: 'Service saved.',
+                  text: 'Guests saved.',
                   duration: 3000,
                 })
               }
               if (onSaveCallBack) {
                 onSaveCallBack()
                 Toast.show({
-                  text: 'Rate and Service saved.',
+                  text: 'Rate and Guests saved.',
                   duration: 3000,
                 })
               }
