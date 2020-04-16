@@ -10,7 +10,8 @@
     "host": "rockolydb.csdnml5hy38j.us-east-2.rds.amazonaws.com",
     "port": 5432,
     "user": "postgres",
-    "password": "hkp5DTvT9J88iZ3",
+    "password": "JPRFDhfP%232XVU-Zb",
+    "passwordWithOutEncoded": "JPRFDhfP#2XVU-Zb",
     "dbName": "rockoly_dev",
     "schema": "public"
   },
@@ -61,7 +62,7 @@
     },
     "auth": {
       "user": "info@rockoly.com",
-      "pass": "nYrts8duwCy3fC4x"
+      "pass": "JPRFDhfP#2XVU-Zb"
     }
   },
   "sms": {
