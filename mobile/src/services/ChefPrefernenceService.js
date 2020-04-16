@@ -43,6 +43,7 @@ class ChefPreferenceService extends BaseService {
                 duration: 3000,
               })
               resolve(data.updateChefProfileExtendedByChefProfileExtendedId)
+              this.emit(CHEF_PREFERNCE_EVENT.UPDATING_DATA, true)
             }
           })
           .catch(e => {
@@ -83,6 +84,7 @@ class ChefPreferenceService extends BaseService {
               reject(errors[0].message)
             } else if (data && data.updateChefProfileExtendedByChefProfileExtendedId) {
               resolve(data.updateChefProfileExtendedByChefProfileExtendedId)
+              this.emit(CHEF_PREFERNCE_EVENT.UPDATING_DATA, true)
             }
           })
           .catch(e => {
@@ -117,6 +119,7 @@ class ChefPreferenceService extends BaseService {
               reject(errors[0].message)
             } else if (data && data.updateChefPriceCalculator) {
               resolve(data.updateChefPriceCalculator)
+              this.emit(CHEF_PREFERNCE_EVENT.UPDATING_DATA, true)
             }
           })
           .catch(e => {
@@ -153,6 +156,7 @@ class ChefPreferenceService extends BaseService {
                 duration: 3000,
               })
               resolve(data)
+              this.emit(CHEF_PREFERNCE_EVENT.UPDATING_DATA, true)
             }
           })
           .catch(e => {
@@ -188,6 +192,7 @@ class ChefPreferenceService extends BaseService {
                 duration: 3000,
               })
               resolve(data)
+              this.emit(CHEF_PREFERNCE_EVENT.UPDATING_DATA, true)
             }
           })
           .catch(e => {
@@ -223,6 +228,7 @@ class ChefPreferenceService extends BaseService {
                 duration: 3000,
               })
               resolve(data)
+              this.emit(CHEF_PREFERNCE_EVENT.UPDATING_DATA, true)
             }
           })
           .catch(e => {

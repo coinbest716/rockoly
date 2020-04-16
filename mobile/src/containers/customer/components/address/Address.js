@@ -13,7 +13,7 @@ import _ from 'lodash'
 import { Spinner, CommonButton} from '@components'
 import {Languages} from '@translations'
 import {RouteNames} from '@navigation'
-import {AuthContext, LocationService} from '@services'
+import {AuthContext, LocationService, BasicProfileService} from '@services'
 import styles from './styles'
 
 const mapApiKey = 'AIzaSyCcjRqgAT1OhVMHTPXwYk2IbR6pYQwFOTI'
@@ -810,6 +810,7 @@ class Address extends PureComponent {
                   text: Languages.setLocation.toast_messages.save,
                 })
                 this.loadLocationData()
+                BasicProfileService.emitProfileEvent()
               }
             })
             .catch(error => {
