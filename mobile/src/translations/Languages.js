@@ -986,8 +986,8 @@ export default new LocalizedStrings({
       },
       alert: {
         error_title: 'Error',
-        error_1: 'Sorry, Could not submit profile for review. please try again later.1',
-        error_2: 'Sorry, Could not submit profile for review. please try again later.2',
+        error_1: 'Sorry, Could not submit profile for review. please try again later',
+        error_2: 'Sorry, Could not submit profile for review. please try again later',
         submit_profile_title: ' Ready to submit your profile for review? ',
         make_sure_details: 'You will be notified of your registration status within 48 hours.',
         complete_profile_title: 'Please complete your profile and try to submit',
@@ -1020,6 +1020,7 @@ export default new LocalizedStrings({
         colon: ':',
         dollar: '$',
         chef_empty_msg: 'No favorite chefs found',
+        chef_login_empty_msg: 'Please Login to make chef as favorite',
       },
     },
     searchLocation: {

@@ -119,11 +119,33 @@ class ChefRegProfile extends PureComponent {
       BasicProfileService.updateRegProfileFlag(true, currentUser.chefId)
         .then(res => {
           if (res) {
-            Toast.show({
-              text: 'You have completed the profile setup.',
-              duration: 3000,
-            })
-            ResetStack(navigation, RouteNames.CHEF_MAIN_TAB)
+              ChefProfileService.submitProfileForReview(currentUser.chefId)
+                .then(res => {
+                  if (res) {
+                    TabBarService.hideInfo()
+                    Toast.show({
+                      text: 'Profile submitted for review',
+                      duration: 5000,
+                    })
+                    ResetStack(navigation, RouteNames.CHEF_MAIN_TAB)
+                  } else {
+                    Alert.alert(
+                      Languages.customerProfile.alert.error_title,
+                      Languages.customerProfile.alert.error_2
+                    )
+                  }
+                })
+                .catch(e => {
+                  Alert.alert(
+                    Languages.customerProfile.alert.error_title,
+                    Languages.customerProfile.alert.error_1
+                  )
+                })
+            // Toast.show({
+            //   text: 'You have completed the profile setup.',
+            //   duration: 3000,
+            // })
+            
           }
         })
         .catch(e => {
