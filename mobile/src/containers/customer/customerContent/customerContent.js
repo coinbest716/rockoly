@@ -186,7 +186,7 @@ class CustomerContent extends Component {
   loginContent = () => {
     return (
       <View style={styles.test1}>
-        <Text>Welcome to Rockoly. Please click login/register to get started.</Text>
+        <Text style={{marginHorizontal: 10, textAlign: 'center', marginBottom: 5}}>Welcome to Rockoly. Please click login/register to get started.</Text>
         <View style={styles.loginBtnView}>
           <CommonButton
             textStyle={styles.loginBtnText}

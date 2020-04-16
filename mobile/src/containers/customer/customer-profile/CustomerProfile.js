@@ -242,7 +242,7 @@ class CustomerProfile extends Component {
 
   onRate = () => {
     const {navigation} = this.props
-    navigation.navigate(RouteNames.ACCOUNT_SETTING, {screen: 'RATE'})
+    navigation.navigate(RouteNames.CHEF_EDIT_PROFILE, {screen: 'RATE'})
   }
 
   onChefProfile = () => {
@@ -871,6 +871,18 @@ class CustomerProfile extends Component {
           onPress={this.goToSetAvailability}
           type="MaterialCommunityIcons"
         />
+        <CustomListItem
+          iconName="account-multiple-plus"
+          label="Guests"
+          onPress={this.onService}
+          type="MaterialCommunityIcons"
+        />
+        <CustomListItem
+          iconName="trophy-award"
+          label={Languages.customerProfile.options.awards}
+          onPress={this.onAwards}
+          type="MaterialCommunityIcons"
+        />
         <ListItem itemDivider>
           <Text>Pricing</Text>
         </ListItem>
@@ -910,12 +922,6 @@ class CustomerProfile extends Component {
         /> */}
 
         {/* <CustomListItem
-          iconName="trophy-award"
-          label={Languages.customerProfile.options.awards}
-          onPress={this.onAwards}
-          type="MaterialCommunityIcons"
-        />
-        <CustomListItem
           iconName="map-marker"
           type="MaterialCommunityIcons"
           label={Languages.customerProfile.options.set_location}

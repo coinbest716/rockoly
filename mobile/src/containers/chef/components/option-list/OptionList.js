@@ -255,10 +255,12 @@ export default class OptionList extends Component {
     const {agreeChecked, additionalServiceTypeId} = this.state
     console.log('additionalServiceTypeId', additionalServiceTypeId)
 
+    if(onSaveCallBack) {
     if (!agreeChecked) {
       Alert.alert('Please click agree to continue')
       return
     }
+  }
 
     let valid = true
 
