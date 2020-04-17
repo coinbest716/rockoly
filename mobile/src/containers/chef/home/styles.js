@@ -100,7 +100,7 @@ export default {
     minHeight: 20,
     padding: 3,
     borderRadius: 50,
-    width: '50%',
+    width: '70%',
     fontSize: 20,
     alignItems: 'center',
   },
@@ -120,6 +120,21 @@ export default {
     textAlign: 'center',
     alignSelf: 'center',
     borderRadius: 30,
+    marginVertical: 5,
+  },
+  statusView: {
+    marginHorizontal: 20,
+    marginVertical: 10,
+    justifyContent: 'center',
+    alignSelf: 'center',
+    alignItems: 'center',
+    flexDirection: 'column',
+  },
+  statusTextColor: {
+    color: Theme.Colors.primary,
+  },
+  statusTextColorReject: {
+    color: Theme.Colors.error,
     marginVertical: 5,
   },
 }
