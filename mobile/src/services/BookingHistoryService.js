@@ -11,6 +11,7 @@ export const BOOKING_HISTORY_LIST_EVENT = {
   BOOKING_HISTORY_LIST2: 'BOOKING_HISTORY/BOOKING_HISTORY_LIST2',
   BOOKING_HISTORY_STATUS_UPDATED: 'BOOKING_HISTORY/BOOKING_HISTORY_STATUS_UPDATED',
   BOOKING_HISTORY_UPDATING: 'BOOKING_HISTORY_UPDATING',
+  BOOKING_HISTORY_UPDATING_VALUE: 'BOOKING_HISTORY_UPDATING_VALUE',
 }
 
 class BookingHistoryService extends BaseService {
@@ -65,6 +66,7 @@ class BookingHistoryService extends BaseService {
             console.log('debugging subscription called', res)
             this.bookingHistory = res
             this.emit(BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_UPDATING, {bookingHistory: res})
+            this.emit(BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_UPDATING_VALUE, true)
           },
           e => {
             console.log(e)
