@@ -19,6 +19,8 @@ import {
   PROFILE_DETAIL_EVENT,
   BasicProfileService,
   UPDATE_BASIC_PROFILE_EVENT,
+  ChefPreferenceService, 
+  CHEF_PREFERNCE_EVENT,
 } from '@services'
 import {Languages} from '@translations'
 import {RouteNames} from '@navigation'
@@ -50,9 +52,13 @@ class ProfileView extends PureComponent {
 
   componentDidMount = async () => {
     this.loadData()
-    ChefProfileService.on(PROFILE_DETAIL_EVENT.UPDATE_CHEF_PROFILE_DETAILS, this.onCallInitialData)
-    ChefProfileService.on(PROFILE_DETAIL_EVENT.GET_CHEF_PROFILE_ATTACHMENTS, this.onCallInitialData)
+    // No need this event
+    // ChefProfileService.on(PROFILE_DETAIL_EVENT.UPDATE_CHEF_PROFILE_DETAILS, this.onCallInitialData)
+    // ChefProfileService.on(PROFILE_DETAIL_EVENT.GET_CHEF_PROFILE_ATTACHMENTS, this.onCallInitialData)
+    
+    // Initialize event
     BasicProfileService.on(UPDATE_BASIC_PROFILE_EVENT.UPDATING_DATA, this.updatedInfo)
+    ChefPreferenceService.on(CHEF_PREFERNCE_EVENT.UPDATING_DATA, this.updatedInfo)
     this.onLoadInitialData()
     const {isLoggedIn, currentUser} = this.context
     if (isLoggedIn && currentUser && currentUser.chefId) {
@@ -63,14 +69,16 @@ class ProfileView extends PureComponent {
   }
 
   componentWillUnmount() {
-    ChefProfileService.off(PROFILE_DETAIL_EVENT.UPDATE_CHEF_PROFILE_DETAILS, this.onCallInitialData)
-    ChefProfileService.off(
-      PROFILE_DETAIL_EVENT.GET_CHEF_PROFILE_ATTACHMENTS,
-      this.onCallInitialData
-    )
+    // ChefProfileService.off(PROFILE_DETAIL_EVENT.UPDATE_CHEF_PROFILE_DETAILS, this.onCallInitialData)
+    // ChefProfileService.off(
+    //   PROFILE_DETAIL_EVENT.GET_CHEF_PROFILE_ATTACHMENTS,
+    //   this.onCallInitialData
+    // )
+    
+    // ChefProfileService.off(PROFILE_DETAIL_EVENT.AVAILABILITY_UPDATING, this.onCallInitialData)
     ProfileViewService.off(PROFILE_VIEW_EVENT.PROFILE_VIEW, this.setList)
-    ChefProfileService.off(PROFILE_DETAIL_EVENT.AVAILABILITY_UPDATING, this.onCallInitialData)
     BasicProfileService.off(UPDATE_BASIC_PROFILE_EVENT.UPDATING_DATA, this.updatedInfo)
+    ChefPreferenceService.off(CHEF_PREFERNCE_EVENT.UPDATING_DATA, this.updatedInfo)
   }
 
   onCallInitialData = () => {
