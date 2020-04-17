@@ -18,6 +18,25 @@ const styles = StyleSheet.create({
   fbBtn: {
     backgroundColor: Theme.Colors.facebook,
   },
+  checkboxView: {
+    top: 10,
+    bottom: 5,
+    flexDirection: 'row',
+    flex: 1,
+    flexWrap: 'wrap',
+  },
+  checkboxStyle: {
+    marginRight: 15,
+  },
+  textStyle: {
+    paddingLeft: 5,
+    paddingRight: 5,
+  },
+  textLinkStyle: {
+    color: Theme.Colors.primary,
+    textDecorationLine: 'underline',
+  },
+  webView: {},
   logoWrap: {
     paddingVertical: 20,
     justifyContent: 'center',
