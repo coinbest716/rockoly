@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation } from '@apollo/react-hooks';
 import gql from 'graphql-tag';
+import Link from 'next/link';
 import ModernDatepicker from 'react-modern-datepicker';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -438,6 +439,22 @@ export default function RegisterForm() {
                       </div>
                     </div>
                   </div> */}
+                     <div className="buy-checkbox-btn">
+                        <div className="item">
+                          <input className="inp-cbx" id="login" type="checkbox" />
+                          <label className="cbx" htmlFor="login">
+                          <span>
+                            <svg width="12px" height="10px" viewBox="0 0 12 10">
+                            <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+                            </svg>
+                          </span>
+                          <p class="terms" id="keep-me-login">By clicking the checkbox,you agree to our
+                          <Link href='/terms-and-conditions'>Terms and Conditions</Link> and you have read our
+                          <Link href='/privacy-policy'>Privacy Policy</Link>
+                          </p>
+                          </label>
+                        </div>
+                      </div>
                     {renderLoader()}
                     <button type="submit" className="btn btn-primary">
                       Register
