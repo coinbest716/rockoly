@@ -28,7 +28,8 @@ import '../components/notification/Notification.Style.scss';
 import '../components/intro/IntroPage.Style.scss';
 import '../components/shared/mobile-number-verification/VerificationStyle.scss';
 import '../components/shared/chef-profile/pricing-page/PriceCalculator.scss';
-
+import '../components/terms-and-conditions/TermsConditions.Styles.scss';
+import '../components/privacy-policy/PrivacyPolicy.Styles.scss';
 import { Provider } from 'react-redux';
 import App, { Container } from 'next/app';
 import withRedux from 'next-redux-wrapper';
