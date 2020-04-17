@@ -233,7 +233,8 @@ const Banner = props => {
       setIsRegistrationCompletedYn(details.isRegistrationCompletedYn);
       setChefStatusId(details.chefStatusId.trim());
       console.log("details.chefStatusId.trim()",details.chefStatusId.trim());
-      let reason = details.chefRejectOrBlockReason ? chefDetails.chefRejectOrBlockReason : '';
+      let reason = details.chefRejectOrBlockReason ? 
+      details.chefRejectOrBlockReason : '';
       setReason(reason);
     } else {
       setProfileDetails(null);
@@ -560,7 +561,7 @@ const Banner = props => {
                       )}
                       {util.isStringEmpty(reason) && (
                         <div className="statusMsg">
-                          REASON
+                          REASON : 
                           <div className="response-view">{reason}</div>
                         </div>
                       )}

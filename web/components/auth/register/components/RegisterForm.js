@@ -47,13 +47,16 @@ export default function RegisterForm() {
   const [loader, setLoader] = useState(false);
   const [chefUser, setChefUser] = useState(null);
   const [showCustomer, setShowCustomer] = useState(null);
+  const [isClicked, setIsClicked] = useState(false);
+  const [referral, setReferred] = useState(null);
+
 
   //mutation query
 
   const [registerAuthMutation, { data, loading, error }] = useMutation(REGISTER_AUTH, {
     onError: err => {
       logOutUser()
-        .then(result => {})
+        .then(result => { })
         .catch(error => {
           toastMessage('renderError', error);
         });
@@ -167,7 +170,10 @@ export default function RegisterForm() {
           dob: dob ? dob : null,
           mobileNumber: mobileData.mobileNumberValue ? mobileData.mobileNumberValue : null,
           mobileCountryCode: mobileData.countryCode ? mobileData.countryCode : null,
-        };
+         };
+         if(chefUser){
+          userDetail.pChefReferralEmail = referral;
+        }
         firebase
           .auth()
           .createUserWithEmailAndPassword(email, password)
@@ -262,6 +268,10 @@ export default function RegisterForm() {
         </div>
       );
     }
+  }
+
+  function onClickingCheckbox() {
+    setIsClicked(!isClicked);
   }
 
   return (
@@ -413,13 +423,29 @@ export default function RegisterForm() {
                         <b>(password must contain at least 6 characters)</b>
                       </p>
                     </div>
+
+
+
                     <MobileNumberVerification
                       screen={'register1'}
                       ref={childRef}
                       mobileNumber={mobileNumber}
                     />
+                    {chefUser &&
+                      <div className="form-group">
+                        <label>Referred By:</label>
+                        <input
+                          type="email"
+                          className={s.FORM_CONTROL}
+                          placeholder="Enter referred person's email"
+                          name="referrel"
+                          value={referral}
+                          onChange={event => onChangeValue(event.target.value, setReferred)}
+                        />
+                      </div>
+                    }
                     {/* <div className="login-keep">
-                    <div className="buy-checkbox-btn">
+                    <div className="buy-checkbox-btn" chefUser>
                       <div className="item">
                         <input
                           className="inp-cbx"
@@ -439,43 +465,53 @@ export default function RegisterForm() {
                       </div>
                     </div>
                   </div> */}
-                     <div className="buy-checkbox-btn">
-                        <div className="item">
-                          <input className="inp-cbx" id="login" type="checkbox" />
-                          <label className="cbx" htmlFor="login">
+                    <div className="buy-checkbox-btn">
+                      <div className="item">
+                        <input className="inp-cbx" id="login" type="checkbox"
+                          checked={isClicked}
+                          onChange={() => onClickingCheckbox()}
+                        />
+                        <label className="cbx" htmlFor="login">
                           <span>
                             <svg width="12px" height="10px" viewBox="0 0 12 10">
-                            <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+                              <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
                             </svg>
                           </span>
                           <p class="terms" id="keep-me-login">By clicking the checkbox,you agree to our
                           <Link href='/terms-and-conditions'>Terms and Conditions</Link> and you have read our
                           <Link href='/privacy-policy'>Privacy Policy</Link>
                           </p>
-                          </label>
-                        </div>
+                        </label>
                       </div>
+                    </div>
                     {renderLoader()}
-                    <button type="submit" className="btn btn-primary">
-                      Register
+                    {console.log("isClicked", isClicked)}
+                    {isClicked &&
+                      <button type="submit" className="btn btn-primary">
+                        Register
                     </button>
+                    }
+
                   </form>
                 </div>
               </div>
-
-              <div className="col-lg-12 col-md-12" id="socialLoginContainer">
-                <p className="orFont">or</p>
-              </div>
-
-              <div className="col-lg-12 col-md-12" id="socialLoginContainer">
+              {isClicked &&
                 <div>
-                  <Login
-                    sourceType={'REGISTER'}
-                    userType={chefUser === true ? 'CHEF' : 'CUSTOMER'}
-                    checkMobileAndEmailDataExist={checkMobileAndEmailDataExist}
-                  />
+                  <div className="col-lg-12 col-md-12" id="socialLoginContainer">
+                    <p className="orFont">or</p>
+                  </div>
+
+                  <div className="col-lg-12 col-md-12" id="socialLoginContainer">
+                    <div>
+                      <Login
+                        sourceType={'REGISTER'}
+                        userType={chefUser === true ? 'CHEF' : 'CUSTOMER'}
+                        checkMobileAndEmailDataExist={checkMobileAndEmailDataExist}
+                      />
+                    </div>
+                  </div>
                 </div>
-              </div>
+              }
             </div>
           </div>
         </section>
