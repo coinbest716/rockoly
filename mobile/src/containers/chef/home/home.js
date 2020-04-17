@@ -16,9 +16,14 @@ import {
 import {Images} from '@images'
 import moment from 'moment'
 import firebase from 'react-native-firebase'
-import {View, ScrollView, Alert, TouchableOpacity, Image} from 'react-native'
+import {View, ScrollView, Alert, TouchableOpacity, Image, BackHandler, AsyncStorage} from 'react-native'
 import {Header, Spinner, CommonButton} from '@components'
-import {ChefProfileService, PROFILE_DETAIL_EVENT, TabBarService} from '@services'
+import {ChefProfileService, PROFILE_DETAIL_EVENT, TabBarService,
+   BookingHistoryService, BOOKING_HISTORY_LIST_EVENT,
+   BasicProfileService, UPDATE_BASIC_PROFILE_EVENT,
+   NotificationListService, NOTIFICATION_LIST_EVENT,
+   CommonService, COMMON_LIST_NAME,
+  } from '@services'
 import {RouteNames, ResetStack} from '@navigation'
 import {Languages} from '@translations'
 import {Theme} from '@theme'
@@ -38,7 +43,7 @@ class Home extends Component {
     super(props)
     this.state = {
       chefIdValue: {},
-      isFetching: false,
+      isFetching: true,
       requestList: [],
       reviewCount: 0,
       earnings: 0,
@@ -47,42 +52,274 @@ class Home extends Component {
       isEmailVerified: false,
       isMobileVerified: false,
       chefStatus: '',
+      profile: {}
+      
     }
   }
 
   async componentDidMount() {
-    const {currentUser, isLoggedIn, getProfile} = this.context
+    const {currentUser, isLoggedIn, getProfile, isChef} = this.context
     const {navigation} = this.props
 
     const profile = await getProfile()
+    this.setState({profile})
     if (!profile.isRegistrationCompletedYn) {
       ResetStack(navigation, RouteNames.CHEF_REG_PROFILE)
-    }
+      this.setState({isFetching: false})
+    } else {
     ChefProfileService.on(PROFILE_DETAIL_EVENT.GET_CHEF_FULL_PROFILE_DETAIL, this.setList)
+    BookingHistoryService.on(BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_UPDATING, this.reload)
+    BasicProfileService.on(UPDATE_BASIC_PROFILE_EVENT.UPDATING_DATA, this.updateInfo)
+    NotificationListService.on(
+      NOTIFICATION_LIST_EVENT.UPDATING_NOTIFICATION_LIST,
+      this.loadNotification()
+    )
+    this.onAddBackHandler()
     // this.loadData()
     if (isLoggedIn === true) {
       if (currentUser !== undefined && currentUser !== null && currentUser !== {}) {
+        if (isLoggedIn && isChef && currentUser.chefId) {
+          BookingHistoryService.bookingSubsByChef(currentUser.chefId)
+          BasicProfileService.profileSubscriptionForChef(currentUser.chefId)
+        } 
         this.setState(
           {
             chefIdValue: currentUser,
             isFetching: true,
           },
-          () => {
-            ChefProfileService.getChefFullProfileDetail(
-              currentUser.chefId,
-              moment(new Date())
-                .utc()
-                .format('YYYY-MM-DDTHH:mm:ss')
-            )
+          async () => {
+            this.fetchData()
           }
         )
+         // opening notification
+        await firebase
+        .notifications()
+        .getInitialNotification()
+        .then(async notificationOpen => {
+          console.log('notificationOpen', notificationOpen , await AsyncStorage.getItem('notificationId'))
+          if (notificationOpen) {
+            const {notification} = notificationOpen
+            try {
+              // get last seen notification
+              const lastSeenNotificationId = await AsyncStorage.getItem('notificationId')
+  
+              // if some notification seen already
+              if (lastSeenNotificationId !== null) {
+                // check if old notification see to new notification
+                if (lastSeenNotificationId === notification.notificationId) {
+                  console.log('same notification id')
+                  const notificationData = await AsyncStorage.getItem('notificationData')
+                  if (notificationData !== null) {
+                    const value = JSON.parse(notificationData)
+                    console.log('value11111', value)
+                    if (value) {
+                      console.log('if notification id')
+                      if (value.bookingHistId) {
+                        NotificationListService.navigateAndMarkBookingNotification(
+                          navigation,
+                          value.bookingHistId,
+                          value.seen,
+                          value.data
+                        )
+                        await AsyncStorage.removeItem('notificationData')
+                      } else if (value.conversationHistId) {
+                        NotificationListService.navigateAndMarkMessageNotification(
+                          navigation,
+                          value.conversationHistId,
+                          value.seen,
+                          value.data,
+                          value.name,
+                          value.pic,
+                          value.statusId,
+                          value.bookingHistId,
+                          value.fromTime,
+                          value.toTime
+                        )
+                      }
+                      await AsyncStorage.removeItem('notificationData')
+                    }
+                  } else {
+                    console.log('else notification id')
+                    return
+                  }
+                }
+                await AsyncStorage.setItem('notificationId', notification.data.notificationHistId)
+                this.navigateToNotification(notification)
+              }
+              // if no notification is seen last and this is 1st notification
+              else {
+                await AsyncStorage.setItem('notificationId', notification.data.notificationHistId)
+                this.navigateToNotification(notification)
+              }
+            } catch (e) {
+              // don't mind, this is a problem only if the current RN instance has been reloaded by a CP mandatory update
+            }
+  
+            console.log('notification booking request', notification, notification.data.role)
+            await AsyncStorage.setItem('notificationId', notification.notificationId)
+          }
+        })
+        .catch((e) => {
+          console.log('Notification error', e)
+        })
       }
+
+  
+
+  
     }
+  }
     console.log('currentUserFirebase', this.context)
   }
 
+  navigateToNotification = async notification => {
+    console.log('navigateToNotification', notification)
+    const {currentUser, isLoggedIn, isChef} = this.context
+    const {navigation} = this.props
+
+    if (
+      notification &&
+      notification.data &&
+      notification.data.role === 'CHEF' &&
+      notification.data.notificationHistId
+    ) {
+      const data = {
+        pChefId: isLoggedIn && isChef ? currentUser.chefId : null,
+        pCustomerId: isLoggedIn && !isChef ? currentUser.customerId : null,
+        pAdminId: null,
+        pStatusId: 'SEEN',
+        pNotificationId: notification.data.notificationHistId,
+      }
+      if (notification.data.bookingHistId) {
+        NotificationListService.navigateAndMarkBookingNotification(
+          navigation,
+          notification.data.bookingHistId,
+          true,
+          data
+        )
+      } else if (notification.data.conversationHistId) {
+        NotificationListService.navigateAndMarkMessageNotification(
+          navigation,
+          notification.data.conversationHistId,
+          true,
+          data,
+          notification.data.name,
+          notification.data.pic,
+          notification.data.statusId,
+          notification.data.bookingHistId,
+          notification.data.fromTime,
+          notification.data.toTime
+        )
+      }
+    } else {
+      console.log('notification else', notification)
+      const data = {
+        pChefId: isLoggedIn && isChef ? currentUser.chefId : null,
+        pCustomerId: isLoggedIn && !isChef ? currentUser.customerId : null,
+        pAdminId: null,
+        pStatusId: 'SEEN',
+        pNotificationId: notification.data.notificationHistId,
+      }
+      let obj = {}
+      if (notification.data.bookingHistId) {
+        obj = {
+          navigation,
+          bookingHistId: notification.data.bookingHistId,
+          seen: true,
+          data,
+        }
+      } else if (notification.data.conversationHistId) {
+        obj = {
+          navigation,
+          conversationHistId: notification.data.conversationHistId,
+          seen: true,
+          data,
+          name: notification.data.name,
+          pic: notification.data.pic,
+          statusId: notification.data.statusId,
+        }
+      }
+      await AsyncStorage.setItem('notificationData', JSON.stringify(obj))
+      Alert.alert(
+        'Info',
+        'Hi, you have recieved notification for your customer account. Please click ok to switch to customer and see the notification.',
+        [
+          {text: 'OK', onPress: () => this.onSwitchUser()},
+          {
+            text: 'Cancel',
+            onPress: () => console.log('Cancel Pressed'),
+            style: 'cancel',
+          },
+        ],
+        {cancelable: false}
+      )
+    }
+  }
+
+  loadNotification = () => {
+    const {isLoggedIn, currentUser, isChef} = this.context
+
+    if (isLoggedIn) {
+      if (isChef) {
+        this.onLoadNotificationTotalCount(COMMON_LIST_NAME.CHEF_UNREAD_COUNT, {
+          chefId: currentUser.chefId,
+        })
+      } else {
+        this.onLoadNotificationTotalCount(COMMON_LIST_NAME.CUSTOMER_UNREAD_COUNT, {
+          customerId: currentUser.customerId,
+        })
+      }
+    }
+  }
+
+  onLoadNotificationTotalCount = (type, filter) => {
+    const {isLoggedIn} = this.context
+    if (isLoggedIn) {
+      CommonService.getTotalCount(type, filter)
+        .then(totalCount => {
+          this.setState(
+            {
+              notificationCount: totalCount,
+            },
+            async () => {
+              await firebase.notifications().setBadge(this.state.notificationCount)
+            }
+          )
+        })
+        .catch(e => {
+          console.log('debugging error on setting the total count in notification screen', e)
+          this.setState({
+            notificationCount: 0,
+          })
+        })
+    }
+  }
+
+  onAddBackHandler = () => {
+    const {navigation} = this.props
+    this.willFocusSubscription = navigation.addListener('willFocus', () => {
+      BackHandler.addEventListener('hardwareBackPress', this.onHandleBackButton)
+    })
+    this.willBlurSubscription = navigation.addListener('willBlur', () => {
+      BackHandler.removeEventListener('hardwareBackPress', this.onHandleBackButton)
+    })
+  }
+
+  onRemoveBackHandler = () => {
+    if (this.willFocusSubscription) {
+      this.willFocusSubscription.remove()
+    }
+
+    if (this.willBlurSubscription) {
+      this.willBlurSubscription.remove()
+    }
+  }
+
   componentWillUnmount() {
+    this.onRemoveBackHandler()
     ChefProfileService.off(PROFILE_DETAIL_EVENT.GET_CHEF_FULL_PROFILE_DETAIL, this.setList)
+    BookingHistoryService.off(BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_UPDATING, this.reload)
+    BasicProfileService.off(UPDATE_BASIC_PROFILE_EVENT.UPDATING_DATA, this.updateInfo)
   }
 
   setList = ({profileFullDetails}) => {
@@ -129,6 +366,40 @@ class Home extends Component {
         reservationsList: [],
       })
     }
+  }
+
+  fetchData = () => {
+    const {currentUser } = this.context
+    if (currentUser !== undefined && currentUser !== null && currentUser !== {}) {
+        ChefProfileService.getChefFullProfileDetail(
+          currentUser.chefId,
+          moment(new Date())
+            .utc()
+            .format('YYYY-MM-DDTHH:mm:ss')
+        )
+    }
+  }
+
+  reload = () => {
+    this.setState(
+      {
+        isFetching: true,
+      },
+      () => {
+        this.fetchData()
+      }
+    )
+  }
+
+  updateInfo = () => {
+      this.setState(
+        {
+          isFetching: true,
+        },
+        () => {
+          this.fetchData()
+        }
+      )
   }
 
   itemPressed = details => {
@@ -190,6 +461,7 @@ class Home extends Component {
       isMobileVerified,
       isEmailVerified,
       chefStatus,
+      profile,
     } = this.state
     const {navigation} = this.props
     return (
@@ -202,16 +474,59 @@ class Home extends Component {
             <Card style={styles.cardStyle}>
               <Label style={styles.label}>Alerts</Label>
               <Text style={{color: '#08AB93', fontWeight: 'bold'}}>
-                Your profile status : {chefStatus}
+                Your profile status :
               </Text>
-              {(chefStatus.trim() == 'PENDING' || chefStatus.trim() == 'REJECTED') && (
+              {chefStatus.trim() === 'SUBMITTED_FOR_REVIEW' && (
+                <View style={styles.statusView}>
+                  {/* <Button transparent> */}
+                    <Text style={styles.statusTextColor}>
+                      {Languages.customerProfile.label.submitted_for_review}
+                    </Text>
+                  {/* </Button> */}
+                  <Text>{Languages.customerProfile.messages.submited_for_review_msg}</Text>
+                </View>
+              )}
+              {chefStatus.trim() === 'PENDING' && (
+                    <View style={styles.statusView}>
+                  <CommonButton
+                  btnText="Submit for Review"
+                  textStyle={{fontSize: 15}}
+                  containerStyle={styles.primaryBtn}
+                  onPress={() => this.submitForReview()}
+                />
+                      <Text>{Languages.customerProfile.messages.review_pending_msg}</Text>
+                    </View>
+              )}
+              {chefStatus.trim() === 'REJECTED' && (
+                  <View style={styles.statusView}>
+                 <CommonButton
+                  btnText="Submit for Review"
+                  textStyle={{fontSize: 15}}
+                  containerStyle={styles.primaryBtn}
+                  onPress={() => this.submitForReview()}
+                />
+                    <Text style={styles.statusTextColorReject}>
+                      {Languages.customerProfile.messages.review_rejected_msg}{' '}
+                    </Text>
+                    <Text style={styles.reasonText}>Reason: {profile.chefRejectOrBlockReason}</Text>
+                  </View>
+              )}
+
+              {chefStatus.trim() === 'APPROVED' && (
+                          <View style={styles.statusView}>
+                            <Text style={styles.statusTextColor}>
+                              {Languages.customerProfile.label.profile_verified}
+                            </Text>
+                          </View>
+              )}
+              {/* {(chefStatus.trim() == 'PENDING' || chefStatus.trim() == 'REJECTED') && (
                 <CommonButton
                   btnText="Submit for Review"
                   textStyle={{fontSize: 15}}
                   containerStyle={styles.primaryBtn}
                   onPress={() => this.submitForReview()}
                 />
-              )}
+              )} */}
               {isEmailVerified ? (
                 <Text style={{color: '#08AB93', fontWeight: 'bold'}}>
                   Email address has been verified

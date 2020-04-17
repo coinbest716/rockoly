@@ -753,6 +753,7 @@ export default class Gallery extends PureComponent {
       text: 'Gallery saved.',
       duration: 3000,
     })
+    BasicProfileService.emitProfileEvent()
     if (onNext) {
       onNext()
     }
