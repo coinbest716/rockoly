@@ -64,6 +64,7 @@ import Feedback from './common/feedback/Feedback'
 import Filter from './common/filter/fliter'
 import NotificationSettings from './common/notification-settings/NotificationSettings'
 import AboutUs from './common/aboutUs/AboutUs'
+import WebView from './common/web-view/WebView'
 import ContactUs from './common/contactUs/ContactUs'
 import TermsAndPolicy from './common/terms-and-policy/TermsAndPolicy'
 import ConversationList from './common/conversation-list/ConversationList'
@@ -164,4 +165,5 @@ export {
   ChangeBookLocation,
   RegEmailVerification,
   RegMobileVerification,
+  WebView,
 }

@@ -49,6 +49,7 @@ import {
   RegMobileVerification,
   ChangeBookLocation,
   AboutUs,
+  WebView,
 } from '@containers'
 import RouteNames from '../config/RouteNames'
 import {StackNavConfig} from '../helpers/NavHelper'
@@ -186,6 +187,9 @@ const CustomerStack = createStackNavigator(
     },
     [RouteNames.ABOUT_US]: {
       screen: AboutUs,
+    },
+    [RouteNames.WEB_VIEW]: {
+      screen: WebView,
     },
   },
   {
