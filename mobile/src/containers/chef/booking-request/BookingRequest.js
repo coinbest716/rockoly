@@ -91,7 +91,7 @@ class BookingRequest extends Component {
       // NotificationListService.on(NOTIFICATION_LIST_EVENT.UPDATING_NOTIFICATION_LIST, this.updatedList)
       // Subscription call
       BookingHistoryService.on(
-        BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_UPDATING,
+        BOOKING_HISTORY_LIST_EVENT.BOOKING_VALUE,
         this.updatedList
       )
       NotificationListService.on(
@@ -363,9 +363,9 @@ class BookingRequest extends Component {
     }
   }
 
-  updatedList = data => {
+  updatedList = () => {
     // if (data !== null && data !== undefined && data !== '' && data !== {}) {
-    console.log('debugging subscription listened data', data)
+    console.log('debugging subscription listened data')
     this.loadInitialData()
     // }
   }

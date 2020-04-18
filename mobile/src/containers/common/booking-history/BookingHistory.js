@@ -167,7 +167,7 @@ class BookingHistory extends PureComponent {
     const {getProfile, isLoggedIn, isChef, currentUser} = this.context
     const profile = await getProfile()
     // Subscription call
-    BookingHistoryService.on(BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_UPDATING, this.reload)
+    BookingHistoryService.on(BOOKING_HISTORY_LIST_EVENT.BOOKING_VALUE, this.reload)
     if (isLoggedIn && isChef && currentUser.chefId) {
       BookingHistoryService.bookingSubsByChef(currentUser.chefId)
     } else if (isLoggedIn && !isChef && currentUser.customerId) {
