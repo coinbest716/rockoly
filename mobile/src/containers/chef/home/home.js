@@ -23,6 +23,7 @@ import {ChefProfileService, PROFILE_DETAIL_EVENT, TabBarService,
    BasicProfileService, UPDATE_BASIC_PROFILE_EVENT,
    NotificationListService, NOTIFICATION_LIST_EVENT,
    CommonService, COMMON_LIST_NAME,
+   BOOKING_HISTORY_UPDATING_VAlUE,
   } from '@services'
 import {RouteNames, ResetStack} from '@navigation'
 import {Languages} from '@translations'
@@ -60,6 +61,8 @@ class Home extends Component {
   async componentDidMount() {
     const {currentUser, isLoggedIn, getProfile, isChef} = this.context
     const {navigation} = this.props
+    BookingHistoryService.on(BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_UPDATING, this.reload)
+    BookingHistoryService.on(BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_UPDATING_VAlUE, this.reload)
 
     const profile = await getProfile()
     this.setState({profile})
@@ -68,7 +71,6 @@ class Home extends Component {
       this.setState({isFetching: false})
     } else {
     ChefProfileService.on(PROFILE_DETAIL_EVENT.GET_CHEF_FULL_PROFILE_DETAIL, this.setList)
-    BookingHistoryService.on(BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_UPDATING, this.reload)
     BasicProfileService.on(UPDATE_BASIC_PROFILE_EVENT.UPDATING_DATA, this.updateInfo)
     NotificationListService.on(
       NOTIFICATION_LIST_EVENT.UPDATING_NOTIFICATION_LIST,
@@ -320,6 +322,7 @@ class Home extends Component {
     ChefProfileService.off(PROFILE_DETAIL_EVENT.GET_CHEF_FULL_PROFILE_DETAIL, this.setList)
     BookingHistoryService.off(BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_UPDATING, this.reload)
     BasicProfileService.off(UPDATE_BASIC_PROFILE_EVENT.UPDATING_DATA, this.updateInfo)
+    BookingHistoryService.off(BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_UPDATING_VAlUE, this.reload)
   }
 
   setList = ({profileFullDetails}) => {
