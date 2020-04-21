@@ -731,9 +731,9 @@ class ProfileView extends PureComponent {
                             Desired Dishes: <Text style={styles.destext}>{item.dishes}</Text>
                           </Text>
                           <Text style={styles.complexityText}>
-                            Between <Text style={styles.destext}>{item.noOfItems.min}</Text>{' '}
+                            Between <Text style={styles.destext}>{item && item.noOfItems && item.noOfItems.min ? item.noOfItems.min : null }</Text>{' '}
                             <Text style={styles.destext}>-</Text>{' '}
-                            <Text style={styles.destext}>{item.noOfItems.max}</Text> Menu Items
+                            <Text style={styles.destext}>{item && item.noOfItems && item.noOfItems.max ? item.noOfItems.max : null}</Text> Menu Items
                           </Text>
                         </View>
                       </Body>

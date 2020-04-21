@@ -4,16 +4,18 @@ import React, {PureComponent} from 'react'
 import {View, Alert, Image} from 'react-native'
 
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view'
-import {Text, Item, Icon, Input, Button, Right, Toast} from 'native-base'
+import {Text, Item, Icon, Input, Button, Right, Toast, CheckBox} from 'native-base'
 import CountryPicker from 'react-native-country-picker-modal'
 import firebase from 'react-native-firebase'
 import {Header, CommonButton, Spinner} from '@components'
 import {Images} from '@images'
 import {RegisterService, LoginService, SOCIAL_LOGIN_TYPE, AuthContext} from '@services'
-import styles from './styles'
 import {RouteNames} from '@navigation'
 import {Languages} from '@translations'
 import {isEmailValid} from '@utils'
+import {CONSTANTS} from '@common'
+import {Theme} from '@theme'
+import styles from './styles'
 
 class Register extends PureComponent {
   constructor(props) {
@@ -41,6 +43,8 @@ class Register extends PureComponent {
       // isChef: false,
       eyeIconPasswordShow: false,
       eyeIconConfirmPasswordShow: false,
+      referralEmail: '',
+      checkedValue: false,
     }
 
     this.onFirstNameEditHandle = firstName => this.setState({firstName})
@@ -52,6 +56,14 @@ class Register extends PureComponent {
       }
 
       this.setState({email: str, validEmail: isEmailValid(str)})
+    }
+    this.onReferralEmailEditHandle = email => {
+      let str = email
+      if (str && str.length) {
+        str = email.toLowerCase()
+      }
+
+      this.setState({referralEmail: str, validEmail: isEmailValid(str)})
     }
     this.onPasswordEditHandle = password => {
       let passwordLengthError = false
@@ -117,6 +129,15 @@ class Register extends PureComponent {
   //     })
   // }
 
+  // Show web view
+  renderWebView = (URL, title) => {
+    if (!URL) {
+      return null
+    }
+    const {navigation} = this.props
+    navigation.navigate(RouteNames.WEB_VIEW, {URL, title})
+  }
+
   onRegisterPressHandle = () => {
     const {
       firstName,
@@ -129,9 +150,12 @@ class Register extends PureComponent {
       cca2,
       callingCode,
       role,
+      checkedValue,
+      referralEmail,
     } = this.state
 
     if (
+      (role === CONSTANTS.ROLE.CHEF && !referralEmail) ||
       !firstName ||
       !lastName ||
       !email ||
@@ -144,6 +168,17 @@ class Register extends PureComponent {
       Alert.alert(
         Languages.register.title,
         Languages.register.reg_alrt_msg.fill_form,
+        [{text: Languages.register.buttonLabels.ok, onPress: () => console.log('OK Pressed')}],
+        {cancelable: false}
+      )
+      return
+    }
+
+    // Alert for agree the terms and condition
+    if (!checkedValue) {
+      Alert.alert(
+        Languages.register.title,
+        Languages.register.reg_alrt_msg.agree_form,
         [{text: Languages.register.buttonLabels.ok, onPress: () => console.log('OK Pressed')}],
         {cancelable: false}
       )
@@ -168,6 +203,9 @@ class Register extends PureComponent {
                 dob: null,
                 mobileCountryCode: `+${callingCode}`,
               }
+              if (role === CONSTANTS.ROLE.CHEF) {
+                userData.pChefReferralEmail = referralEmail
+              }
               this.onRegisterUser(token, role, userData, updateCurrentUser, navigation)
             }
           } else {
@@ -178,13 +216,6 @@ class Register extends PureComponent {
                   firebaseCurrentUser.additionalUserInfo &&
                   firebaseCurrentUser.user
                 ) {
-                  // if (firebaseCurrentUser.additionalUserInfo.isNewUser === false) {
-                  //   firebase.auth().signOut()
-                  //   this.registerError(
-                  //     Languages.register.reg_alrt_msg.reg_error,
-                  //     Languages.register.reg_alrt_msg.account_email_exist
-                  //   )
-                  // } else
                   if (firebaseCurrentUser.additionalUserInfo.isNewUser === true) {
                     const token = await LoginService.getIdToken()
                     if (token) {
@@ -304,13 +335,6 @@ class Register extends PureComponent {
     const {navigation} = this.props
     navigation.navigate(RouteNames.LOGIN_SCREEN)
   }
-
-  // changeRole = () => {
-  //   const {isChef} = this.state
-  //   this.setState({
-  //     isChef: !isChef,
-  //   })
-  // }
 
   socialContinue = async () => {
     const {type, role, email} = this.state
@@ -467,8 +491,14 @@ class Register extends PureComponent {
       })
   }
 
+  onChecked = checked => {
+    this.setState({
+      checkedValue: !checked,
+    })
+  }
+
   emailOnlyView = () => {
-    const {email, validEmail, isLoading} = this.state
+    const {email, validEmail, isLoading, referralEmail, role} = this.state
     return (
       <KeyboardAwareScrollView style={styles.container}>
         <Header showBack title={Languages.register.title} showBell={false} />
@@ -533,8 +563,6 @@ class Register extends PureComponent {
 
   render() {
     const {
-      // isDateTimePickerVisible,
-      // dateOfBirthToDisplay,
       showEmailInputOnly,
       firstName,
       lastName,
@@ -551,6 +579,8 @@ class Register extends PureComponent {
       eyeIconPasswordShow,
       eyeIconConfirmPasswordShow,
       role,
+      referralEmail,
+      checkedValue,
     } = this.state
 
     if (showEmailInputOnly) {
@@ -588,22 +618,6 @@ class Register extends PureComponent {
                 placeholder={Languages.register.reg_form_label.lastName}
               />
             </Item>
-            {/* <Item>
-            <Icon name="calendar" />
-            <Button transparent onPress={this.showDateTimePicker}>
-              <Text style={styles.dateOfBirth}>
-                {dateOfBirthToDisplay !== null
-                  ? dateOfBirthToDisplay
-                  : Languages.register.reg_form_label.dateOfBirth}
-              </Text>
-              <Icon active style={styles.dobIconColor} name="arrow-forward" />
-            </Button>
-            <DateTimePicker
-              isVisible={isDateTimePickerVisible}
-              onConfirm={this.handleDatePicked}
-              onCancel={this.hideDateTimePicker}
-            />
-          </Item> */}
             <View style={styles.emailView}>
               <Item>
                 <Icon style={styles.iconColor} name="mail" />
@@ -615,6 +629,18 @@ class Register extends PureComponent {
                   placeholder={Languages.register.reg_form_label.email}
                 />
               </Item>
+              {role === CONSTANTS.ROLE.CHEF && (
+                <Item>
+                  <Icon style={styles.iconColor} name="mail" />
+                  <Input
+                    autoCapitalize="none"
+                    onChangeText={this.onReferralEmailEditHandle}
+                    keyboardType="email-address"
+                    value={referralEmail}
+                    placeholder={Languages.register.reg_form_label.referral_email}
+                  />
+                </Item>
+              )}
               {!validEmail ? (
                 <Text style={styles.errorMessage}>
                   {Languages.register.reg_form_label.inavl_email}
@@ -741,17 +767,36 @@ class Register extends PureComponent {
                 onChangeText={this.onMobileNumberEditHandle}
               />
             </Item>
-            {/* <Item style={styles.areYouChef}>
-            <Icon style={styles.iconColor} type="MaterialCommunityIcons" active name="chef-hat" />
-            <Text>Are you Chef</Text>
-            <Right>
-              <Switch
-                trackColor={{true: Theme.Colors.accent}}
-                onChange={() => this.changeRole()}
-                value={isChef}
+            <View style={styles.checkboxView}>
+              <CheckBox
+                checked={checkedValue}
+                onPress={() => this.onChecked(checkedValue)}
+                color={Theme.Colors.primary}
+                style={styles.checkboxStyle}
               />
-            </Right>
-          </Item> */}
+              <Text style={styles.textStyle}>{Languages.register.reg_form_label.agree}</Text>
+              <Text
+                style={styles.textLinkStyle}
+                onPress={() =>
+                  this.renderWebView(
+                    Languages.register.reg_form_label.terms_and_conditions_link,
+                    Languages.register.reg_form_label.terms_and_conditions
+                  )
+                }>
+                {Languages.register.reg_form_label.terms_and_conditions}
+              </Text>
+              <Text style={styles.textStyle}>{Languages.register.reg_form_label.and}</Text>
+              <Text
+                style={styles.textLinkStyle}
+                onPress={() =>
+                  this.renderWebView(
+                    Languages.register.reg_form_label.privacy_policy_link,
+                    Languages.register.reg_form_label.privacy_policy
+                  )
+                }>
+                {Languages.register.reg_form_label.privacy_policy}
+              </Text>
+            </View>
           </View>
           <CommonButton
             disabled={isLoading}
