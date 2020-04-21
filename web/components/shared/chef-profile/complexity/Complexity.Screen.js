@@ -164,19 +164,19 @@ const Complexity = props => {
         // setrangeValue(extendedData.chefComplexity ? parseInt(extendedData.chefComplexity) : 0)
         if (finalData && finalData.length > 0) {
           finalData.map(data => {
-            if (data.complexcityLevel.trim() === '1X') {
+            if (data.complexcityLevel && data.complexcityLevel.trim() === '1X') {
               setmultiple1(true);
               setText1(data.dishes);
               setMin1(data.noOfItems.min);
               setMax1(data.noOfItems.max);
             }
-            if (data.complexcityLevel.trim() === '1.5X') {
+            if (data.complexcityLevel && data.complexcityLevel.trim() === '1.5X') {
               setmultiple2(true);
               setText2(data.dishes);
               setMin2(data.noOfItems.min);
               setMax2(data.noOfItems.max);
             }
-            if (data.complexcityLevel.trim() === '2X') {
+            if (data.complexcityLevel && data.complexcityLevel.trim() === '2X') {
               setmultiple3(true);
               setText3(data.dishes);
               setMin3(data.noOfItems.min);

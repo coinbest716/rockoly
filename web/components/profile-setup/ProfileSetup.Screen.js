@@ -102,8 +102,9 @@ const UNAVAILABILITY_SUBSCRIPTION = gql`
 
 const ProfileSetupScreen = props => {
   const childRef = useRef();
-  const [keys, setkeys] = useState(parseInt(props.keyValue));
-  // const [keys, setkeys] = useState(4);
+  // const [keys, setkeys] = useState(parseInt(props.keyValuue));
+  console.log("props.keyValue", parseInt(props.keyValue));
+  const [keys, setkeys] = useState(4);
   const [ProfileDetails, setProfileDetails] = useState([]);
   const [customerProfileDetails, setCustomerProfileDetails] = useState([]);
   const [isFromRegister, setisFromRegister] = useState(props.isFromRegister);
@@ -181,7 +182,7 @@ const ProfileSetupScreen = props => {
     },
   });
 
-console.log("UPDATE_CHEF_PROFILE_SUBMIT",UPDATE_CHEF_PROFILE_SUBMIT)
+  console.log("UPDATE_CHEF_PROFILE_SUBMIT", UPDATE_CHEF_PROFILE_SUBMIT)
   const [updateChefProfileSubmit, responseForProfileSubmit] = useMutation(
     UPDATE_CHEF_PROFILE_SUBMIT,
     {
@@ -223,17 +224,17 @@ console.log("UPDATE_CHEF_PROFILE_SUBMIT",UPDATE_CHEF_PROFILE_SUBMIT)
               setCustomerId(customerResult);
               getCustomerData();
             })
-            .catch(err => {});
+            .catch(err => { });
         } else {
           //chef user
           getChefId(chefId)
             .then(async chefResult => {
               await setChefId(chefResult);
             })
-            .catch(err => {});
+            .catch(err => { });
         }
       })
-      .catch(err => {});
+      .catch(err => { });
   }, []);
 
   useEffect(() => {
@@ -297,6 +298,10 @@ console.log("UPDATE_CHEF_PROFILE_SUBMIT",UPDATE_CHEF_PROFILE_SUBMIT)
     setkeys(key);
   }
 
+  useEffect(() => {
+    setkeys(parseInt(props.keyValue))
+  }, [props.keyValue])
+
   //check and set admin user
   useEffect(() => {
     if (localStorage.getItem('loggedInAs') !== null) {
@@ -314,7 +319,7 @@ console.log("UPDATE_CHEF_PROFILE_SUBMIT",UPDATE_CHEF_PROFILE_SUBMIT)
 
   //Check email and mobile number verified or not
   useEffect(() => {
-    firebase.auth().onAuthStateChanged(function(user) {
+    firebase.auth().onAuthStateChanged(function (user) {
       if (user) {
         if (user.phoneNumber) {
           setMobileNumberVerified(true);
@@ -412,152 +417,156 @@ console.log("UPDATE_CHEF_PROFILE_SUBMIT",UPDATE_CHEF_PROFILE_SUBMIT)
               </div>{' '}
             </div>
           ) : (
-            userRole === chef && (
-              <div className="row">
-                <div className="col-sm-12 col-md-12 col-lg-3 siderbar-color" id="sidebar">
-                  <ProfilePictureUpload details={ProfileDetails} id={chefIdValue} role={chef} />
-                  <LeftSidebar onChangeMenu={onChangeMenu} selectedMenuKey={keys} />
-                </div>
-                <div className="col-lg-8 col-md-12-col-sm-12 " id="serviceView-containar">
-                  <div>
-                    <div className="adminStatus" id="status-full-view">
-                      <div id="status-content-view">
-                        {chefStatusId === S.PENDING && (
-                          <div>
-                            <div className="statusMsg">
-                              {S.PROFILE_STATUS}
-                              <div className="response-view" style={{ paddingLeft: 5 }}>
-                                {' '}
-                                {' ' + S.REVIEW_PENDING}
+              userRole === chef && (
+                <div className="row">
+                  <div className="col-sm-12 col-md-12 col-lg-3 siderbar-color" id="sidebar">
+                    <ProfilePictureUpload details={ProfileDetails} id={chefIdValue} role={chef} />
+                    <LeftSidebar onChangeMenu={onChangeMenu} selectedMenuKey={keys} />
+                  </div>
+                  <div className="col-lg-8 col-md-12-col-sm-12 " id="serviceView-containar">
+                    <div>
+                      {keys !== 4 &&
+                        <div id="status-content-view">
+                          {chefStatusId === S.PENDING && (
+                            <div>
+                              <div className="statusMsg">
+                                {S.PROFILE_STATUS}
+                                <div className="response-view" style={{ paddingLeft: 5 }}>
+                                  {' '}
+                                  {' ' + S.REVIEW_PENDING}
+                                </div>
                               </div>
-                            </div>
 
-                            <div className="statusMsg" id="failed">
-                              <div className="response-view">{S.REVIEW_PENDING_MSG}</div>
-                            </div>
-                            {isRegistrationCompletedYn === true && (
-                              <div className="basicInfoSubmit">
-                                <button
-                                  type="submit"
-                                  onClick={() => setRemoveModal(true)}
-                                  className="btn btn-primary"
-                                >
-                                  {S.SUBMIT}
-                                </button>
+                              <div className="statusMsg" id="failed">
+                                <div className="response-view">{S.REVIEW_PENDING_MSG}</div>
                               </div>
-                            )}
-                          </div>
-                        )}
-                        {chefStatusId === S.REJECTED && (
-                          <div>
+                              {isRegistrationCompletedYn === true && (
+                                <div className="basicInfoSubmit">
+                                  <button
+                                    type="submit"
+                                    onClick={() => setRemoveModal(true)}
+                                    className="btn btn-primary"
+                                  >
+                                    {S.SUBMIT}
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                          {chefStatusId === S.REJECTED && (
+                            <div>
+                              <div className="statusMsg">
+                                {S.PROFILE_STATUS}
+                                <div className="response-view" style={{ paddingLeft: 5 }}>
+                                  {S.REVIEW_REJECTED}
+                                </div>
+                              </div>
+                              {isRegistrationCompletedYn === true && (
+                                <div className="basicInfoSubmit">
+                                  <button
+                                    type="submit"
+                                    onClick={() => setRemoveModal(true)}
+                                    className="btn btn-primary"
+                                  >
+                                    {S.SUBMIT}
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                          {chefStatusId === S.SUBMITTED_FOR_REVIEW && (
+                            <div>
+                              <div className="statusMsg">
+                                {S.PROFILE_STATUS}
+                                <div className="response-view" style={{ paddingLeft: 5 }}>
+                                  {S.SUBMIT_FOR_REVIEW}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                          {chefStatusId === S.APPROVED && (
+                            <div>
+                              <div className="statusMsg">
+                                {S.PROFILE_STATUS}
+                                <div className="response-view">{S.PROFILE_VERIFIED}</div>
+                              </div>
+                            </div>
+                          )}
+                          {util.isStringEmpty(reason) && (
                             <div className="statusMsg">
-                              {S.PROFILE_STATUS}
-                              <div className="response-view" style={{ paddingLeft: 5 }}>
-                                {S.REVIEW_REJECTED}
-                              </div>
+                              {S.REASON}
+                              <div className="response-view">{reason}</div>
                             </div>
-                            {isRegistrationCompletedYn === true && (
-                              <div className="basicInfoSubmit">
-                                <button
-                                  type="submit"
-                                  onClick={() => setRemoveModal(true)}
-                                  className="btn btn-primary"
-                                >
-                                  {S.SUBMIT}
-                                </button>
-                              </div>
-                            )}
-                          </div>
+                          )}
+                        </div>
+                      }
+                      <div className="adminStatus" id="status-full-view">
+
+                        {keys === 0 && (
+                          <BasicInformation details={ProfileDetails} id={chefIdValue} role={chef} />
                         )}
-                        {chefStatusId === S.SUBMITTED_FOR_REVIEW && (
-                          <div>
-                            <div className="statusMsg">
-                              {S.PROFILE_STATUS}
-                              <div className="response-view" style={{ paddingLeft: 5 }}>
-                                {S.SUBMIT_FOR_REVIEW}
-                              </div>
-                            </div>
-                          </div>
+                        {keys === 1 && (
+                          <MobileVerification
+                            screen={'basic'}
+                            details={ProfileDetails}
+                            id={chefIdValue}
+                            role={chef}
+                          />
                         )}
-                        {chefStatusId === S.APPROVED && (
-                          <div>
-                            <div className="statusMsg">
-                              {S.PROFILE_STATUS}
-                              <div className="response-view">{S.PROFILE_VERIFIED}</div>
-                            </div>
-                          </div>
+                        {keys === 2 && (
+                          <UserEmail
+                            screen={'basic'}
+                            chefDetails={ProfileDetails}
+                            chefId={chefIdValue}
+                            role={chef}
+                          />
                         )}
-                        {util.isStringEmpty(reason) && (
-                          <div className="statusMsg">
-                            {S.REASON}
-                            <div className="response-view">{reason}</div>
-                          </div>
+                        {keys === 3 && (
+                          <CurrentLocation
+                            chefDetails={ProfileDetails}
+                            chefId={chefIdValue}
+                            role={chef}
+                          />
                         )}
-                      </div>
-                      {keys === 0 && (
-                        <BasicInformation details={ProfileDetails} id={chefIdValue} role={chef} />
-                      )}
-                      {keys === 1 && (
-                        <MobileVerification
-                          screen={'basic'}
-                          details={ProfileDetails}
-                          id={chefIdValue}
-                          role={chef}
-                        />
-                      )}
-                      {keys === 2 && (
-                        <UserEmail
-                          screen={'basic'}
-                          chefDetails={ProfileDetails}
-                          chefId={chefIdValue}
-                          role={chef}
-                        />
-                      )}
-                      {keys === 3 && (
-                        <CurrentLocation
-                          chefDetails={ProfileDetails}
-                          chefId={chefIdValue}
-                          role={chef}
-                        />
-                      )}
-                      {keys === 4 && (
-                        <PriceCalculator ProfileDetails={ProfileDetails} chefId={chefIdValue} />
-                      )}
-                      {keys === 5 && (
-                        <BaserateScreen chefDetails={ProfileDetails} chefId={chefIdValue} />
-                      )}
-                      {keys === 6 && (
-                        <ChefPreference chefDetails={ProfileDetails} chefId={chefIdValue} />
-                      )}
-                      {keys === 7 && (
-                        <Complexity isFromRegister={isFromRegister} chefId={chefIdValue} />
-                      )}
-                      {keys === 8 && (
-                        <Specialization
-                          isFromRegister={isFromRegister}
-                          chefDetails={ProfileDetails}
-                          chefId={chefIdValue}
-                        />
-                      )}
-                      {/* {keys === 6 && <LicenseUpload chefId={chefIdValue} />} */}
-                      {keys === 9 && <PersonalInformationScreen chefId={chefIdValue} />}
-                      {keys === 10 && <Availability chefId={chefIdValue} />}
-                      {keys === 11 && <ImageGallery chefId={chefIdValue} />}
-                      {keys === 12 && <UploadFile chefId={chefIdValue} />}
-                      {/* {keys === 10 && (
+                        {keys === 4 && (
+                          <PriceCalculator ProfileDetails={ProfileDetails} chefId={chefIdValue} />
+                        )}
+                        {keys === 5 && (
+                          <BaserateScreen chefDetails={ProfileDetails} chefId={chefIdValue} />
+                        )}
+                        {console.log("keyskeyskeys", keys)}
+                        {keys === 6 && (
+                          <ChefPreference chefDetails={ProfileDetails} chefId={chefIdValue} />
+                        )}
+                        {keys === 7 && (
+                          <Complexity isFromRegister={isFromRegister} chefId={chefIdValue} />
+                        )}
+                        {keys === 8 && (
+                          <Specialization
+                            isFromRegister={isFromRegister}
+                            chefDetails={ProfileDetails}
+                            chefId={chefIdValue}
+                          />
+                        )}
+                        {/* {keys === 6 && <LicenseUpload chefId={chefIdValue} />} */}
+                        {keys === 9 && <PersonalInformationScreen chefId={chefIdValue} />}
+                        {keys === 10 && <Availability chefId={chefIdValue} />}
+                        {keys === 11 && <ImageGallery chefId={chefIdValue} />}
+                        {keys === 12 && <UploadFile chefId={chefIdValue} />}
+                        {/* {keys === 10 && (
                         <Description
                           isFromRegister={isFromRegister}
                           chefDetails={ProfileDetails}
                           chefId={chefIdValue}
                         />
                       )} */}
+                      </div>
+                      {/* BaseRate PersonalInformationScreen*/}
                     </div>
-                    {/* BaseRate PersonalInformationScreen*/}
                   </div>
                 </div>
-              </div>
-            )
-          )}
+              )
+            )}
         </div>
         {removeModal === true && (
           <div className={`bts-popup ${open ? 'is-visible' : ''}`} role="alert">
