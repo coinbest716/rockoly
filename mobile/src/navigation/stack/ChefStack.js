@@ -47,6 +47,7 @@ import {
   RegEmailVerification,
   RegMobileVerification,
   BookPrice,
+  ChefProfile,
   WebView,
 } from '@containers'
 import RouteNames from '../config/RouteNames'
@@ -186,6 +187,9 @@ const ChefStack = createStackNavigator(
     },
     [RouteNames.BOOK_PRICE]: {
       screen: BookPrice,
+    },
+    [RouteNames.CHEF_SETTING_STACK]: {
+      screen: ChefProfile,
     },
   },
   {
