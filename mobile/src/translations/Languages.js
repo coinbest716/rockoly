@@ -163,6 +163,8 @@ export default new LocalizedStrings({
         send_otp: 'Send Link',
         confirm: 'Confirm',
         next: 'Next',
+        emailPlaceholder: 'Email',
+        currentPassword: 'Current Password',
       },
       emailAlertMessage: {
         otp_sent: 'Verfication link has been sent',
@@ -174,6 +176,8 @@ export default new LocalizedStrings({
         error: 'Error',
         error_number: 'Error on verifying email',
         enter_otp: 'Please enter OTP',
+        email_verified: 'Email Verified',
+        already_verified: 'Email is already verified.',
       },
     },
     OTPVerification: {
@@ -190,6 +194,7 @@ export default new LocalizedStrings({
         send_otp: 'Send OTP',
         change_number: 'Change Mobile number',
         next: 'Next',
+        change_email: 'Change Email',
       },
       otpAlertMessage: {
         otp_sent: 'OTP has been sent',
