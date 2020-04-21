@@ -136,6 +136,8 @@ class EmailVerification extends PureComponent {
     const { email } = this.state
     const { onSaveCallBack } = this.props
     const user = firebase.auth().currentUser
+    const { currentUser, userRole } = this.context
+
     if (!email) {
       return Toast.show({ text: Languages.EmailVerification.emailAlertMessage.email_empty })
     }
@@ -150,6 +152,31 @@ class EmailVerification extends PureComponent {
         //     this.onBack()
         //   }, 3000)
         // }
+        
+        if (!onSaveCallBack) {
+         
+          let id = ''
+
+          if (currentUser) {
+            if (currentUser.chefId !== undefined &&
+              currentUser.chefId !== null &&
+              currentUser.chefId !== '') {
+              id = currentUser.chefId
+            } else {
+              id = currentUser.customerId
+            }
+          }
+          RegisterService.gqlChangeEmail(email, id, userRole)
+            .then(result => {
+              
+              if (result) {
+                BasicProfileService.emitProfileEvent()
+              }
+            })
+            .catch((err) => {
+              Alert.alert('Error', err.message)
+            })
+        }
       })
       .catch(error => {
         console.log('error', error)
@@ -209,10 +236,6 @@ class EmailVerification extends PureComponent {
   confirm = () => {
     const { onSaveCallBack } = this.props
     const { currentUser } = firebase.auth()
-    const { userRole } = this.context
-    const {email} = this.state
-    let role = userRole === 'CHEF' ? 'CHEF' : 'CUSTOMER'
-
 
     if (currentUser) {
       firebase
@@ -224,37 +247,15 @@ class EmailVerification extends PureComponent {
           if (user) {
             if (user.emailVerified && user.emailVerified === true) {
               console.log(user.emailVerified)
-
               if (onSaveCallBack) {
                 console.log('saveback')
                 onSaveCallBack()
               }
-
-              if (!onSaveCallBack) {
-                const { currentUser } = this.context
-                let id = ''
-
-                if (currentUser) {
-                  if (currentUser.chefId !== undefined &&
-                    currentUser.chefId !== null &&
-                    currentUser.chefId !== '') {
-                    id = currentUser.chefId
-                  } else {
-                    id = currentUser.customerId
-                  }
-                }
-                RegisterService.gqlChangeEmail(email, id, userRole)
-                  .then(result => {
-                    if (result) {
-                      Toast.show({ text: Languages.EmailVerification.emailAlertMessage.email_verified })
-                      setTimeout(() => {
-                        this.onBack()
-                      }, 3000)
-                    }
-                  })
-                  .catch((err) => {
-                    Alert.alert('Error', err.message)
-                  })
+              if(!onSaveCallBack) {
+                Toast.show({ text: Languages.EmailVerification.emailAlertMessage.email_verified })
+                setTimeout(() => {
+                  this.onBack()
+                }, 3000)
               }
             } else {
               console.log('alert')
