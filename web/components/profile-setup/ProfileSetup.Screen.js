@@ -102,9 +102,9 @@ const UNAVAILABILITY_SUBSCRIPTION = gql`
 
 const ProfileSetupScreen = props => {
   const childRef = useRef();
-  // const [keys, setkeys] = useState(parseInt(props.keyValuue));
-  console.log("props.keyValue", parseInt(props.keyValue));
-  const [keys, setkeys] = useState(4);
+  const [keys, setkeys] = useState(parseInt(props.keyValuue));
+  // console.log("props.keyValue", parseInt(props.keyValue));
+  // const [keys, setkeys] = useState(2);
   const [ProfileDetails, setProfileDetails] = useState([]);
   const [customerProfileDetails, setCustomerProfileDetails] = useState([]);
   const [isFromRegister, setisFromRegister] = useState(props.isFromRegister);

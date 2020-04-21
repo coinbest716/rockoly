@@ -394,7 +394,7 @@ const PriceCalculator = props => {
     let newVal = JSON.parse(ProfileDetails.chefAdditionalServices);
     let deleteArray = isvaluePresent;
     deleteArray[index] = !isvaluePresent[index];
-    setAdditionalServices(deleteArray);
+    // setAdditionalServices(deleteArray);
 
     deleteArray.map((res, index) => {
       if (res) {
@@ -738,18 +738,18 @@ const PriceCalculator = props => {
                     </div>
                     <div className="saveAvailabilityButton" style={{ paddingRight: '2%' }}>
                       <button className="btn btn-primary" onClick={() => onAddService(event)}>
-                        Add Service
+                      Edit Service
                       </button>
                     </div>
                   </div>
                 ) :
                   <div class="card" style={{ marginTop: '3%' }}>
                     <div class="card-header" id="booking-chef-details">
-                      <label>Select Additional Services Provided by Chef</label>
+                      <label>Select Additional Services </label>
                     </div>
                     <div className="saveButton" style={{ paddingRight: '2%' }}>
                       <button className="btn btn-primary" onClick={() => onAddService(event)}>
-                        Add Service
+                        Edit Service
                       </button>
                     </div>
                     {/* onClick={() => handleSubmit()} */}
