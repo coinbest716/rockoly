@@ -1156,9 +1156,21 @@ const PricingModal = props => {
     props.backAllergyFormCallBack();
   }
 
+  function incrementValue(e) {
+    e.preventDefault();
+    if(range<ProfileDetails.noOfGuestsMax)
+    setRange(range+1)
+  }
+ 
+  function decrementValue(e) {
+    e.preventDefault();
+    if(range>=ProfileDetails.noOfGuestsMin)
+    setRange(range-1)
+  }
+  
   try {
     return (
-      <div className="pricing-modal-container">
+      <div className="pricing-modal-container pricingModal">
         <Modal
           open={Isopen}
           id="inactive"
@@ -1185,8 +1197,8 @@ const PricingModal = props => {
                       <label className="label">Number of Guests:</label>
                     </div>
                     <div className="col-lg-6">
-                      <div style={{ paddingRight: '2%' }}>
-                        <input
+                      {/* <div style={{ paddingRight: '2%' }}> */}
+                        {/* <input
                           style={{ marginRight: '4%' }}
                           type="range"
                           min={ProfileDetails.noOfGuestsMin ? ProfileDetails.noOfGuestsMin : 1}
@@ -1198,8 +1210,8 @@ const PricingModal = props => {
                             event.persist();
                             setRange(parseInt(event.target.value));
                           }}
-                        ></input>
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        ></input> */}
+                        {/* <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                           <div>
                             {ProfileDetails.noOfGuestsMin ? ProfileDetails.noOfGuestsMin : 1}
                           </div>
@@ -1207,8 +1219,18 @@ const PricingModal = props => {
                           <div>
                             {ProfileDetails.noOfGuestsMax ? ProfileDetails.noOfGuestsMax : 150}
                           </div>
-                        </div>
-                      </div>
+                        </div> */}
+                      {/* </div> */}
+                      <div class="input-group">
+                      <input type="button" value="-" class="button-minus" onClick={(event) =>  decrementValue(event)}data-field="quantity" />
+                      <input type="number" step="1" min={ProfileDetails.noOfGuestsMin ? ProfileDetails.noOfGuestsMin : 1} 
+                      max={ProfileDetails.noOfGuestsMax ? ProfileDetails.noOfGuestsMax : 150} 
+                      value={range} name="quantity" class="quantity-field" onChange={event => {
+                        event.persist();
+                        setRange(parseInt(event.target.value));
+                      }}/>
+                      <input type="button" value="+" class="button-plus" data-field="quantity" onClick={(event) => incrementValue(event)}/>
+                    </div>
                     </div>
                   </div>
                   {util.isStringEmpty(ProfileDetails.chefComplexity) && (

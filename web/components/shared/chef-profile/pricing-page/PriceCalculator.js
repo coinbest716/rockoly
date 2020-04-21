@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useMutation, useLazyQuery, useQuery } from '@apollo/react-hooks';
 import Modal from 'react-responsive-modal';
+import Router from 'next/router';
 import CalculatePrice from './CalculatePrice';
 import gql from 'graphql-tag';
 import * as gqlTag from '../../../../common/gql';
@@ -10,6 +11,7 @@ import { toastMessage, success, renderError, error } from '../../../../utils/Toa
 import CreatableSelect from 'react-select/creatable';
 import CustomerCardList from '../../../payments/components/CustomerCardList';
 import _ from 'lodash';
+import { NavigateToProfile } from './Navigation';
 
 const listStoreTag = gqlTag.query.master.storeTypeGQLTAG;
 //gql to get store list
@@ -49,6 +51,7 @@ const PriceCalculator = props => {
   const dishesRef = useRef();
   const [Isopen, setIsOpen] = useState(true);
   const [ProfileDetails, setProfileDetails] = useState([]);
+  const [chefId, setChefId] = useState();
   // const [range, setRange] = useState(null);
   const [rangeMinValue, setRangeMinValue] = useState(1);
   const [range, setRange] = useState();
@@ -158,6 +161,8 @@ const PriceCalculator = props => {
       util.isObjectEmpty(chefData.chefSpecializationProfilesByChefId.nodes[0])
     ) {
       let data = chefData.chefSpecializationProfilesByChefId.nodes[0];
+      console.log("chefId,setChefId", chefData);
+      setChefId(chefData.chefId);
       setChefSavedDishes(util.isArrayEmpty(data.chefDishTypeId) ? data.chefDishTypeId : []);
       // setSelectedDishesId(util.isArrayEmpty(data.chefDishTypeId) ? data.chefDishTypeId : []);
     }
@@ -282,6 +287,7 @@ const PriceCalculator = props => {
     additionalServices.map(value => {
       newValue = newValue + parseInt(value.price);
     });
+    console.log("additionalServices", additionalServices)
     setAdditionalServicePrice(newValue);
   }, [additionalServices]);
 
@@ -439,14 +445,41 @@ const PriceCalculator = props => {
     }
     // checkbox(!state);
   }
+  function onAddService(event) {
+    event.preventDefault();
+    // if (response) {
+    let details = {
+      key: 6,
+    };
+    NavigateToProfile(details);
+    // }
+    // NavigateToBookongDetail(newData);
+  }
+  function setValues(index, value) {
+    let tempArray = availableService;
+    tempArray[index].price = value;
+    console.log("valuesssssss", tempArray)
+    setAvailableService(tempArray);
+  }
+  function incrementValue(e) {
+    e.preventDefault();
+    if(range<ProfileDetails.noOfGuestsMax)
+    setRange(range+1)
+  }
+ 
+  function decrementValue(e) {
+    e.preventDefault();
+    if(range>=ProfileDetails.noOfGuestsMin)
+    setRange(range-1)
+  }
 
   try {
     return (
       <div>
         {showAgreement === false && (
           <div className="login-content">
-            <div className="section-title" id="booking-modal-title">
-              <h2 style={{ fontSixe: '22px' }}>Pricing Page</h2>
+            <div style={{ marginTop: '5px', marginBottom: '5px' }} className="section-title" id="booking-modal-title">
+              <h2 style={{ fontSixe: '22px' }}>Pricing Calculator</h2>
             </div>
             <form className="signup-form">
               <div className="form-group">
@@ -461,8 +494,18 @@ const PriceCalculator = props => {
                     <label className="label">Number of Guests:</label>
                   </div>
                   <div className="col-lg-6">
-                    <div style={{ paddingRight: '2%' }}>
-                      <input
+                    <div class="input-group">
+                      <input type="button" value="-" class="button-minus" onClick={(event) =>  decrementValue(event)}data-field="quantity" />
+                      <input type="number" step="1" min={ProfileDetails.noOfGuestsMin ? ProfileDetails.noOfGuestsMin : 1} 
+                      max={ProfileDetails.noOfGuestsMax ? ProfileDetails.noOfGuestsMax : 150} 
+                      value={range} name="quantity" class="quantity-field" onChange={event => {
+                        event.persist();
+                        setRange(parseInt(event.target.value));
+                      }}/>
+                      <input type="button" value="+" class="button-plus" data-field="quantity" onClick={(event) => incrementValue(event)}/>
+                    </div>
+                    {/* <div style={{ paddingRight: '2%' }}> */}
+                    {/* <input
                         style={{ marginRight: '4%', width: '100%' }}
                         type="range"
                         min={ProfileDetails.noOfGuestsMin ? ProfileDetails.noOfGuestsMin : 1}
@@ -474,195 +517,245 @@ const PriceCalculator = props => {
                           event.persist();
                           setRange(parseInt(event.target.value));
                         }}
-                      ></input>
-                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      ></input> */}
+                    {/* <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                         <div>{ProfileDetails.noOfGuestsMin ? ProfileDetails.noOfGuestsMin : 1}</div>
                         <div>{range}</div>
                         <div>
                           {ProfileDetails.noOfGuestsMax ? ProfileDetails.noOfGuestsMax : 150}
                         </div>
-                      </div>
-                    </div>
+                      </div> */}
+                    {/* </div> */}
                   </div>
                 </div>
                 {util.isStringEmpty(ProfileDetails.chefComplexity) && (
-                  <div className="form-group" id="bookingDetail">
-                    <label className="label">Select Complexity</label>
-                    <div>
-                      <div
-                        className="col-lg-12"
-                        id="complexity-booking-modal"
-                        style={{ display: 'flex' }}
-                      >
-                        {JSON.parse(ProfileDetails.chefComplexity) &&
-                          JSON.parse(ProfileDetails.chefComplexity).map((data, index) => {
-                            if (data.complexcityLevel === '1X') {
-                              return (
-                                <div className="col-lg-4" id="availabilityRow">
-                                  <div>
-                                    <div className="buy-checkbox-btn" id="checkBoxView">
-                                      <div className="item">
-                                        <input
-                                          className="inp-cbx"
-                                          id="1X"
-                                          type="radio"
-                                          name="radio-group1"
-                                          checked={multiple1}
-                                          onChange={() =>
-                                            onCheckboxClicked(
-                                              1,
-                                              setmultiple1,
-                                              multiple1,
-                                              'multiple1'
-                                            )
-                                          }
-                                        />
-                                        <label className="cbx" htmlFor="1X">
-                                          <span>
-                                            <svg width="12px" height="10px" viewBox="0 0 12 10">
-                                              <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
-                                            </svg>
-                                          </span>
-                                          <span>1X</span>
-                                        </label>
+                  <div class="card">
+                    <div class="card-header" id="booking-chef-details">
+                      <label id="describe-booking">Select Complexity</label>
+                    </div>
+
+                    <div className="form-group" id="bookingDetail">
+                      {/* <label className="label">Select Complexity</label> */}
+                      <div>
+                        <div
+                          className="col-lg-12"
+                          id="complexity-booking-modal"
+                          style={{ display: 'flex' }}
+                        >
+                          {JSON.parse(ProfileDetails.chefComplexity) &&
+                            JSON.parse(ProfileDetails.chefComplexity).map((data, index) => {
+                              { console.log("ProfileDetails.chefComplexity", data) }
+                              if (data.complexcityLevel === '1X') {
+                                return (
+                                  <div className="col-lg-4" id="availabilityRow">
+                                    <div>
+                                      <div className="buy-checkbox-btn" id="checkBoxView">
+                                        <div className="item">
+                                          <input
+                                            className="inp-cbx"
+                                            id="1X"
+                                            type="radio"
+                                            name="radio-group1"
+                                            checked={multiple1}
+                                            onChange={() =>
+                                              onCheckboxClicked(
+                                                1,
+                                                setmultiple1,
+                                                multiple1,
+                                                'multiple1'
+                                              )
+                                            }
+                                          />
+                                          <label className="cbx" htmlFor="1X">
+                                            <span>
+                                              <svg width="12px" height="10px" viewBox="0 0 12 10">
+                                                <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+                                              </svg>
+                                            </span>
+                                            <span>1X</span>
+                                          </label>
+                                        </div>
+                                      </div>
+                                      <div className="" style={{ display: 'flex' }}>
+                                        <label style={{ marginTop: '1px' }}> Dishes : </label>
+                                        <p style={{ fontSize: '14px', marginLeft: '2px' }}>
+                                          {data.dishes ? data.dishes : ''}
+                                        </p>
                                       </div>
                                     </div>
+                                    <div></div>
                                   </div>
-                                  <div></div>
-                                </div>
-                              );
-                            }
-                            if (data.complexcityLevel === '1.5X') {
-                              return (
-                                <div className="col-lg-4" id="availabilityRow">
-                                  <div>
-                                    <div className="buy-checkbox-btn" id="checkBoxView">
-                                      <div className="item">
-                                        <input
-                                          className="inp-cbx"
-                                          id="1.5X"
-                                          type="radio"
-                                          name="radio-group1"
-                                          checked={multiple2}
-                                          style={{ marginRight: '4%' }}
-                                          onChange={() =>
-                                            onCheckboxClicked(
-                                              1.5,
-                                              setmultiple2,
-                                              multiple2,
-                                              'multiple2'
-                                            )
-                                          }
-                                        />
-                                        <label className="cbx" htmlFor="1.5X">
-                                          <span>
-                                            <svg width="12px" height="10px" viewBox="0 0 12 10">
-                                              <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
-                                            </svg>
-                                          </span>
-                                          <span>1.5X</span>
-                                        </label>
+                                );
+                              }
+                              if (data.complexcityLevel === '1.5X') {
+                                return (
+                                  <div className="col-lg-4" id="availabilityRow">
+                                    <div>
+                                      <div className="buy-checkbox-btn" id="checkBoxView">
+                                        <div className="item">
+                                          <input
+                                            className="inp-cbx"
+                                            id="1.5X"
+                                            type="radio"
+                                            name="radio-group1"
+                                            checked={multiple2}
+                                            style={{ marginRight: '4%' }}
+                                            onChange={() =>
+                                              onCheckboxClicked(
+                                                1.5,
+                                                setmultiple2,
+                                                multiple2,
+                                                'multiple2'
+                                              )
+                                            }
+                                          />
+                                          <label className="cbx" htmlFor="1.5X">
+                                            <span>
+                                              <svg width="12px" height="10px" viewBox="0 0 12 10">
+                                                <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+                                              </svg>
+                                            </span>
+                                            <span>1.5X</span>
+                                          </label>
+                                        </div>
+                                      </div>
+                                      <div className="" style={{ display: 'flex' }}>
+                                        <label style={{ marginTop: '1px' }}> Dishes : </label>
+                                        <p style={{ fontSize: '14px', marginLeft: '2px' }}>
+                                          {data.dishes ? data.dishes : ''}
+                                        </p>
                                       </div>
                                     </div>
+                                    <div></div>
                                   </div>
-                                  <div></div>
-                                </div>
-                              );
-                            }
-                            if (data.complexcityLevel === '2X') {
-                              return (
-                                <div className="col-lg-4" id="availabilityRow">
-                                  <div>
-                                    <div className="  buy-checkbox-btn" id="checkBoxView">
-                                      <div className="item">
-                                        <input
-                                          className="inp-cbx"
-                                          id="2X"
-                                          type="radio"
-                                          name="radio-group1"
-                                          checked={multiple3}
-                                          onChange={() =>
-                                            onCheckboxClicked(
-                                              2,
-                                              setmultiple3,
-                                              multiple3,
-                                              'multiple3'
-                                            )
-                                          }
-                                        />
-                                        <label className="cbx" htmlFor="2X">
-                                          <span>
-                                            <svg width="12px" height="10px" viewBox="0 0 12 10">
-                                              <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
-                                            </svg>
-                                          </span>
-                                          <span>2X</span>
-                                        </label>
+                                );
+                              }
+                              if (data.complexcityLevel === '2X') {
+                                return (
+                                  <div className="col-lg-4" id="availabilityRow">
+                                    <div>
+                                      <div className="  buy-checkbox-btn" id="checkBoxView">
+                                        <div className="item">
+                                          <input
+                                            className="inp-cbx"
+                                            id="2X"
+                                            type="radio"
+                                            name="radio-group1"
+                                            checked={multiple3}
+                                            onChange={() =>
+                                              onCheckboxClicked(
+                                                2,
+                                                setmultiple3,
+                                                multiple3,
+                                                'multiple3'
+                                              )
+                                            }
+                                          />
+                                          <label className="cbx" htmlFor="2X">
+                                            <span>
+                                              <svg width="12px" height="10px" viewBox="0 0 12 10">
+                                                <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+                                              </svg>
+                                            </span>
+                                            <span>2X</span>
+                                          </label>
+                                        </div>
+                                      </div>
+                                      <div className="" style={{ display: 'flex' }}>
+                                        <label style={{ marginTop: '1px' }}> Dishes : </label>
+                                        <p style={{ fontSize: '14px', marginLeft: '2px' }}>
+                                          {data.dishes ? data.dishes : ''}
+                                        </p>
                                       </div>
                                     </div>
+                                    <div></div>
                                   </div>
-                                  <div></div>
-                                </div>
-                              );
-                            }
-                          })}
+                                );
+                              }
+                            })}
+
+                        </div>
                       </div>
                     </div>
                   </div>
                 )}
-                {availableService.length > 0 && (
-                  <div className="form-group" id="bookingDetail">
-                    <label className="label">Select Additional Services Provided by Chef</label>
-                    {availableService.map((data, index) => {
-                      return (
-                        <div>
-                          <div className="col-lg-12" style={{ display: 'flex' }}>
-                            <div className="col-lg-6">
-                              <div
-                                className="buy-checkbox-btn"
-                                id="checkBoxView"
-                                style={{ display: 'flex' }}
-                              >
-                                <div className="item">
-                                  <input
-                                    className="inp-cbx"
-                                    id={data.name}
-                                    type="checkbox"
-                                    checked={
-                                      savedService.includes(data.id)
-                                        ? savedService.includes(data.id)
-                                        : undefined
-                                    }
-                                    onClick={() => onSelectCheckbox(data, index)}
-                                  />
-                                  <label className="cbx" htmlFor={data.name}>
-                                    <span>
-                                      <svg width="12px" height="10px" viewBox="0 0 12 10">
-                                        <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
-                                      </svg>
-                                    </span>
-                                    <span>
-                                      <p
-                                        style={{
-                                          textTransform: 'capitalize !important',
-                                        }}
-                                      >
-                                        {data.name}
-                                      </p>
-                                    </span>
-                                  </label>
+                {availableService.length > 0 ? (
+                  <div class="card" style={{ marginTop: '3%' }}>
+                    <div class="card-header" id="booking-chef-details">
+                      <label>Select Additional Services</label>
+                    </div>
+                    <div className="form-group" id="bookingDetail">
+
+                      {availableService.map((data, index) => {
+                        return (
+                          <div>
+                            <div className="col-lg-12" style={{ display: 'flex', marginTop: '18px' }}>
+                              <div className="col-lg-6">
+                                <div
+                                  className="buy-checkbox-btn"
+                                  id="checkBoxView"
+                                  style={{ display: 'flex' }}
+                                >
+                                  <div className="item">
+                                    <input
+                                      className="inp-cbx"
+                                      id={data.name}
+                                      type="checkbox"
+                                      checked={
+                                        savedService.includes(data.id)
+                                          ? savedService.includes(data.id)
+                                          : undefined
+                                      }
+                                      onClick={() => onSelectCheckbox(data, index)}
+                                    />
+                                    <label className="cbx" htmlFor={data.name}>
+                                      <span>
+                                        <svg width="12px" height="10px" viewBox="0 0 12 10">
+                                          <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+                                        </svg>
+                                      </span>
+                                      <span>
+                                        <p
+                                          style={{
+                                            textTransform: 'capitalize !important',
+                                          }}
+                                        >
+                                          {data.name}
+                                        </p>
+                                      </span>
+                                    </label>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                            <div className="col-lg-6">
-                              <label>$ {data.price}</label>
+                              <div className="col-lg-6" style={{ display: 'flex', marginBottom: '18px' }}>
+                                {/* <label>$ {data.price}</label> */}
+                                <input type="text" class="form-control" onChange={() => setValues(index, event.target.value)} value={data.price}></input>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
+                    <div className="saveAvailabilityButton" style={{ paddingRight: '2%' }}>
+                      <button className="btn btn-primary" onClick={() => onAddService(event)}>
+                        Add Service
+                      </button>
+                    </div>
                   </div>
-                )}
+                ) :
+                  <div class="card" style={{ marginTop: '3%' }}>
+                    <div class="card-header" id="booking-chef-details">
+                      <label>Select Additional Services Provided by Chef</label>
+                    </div>
+                    <div className="saveButton" style={{ paddingRight: '2%' }}>
+                      <button className="btn btn-primary" onClick={() => onAddService(event)}>
+                        Add Service
+                      </button>
+                    </div>
+                    {/* onClick={() => handleSubmit()} */}
+                    {/* <button className="btn btn-primary"></button> */}
+                  </div>
+                }
               </div>
               <br />
               {/* <span>

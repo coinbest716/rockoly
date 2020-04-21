@@ -41,6 +41,11 @@ const GET_DISHES_DATA = gql`
   ${dishDataTag}
 `;
 
+const savePriceTag = gqlTag.mutation.chef.updateChefPriceCalculatorGQLTAG;
+
+const SAVE_PRICE = gql`
+  ${savePriceTag}
+`;
 const CalculatePrice = props => {
   let sampleArray = [];
   const dishesRef = useRef();
@@ -74,6 +79,8 @@ const CalculatePrice = props => {
   const [commissionAmount, setCommissionAmount] = useState(0);
   const [serviceAmount, setServiceAmount] = useState();
 
+  const [savedDetails, setSavedDetails] = useState({});
+
   // const [getStoreData, listData] = useLazyQuery(LIST_STORE);CREATE_BOOKING
 
   const getDishesData = useQuery(GET_DISHES_DATA, {
@@ -87,8 +94,18 @@ const CalculatePrice = props => {
   const [getChefDataByProfile, chefData] = useLazyQuery(GET_CHEF_DATA, {
     variables: { chefId: props.chefId },
     fetchPolicy: 'network-only',
-    onError: err => {},
+    onError: err => { },
   });
+
+  const [savePriceData, { data }] = useMutation(SAVE_PRICE, {
+    onCompleted: data => {
+      toastMessage('success', 'Values Saved Successfully');
+    },
+    onError: err => {
+      toastMessage('error', err);
+    },
+  });
+  //
 
   //Get commission value query
   const commissionData = useQuery(COMMISSION_VALUE, {
@@ -263,6 +280,38 @@ const CalculatePrice = props => {
     }
   }
 
+  function onSave(event) {
+    event.preventDefault();
+    let chefDetail;
+    if (
+      props.ProfileDetails &&
+      props.ProfileDetails.chefProfileExtendedsByChefId &&
+      props.ProfileDetails.chefProfileExtendedsByChefId.nodes[0]
+    ) {
+      chefDetail = props.ProfileDetails.chefProfileExtendedsByChefId.nodes[0];
+    } else if (props.ProfileDetails) {
+      chefDetail = props.ProfileDetails;
+    }
+    if (chefDetail) {
+      let saveObj = {
+        pChefId: props.chefId,
+        pNoOfGuestsMin: chefDetail.noOfGuestsMin,
+        pNoOfGuestsMax: chefDetail.noOfGuestsMax,
+        pChefPricePerHour: chefDetail.chefPricePerHour,
+        pChefComplexity: JSON.parse(chefDetail.chefComplexity),
+        pChefAdditionalServices: chefDetail.chefAdditionalServices ?
+          JSON.parse(chefDetail.chefAdditionalServices) : chefDetail.chefAdditionalServices
+      }
+      let variables = {
+        pData: JSON.stringify(saveObj)
+      }
+      savePriceData({
+        variables
+      })
+      console.log("chefDetailchefDetailprops", JSON.stringify(saveObj));
+
+    }
+  }
   function pricingDetails() {
     let chefDetail;
     if (
@@ -271,6 +320,7 @@ const CalculatePrice = props => {
       props.ProfileDetails.chefProfileExtendedsByChefId.nodes[0]
     ) {
       chefDetail = props.ProfileDetails.chefProfileExtendedsByChefId.nodes[0];
+      setSavedDetails(chefDetail);
     } else if (props.ProfileDetails) {
       chefDetail = props.ProfileDetails;
     }
@@ -321,7 +371,7 @@ const CalculatePrice = props => {
           <div className="card">
             <div className="card-header">
               <h4 style={{ color: '#08AB93', fontSize: '18px' }}>
-                Calculated Details for complexity 1
+              What customer will pay
               </h4>
             </div>
             <div style={{ display: 'flex', borderBottom: '1px solid #D3D3D3' }}>
@@ -434,6 +484,7 @@ const CalculatePrice = props => {
               </div>
               <div className="col-lg-2">${price.toFixed(2)}</div>
             </div> */}
+
             <div
               style={{
                 display: 'flex',
@@ -457,6 +508,14 @@ const CalculatePrice = props => {
                 ${totalAmount.toFixed(2)}
               </div>
             </div>
+            {props.screen == 'profile' &&
+              <div className="saveCalculateButton" style={{ paddingRight: '2%' }}>
+                <button className="btn btn-primary" onClick={(event) => onSave(event)}>
+                  Save and Apply
+              </button>
+              </div>
+            }
+
           </div>
         );
       } else if (noOfGuests > 5) {
@@ -480,7 +539,7 @@ const CalculatePrice = props => {
         totalAmount = totalCharge - serviceCharge;
         return (
           <div>
-            <h4 style={{ color: '#08AB93', fontSize: '18px' }}>Calculated Details Details:</h4>
+            <h4 style={{ color: '#08AB93', fontSize: '18px' }}>What customer will pay</h4>
             <div style={{ display: 'flex', borderBottom: '1px solid #D3D3D3' }}>
               <div
                 className="col-lg-10"
@@ -640,6 +699,13 @@ const CalculatePrice = props => {
               </div>
               <div className="col-lg-2">${totalAmount.toFixed(2)}</div>
             </div>
+            {props.screen == 'profile' &&
+              <div className="saveCalculateButton" style={{ paddingRight: '2%' }}>
+                <button className="btn btn-primary" onClick={(event) => onSave(event)}>
+                  Save and Apply
+                      </button>
+              </div>
+            }
           </div>
         );
       }
