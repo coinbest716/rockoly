@@ -344,36 +344,6 @@ export const profileSetupCustomerNestedMenu = [
           },
         ],
       },
-      // {
-      //   title: 'Pricing',
-      //   key: 'psub3',
-      //   subMenuItem: [
-      //     {
-      //       title: 'Price Calculator  ',
-      //       key: 'psub3Menu1',
-      //       nestedMenu: {
-      //         nestedMenuItem: [
-      //           {
-      //             title: 'Edit add play',
-      //             key: 'psub3Menu1Nes1',
-      //           },
-      //         ],
-      //       },
-      //     },
-      //     {
-      //       title: 'Base Price',
-      //       key: 'psub3Menu2',
-      //     },
-      //     {
-      //       title: 'Complexity',
-      //       key: 'psub3Menu3',
-      //     },
-      //     {
-      //       title: 'Additional Services',
-      //       key: 'psub3Menu4',
-      //     },
-      //   ],
-      // },
       {
         title: 'Switch to Chef',
         key: 'psub4',
@@ -406,20 +376,6 @@ export const profileSetupCustomerNestedMenu = [
           }
         ],
       },
-      // {
-      //   title: 'Legal',
-      //   key: 'psub6',
-      //   subMenuItem: [
-      //     {
-      //       title: 'Terms Of Service',
-      //       key: 'psub6Menu1',
-      //     },
-      //     {
-      //       title: 'Privacy Policy',
-      //       key: 'psub6Menu2',
-      //     },
-      //   ],
-      // },
       {
         title: 'Logout',
         key: 'psub7',

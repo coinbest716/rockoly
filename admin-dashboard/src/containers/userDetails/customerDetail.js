@@ -177,6 +177,9 @@ export class CustomerDetail extends Component {
                       {CommonLabels.RESET_PASSWORD}
                     </Button>
                     <SendMail emailId={userData.customerEmail} />
+                    <Button style={Styles.deleteBotton} danger>
+                      Delete
+                    </Button>
                   </div>
                 )}
               </div>

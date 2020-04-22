@@ -32,19 +32,20 @@ export default class App extends Component {
   }
 
   async componentDidMount() {
-    firebase
-    .links()
-    .getInitialLink()
-    .then(url => {
-      if (url) {
-        console.log('debugging url', url)
-      } else {
-        console.log('debugging url is not present')
-      }
-    })
-    .catch(e => {
-      console.log('debugging error ', e)
-    })
+    // firebase
+    // .links()
+    // .getInitialLink()
+    // .then(url => {
+    //   console.log('urllll', url)
+    //   if (url) {
+    //     console.log('debugging url', url)
+    //   } else {
+    //     console.log('debugging url is not present')
+    //   }
+    // })
+    // .catch(e => {
+    //   console.log('debugging error ', e)
+    // })
     const base = await new BaseService()
     const client = base.getClient()
     this.setState({client})
