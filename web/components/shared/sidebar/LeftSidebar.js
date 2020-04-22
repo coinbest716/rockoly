@@ -169,7 +169,7 @@ const LeftSidebar = props => {
           updateChefMobileInfo({ variables });
         }
         setMenu(profileSetupChefNestedMenu);
-        setMenuKey(profileSetupChefNestedMenu);
+        setMenuKey(profileSetupChefNestedMenuKeys);
       }
     }
   }, [state, emailVerified, mobileNumberVerified]);
@@ -205,7 +205,7 @@ const LeftSidebar = props => {
     //   });
     // }
   }
-  
+
   try {
     return (
       //TODO: Nested sidebar menu
@@ -252,92 +252,100 @@ const LeftSidebar = props => {
       //     <Menu.Item key="12">Option 12</Menu.Item>
       //   </SubMenu>
       // </Menu>
-
       <div>
-        {profileSetupMenu &&
-          props.role !== 'customer' &&
-          profileSetupMenu.map((res, index) => {
-            return (
-              <div key={res.key}>
-                <div className="woocommerce-sidebar-area">
-                  <div
-                    className={`collapse-widget filter-list-widget ${
-                      currentSelection ? '' : 'open'
-                    }`}
-                  >
-                    <h3
-                      className={`collapse-widget-title ${currentSelection ? '' : 'active'}`}
-                      onClick={() => onChangeMenuItem(res)}
-                    >
-                      <div
-                        className="card"
-                        style={
-                          selectedMenu === index
-                            ? Styles.selectedMenuStyle
-                            : Styles.unselectedMenuStyle
-                        }
-                      >
-                        <div className="card-body">
-                          {res.title}
-                          {((res.title === 'Email Address' && emailVerified === true) ||
-                            (res.title === 'Mobile Number' && mobileNumberVerified === true)) && (
-                            <span class="fas fa-check" style={Styles.tickIcon}></span>
-                          )}
-                        </div>
-                      </div>
-                    </h3>
-                  </div>
-                </div>
-              </div>
-            );
-          }
-          )}
+        {console.log("propssssssssss", props)}
+        {props.role == 'chef' &&
+          <Menu mode="inline" defaultOpenKeys={openKeys} defaultSelectedKeys={openKeys}>
+            {menus &&
+              menus.map((sub, subIndex) => {
+                return (
+                  <SubMenu key={sub.key} title={sub.title}>
+                    {sub.subMenu.map((subMenu, subNMnuIndex) => {
+                      if (!subMenu.hasOwnProperty('subMenuItem')) {
+                        return (
+                          <Menu.Item key={subMenu.key} onClick={onMenuItemChange}>
+                            {subMenu.title}
+                          </Menu.Item>
+                        );
+                      } else {
+                        return (
+                          <SubMenu key={subMenu.key} title={subMenu.title}>
+                            {subMenu.subMenuItem.map((nestedMenu, nestIndex) => {
+                              if (!nestedMenu.hasOwnProperty('nestedMenu')) {
+                                return (
+                                  <Menu.Item key={nestedMenu.key} onClick={onMenuItemChange}>
+                                    {nestedMenu.title}
+                                  </Menu.Item>
+                                );
+                              } else {
+                                return (
+                                  <SubMenu key={nestedMenu.key} title={nestedMenu.title}>
+                                    {nestedMenu.nestedMenu.nestedMenuItem.map((menu, index) => {
+                                      return (
+                                        <Menu.Item key={menu.key} onClick={onMenuItemChange}>
+                                          {menu.title}
+                                        </Menu.Item>
+                                      );
+                                    })}
+                                  </SubMenu>
+                                );
+                              }
+                            })}
+                          </SubMenu>
+                        );
+                      }
+                    })}
+                  </SubMenu>
+                );
+              })}
+          </Menu>
+        }
         {props.role === 'customer' &&
-        <Menu mode="inline" defaultOpenKeys={openKeys} defaultSelectedKeys={openKeys}>
-        {menus &&
-          menus.map((sub, subIndex) => {
-            return (
-              <SubMenu key={sub.key} title={sub.title}>
-                {sub.subMenu.map((subMenu, subNMnuIndex) => {
-                  if (!subMenu.hasOwnProperty('subMenuItem')) {
-                    return (
-                      <Menu.Item key={subMenu.key} onClick={onMenuItemChange}>
-                        {subMenu.title}
-                      </Menu.Item>
-                    );
-                  } else {
-                    return (
-                      <SubMenu key={subMenu.key} title={subMenu.title}>
-                        {subMenu.subMenuItem.map((nestedMenu, nestIndex) => {
-                          if (!nestedMenu.hasOwnProperty('nestedMenu')) {
-                            return (
-                              <Menu.Item key={nestedMenu.key} onClick={onMenuItemChange}>
-                                {nestedMenu.title}
-                              </Menu.Item>
-                            );
-                          } else {
-                            return (
-                              <SubMenu key={nestedMenu.key} title={nestedMenu.title}>
-                                {nestedMenu.nestedMenu.nestedMenuItem.map((menu, index) => {
-                                  return (
-                                    <Menu.Item key={menu.key} onClick={onMenuItemChange}>
-                                      {menu.title}
-                                    </Menu.Item>
-                                  );
-                                })}
-                              </SubMenu>
-                            );
-                          }
-                        })}
-                      </SubMenu>
-                    );
-                  }
-                })}
-              </SubMenu>
-            );
-          })}
-      </Menu>
-          }
+          <Menu mode="inline" defaultOpenKeys={openKeys} defaultSelectedKeys={openKeys}>
+            {menus &&
+              menus.map((sub, subIndex) => {
+                return (
+                  <SubMenu key={sub.key} title={sub.title}>
+                    {sub.subMenu.map((subMenu, subNMnuIndex) => {
+                      if (!subMenu.hasOwnProperty('subMenuItem')) {
+                        return (
+                          <Menu.Item key={subMenu.key} onClick={onMenuItemChange}>
+                            {subMenu.title}
+                          </Menu.Item>
+                        );
+                      } else {
+                        return (
+                          <SubMenu key={subMenu.key} title={subMenu.title}>
+                            {subMenu.subMenuItem.map((nestedMenu, nestIndex) => {
+                              if (!nestedMenu.hasOwnProperty('nestedMenu')) {
+                                return (
+                                  <Menu.Item key={nestedMenu.key} onClick={onMenuItemChange}>
+                                    {nestedMenu.title}
+                                  </Menu.Item>
+                                );
+                              } else {
+                                return (
+                                  <SubMenu key={nestedMenu.key} title={nestedMenu.title}>
+                                    {nestedMenu.nestedMenu.nestedMenuItem.map((menu, index) => {
+                                      return (
+                                        <Menu.Item key={menu.key} onClick={onMenuItemChange}>
+                                          {menu.title}
+                                        </Menu.Item>
+                                      );
+                                    })}
+                                  </SubMenu>
+                                );
+                              }
+                            })}
+                          </SubMenu>
+                        );
+                      }
+                    })}
+                  </SubMenu>
+                );
+              })}
+          </Menu>
+        }
       </div>
     );
   } catch (error) {

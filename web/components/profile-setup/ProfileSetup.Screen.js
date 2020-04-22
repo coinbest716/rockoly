@@ -422,7 +422,7 @@ const ProfileSetupScreen = props => {
           getChefDataByProfile();
         }
         else {
-          getCustomer();
+          getCustomerData();
         }
       }
     },
@@ -566,7 +566,7 @@ const ProfileSetupScreen = props => {
         .then(async () => {
           // let keysToRemove = ['user_ids', 'selected_menu'];
           await localStorage.clear();
-            toastMessage('success', 'Logged out Successfully');         
+          toastMessage('success', 'Logged out Successfully');
           setTimeout(async function () {
             await StoreInLocal('chef_loggedIn', false);
             await StoreInLocal('selected_menu', 'home_page');
@@ -701,7 +701,7 @@ const ProfileSetupScreen = props => {
                   < PrivacyAndPolicy screen={'profile'} />
                 }
                 {keys == 15 &&
-                    <div>
+                  <div>
                     <button className="btn btn-primary buttonSwitch" onClick={(event) => onLogout()}>
                       Log Out
                   </button>
@@ -714,7 +714,7 @@ const ProfileSetupScreen = props => {
                 <div className="row">
                   <div className="col-sm-12 col-md-12 col-lg-3 siderbar-color" id="sidebar">
                     <ProfilePictureUpload details={ProfileDetails} id={chefIdValue} role={chef} />
-                    <LeftSidebar onChangeMenu={onChangeMenu} selectedMenuKey={keys} />
+                    <LeftSidebar onChangeMenu={onChangeMenu} selectedMenuKey={keys} role={'chef'} />
                   </div>
                   <div className="col-lg-8 col-md-12-col-sm-12 " id="serviceView-containar">
                     <div>
@@ -846,13 +846,60 @@ const ProfileSetupScreen = props => {
                         {keys === 10 && <Availability chefId={chefIdValue} />}
                         {keys === 11 && <ImageGallery chefId={chefIdValue} />}
                         {keys === 12 && <UploadFile chefId={chefIdValue} />}
-                        {/* {keys === 10 && (
-                        <Description
-                          isFromRegister={isFromRegister}
-                          chefDetails={ProfileDetails}
-                          chefId={chefIdValue}
-                        />
-                      )} */}
+                        {keys === 13 && (
+                          < PaymentsScreen screen={'profile'} />
+                        )}
+                        {keys == 14 &&
+                          <section className="cart-area ptb-60">
+                            <div className="notification">
+                              <div className="row">
+                                <div className="col-lg-6 col-md-6">
+                                  <span>
+                                    <h6>Notification</h6>
+                                    <label className="switch">
+                                      <input
+                                        type="checkbox"
+                                        onClick={() => onChangeNotification()}
+                                        checked={notification}
+                                      />
+                                      <span
+                                        className="slider round"
+                                        style={{ width: '100%', height: '91%' }}
+                                      ></span>
+                                    </label>
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </section>
+                        }{keys == 15 &&
+                          <div className="notification">
+                            Under Development
+                        </div>
+                        }{keys == 17 &&
+                          <div>
+                            <button className="btn btn-primary buttonSwitch" onClick={(event) => onSwitchClick(event)}>
+                              Switch To Customer
+                          </button>
+                          </div>
+                        }{keys == 18 &&
+                          <div className="notification">
+                            Under Development
+                </div>
+                        }
+                        {keys == 19 &&
+                          < TermsConditions screen={'profile'} />
+                        }
+                        {keys == 20 &&
+                          < PrivacyAndPolicy screen={'profile'} />
+                        }
+                        {keys == 21 &&
+                          <div>
+                            <button className="btn btn-primary buttonSwitch" onClick={(event) => onLogout()}>
+                              Log Out
+                  </button>
+                          </div>
+                        }
                       </div>
                       {/* BaseRate PersonalInformationScreen*/}
                     </div>

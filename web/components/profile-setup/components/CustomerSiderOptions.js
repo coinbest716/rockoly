@@ -45,7 +45,7 @@ export const profileSetupChefNestedMenu = [
               nestedMenuItem: [
                 {
                   title: 'Edit Personal info',
-                  key: 0,
+                  key: 'psub1Menu1Nes1',
                 },
                 {
                   title: 'Edit Home Address',
@@ -207,11 +207,11 @@ export const profileSetupChefNestedMenuKeys = [
   },
   {
     key: 'psub1Menu2Nes2',
-    index: 99,
+    index: 13,
   },
   {
     key: 'psub1Menu3Nes3',
-    index: 99,
+    index: 14,
   },
   {
     key: 'psub1Menu4',
@@ -223,7 +223,7 @@ export const profileSetupChefNestedMenuKeys = [
   },
   {
     key: 'psub1Menu6',
-    index: 99,
+    index: 15,
   },
   {
     key: 'psub2Menu1Nes1',
@@ -255,27 +255,27 @@ export const profileSetupChefNestedMenuKeys = [
   },
   {
     key: 'psub3Menu4',
-    index: 99,
+    index: 6,
   },
   {
     key: 'psub4',
-    index: 99,
+    index: 16,
   },
   {
     key: 'psub5Menu1Nes1',
-    index: 99,
+    index: 18,
   },
   {
     key: 'psub6Menu1',
-    index: 99,
+    index: 19,
   },
   {
     key: 'psub6Menu2',
-    index: 99,
+    index: 20,
   },
   {
     key: 'psub7',
-    index: 99,
+    index: 21,
   },
 ];
 
