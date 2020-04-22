@@ -19,7 +19,7 @@ import {
   PROFILE_DETAIL_EVENT,
   BasicProfileService,
   UPDATE_BASIC_PROFILE_EVENT,
-  ChefPreferenceService, 
+  ChefPreferenceService,
   CHEF_PREFERNCE_EVENT,
 } from '@services'
 import {Languages} from '@translations'
@@ -55,7 +55,7 @@ class ProfileView extends PureComponent {
     // No need this event
     // ChefProfileService.on(PROFILE_DETAIL_EVENT.UPDATE_CHEF_PROFILE_DETAILS, this.onCallInitialData)
     // ChefProfileService.on(PROFILE_DETAIL_EVENT.GET_CHEF_PROFILE_ATTACHMENTS, this.onCallInitialData)
-    
+
     // Initialize event
     BasicProfileService.on(UPDATE_BASIC_PROFILE_EVENT.UPDATING_DATA, this.updatedInfo)
     ChefPreferenceService.on(CHEF_PREFERNCE_EVENT.UPDATING_DATA, this.updatedInfo)
@@ -74,7 +74,7 @@ class ProfileView extends PureComponent {
     //   PROFILE_DETAIL_EVENT.GET_CHEF_PROFILE_ATTACHMENTS,
     //   this.onCallInitialData
     // )
-    
+
     // ChefProfileService.off(PROFILE_DETAIL_EVENT.AVAILABILITY_UPDATING, this.onCallInitialData)
     ProfileViewService.off(PROFILE_VIEW_EVENT.PROFILE_VIEW, this.setList)
     BasicProfileService.off(UPDATE_BASIC_PROFILE_EVENT.UPDATING_DATA, this.updatedInfo)
@@ -548,7 +548,7 @@ class ProfileView extends PureComponent {
     }
     return (
       <View style={[styles.container]}>
-        <Header showBack={!isChef} navigation={navigation} showTitle title="Profile" showBell />
+        <Header showBack navigation={navigation} showTitle title="Profile" showBell />
         {isLoading === true ? (
           <Spinner mode="full" />
         ) : (
@@ -574,12 +574,6 @@ class ProfileView extends PureComponent {
               <View style={styles.userInfo}>
                 <View style={styles.iconNameView}>
                   <Text style={styles.text}>{userName}</Text>
-
-                  {isLoggedIn && isChef ? (
-                    <TouchableOpacity onPress={() => this.onEditProifile()}>
-                      <Icon type="FontAwesome5" name="cog" style={styles.iconStyle3} />
-                    </TouchableOpacity>
-                  ) : null}
                   {isLoggedIn && !isChef && currentUser.userId !== userDetails.userId ? (
                     <TouchableOpacity
                       onPress={() =>
@@ -731,9 +725,19 @@ class ProfileView extends PureComponent {
                             Desired Dishes: <Text style={styles.destext}>{item.dishes}</Text>
                           </Text>
                           <Text style={styles.complexityText}>
-                            Between <Text style={styles.destext}>{item && item.noOfItems && item.noOfItems.min ? item.noOfItems.min : null }</Text>{' '}
+                            Between{' '}
+                            <Text style={styles.destext}>
+                              {item && item.noOfItems && item.noOfItems.min
+                                ? item.noOfItems.min
+                                : null}
+                            </Text>{' '}
                             <Text style={styles.destext}>-</Text>{' '}
-                            <Text style={styles.destext}>{item && item.noOfItems && item.noOfItems.max ? item.noOfItems.max : null}</Text> Menu Items
+                            <Text style={styles.destext}>
+                              {item && item.noOfItems && item.noOfItems.max
+                                ? item.noOfItems.max
+                                : null}
+                            </Text>{' '}
+                            Menu Items
                           </Text>
                         </View>
                       </Body>

@@ -28,17 +28,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   userContent: {
-    marginHorizontal: 20,
-    marginVertical: 10,
+    // marginHorizontal: 20,
+    // marginVertical: 10,
     flexDirection: 'row',
     alignItems: 'center',
   },
 
   profileImage: {
-    // alignSelf: 'l',
-    width: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
     height: 100,
-    overflow: 'hidden',
+    width: 100,
     borderRadius: 50,
   },
 
@@ -75,10 +75,10 @@ const styles = StyleSheet.create({
   listItem: {
     borderBottomWidth: 0.3,
   },
-  userInfo: {
-    marginHorizontal: 10,
-    marginVertical: 10,
-  },
+  // userInfo: {
+  //   marginHorizontal: 10,
+  //   marginVertical: 10,
+  // },
   nameStyle: {
     fontSize: 18,
     color: Theme.Colors.primary,

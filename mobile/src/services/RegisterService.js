@@ -1,13 +1,14 @@
 /** @format */
 import firebase from 'react-native-firebase'
 import gql from 'graphql-tag'
-import {GQL, CONSTANTS} from '@common'
+import { GQL, CONSTANTS } from '@common'
 import BaseService from './BaseService'
 
 const gqlRegister = GQL.mutation.auth.authtenticateGQLTAG
 const gglChefBasicProfile = GQL.mutation.chef.updateBasicInfoGQLTag
 const gqlCustomerBasicProfile = GQL.mutation.customer.updateBasicInfoGQLTag
 const gqlCheckEmailAndMobileNoExists = GQL.query.auth.checkEmailAndMobileNoExistsGQLTAG
+const gqlChangeEmail = GQL.mutation.custom.changeEmailGQLTAG
 
 export const REGISTER_SERVICE_EVENT = {
   EMAIL_REGISTER: 'REGISTER/EMAIL_REGISTER',
@@ -34,7 +35,7 @@ class RegisterService extends BaseService {
             },
             fetchPolicy: 'network-only',
           })
-          .then(({data, errors}) => {
+          .then(({ data, errors }) => {
             console.log('checkEmailAndMobileNoExists errors', errors)
             if (errors) {
               reject(errors[0].message)
@@ -57,7 +58,7 @@ class RegisterService extends BaseService {
     })
   }
 
-  saveBasicDetails = ({isChef, firstName, lastName, mobileNumber, callingCode}, currentUser) => {
+  saveBasicDetails = ({ isChef, firstName, lastName, mobileNumber, callingCode }, currentUser) => {
     return new Promise((resolve, reject) => {
       try {
         let gqlSaveProfile = ``
@@ -112,7 +113,7 @@ class RegisterService extends BaseService {
             mutation,
             variables: obj,
           })
-          .then(({data}) => {
+          .then(({ data }) => {
             console.log('debugging saveBasicDetails success', data)
             if (
               isChef &&
@@ -185,7 +186,7 @@ class RegisterService extends BaseService {
               extra: JSON.stringify(userData),
             },
           })
-          .then(({data}) => {
+          .then(({ data }) => {
             if (
               data &&
               data.authenticate &&
@@ -203,6 +204,42 @@ class RegisterService extends BaseService {
           })
       } catch (e) {
         console.log('register gqlRegister err', e)
+        reject(e)
+      }
+    })
+  }
+
+  gqlChangeEmail = (email, id, role) => {
+    return new Promise((resolve, reject) => {
+      try {
+        const mutation = gql`
+          ${gqlChangeEmail}
+        `
+        this.client
+          .mutate({
+            mutation,
+            variables: {
+              pEmail: email,
+              pId: id,
+              pType: role
+            },
+          })
+          .then((res) => {
+            if (
+              res
+            ) {
+              resolve(res)
+              
+            } else {
+              reject(new Error('change email gql error'))
+            }
+          })
+          .catch(e => {
+            console.log('change emailUpdate err', e)
+            reject(e)
+          })
+      } catch (e) {
+        console.log('change emailUpdate err', e)
         reject(e)
       }
     })
