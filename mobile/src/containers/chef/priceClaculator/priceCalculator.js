@@ -1,7 +1,7 @@
 /** @format */
 
 import React, {Component} from 'react'
-import {View, ScrollView, Platform, Alert, RefreshControl} from 'react-native'
+import {View, ScrollView, Platform, Alert, RefreshControl, Modal} from 'react-native'
 import {Text, CheckBox, ListItem, Icon, Body, Input, Item, Card, Toast, CardItem} from 'native-base'
 import KeyboardSpacer from 'react-native-keyboard-spacer'
 import Slider from '@react-native-community/slider'
@@ -46,6 +46,7 @@ export default class priceCalculation extends Component {
       shopName: undefined,
       otherShopName: '',
       refreshing: false,
+      modalView: false,
       additionalServiceTypeId: [],
       additionalServiceData: [],
       storeData: [],
@@ -114,6 +115,24 @@ export default class priceCalculation extends Component {
 
   loadStoreData = () => {
     PriceCalculationService.getStoreData()
+  }
+
+  closeCompleteModal = () => {
+    this.setState(
+      {
+        modalView: false,
+      },
+      () => {}
+    )
+  }
+
+  openModal = () => {
+    this.setState(
+      {
+        modalView: true,
+      },
+      () => {}
+    )
   }
 
   getStoreList = ({storeData}) => {
@@ -603,7 +622,7 @@ export default class priceCalculation extends Component {
         () => {
           ChefPreferenceService.updatePriceCalculator({params})
             .then(data => {
-              this.setState({isLoading: false})
+              this.setState({isLoading: false, modalView: false})
               Toast.show({
                 text: 'Saved sucessfully',
                 duration: 3000,
@@ -671,29 +690,21 @@ export default class priceCalculation extends Component {
       guestMax,
       guestCount,
       complexity,
-      foodCostMax,
-      foodCostMin,
-      foodCost,
       additionalServices,
-      shopName,
-      otherShopName,
-      storeData,
       bookingDetail,
-      bookingData,
       additionalServiceValues,
       additionalPrice,
       complexitySelected,
       originalAdditionalServices,
       stripeCents,
       stripePercentage,
-      additionalServiceData,
       originalNoOfGuest,
       originalComplexity,
       invalidGuest,
       invalidComplexity,
       chefPrice,
       refreshing,
-      hideRequestBtn,
+      modalView,
     } = this.state
     console.log('chefDetail', additionalServices)
     console.log('bookingDetail', bookingDetail)
@@ -1198,10 +1209,64 @@ export default class priceCalculation extends Component {
           <CommonButton
             btnText="Save and apply"
             containerStyle={styles.saveBtn}
-            onPress={this.onSave}
+            onPress={this.openModal}
           />
           {Platform.OS === 'ios' && <KeyboardSpacer />}
         </ScrollView>
+        <Modal
+          animationType="fade"
+          transparent
+          visible={modalView}
+          onRequestClose={() => this.closeCompleteModal()}>
+          <View style={styles.modelView}>
+            <View style={styles.completeModelContainer}>
+              <Text
+                style={{
+                  color: 'black',
+                  textAlign: 'center',
+                  fontSize: 18,
+                  fontWeight: 'bold',
+                  marginVertical: 5,
+                }}>
+                Are you sure
+              </Text>
+              <View style={styles.iconText}>
+                <Text style={styles.heading}>Chef Base rate</Text>
+                <Text style={styles.modalText}>${chefPrice}</Text>
+              </View>
+              <View style={styles.iconText}>
+                <Text style={styles.heading}>No of guests</Text>
+                <Text style={styles.modalText}>{guestCount}</Text>
+              </View>
+              <View style={styles.iconText}>
+                <Text style={styles.heading}>
+                  {Languages.bookingDetail.labels.extra_services_amount}
+                </Text>
+                <Text style={styles.modalText}>
+                  {newAdditionalTotalPrice
+                    ? `$${parseFloat(newAdditionalTotalPrice).toFixed(2)}`
+                    : `$${0}`}
+                </Text>
+              </View>
+              <View style={{flexDirection: 'column', marginVertical: 10}}>
+                <View style={styles.btnView}>
+                  <CommonButton
+                    btnText="Cancel"
+                    textStyle={{fontSize: 12}}
+                    containerStyle={styles.primaryBtn}
+                    onPress={() => this.closeCompleteModal()}
+                  />
+                  <CommonButton
+                    btnText={Languages.bookingHistory.ok}
+                    textStyle={{fontSize: 12}}
+                    containerStyle={styles.primaryBtn}
+                    onPress={() => this.onSave()}
+                  />
+                </View>
+              </View>
+            </View>
+          </View>
+        </Modal>
       </View>
     )
   }

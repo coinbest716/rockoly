@@ -194,7 +194,7 @@ const ChefStack = createStackNavigator(
   },
   {
     ...StackNavConfig,
-    // initialRouteName: RouteNames.PRICE_CALCULATION,
+    initialRouteName: RouteNames.PRICE_CALCULATION,
   }
 )
 

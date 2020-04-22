@@ -365,6 +365,9 @@ export class ChefDetail extends Component {
                       {CommonLabels.RESET_PASSWORD}
                     </Button>
                     <SendMail emailId={userData.chefEmail} />
+                    <Button style={Styles.deleteBotton} danger>
+                      Delete
+                    </Button>
                   </div>
                 )}
               </div>
