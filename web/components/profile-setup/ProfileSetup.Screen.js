@@ -1,7 +1,8 @@
 // TOdo-cr-si remove unused code
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useContext } from 'react';
 import { useQuery, useLazyQuery, useMutation, useSubscription } from '@apollo/react-hooks';
 import gql from 'graphql-tag';
+import Router from 'next/router';
 // import Page from '../shared/layout/Main';
 import Navbar from '../shared/layout/Navbar';
 import Footer from '../shared/layout/Footer';
@@ -35,6 +36,8 @@ import {
   customer,
   getUserTypeRole,
   customerId,
+  getCustomerAuthData,
+  getChefAuthData
 } from '../../utils/UserType';
 import { firebase } from '../../config/firebaseConfig';
 import * as util from '../../utils/checkEmptycondition';
@@ -45,6 +48,16 @@ import SharedProfile from '../shared-profile/Sharedprofile.Screen';
 import ProfilePictureUpload from '../shared/profile-picture/ProfilePicture';
 import Complexity from '../shared/chef-profile/complexity/Complexity.Screen';
 import PersonalInformationScreen from '../shared/chef-profile/personal-info/PersonalInformation.Screen';
+import n from '../routings/routings';
+import PaymentsScreen from '../payments/Payments.Screen';
+import ChangePassword from '../auth/change-password/ChangePassword.screen';
+import TermsConditions from '../terms-and-conditions/TermsConditions.Screens';
+import PrivacyAndPolicy from '../privacy-policy/PrivacyPolicy.Screens';
+import { AppContext } from '../../context/appContext';
+import { NavigateToRequest, NavigateToHome, NavigateToChangePassword } from './components/Navigation';
+import { StoreInLocal } from '../../utils/LocalStorage';
+
+
 
 //customer
 const customerDataTag = gqlTag.query.customer.profileByIdGQLTAG;
@@ -100,11 +113,38 @@ const UNAVAILABILITY_SUBSCRIPTION = gql`
   ${unAvailabilitySubs}
 `;
 
+//Update notification for chef
+const updateNotificationChefTag = gqlTag.mutation.chef.updateNotificationGQLTAG;
+
+const UPDATE_NOTIFICATION_CHEF = gql`
+  ${updateNotificationChefTag}
+`
+//Update notification for customer
+const updateNotificationCustomerTag = gqlTag.mutation.customer.updateNotificationGQLTAG;
+
+const UPDATE_NOTIFICATION_CUSTOMER = gql`
+  ${updateNotificationCustomerTag}
+`;
+
+//login auth qgl tag
+const updateAuthentication = gqlTag.mutation.auth.switchRoleGQLTAG;
+
+const LOGIN_AUTH = gql`
+  ${updateAuthentication}
+`;
+
+// Get GQL Tags
+const chefProfileGQLTAG = gqlTag.query.chef.profileByIdGQLTAG;
+
+const GET_PROFILE_DATA = gql`
+  ${chefProfileGQLTAG}
+`;
+
 const ProfileSetupScreen = props => {
   const childRef = useRef();
-  // const [keys, setkeys] = useState(parseInt(props.keyValuue));
-  console.log("props.keyValue", parseInt(props.keyValue));
-  const [keys, setkeys] = useState(4);
+  const [keys, setkeys] = useState(parseInt(props.keyValuue));
+  // console.log("props.keyValue", parseInt(props.keyValue));
+  // const [keys, setkeys] = useState(2);
   const [ProfileDetails, setProfileDetails] = useState([]);
   const [customerProfileDetails, setCustomerProfileDetails] = useState([]);
   const [isFromRegister, setisFromRegister] = useState(props.isFromRegister);
@@ -122,6 +162,8 @@ const ProfileSetupScreen = props => {
   const [mobileNumberVerified, setMobileNumberVerified] = useState(false);
   const [emailVerified, setEmailVerified] = useState(false);
   const [removeModal, setRemoveModal] = useState(false);
+  const [notification, setNotification] = useState(false);
+  const [state, setState] = useContext(AppContext);
 
   const [getCustomerData, { data }] = useLazyQuery(GET_CUSTOMER_DATA, {
     variables: { customerId: customerIdValue },
@@ -195,6 +237,27 @@ const ProfileSetupScreen = props => {
       },
     }
   );
+
+  //Update notification for chef
+  const [updateNotificationChef] = useMutation(UPDATE_NOTIFICATION_CHEF, {
+    onCompleted: () => {
+      toastMessage("success", S.SUCCESS_MSG);
+    },
+    onError: err => {
+      toastMessage(renderError, err.message);
+    },
+  });
+
+  //Update notification for customer
+  const [updateNotificationCustomer] = useMutation(UPDATE_NOTIFICATION_CUSTOMER, {
+    onCompleted: () => {
+      toastMessage("success", S.SUCCESS_MSG);
+    },
+    onError: err => {
+      toastMessage(renderError, err.message);
+    },
+  });
+
 
   // update profile data submit for chef
 
@@ -331,6 +394,110 @@ const ProfileSetupScreen = props => {
     });
   });
 
+  //update state values
+  useEffect(() => {
+    if (state && state.role === chef) {
+      if (util.isObjectEmpty(state.chefProfile) && state.chefProfile.isNotificationYn) {
+        setNotification(state.chefProfile.isNotificationYn);
+      }
+    } else {
+      if (util.isObjectEmpty(state.customerProfile) && state.customerProfile.isNotificationYn) {
+        setNotification(state.customerProfile.isNotificationYn);
+      }
+    }
+  }, [state]);
+
+
+  const [getChefIds, chefDatas] = useLazyQuery(GET_PROFILE_DATA);
+  const [loginAuthMutation, switchData] = useMutation(LOGIN_AUTH, {
+    onCompleted: success => {
+      let payload = success.switchUserByRole;
+      if (util.hasProperty(payload, 'json')) {
+        let jsonObj = JSON.parse(payload.json);
+        if (jsonObj.role == "CHEF") {
+          // getChefIds({
+          //   chefId: jsonObj.chef.chefId,
+          // });
+          setChefId(jsonObj.chef.chefId);
+          getChefDataByProfile();
+        }
+        else {
+          getCustomerData();
+        }
+      }
+    },
+    // onError: err => {
+    //   toastMessage(renderError, err.message);
+    // },
+  });
+
+  //get & set user id's in local storage after getting firebase token and calling mutation
+  useEffect(() => {
+    try {
+      if (switchData && switchData.data && switchData.data.switchUserByRole && switchData.data.switchUserByRole.json) {
+        setAuthData(switchData.data.switchUserByRole.json);
+      }
+    } catch (error) {
+      toastMessage(renderError, error.message);
+    }
+  }, [switchData]);
+
+  async function setAuthData(data) {
+    if (data !== undefined) {
+      let parseData = JSON.parse(data);
+      //for customer login
+      if (util.isObjectEmpty(state) && state.role === chef) {
+        getCustomerAuthData(parseData)
+          .then(customerRes => {
+            toastMessage("success", 'Switched User Succesfully');
+            setUserRole(customer);
+            StoreInLocal('user_ids', customerRes);
+            StoreInLocal('user_role', customer);
+            StoreInLocal('selected_menu', 'home_page');
+            if (window.location.pathname === '/') {
+              window.location.reload();
+            }
+            else {
+              NavigateToHome();
+            }
+          })
+          .catch(error => {
+            toastMessage("renderError", error.message);
+          });
+      }
+      //for chef login
+      else {
+        getChefAuthData(parseData)
+          .then(chefRes => {
+            toastMessage("success", 'Switched User Succesfully');
+            setUserRole(chef);
+            StoreInLocal('user_ids', chefRes);
+            StoreInLocal('user_role', chef);
+            StoreInLocal('selected_menu', 'home_page');
+            const variables = {
+              chefId: chefRes.chefId,
+            };
+            getChefIds({
+              variables,
+            });
+            if (window.location.pathname === '/') {
+              window.location.reload();
+            }
+            else {
+              NavigateToHome();
+            }
+          })
+          .catch(error => {
+            toastMessage("renderError", error.message);
+          });
+      }
+    }
+  }
+
+  // const [getChefIds, {switchChefData}] = useLazyQuery(GET_PROFILE_DATA);
+
+
+
   function onCloseModal() {
     try {
       setRemoveModal(false);
@@ -339,6 +506,81 @@ const ProfileSetupScreen = props => {
     }
   }
 
+  //call on Change Notification
+  async function onChangeNotification() {
+    setNotification(!notification);
+    if (state.role === chef) {
+      let variables = {
+        chefId: state.chefId,
+        isNotificationYn: !notification,
+      };
+      await updateNotificationChef({
+        variables,
+      });
+    } else {
+      let variables = {
+        customerId: state.customerId,
+        isNotificationYn: !notification,
+      };
+      await updateNotificationCustomer({
+        variables,
+      });
+    }
+  }
+
+
+  //Switch user to chef role
+  function onSwitchClick(e) {
+
+    e.preventDefault();
+    if (
+      (util.isObjectEmpty(state) &&
+        util.isObjectEmpty(state.customerProfile) &&
+        util.isStringEmpty(state.customerProfile.customerEmail)) ||
+      (util.isObjectEmpty(state) &&
+        util.isObjectEmpty(state.chefProfile) &&
+        util.isStringEmpty(state.chefProfile.chefEmail))
+    ) {
+      let variables = {
+        pEmail:
+          util.isObjectEmpty(state) && state.role === customer
+            ? state.customerProfile
+              ? state.customerProfile.customerEmail
+              : ''
+            : state.chefProfile
+              ? state.chefProfile.chefEmail
+              : '',
+        pSwitchFrom: util.isObjectEmpty(state) && state.role === customer ? 'CUSTOMER' : 'CHEF',
+        pSwitchTo: util.isObjectEmpty(state) && state.role === customer ? 'CHEF' : 'CUSTOMER',
+      };
+      console.log("variables", variables)
+      loginAuthMutation({ variables });
+    }
+  }
+
+  async function onLogout() {
+    try {
+      firebase
+        .auth()
+        .signOut()
+        .then(async () => {
+          // let keysToRemove = ['user_ids', 'selected_menu'];
+          await localStorage.clear();
+          toastMessage('success', 'Logged out Successfully');
+          setTimeout(async function () {
+            await StoreInLocal('chef_loggedIn', false);
+            await StoreInLocal('selected_menu', 'home_page');
+            await Router.push(n.HOME);
+          }, 1000);
+          setUserRole(false);
+        })
+        .catch(error => {
+          toastMessage('error', error.message);
+        });
+    } catch (error) {
+      toastMessage('renderError', error.message);
+    }
+  };
   return (
     <React.Fragment>
       <Navbar />
@@ -408,12 +650,63 @@ const ProfileSetupScreen = props => {
                   />
                 )}{' '}
                 {keys === 7 && (
-                  <FavoriteCuisine
-                    details={customerDetails}
-                    customerId={customerIdValue}
-                    role={customer}
-                  />
+                  < PaymentsScreen screen={'profile'} />
                 )}
+                {keys == 8 &&
+                  <section className="cart-area ptb-60">
+                    <div className="notification">
+                      <div className="row">
+                        <div className="col-lg-6 col-md-6">
+                          <span>
+                            <h6>Notification</h6>
+                            <label className="switch">
+                              <input
+                                type="checkbox"
+                                onClick={() => onChangeNotification()}
+                                checked={notification}
+                              />
+                              <span
+                                className="slider round"
+                                style={{ width: '100%', height: '91%' }}
+                              ></span>
+                            </label>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                }
+                {keys == 9 &&
+                  <div className="notification">
+                    Under Development
+                </div>
+                }
+                {keys == 10 &&
+                  <div>
+                    <button className="btn btn-primary buttonSwitch" onClick={(event) => onSwitchClick(event)}>
+                      Switch To Chef
+                  </button>
+                  </div>
+                }{keys == 11 &&
+                  <ChangePassword screen={'profile'} />
+                }{keys == 12 &&
+                  <div className="notification">
+                    Under Development
+                </div>
+                }
+                {keys == 13 &&
+                  < TermsConditions screen={'profile'} />
+                }
+                {keys == 14 &&
+                  < PrivacyAndPolicy screen={'profile'} />
+                }
+                {keys == 15 &&
+                  <div>
+                    <button className="btn btn-primary buttonSwitch" onClick={(event) => onLogout()}>
+                      Log Out
+                  </button>
+                  </div>
+                }
               </div>{' '}
             </div>
           ) : (
@@ -421,7 +714,7 @@ const ProfileSetupScreen = props => {
                 <div className="row">
                   <div className="col-sm-12 col-md-12 col-lg-3 siderbar-color" id="sidebar">
                     <ProfilePictureUpload details={ProfileDetails} id={chefIdValue} role={chef} />
-                    <LeftSidebar onChangeMenu={onChangeMenu} selectedMenuKey={keys} />
+                    <LeftSidebar onChangeMenu={onChangeMenu} selectedMenuKey={keys} role={'chef'} />
                   </div>
                   <div className="col-lg-8 col-md-12-col-sm-12 " id="serviceView-containar">
                     <div>
@@ -553,13 +846,60 @@ const ProfileSetupScreen = props => {
                         {keys === 10 && <Availability chefId={chefIdValue} />}
                         {keys === 11 && <ImageGallery chefId={chefIdValue} />}
                         {keys === 12 && <UploadFile chefId={chefIdValue} />}
-                        {/* {keys === 10 && (
-                        <Description
-                          isFromRegister={isFromRegister}
-                          chefDetails={ProfileDetails}
-                          chefId={chefIdValue}
-                        />
-                      )} */}
+                        {keys === 13 && (
+                          < PaymentsScreen screen={'profile'} />
+                        )}
+                        {keys == 14 &&
+                          <section className="cart-area ptb-60">
+                            <div className="notification">
+                              <div className="row">
+                                <div className="col-lg-6 col-md-6">
+                                  <span>
+                                    <h6>Notification</h6>
+                                    <label className="switch">
+                                      <input
+                                        type="checkbox"
+                                        onClick={() => onChangeNotification()}
+                                        checked={notification}
+                                      />
+                                      <span
+                                        className="slider round"
+                                        style={{ width: '100%', height: '91%' }}
+                                      ></span>
+                                    </label>
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </section>
+                        }{keys == 15 &&
+                          <div className="notification">
+                            Under Development
+                        </div>
+                        }{keys == 17 &&
+                          <div>
+                            <button className="btn btn-primary buttonSwitch" onClick={(event) => onSwitchClick(event)}>
+                              Switch To Customer
+                          </button>
+                          </div>
+                        }{keys == 18 &&
+                          <div className="notification">
+                            Under Development
+                </div>
+                        }
+                        {keys == 19 &&
+                          < TermsConditions screen={'profile'} />
+                        }
+                        {keys == 20 &&
+                          < PrivacyAndPolicy screen={'profile'} />
+                        }
+                        {keys == 21 &&
+                          <div>
+                            <button className="btn btn-primary buttonSwitch" onClick={(event) => onLogout()}>
+                              Log Out
+                  </button>
+                          </div>
+                        }
                       </div>
                       {/* BaseRate PersonalInformationScreen*/}
                     </div>
