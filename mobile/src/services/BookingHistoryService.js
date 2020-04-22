@@ -335,7 +335,7 @@ class BookingHistoryService extends BaseService {
           .then(({data}) => {
             console.log('data completeBooking', data)
             if (data && data.bookingComplete) {
-              this.emit(BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_STATUS_UPDATED, true)
+              this.emit(BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_STATUS_UPDATED, {})
               resolve(data)
             }
           })
@@ -375,7 +375,7 @@ class BookingHistoryService extends BaseService {
             if (errors) {
               reject(errors[0].message)
             } else if (data && data.updateChefBookingHistoryByChefBookingHistId) {
-              this.emit(BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_STATUS_UPDATED, true)
+              this.emit(BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_STATUS_UPDATED, {})
               resolve(data)
             }
           })
@@ -408,7 +408,7 @@ class BookingHistoryService extends BaseService {
             if (errors) {
               reject(errors[0].message)
             } else if (data && data.updateChefBookingHistoryByChefBookingHistId) {
-              this.emit(BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_STATUS_UPDATED, true)
+              this.emit(BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_STATUS_UPDATED, {})
               resolve(data)
             }
           })

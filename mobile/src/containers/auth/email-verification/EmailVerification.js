@@ -206,7 +206,7 @@ class EmailVerification extends PureComponent {
   }
 
   renderChangeEmail = () => {
-    const { email, currentPassword } = this.state
+    const { email, currentPassword, sendOTP } = this.state
     return (
       <View>
         <Item style={{ marginVertical: 10 }}>
@@ -214,6 +214,7 @@ class EmailVerification extends PureComponent {
             placeholder={Languages.EmailVerification.labels.emailPlaceholder}
             onChangeText={this.onChangeEmailId}
             value={email}
+            disabled={sendOTP === true ? true :  false}
           />
         </Item>
         <Item style={{ marginVertical: 10 }}>
@@ -221,6 +222,7 @@ class EmailVerification extends PureComponent {
             placeholder={Languages.EmailVerification.labels.currentPassword}
             onChangeText={this.onChangeCurrentPassword}
             value={currentPassword}
+            disabled={sendOTP === true ? true :  false}
           />
         </Item>
       </View>

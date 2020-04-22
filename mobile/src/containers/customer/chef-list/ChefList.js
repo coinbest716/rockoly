@@ -28,7 +28,6 @@ import axios from 'axios'
 import _ from 'lodash'
 import {CONSTANTS} from '@common'
 import {Spinner, CommonList} from '@components'
-import {AuthContext} from '../../../AuthContext'
 import {
   LocationService,
   LOCATION_EVENT,
@@ -37,17 +36,22 @@ import {
   NotificationListService,
   LoginService,
   NOTIFICATION_LIST_EVENT,
+  BookingDetailService,
+  BOOKING_DETAIL_EVENT,
 } from '@services'
 import {Languages} from '@translations'
-import ChefListService, {CHEF_LIST_EVENT} from '../../../services/ChefListService'
-import FavouriteChefService, {FAV_CHEF_LIST_EVENT} from '../../../services/FavouriteChefService'
-import {RouteNames, ResetStack} from '@navigation'
-import styles from './styles'
+import {RouteNames, ResetStack, ResetAction} from '@navigation'
 import {Images} from '@images'
 import {Theme} from '@theme'
 import {Filter, SearchLocation} from '@containers'
+import styles from './styles'
+import FavouriteChefService, {FAV_CHEF_LIST_EVENT} from '../../../services/FavouriteChefService'
+import ChefListService, {CHEF_LIST_EVENT} from '../../../services/ChefListService'
+import {AuthContext} from '../../../AuthContext'
 
 const mapApiKey = 'AIzaSyCcjRqgAT1OhVMHTPXwYk2IbR6pYQwFOTI'
+// differnet url for customer and chef => now its janani@neosme.com login 
+const bookingUrl = 'https://dev.rockoly.com/booking-detail?chefBookingHistId=ebc6ac14-c6d7-444d-8a33-d2e646876b70&toRole=CUSTOMER&bookingType='
 
 class ChefList extends PureComponent {
   constructor(props) {
@@ -70,6 +74,9 @@ class ChefList extends PureComponent {
       showFilter: false,
       showSearchLocation: false,
       notificationCount: 0,
+      bookingHitsoryId: '',
+      bookingDetail: {},
+      detailLinkRole: '',
     }
   }
 
@@ -84,6 +91,9 @@ class ChefList extends PureComponent {
       }
     }
 
+    // await this.onGetLink()
+
+    BookingDetailService.on(BOOKING_DETAIL_EVENT.BOOKING_DETAIL, this.setBookingDetail)
     ChefListService.on(CHEF_LIST_EVENT.CHEF_LIST, this.setList)
     ChefListService.on(CHEF_LIST_EVENT.FILTER_LIST, this.loadFilterData)
     LocationService.on(LOCATION_EVENT.USER_LOCATION_CHANGED, this.onLoaderFirst)
@@ -174,7 +184,7 @@ class ChefList extends PureComponent {
 
   componentWillUnmount() {
     this.onRemoveBackHandler()
-
+    BookingDetailService.off(BOOKING_DETAIL_EVENT.BOOKING_DETAIL, this.setBookingDetail)
     ChefListService.off(CHEF_LIST_EVENT.CHEF_LIST, this.setList)
     ChefListService.off(CHEF_LIST_EVENT.FILTER_LIST, this.loadFilterData)
     LocationService.off(LOCATION_EVENT.USER_LOCATION_CHANGED, this.onLoadInitialData)
@@ -182,6 +192,103 @@ class ChefList extends PureComponent {
       FAV_CHEF_LIST_EVENT.FOLLOW_OR_UNFOLLOW_UPDATING,
       this.updateFolloworUnfollow
     )
+  }
+  
+  getRoleUrl = () => {
+    const query = bookingUrl.split('?')[1]
+    const params = query.split('&')
+    for (let i = 0; i < params.length; i++) {
+      console.log(params[i].split('=')[0], params[i].split('=')[1])
+      if (params[i].split('=')[0] === 'toRole') {
+        return params[i].split('=')[1]
+      }
+    }
+  }
+
+  getBookingId = () => {
+    const query = bookingUrl.split('?')[1]
+    const params = query.split('&')
+    for (let i = 0; i < params.length; i++) {
+      console.log(params[i].split('=')[0], params[i].split('=')[1])
+      if (params[i].split('=')[0] === 'chefBookingHistId') {
+        return params[i].split('=')[1]
+      }
+    }
+  }
+
+  onGetLink = () => {
+    const {isLoggedIn, userRole, currentUser} = this.context
+    const {navigation} = this.props
+    console.log('isLoggedIn', isLoggedIn)
+    if (isLoggedIn === true && userRole !== null && userRole !== undefined) {
+  
+      const linkRole = this.getRoleUrl()
+      const bookingId = this.getBookingId()
+      console.log('linkRole', linkRole, bookingId)
+      this.setState(
+        {
+          bookingHitsoryId: bookingId,
+          isFetching: true,
+          detailLinkRole: linkRole,
+        },
+        () => {
+          BookingDetailService.getBookingDetail(bookingId)
+        }
+      )
+    } else {
+      console.log('isLoggedIn else', isLoggedIn)
+      ResetAction(navigation, RouteNames.CUSTOMER_SWITCH)
+    }
+  }
+
+  onNavigatetoDetailPage = () => {
+    const {detailLinkRole, bookingHitsoryId, bookingDetail} = this.state
+    const {userRole, currentUser} = this.context
+    const {navigation} = this.props
+    if (userRole === 'CHEF') {
+      if (
+        detailLinkRole === 'CHEF' &&
+        userRole === 'CHEF' &&
+        bookingDetail
+      ) {
+        if (bookingDetail.chefId === currentUser.chefId) {
+          navigation.navigate(RouteNames.BOOKING_DETAIL_SCREEN, {
+            bookingHistId: bookingHitsoryId,
+          })
+        }
+      }
+    } else if (userRole === 'CUSTOMER') {
+      if (
+        detailLinkRole === 'CUSTOMER' &&
+        userRole === 'CUSTOMER' &&
+        bookingDetail
+      ) {
+        if (bookingDetail.customerId === currentUser.customerId) {
+          navigation.navigate(RouteNames.BOOKING_DETAIL_SCREEN, {
+            bookingHistId: bookingHitsoryId,
+          })
+        }
+      }
+    }
+  }
+
+  setBookingDetail = ({bookingDetail}) => {
+    console.log('bookingDetail', bookingDetail)
+    if (bookingDetail) {
+      this.setState(
+        {
+          isFetching: false,
+          bookingDetail,
+        },
+        () => {
+          this.onNavigatetoDetailPage()
+        }
+      )
+    } else {
+      this.setState({
+        isFetching: false,
+      })
+    }
   }
 
   onGetBoolean = value => {
@@ -1250,7 +1357,7 @@ class ChefList extends PureComponent {
                             type="MaterialCommunityIcons"
                             style={{fontSize: 12, color: Theme.Colors.primary}}
                           />
-                          {'&above'}
+                           {'&above'}
                         </Text>
                       </View>
                     )}
@@ -1281,7 +1388,7 @@ class ChefList extends PureComponent {
                             type="MaterialCommunityIcons"
                             style={{fontSize: 12, color: Theme.Colors.primary}}
                           />
-                          {'&above'}
+                           {'&above'}
                         </Text>
                       </View>
                     )}

@@ -23,8 +23,10 @@ import {ChefProfileService, PROFILE_DETAIL_EVENT, TabBarService,
    BasicProfileService, UPDATE_BASIC_PROFILE_EVENT,
    NotificationListService, NOTIFICATION_LIST_EVENT,
    CommonService, COMMON_LIST_NAME,
+   BookingDetailService,
+   BOOKING_DETAIL_EVENT,
   } from '@services'
-import {RouteNames, ResetStack} from '@navigation'
+import {RouteNames, ResetStack, ResetAction} from '@navigation'
 import {Languages} from '@translations'
 import {Theme} from '@theme'
 import {
@@ -38,6 +40,9 @@ import {
 import {AuthContext} from '../../../AuthContext'
 import styles from './styles'
 
+
+// differnet url for customer and chef => now its maheshwaran@neosme.com login 
+const bookingUrl = 'https://dev.rockoly.com/booking-detail?chefBookingHistId=e3812163-a3f5-419b-9c8a-67f290b3668e&toRole=CHEF&bookingType='
 class Home extends Component {
   constructor(props) {
     super(props)
@@ -52,7 +57,10 @@ class Home extends Component {
       isEmailVerified: false,
       isMobileVerified: false,
       chefStatus: '',
-      profile: {}
+      profile: {},
+      bookingHitsoryId: '',
+      bookingDetail: {},
+      detailLinkRole: '',
       
     }
   }
@@ -60,6 +68,7 @@ class Home extends Component {
   async componentDidMount() {
     const {currentUser, isLoggedIn, getProfile, isChef} = this.context
     const {navigation} = this.props
+    
 
     // event 
     ChefProfileService.on(PROFILE_DETAIL_EVENT.GET_CHEF_FULL_PROFILE_DETAIL, this.setList)
@@ -74,7 +83,7 @@ class Home extends Component {
       this.updateInfo
     )
     this.onAddBackHandler()
-
+    BookingDetailService.on(BOOKING_DETAIL_EVENT.BOOKING_DETAIL, this.setBookingDetail)
     const profile = await getProfile()
     this.setState({profile})
     if (!profile.isRegistrationCompletedYn) {
@@ -94,6 +103,7 @@ class Home extends Component {
           },
           async () => {
             this.fetchData()
+            // await this.onGetLink()
           }
         )
          // opening notification
@@ -324,6 +334,7 @@ class Home extends Component {
     this.onRemoveBackHandler()
     ChefProfileService.off(PROFILE_DETAIL_EVENT.GET_CHEF_FULL_PROFILE_DETAIL, this.setList)
     BasicProfileService.off(UPDATE_BASIC_PROFILE_EVENT.UPDATING_DATA, this.updateInfo)
+    BookingDetailService.off(BOOKING_DETAIL_EVENT.BOOKING_DETAIL, this.setBookingDetail)
     BookingHistoryService.off(
       BOOKING_HISTORY_LIST_EVENT.BOOKING_HISTORY_STATUS_UPDATED,
       this.updateInfo
@@ -399,6 +410,103 @@ class Home extends Component {
         }
       )
   }
+
+  getRoleUrl = () => {
+    const query = bookingUrl.split('?')[1]
+    const params = query.split('&')
+    for (let i = 0; i < params.length; i++) {
+      if (params[i].split('=')[0] === 'toRole') {
+        return params[i].split('=')[1]
+      }
+    }
+  }
+
+
+  getBookingId = () => {
+    const query = bookingUrl.split('?')[1]
+    const params = query.split('&')
+    for (let i = 0; i < params.length; i++) {
+      if (params[i].split('=')[0] === 'chefBookingHistId') {
+        return params[i].split('=')[1]
+      }
+    }
+  }
+
+  onGetLink = () => {
+    const {isLoggedIn, userRole, currentUser} = this.context
+    const {navigation} = this.props
+    console.log('isLoggedIn', isLoggedIn)
+    if (isLoggedIn === true && userRole !== null && userRole !== undefined) {
+  
+      const linkRole = this.getRoleUrl()
+      const bookingId = this.getBookingId()
+      console.log('linkRole', linkRole, bookingId)
+      this.setState(
+        {
+          bookingHitsoryId: bookingId,
+          isFetching: true,
+          detailLinkRole: linkRole,
+        },
+        () => {
+          BookingDetailService.getBookingDetail(bookingId)
+        }
+      )
+    } else {
+      console.log('isLoggedIn else', isLoggedIn)
+      ResetAction(navigation, RouteNames.CUSTOMER_SWITCH)
+    }
+  }
+
+  onNavigatetoDetailPage = () => {
+    const {detailLinkRole, bookingHitsoryId, bookingDetail} = this.state
+    const {userRole, currentUser} = this.context
+    const {navigation} = this.props
+    if (userRole === 'CHEF') {
+      if (
+        detailLinkRole === 'CHEF' &&
+        userRole === 'CHEF' &&
+        bookingDetail
+      ) {
+        if (bookingDetail.chefId === currentUser.chefId) {
+          navigation.navigate(RouteNames.BOOKING_DETAIL_SCREEN, {
+            bookingHistId: bookingHitsoryId,
+          })
+        }
+      }
+    } else if (userRole === 'CUSTOMER') {
+      if (
+        detailLinkRole === 'CUSTOMER' &&
+        userRole === 'CUSTOMER' &&
+        bookingDetail
+      ) {
+        if (bookingDetail.customerId === currentUser.customerId) {
+          navigation.navigate(RouteNames.BOOKING_DETAIL_SCREEN, {
+            bookingHistId: bookingHitsoryId,
+          })
+        }
+      }
+    }
+  }
+
+  setBookingDetail = ({bookingDetail}) => {
+    console.log('bookingDetail', bookingDetail)
+    if (bookingDetail) {
+      this.setState(
+        {
+          isFetching: false,
+          bookingDetail,
+        },
+        () => {
+          this.onNavigatetoDetailPage()
+        }
+      )
+    } else {
+      this.setState({
+        isFetching: false,
+      })
+    }
+  }
+
 
   itemPressed = details => {
     const {navigation} = this.props
