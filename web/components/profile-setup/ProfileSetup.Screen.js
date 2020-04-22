@@ -718,7 +718,7 @@ const ProfileSetupScreen = props => {
                   </div>
                   <div className="col-lg-8 col-md-12-col-sm-12 " id="serviceView-containar">
                     <div>
-                      {keys !== 4 &&
+                      {/* {keys !== 4 &&
                         <div id="status-content-view">
                           {chefStatusId === S.PENDING && (
                             <div>
@@ -792,7 +792,7 @@ const ProfileSetupScreen = props => {
                             </div>
                           )}
                         </div>
-                      }
+                      } */}
                       <div className="adminStatus" id="status-full-view">
 
                         {keys === 0 && (
