@@ -3,7 +3,7 @@
 export default {
   selectedMenuStyle: {
     backgroundColor: '#08AB93',
-    color: '#fff',
+    color: "#08AB93",
   },
   unselectedMenuStyle: {
     backgroundColor: 'white',

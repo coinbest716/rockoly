@@ -50,7 +50,7 @@ const UPDATE_CHEF_MOBILE_INFO = gql`
 const LeftSidebar = props => {
   //TODO: Nested sidebar menu
   // const rootSubmenuKeys = ['sub1', 'sub2', 'sub4'];
-  const [openKeys, setOpenKeys] = useState(['pk', 'psub1', 'psub1Menu1', 'psub1Menu1Nes1']);
+  const [openKeys, setOpenKeys] = useState(['psub1', 'psub1Menu1', 'psub1Menu1Nes1']);
   const [currentSelection, setCurrentSelection] = useState(false);
   const [selectedMenu, setSelectedMenu] = useState(parseInt(props.selectedMenuKey));
   const [mobileNumberVerified, setMobileNumberVerified] = useState(false);
@@ -194,9 +194,9 @@ const LeftSidebar = props => {
     }
   }
 
-  function onOpenChange(openKeys) {
+  // function onOpenChange(openKeys) {
     // const latestOpenKey = openKeys.find(key => openKeys.indexOf(key) === -1);
-    console.log('latestOpenKey', openKeys);
+    // console.log('latestOpenKey', openKeys);
     // if (menuKeys.indexOf(latestOpenKey) === -1) {
     //   this.setState({ openKeys });
     // } else {
@@ -204,7 +204,7 @@ const LeftSidebar = props => {
     //     openKeys: latestOpenKey ? [latestOpenKey] : [],
     //   });
     // }
-  }
+  // }
 
   try {
     return (

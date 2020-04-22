@@ -900,13 +900,7 @@ const MegaMenu = () => {
                     {isStringEmpty(userRole) === true && roleType !== 'Admin' && (
                       <div className="row" id="profile-align">
                         <div id="icons">
-                          {/* favorite icon */}
-                          {/* {userRole !== chef && */}
-                          {/* <a href={n.CHAT} className="notificationContainer" id="icon-view">
-                          <p className="far fa-comment" id="notificationIcon" onClick={() => clearLocalStorage()}></p>
-                        </a> */}
-                          {/* } */}
-                          {/* notification icon customerProfileDetails*/}
+                          
                           <a href={n.NOTIFICATION} className="notificationContainer" id="icon-view">
                             <p className="far fa-bell" id="notificationIcon" onClick={() => clearLocalStorage()}></p>
                             {ProfileDetails &&
