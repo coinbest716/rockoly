@@ -139,6 +139,14 @@ export default {
     height: 27,
     marginLeft: 20,
   },
+  deleteBotton: {
+    color: 'red',
+    borderColor: 'red',
+    borderWidth: 1,
+    fontWeight: 600,
+    height: 27,
+    marginLeft: 20,
+  },
   customerUpdatePasswordBotton: {
     color: '#1077EA',
     borderColor: '#1077EA',
