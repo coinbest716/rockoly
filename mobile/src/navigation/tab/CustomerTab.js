@@ -10,6 +10,7 @@ import {
   BookingHistory,
   ConversationList,
   CustomerContent,
+  CustomerProfile,
   ChefList,
   Favourite,
 } from '@containers'
@@ -79,8 +80,8 @@ const CustomerTabNavigator = createBottomTabNavigator(
       },
     },
 
-    [RouteNames.CUSTOMER_CONTENT]: {
-      screen: CustomerContent,
+    [RouteNames.CHEF_PROFILE_STACK]: {
+      screen: CustomerProfile,
       navigationOptions: {
         tabBarIcon: ({tintColor}) => (
           <TabBarIcon

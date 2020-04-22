@@ -253,6 +253,23 @@ export default class priceCalculation extends Component {
     )
   }
 
+  showNetworkAlert = () => {
+    const {chefDetail, chefPrice} = this.state
+
+    Alert.alert(
+      'Are you sure',
+      `You want to change the base price ${chefDetail.chefPricePerHour} to ${chefPrice}`,
+      [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel',
+        },
+        {text: 'OK', onPress: () => this.onSave()},
+      ]
+    )
+  }
+
   checkAdditionalValues = async () => {
     const {additionalServices} = this.state
     const val = []
@@ -529,7 +546,14 @@ export default class priceCalculation extends Component {
 
   onSave = () => {
     const {currentUser} = this.context
-    const {chefPrice, guestMin, guestCount, complexityValue, additionalServiceData, guestMax} = this.state
+    const {
+      chefPrice,
+      guestMin,
+      guestCount,
+      complexityValue,
+      additionalServiceData,
+      guestMax,
+    } = this.state
 
     if (chefPrice <= 0) {
       Alert.alert('Minimum amount should be greater then 0')
@@ -929,9 +953,19 @@ export default class priceCalculation extends Component {
                             Desired Dishes : <Text style={{fontSize: 14}}>{item.dishes}</Text>
                           </Text>
                           <Text style={styles.label}>
-                            Between <Text style={{fontSize: 14}}>{item && item.noOfItems && item.noOfItems.min ? item.noOfItems.min : null }</Text>
+                            Between{' '}
+                            <Text style={{fontSize: 14}}>
+                              {item && item.noOfItems && item.noOfItems.min
+                                ? item.noOfItems.min
+                                : null}
+                            </Text>
                             <Text style={{fontSize: 14}}> - </Text>
-                            <Text style={{fontSize: 14}}>{item && item.noOfItems && item.noOfItems.max ? item.noOfItems.max : null}</Text> Menu Items
+                            <Text style={{fontSize: 14}}>
+                              {item && item.noOfItems && item.noOfItems.max
+                                ? item.noOfItems.max
+                                : null}
+                            </Text>{' '}
+                            Menu Items
                           </Text>
                         </View>
                       </View>
