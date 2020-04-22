@@ -95,6 +95,8 @@ const PriceCalculator = props => {
   const [showAgreement, setShowAgreement] = useState(props.screenName === 'booking' ? true : false);
 
   const [calculatePriceYn, setcalculatePriceYn] = useState(true);
+  const [tempPrice, setTempPrice] = useState();
+  const [additionalData, setAdditionalData] = useState([]);
   // const [getStoreData, listData] = useLazyQuery(LIST_STORE);CREATE_BOOKING
 
   const [getStoreData, listData] = useLazyQuery(LIST_STORE, {
@@ -161,7 +163,7 @@ const PriceCalculator = props => {
       util.isObjectEmpty(chefData.chefSpecializationProfilesByChefId.nodes[0])
     ) {
       let data = chefData.chefSpecializationProfilesByChefId.nodes[0];
-      console.log("chefId,setChefId", chefData);
+      console.log('chefId,setChefId', chefData);
       setChefId(chefData.chefId);
       setChefSavedDishes(util.isArrayEmpty(data.chefDishTypeId) ? data.chefDishTypeId : []);
       // setSelectedDishesId(util.isArrayEmpty(data.chefDishTypeId) ? data.chefDishTypeId : []);
@@ -287,7 +289,7 @@ const PriceCalculator = props => {
     additionalServices.map(value => {
       newValue = newValue + parseInt(value.price);
     });
-    console.log("additionalServices", additionalServices)
+    console.log('additionalServices', additionalServices);
     setAdditionalServicePrice(newValue);
   }, [additionalServices]);
 
@@ -390,19 +392,27 @@ const PriceCalculator = props => {
     }
   }
 
+  useEffect(() => {
+    if (ProfileDetails && ProfileDetails.chefAdditionalServices) {
+      setAdditionalData(JSON.parse(ProfileDetails.chefAdditionalServices));
+    }
+  }, [ProfileDetails]);
+
   function onSelectCheckbox(value, index) {
-    let newVal = JSON.parse(ProfileDetails.chefAdditionalServices);
+    let newVal = additionalData;
     let deleteArray = isvaluePresent;
     deleteArray[index] = !isvaluePresent[index];
     // setAdditionalServices(deleteArray);
-
     deleteArray.map((res, index) => {
       if (res) {
         let parsePrice = parseInt(newVal[index].price);
+        setTempPrice(parsePrice);
         newVal[index].price = parsePrice;
         sampleArray.push(newVal[index]);
       }
     });
+    availableService[index].checkedValue = isvaluePresent[index];
+    setAvailableService(availableService);
     setAdditionalServices(sampleArray);
   }
 
@@ -457,20 +467,30 @@ const PriceCalculator = props => {
   }
   function setValues(index, value) {
     let tempArray = availableService;
+    value = value ? value : '0';
     tempArray[index].price = value;
-    console.log("valuesssssss", tempArray)
+    setTempPrice(value);
+
+    additionalData[index].price = parseInt(value);
+    setAdditionalData(additionalData);
     setAvailableService(tempArray);
+    if (additionalServices && additionalServices.length > 0) {
+      let indexValue = _.findIndex(additionalServices, function(o) {
+        return o.service == tempArray[index].id;
+      });
+      additionalServices[indexValue].price = parseInt(value);
+      setAdditionalServices(additionalServices);
+    }
   }
+
   function incrementValue(e) {
     e.preventDefault();
-    if(range<ProfileDetails.noOfGuestsMax)
-    setRange(range+1)
+    if (range < ProfileDetails.noOfGuestsMax) setRange(range + 1);
   }
- 
+
   function decrementValue(e) {
     e.preventDefault();
-    if(range>=ProfileDetails.noOfGuestsMin)
-    setRange(range-1)
+    if (range >= ProfileDetails.noOfGuestsMin) setRange(range - 1);
   }
 
   try {
@@ -478,7 +498,11 @@ const PriceCalculator = props => {
       <div>
         {showAgreement === false && (
           <div className="login-content">
-            <div style={{ marginTop: '5px', marginBottom: '5px' }} className="section-title" id="booking-modal-title">
+            <div
+              style={{ marginTop: '5px', marginBottom: '5px' }}
+              className="section-title"
+              id="booking-modal-title"
+            >
               <h2 style={{ fontSixe: '22px' }}>Pricing Calculator</h2>
             </div>
             <form className="signup-form">
@@ -495,14 +519,33 @@ const PriceCalculator = props => {
                   </div>
                   <div className="col-lg-6">
                     <div class="input-group">
-                      <input type="button" value="-" class="button-minus" onClick={(event) =>  decrementValue(event)}data-field="quantity" />
-                      <input type="number" step="1" min={ProfileDetails.noOfGuestsMin ? ProfileDetails.noOfGuestsMin : 1} 
-                      max={ProfileDetails.noOfGuestsMax ? ProfileDetails.noOfGuestsMax : 150} 
-                      value={range} name="quantity" class="quantity-field" onChange={event => {
-                        event.persist();
-                        setRange(parseInt(event.target.value));
-                      }}/>
-                      <input type="button" value="+" class="button-plus" data-field="quantity" onClick={(event) => incrementValue(event)}/>
+                      <input
+                        type="button"
+                        value="-"
+                        class="button-minus"
+                        onClick={event => decrementValue(event)}
+                        data-field="quantity"
+                      />
+                      <input
+                        type="number"
+                        step="1"
+                        min={ProfileDetails.noOfGuestsMin ? ProfileDetails.noOfGuestsMin : 1}
+                        max={ProfileDetails.noOfGuestsMax ? ProfileDetails.noOfGuestsMax : 150}
+                        value={range}
+                        name="quantity"
+                        class="quantity-field"
+                        onChange={event => {
+                          event.persist();
+                          setRange(parseInt(event.target.value));
+                        }}
+                      />
+                      <input
+                        type="button"
+                        value="+"
+                        class="button-plus"
+                        data-field="quantity"
+                        onClick={event => incrementValue(event)}
+                      />
                     </div>
                     {/* <div style={{ paddingRight: '2%' }}> */}
                     {/* <input
@@ -544,7 +587,9 @@ const PriceCalculator = props => {
                         >
                           {JSON.parse(ProfileDetails.chefComplexity) &&
                             JSON.parse(ProfileDetails.chefComplexity).map((data, index) => {
-                              { console.log("ProfileDetails.chefComplexity", data) }
+                              {
+                                console.log('ProfileDetails.chefComplexity', data);
+                              }
                               if (data.complexcityLevel === '1X') {
                                 return (
                                   <div className="col-lg-4" id="availabilityRow">
@@ -673,7 +718,6 @@ const PriceCalculator = props => {
                                 );
                               }
                             })}
-
                         </div>
                       </div>
                     </div>
@@ -685,11 +729,13 @@ const PriceCalculator = props => {
                       <label>Select Additional Services</label>
                     </div>
                     <div className="form-group" id="bookingDetail">
-
                       {availableService.map((data, index) => {
                         return (
                           <div>
-                            <div className="col-lg-12" style={{ display: 'flex', marginTop: '18px' }}>
+                            <div
+                              className="col-lg-12"
+                              style={{ display: 'flex', marginTop: '18px' }}
+                            >
                               <div className="col-lg-6">
                                 <div
                                   className="buy-checkbox-btn"
@@ -727,9 +773,26 @@ const PriceCalculator = props => {
                                   </div>
                                 </div>
                               </div>
-                              <div className="col-lg-6" style={{ display: 'flex', marginBottom: '18px' }}>
+                              <div
+                                className="col-lg-6"
+                                style={{ display: 'flex', marginBottom: '18px' }}
+                              >
                                 {/* <label>$ {data.price}</label> */}
-                                <input type="text" class="form-control" onChange={() => setValues(index, event.target.value)} value={data.price}></input>
+                                {data.checkedValue === true ? (
+                                  <input
+                                    type="text"
+                                    class="form-control"
+                                    onChange={event => setValues(index, event.target.value)}
+                                    value={data.price}
+                                  />
+                                ) : (
+                                  <input
+                                    type="text"
+                                    class="form-control"
+                                    // onChange={event => setValues(index, event.target.value)}
+                                    value={data.price}
+                                  />
+                                )}
                               </div>
                             </div>
                           </div>
@@ -738,11 +801,11 @@ const PriceCalculator = props => {
                     </div>
                     <div className="saveAvailabilityButton" style={{ paddingRight: '2%' }}>
                       <button className="btn btn-primary" onClick={() => onAddService(event)}>
-                      Edit Service
+                        Edit Service
                       </button>
                     </div>
                   </div>
-                ) :
+                ) : (
                   <div class="card" style={{ marginTop: '3%' }}>
                     <div class="card-header" id="booking-chef-details">
                       <label>Select Additional Services </label>
@@ -755,7 +818,7 @@ const PriceCalculator = props => {
                     {/* onClick={() => handleSubmit()} */}
                     {/* <button className="btn btn-primary"></button> */}
                   </div>
-                }
+                )}
               </div>
               <br />
               {/* <span>
