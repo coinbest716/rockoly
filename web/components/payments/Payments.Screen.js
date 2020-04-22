@@ -8,8 +8,9 @@ import CustomerCardList from './components/CustomerCardList';
 import { withApollo } from '../../apollo/apollo';
 import { AppContext } from '../../context/appContext';
 import * as utils from '../../utils/checkEmptycondition';
+import { OmitProps } from 'antd/lib/transfer/renderListBody';
 
-const PaymentsScreen = ({ element }) => {
+const PaymentsScreen = (props) => {
   const [state, setState] = useContext(AppContext);
   const [userRole, setUserRole] = useState('');
   const [isCardAddedYn, setIsCardAddedYn] = useState(false);
@@ -24,23 +25,42 @@ const PaymentsScreen = ({ element }) => {
   }
   return (
     <React.Fragment>
-      <Page>
+      {props.screen && props.screen == 'profile' ?
         <section className="cart-area ptb-60">
           <div className="cart-totals">
             {userRole === 'chef' ? (
               <ChefCardList />
             ) : (
-              userRole === 'customer' && (
-                <CustomerCardList
-                  type={'page'}
-                  addedCustomerCard={addedCustomerCard}
-                  isCardAddedYn={isCardAddedYn}
-                />
-              )
-            )}
+                userRole === 'customer' && (
+                  <CustomerCardList
+                    type={'page'}
+                    addedCustomerCard={addedCustomerCard}
+                    isCardAddedYn={isCardAddedYn}
+                  />
+                )
+              )}
           </div>
         </section>
-      </Page>
+        :
+        <Page>
+          <section className="cart-area ptb-60">
+            <div className="cart-totals">
+              {userRole === 'chef' ? (
+                <ChefCardList />
+              ) : (
+                  userRole === 'customer' && (
+                    <CustomerCardList
+                      type={'page'}
+                      addedCustomerCard={addedCustomerCard}
+                      isCardAddedYn={isCardAddedYn}
+                    />
+                  )
+                )}
+            </div>
+          </section>
+        </Page>
+      }
+
     </React.Fragment>
   );
 };

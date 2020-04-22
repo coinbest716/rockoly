@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 //TODO: Nested sidebar menu
-// import { Menu } from 'antd';
+import { Menu } from 'antd';
 import 'antd/dist/antd.css';
 import Link from 'next/link';
 import { useQuery, useMutation } from '@apollo/react-hooks';
@@ -14,9 +14,15 @@ import SideMenu from '../sidemenu/sidemenu';
 import { firebase } from '../../../config/firebaseConfig';
 import { AppContext } from '../../../context/appContext';
 import * as util from '../../../utils/checkEmptycondition';
+import {
+  profileSetupChefNestedMenu,
+  profileSetupCustomerNestedMenu,
+  profileSetupChefNestedMenuKeys,
+  profileSetupCustomerNestedMenuKeys,
+} from '../../profile-setup/components/CustomerSiderOptions';
 
 //TODO: Nested sidebar menu
-// const { SubMenu } = Menu;
+const { SubMenu } = Menu;
 
 //customer email update
 const updateCustomerEmailData = gqlTag.mutation.customer.updateIsEmailVerifiedYnGQLTAG;
@@ -44,12 +50,15 @@ const UPDATE_CHEF_MOBILE_INFO = gql`
 const LeftSidebar = props => {
   //TODO: Nested sidebar menu
   // const rootSubmenuKeys = ['sub1', 'sub2', 'sub4'];
-  // const [openKeys, setOpenKeys] = useState(['sub1']);
+  const [openKeys, setOpenKeys] = useState(['pk', 'psub1', 'psub1Menu1', 'psub1Menu1Nes1']);
   const [currentSelection, setCurrentSelection] = useState(false);
   const [selectedMenu, setSelectedMenu] = useState(parseInt(props.selectedMenuKey));
   const [mobileNumberVerified, setMobileNumberVerified] = useState(false);
   const [emailVerified, setEmailVerified] = useState(false);
+  const [menus, setMenu] = useState();
+  const [menuKeys, setMenuKey] = useState();
   const [state, setState] = useContext(AppContext);
+
 
   function onChangeMenuItem(res) {
     if (props.onChangeMenu) {
@@ -140,6 +149,8 @@ const LeftSidebar = props => {
           };
           updateCustomerMobileInfo({ variables });
         }
+        setMenu(profileSetupCustomerNestedMenu);
+        setMenuKey(profileSetupCustomerNestedMenuKeys);
       } else if (props.role === 'chef') {
         //For email check
         if (state.chefProfile.isEmailVerifiedYn === false && emailVerified === true) {
@@ -157,6 +168,8 @@ const LeftSidebar = props => {
           };
           updateChefMobileInfo({ variables });
         }
+        setMenu(profileSetupChefNestedMenu);
+        setMenuKey(profileSetupChefNestedMenu);
       }
     }
   }, [state, emailVerified, mobileNumberVerified]);
@@ -172,6 +185,27 @@ const LeftSidebar = props => {
   //   }
   // }
 
+  function onMenuItemChange(e) {
+    let latestOpenKey = menuKeys.find(item => item.key === e.key);
+    if (latestOpenKey) {
+      latestOpenKey = latestOpenKey.index;
+      setSelectedMenu(latestOpenKey);
+      props.onChangeMenu(latestOpenKey);
+    }
+  }
+
+  function onOpenChange(openKeys) {
+    // const latestOpenKey = openKeys.find(key => openKeys.indexOf(key) === -1);
+    console.log('latestOpenKey', openKeys);
+    // if (menuKeys.indexOf(latestOpenKey) === -1) {
+    //   this.setState({ openKeys });
+    // } else {
+    //   this.setState({
+    //     openKeys: latestOpenKey ? [latestOpenKey] : [],
+    //   });
+    // }
+  }
+  
   try {
     return (
       //TODO: Nested sidebar menu
@@ -256,44 +290,54 @@ const LeftSidebar = props => {
                 </div>
               </div>
             );
-          })}
+          }
+          )}
         {props.role === 'customer' &&
-          profileSetupCustomerMenu &&
-          profileSetupCustomerMenu.map((res, index) => {
+        <Menu mode="inline" defaultOpenKeys={openKeys} defaultSelectedKeys={openKeys}>
+        {menus &&
+          menus.map((sub, subIndex) => {
             return (
-              <div key={res.key}>
-                <div className="woocommerce-sidebar-area">
-                  <div
-                    className={`collapse-widget filter-list-widget ${
-                      currentSelection ? '' : 'open'
-                    }`}
-                  >
-                    <h3
-                      className={`collapse-widget-title ${currentSelection ? '' : 'active'}`}
-                      onClick={() => onChangeMenuItem(res)}
-                    >
-                      <div
-                        className="card"
-                        style={
-                          selectedMenu === index
-                            ? Styles.selectedMenuStyle
-                            : Styles.unselectedMenuStyle
-                        }
-                      >
-                        <div className="card-body">
-                          {res.title}
-                          {((res.title === 'Email address' && emailVerified === true) ||
-                            (res.title === 'Mobile Number' && mobileNumberVerified === true)) && (
-                            <span class="fas fa-check" style={Styles.tickIcon}></span>
-                          )}
-                        </div>
-                      </div>
-                    </h3>
-                  </div>
-                </div>
-              </div>
+              <SubMenu key={sub.key} title={sub.title}>
+                {sub.subMenu.map((subMenu, subNMnuIndex) => {
+                  if (!subMenu.hasOwnProperty('subMenuItem')) {
+                    return (
+                      <Menu.Item key={subMenu.key} onClick={onMenuItemChange}>
+                        {subMenu.title}
+                      </Menu.Item>
+                    );
+                  } else {
+                    return (
+                      <SubMenu key={subMenu.key} title={subMenu.title}>
+                        {subMenu.subMenuItem.map((nestedMenu, nestIndex) => {
+                          if (!nestedMenu.hasOwnProperty('nestedMenu')) {
+                            return (
+                              <Menu.Item key={nestedMenu.key} onClick={onMenuItemChange}>
+                                {nestedMenu.title}
+                              </Menu.Item>
+                            );
+                          } else {
+                            return (
+                              <SubMenu key={nestedMenu.key} title={nestedMenu.title}>
+                                {nestedMenu.nestedMenu.nestedMenuItem.map((menu, index) => {
+                                  return (
+                                    <Menu.Item key={menu.key} onClick={onMenuItemChange}>
+                                      {menu.title}
+                                    </Menu.Item>
+                                  );
+                                })}
+                              </SubMenu>
+                            );
+                          }
+                        })}
+                      </SubMenu>
+                    );
+                  }
+                })}
+              </SubMenu>
             );
           })}
+      </Menu>
+          }
       </div>
     );
   } catch (error) {

@@ -1,10 +1,9 @@
 /** @format */
 
 import React, {Component} from 'react'
-import {ScrollView, Image, View, Alert, Switch} from 'react-native'
+import {ScrollView, Image, View, Alert, TouchableOpacity} from 'react-native'
 import {Text, ListItem, Icon, Right, Left, Button, Body, Toast} from 'native-base'
 import firebase from 'react-native-firebase'
-import styles from './styles'
 import {RouteNames, ResetAction} from '@navigation'
 import {Images} from '@images'
 import {Header, CommonButton} from '@components'
@@ -18,7 +17,10 @@ import {
   TabBarService,
 } from '@services'
 import {Languages} from '@translations'
+import {Theme} from '@theme'
 import {STORAGE_KEY_NAME} from '@utils'
+import {buildExecutionContext} from 'graphql/execution/execute'
+import styles from './styles'
 
 class CustomerProfile extends Component {
   constructor(props) {
@@ -186,7 +188,9 @@ class CustomerProfile extends Component {
   loginContent = () => {
     return (
       <View style={styles.text}>
-        <Text>Welcome to Rockoly. Please click login/register to get started.</Text>
+        <Text style={{marginHorizontal: 10, textAlign: 'center', marginBottom: 5}}>
+          Welcome to Rockoly. Please click login/register to get started.
+        </Text>
         <View style={styles.loginBtnView}>
           <CommonButton
             textStyle={styles.loginBtnText}
@@ -336,6 +340,11 @@ class CustomerProfile extends Component {
   onChangePassword = () => {
     const {navigation} = this.props
     navigation.navigate(RouteNames.CHANGE_PASSWORD_SCREEN)
+  }
+
+  onProfile = () => {
+    const {navigation} = this.props
+    navigation.navigate(RouteNames.CHEF_SETTING_STACK)
   }
 
   submitForReview = () => {
@@ -588,6 +597,11 @@ class CustomerProfile extends Component {
           </Text>
           <Text style={styles.emailStyle}>{profile.chefEmail}</Text>
           <Text style={styles.emailStyle}>{profile.mobileNoWithCountryCode}</Text>
+          <TouchableOpacity onPress={this.onProfile}>
+            <Text style={{color: Theme.Colors.primary, textDecorationLine: 'underline'}}>
+              View profile
+            </Text>
+          </TouchableOpacity>
         </View>
       )
     }
@@ -599,6 +613,9 @@ class CustomerProfile extends Component {
           </Text>
           <Text style={styles.emailStyle}>{profile.customerEmail}</Text>
           <Text style={styles.emailStyle}>{profile.mobileNoWithCountryCode}</Text>
+          {/* <TouchableOpacity onPress={this.onProfile}>
+            <Text style={{color: 'blue', textDecorationLine: 'underline'}}>View profile</Text>
+          </TouchableOpacity> */}
         </View>
       )
     }
@@ -966,7 +983,14 @@ class CustomerProfile extends Component {
     console.log('picid', picId)
     return (
       <View style={styles.container}>
-        <Header showBack title="Profile" showBell />
+        <Header title="Profile" showBell />
+        {isLoggedIn && (
+          <View style={styles.userContent}>
+            <Image source={pic} style={styles.profileImage} resizeMode="contain" />
+            {this.userInfoContent()}
+          </View>
+        )}
+
         <ScrollView>
           {!isLoggedIn && (
             <View style={styles.topContainer}>
@@ -978,11 +1002,6 @@ class CustomerProfile extends Component {
 
           {isLoggedIn && (
             <View>
-              {/* <View style={styles.userContent}>
-                <Image source={pic} style={styles.profileImage} resizeMode="contain" />
-
-                {this.userInfoContent()}
-              </View> */}
               {/* {this.renderStatus()} */}
               {isChef && this.renderChefContent()}
               {isChef === false && this.renderCustomerContent()}

@@ -658,6 +658,8 @@ export default class chefRequestPrice extends Component {
       originalNoOfGuest,
       originalComplexity,
       bookingDetail,
+      invalidComplexity,
+      invalidGuest
     } = this.state
 
     let newService = []
@@ -787,6 +789,22 @@ export default class chefRequestPrice extends Component {
       Alert.alert(
         'Info',
         'Please update atleast any one values (guest/complexity/additional services)'
+      )
+      return
+    }
+
+    if (invalidComplexity == true) {
+      Alert.alert(
+        'Info',
+        'Please update complexity should be greater than or equal to the booking complexity'
+      )
+      return
+    }
+
+    if(invalidGuest === true) {
+      Alert.alert(
+        'Info',
+        'Please update guest count should be greater than or equal to the booking count'
       )
       return
     }
@@ -1058,7 +1076,7 @@ export default class chefRequestPrice extends Component {
           </View>
           {invalidGuest === true && (
             <Text style={{textAlign: 'center', color: Theme.Colors.error, fontSize: 14}}>
-              Guest count should be greater than booking count
+              Guest count should be greater than or equal to the booking count
             </Text>
           )}
           <Card style={styles.cardStyle}>
@@ -1121,7 +1139,7 @@ export default class chefRequestPrice extends Component {
                 marginTop: 10,
                 marginHorizontal: 3,
               }}>
-              Complexity should be greater than booking complexity
+              Complexity should be greater than or equal to the booking complexity
             </Text>
           )}
           <Card style={styles.cardStyle}>
