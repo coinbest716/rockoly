@@ -533,6 +533,7 @@ class Home extends Component {
     const { detailLinkRole, bookingHitsoryId, bookingDetail } = this.state
     const { userRole, currentUser } = this.context
     const { navigation } = this.props
+    if (bookingDetail !== null && bookingDetail !== undefined && bookingDetail !== {}) {
     if (userRole === 'CHEF') {
       console.log('detailLinkRole', detailLinkRole)
         if (
@@ -581,6 +582,7 @@ class Home extends Component {
       } else {
         console.log('Error')   
       }
+    }
   }
 
   setBookingDetail = ({bookingDetail}) => {
