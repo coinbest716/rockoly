@@ -47,7 +47,10 @@
   .container .middle {
     opacity: 1;
   }
-  
+  .ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected {
+    background-color: #08AB93 !important;
+    color: white !important;
+}
 
 }
 @media(max-width:650px){
