@@ -1223,7 +1223,7 @@ const PricingModal = props => {
                       {/* </div> */}
                       <div class="input-group">
                       <input type="button" value="-" class="button-minus" onClick={(event) =>  decrementValue(event)}data-field="quantity" />
-                      <input type="number" step="1" min={ProfileDetails.noOfGuestsMin ? ProfileDetails.noOfGuestsMin : 1} 
+                      <input type="number" disabled={true} step="1" min={ProfileDetails.noOfGuestsMin ? ProfileDetails.noOfGuestsMin : 1} 
                       max={ProfileDetails.noOfGuestsMax ? ProfileDetails.noOfGuestsMax : 150} 
                       value={range} name="quantity" class="quantity-field" onChange={event => {
                         event.persist();

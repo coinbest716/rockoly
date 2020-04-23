@@ -658,7 +658,7 @@ const ProfileSetupScreen = props => {
                 )}
                 {keys == 8 &&
                   <section className="cart-area ptb-60">
-                    <div className="notification">
+                    <div className="notificationProfile">
                       <div className="row">
                         <div className="col-lg-6 col-md-6">
                           <span>
@@ -681,7 +681,7 @@ const ProfileSetupScreen = props => {
                   </section>
                 }
                 {keys == 9 &&
-                  <div className="notification">
+                  <div className="notificationProfile">
                     Under Development
                 </div>
                 }
@@ -694,7 +694,7 @@ const ProfileSetupScreen = props => {
                 }{keys == 11 &&
                   <ChangePassword screen={'profile'} />
                 }{keys == 12 &&
-                  <div className="notification">
+                  <div className="notificationProfile">
                     Under Development
                 </div>
                 }
@@ -855,7 +855,7 @@ const ProfileSetupScreen = props => {
                         )}
                         {keys == 14 &&
                           <section className="cart-area ptb-60">
-                            <div className="notification">
+                            <div className="notificationProfile">
                               <div className="row">
                                 <div className="col-lg-6 col-md-6">
                                   <span>
@@ -877,7 +877,7 @@ const ProfileSetupScreen = props => {
                             </div>
                           </section>
                         }{keys == 15 &&
-                          <div className="notification">
+                          <div className="notificationProfile">
                             Under Development
                         </div>
                         }{keys == 17 &&
@@ -887,7 +887,7 @@ const ProfileSetupScreen = props => {
                           </button>
                           </div>
                         }{keys == 18 &&
-                          <div className="notification">
+                          <div className="notificationProfile">
                             Under Development
                 </div>
                         }

@@ -529,6 +529,7 @@ const PriceCalculator = props => {
                       <input
                         type="number"
                         step="1"
+                        disabled={true}
                         min={ProfileDetails.noOfGuestsMin ? ProfileDetails.noOfGuestsMin : 1}
                         max={ProfileDetails.noOfGuestsMax ? ProfileDetails.noOfGuestsMax : 150}
                         value={range}

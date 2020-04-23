@@ -425,8 +425,8 @@ const UserEmail = props => {
 
   function sendVerificationLink(e) {
     e.preventDefault();
-    // getMobileValueCheck();
-    // if(!isEmailPresent){
+    getMobileValueCheck();
+    if(!isEmailPresent){
     if (props.role === 'chef') {
 
       reauthenticate(password).then(() => {
@@ -497,6 +497,7 @@ const UserEmail = props => {
           }
         });
     }
+  }
 }
 try {
   return (
@@ -580,8 +581,8 @@ try {
             <div className="basicInfoSave col-sm-2">
               <button
                 type="button"
-                // onClick={() => handleSubmit()}
-                onClick={(event) => onChangeMail(event)}
+                onClick={() => handleSubmit()}
+                // onClick={(event) => onChangeMail(event)}
                 className="btn btn-primary"
                 id="shared-next-button"
                 style={{ width: 'fit-content' }}
