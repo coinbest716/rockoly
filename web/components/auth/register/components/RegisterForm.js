@@ -50,13 +50,12 @@ export default function RegisterForm() {
   const [isClicked, setIsClicked] = useState(false);
   const [referral, setReferred] = useState(null);
 
-
   //mutation query
 
   const [registerAuthMutation, { data, loading, error }] = useMutation(REGISTER_AUTH, {
     onError: err => {
       logOutUser()
-        .then(result => { })
+        .then(result => {})
         .catch(error => {
           toastMessage('renderError', error);
         });
@@ -139,6 +138,11 @@ export default function RegisterForm() {
   async function handleSubmit(e) {
     e.preventDefault();
 
+    if (isClicked === false) {
+      toastMessage('renderError', 'Please agree Terms & Conditions and Privacy Policy');
+      return;
+    }
+
     //Callback function from mobile number verification
     const mobileData = await childRef.current.getMobileNumberValue();
 
@@ -170,8 +174,8 @@ export default function RegisterForm() {
           dob: dob ? dob : null,
           mobileNumber: mobileData.mobileNumberValue ? mobileData.mobileNumberValue : null,
           mobileCountryCode: mobileData.countryCode ? mobileData.countryCode : null,
-         };
-         if(chefUser){
+        };
+        if (chefUser) {
           userDetail.pChefReferralEmail = referral;
         }
         firebase
@@ -369,20 +373,19 @@ export default function RegisterForm() {
                       />
                     </div>
 
-                    {/* <div className="form-group">
-                    <label>{s.DOB}</label>
-                    <br />
-                    <ModernDatepicker
-                      date={dob}
-                      format={'MM-DD-YYYY'}
-                      showBorder
-                      className={s.FORM_CONTROL}
-                      maxDate={new Date()}
-                      onChange={event => onChangeValue(event, setDob)}
-                      placeholder={'Select a date'}
-                      color={'#d9b44a'}
-                    />
-                  </div> */}
+                    {chefUser && (
+                      <div className="form-group">
+                        <label>{s.REFERRAL_LABEL}</label>
+                        <input
+                          type={s.EMAIL_INPUT}
+                          className={s.FORM_CONTROL}
+                          placeholder={s.REFERRAL_EMAIL_PLACE_HOLDER}
+                          name={s.REFERRAL}
+                          value={referral}
+                          onChange={event => onChangeValue(event.target.value, setReferred)}
+                        />
+                      </div>
+                    )}
 
                     <div className="form-group">
                       <label>{s.PASSWORD}</label>
@@ -424,26 +427,11 @@ export default function RegisterForm() {
                       </p>
                     </div>
 
-
-
                     <MobileNumberVerification
                       screen={'register1'}
                       ref={childRef}
                       mobileNumber={mobileNumber}
                     />
-                    {chefUser &&
-                      <div className="form-group">
-                        <label>Referred By:</label>
-                        <input
-                          type="email"
-                          className={s.FORM_CONTROL}
-                          placeholder="Enter referred person's email"
-                          name="referrel"
-                          value={referral}
-                          onChange={event => onChangeValue(event.target.value, setReferred)}
-                        />
-                      </div>
-                    }
                     {/* <div className="login-keep">
                     <div className="buy-checkbox-btn" chefUser>
                       <div className="item">
@@ -466,52 +454,50 @@ export default function RegisterForm() {
                     </div>
                   </div> */}
                     <div className="buy-checkbox-btn">
-                      <div className="item">
-                        <input className="inp-cbx" id="login" type="checkbox"
-                          checked={isClicked}
-                          onChange={() => onClickingCheckbox()}
-                        />
-                        <label className="cbx" htmlFor="login">
-                          <span>
-                            <svg width="12px" height="10px" viewBox="0 0 12 10">
-                              <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
-                            </svg>
-                          </span>
-                          <p class="terms" id="keep-me-login">By clicking the checkbox,you agree to our
-                          <Link href='/terms-and-conditions'>Terms and Conditions</Link> and you have read our
-                          <Link href='/privacy-policy'>Privacy Policy</Link>
-                          </p>
-                        </label>
-                      </div>
+                      <input
+                        className="inp-cbx"
+                        id="login"
+                        type="checkbox"
+                        checked={isClicked}
+                        onChange={() => onClickingCheckbox()}
+                      />
+                      <label className="cbx" htmlFor="login">
+                        <span>
+                          <svg width="12px" height="10px" viewBox="0 0 12 10">
+                            <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+                          </svg>
+                        </span>
+                        <span id="checkbox-view">
+                          <text className="checkbox-text">Please agree </text>
+                          <Link href="/terms-and-conditions"> Terms & Conditions</Link>
+                          <text className="checkbox-text">and</text>
+                          <Link href="/privacy-policy"> Privacy Policy </Link>
+                        </span>
+                      </label>
                     </div>
                     {renderLoader()}
-                    {console.log("isClicked", isClicked)}
-                    {isClicked &&
-                      <button type="submit" className="btn btn-primary">
-                        Register
+                    {console.log('isClicked', isClicked)}
+                    <button type="submit" className="btn btn-primary">
+                      Register
                     </button>
-                    }
-
                   </form>
                 </div>
               </div>
-              {isClicked &&
-                <div>
-                  <div className="col-lg-12 col-md-12" id="socialLoginContainer">
-                    <p className="orFont">or</p>
-                  </div>
+              <div>
+                <div className="col-lg-12 col-md-12" id="socialLoginContainer">
+                  <p className="orFont">or</p>
+                </div>
 
-                  <div className="col-lg-12 col-md-12" id="socialLoginContainer">
-                    <div>
-                      <Login
-                        sourceType={'REGISTER'}
-                        userType={chefUser === true ? 'CHEF' : 'CUSTOMER'}
-                        checkMobileAndEmailDataExist={checkMobileAndEmailDataExist}
-                      />
-                    </div>
+                <div className="col-lg-12 col-md-12" id="socialLoginContainer">
+                  <div>
+                    <Login
+                      sourceType={'REGISTER'}
+                      userType={chefUser === true ? 'CHEF' : 'CUSTOMER'}
+                      checkMobileAndEmailDataExist={checkMobileAndEmailDataExist}
+                    />
                   </div>
                 </div>
-              }
+              </div>
             </div>
           </div>
         </section>
