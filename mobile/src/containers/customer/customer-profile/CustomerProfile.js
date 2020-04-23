@@ -189,7 +189,10 @@ class CustomerProfile extends Component {
     return (
       <View style={styles.text}>
         <Text style={{marginHorizontal: 10, textAlign: 'center', marginBottom: 5}}>
-          Welcome to Rockoly. Please click login/register to get started.
+          Welcome to Rockoly. 
+        </Text>
+        <Text style={{marginHorizontal: 10, textAlign: 'center', marginBottom: 5}}>
+        Please click login/register to get started.
         </Text>
         <View style={styles.loginBtnView}>
           <CommonButton
