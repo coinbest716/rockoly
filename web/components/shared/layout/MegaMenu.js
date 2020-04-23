@@ -609,7 +609,11 @@ const MegaMenu = () => {
           setTimeout(async function () {
             await StoreInLocal('chef_loggedIn', false);
             await StoreInLocal('selected_menu', 'home_page');
+            if (state.role === 'chef' && window.location.pathname === '/') {
+            window.location.reload()
+            } else {
             await Router.push(n.HOME);
+            }
           }, 2000);
           setUserRole(false);
         })
