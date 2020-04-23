@@ -581,6 +581,11 @@ class CustomerProfile extends Component {
     navigation.navigate(RouteNames.CONVERSATION_LIST)
   }
 
+  onPressCustomerApproval = () => {
+    const {navigation} = this.props
+    navigation.navigate(RouteNames.BOOK_CUSTOMER_APPROVAL)
+  }
+
   userInfoContent = () => {
     const {isLoggedIn, isChef} = this.context
     const {profile} = this.state
@@ -1094,6 +1099,15 @@ class CustomerProfile extends Component {
                 label={Languages.customerProfile.options.legal}
                 onPress={this.onTerms}
               />
+              <ListItem itemDivider>
+                <Text>Customer</Text>
+              </ListItem>
+              <CustomListItem
+                iconName="account-edit"
+                label={Languages.customerProfile.options.customer_approval}
+                onPress={this.onPressCustomerApproval}
+                type="MaterialCommunityIcons"
+              />
               {/* <CustomListItem
                 type="MaterialCommunityIcons"
                 iconName="account-box"
@@ -1114,7 +1128,7 @@ class CustomerProfile extends Component {
                 label={Languages.customerProfile.options.logout}
                 onPress={this.logout}
                 type="MaterialCommunityIcons"
-              />
+              /> 
             </View>
           )}
         </ScrollView>

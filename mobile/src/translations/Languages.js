@@ -832,6 +832,7 @@ export default new LocalizedStrings({
         allergy: 'Select Allergy',
         dietary: 'Select Dietary Restrictions',
         kitchenEquipment: 'Select Kitchen Equipment',
+        customerApproval: 'Customer Approval',
         request: 'Request Price',
         next: 'Next',
         request_additional_charges: 'Request Additional Charges',
@@ -996,6 +997,7 @@ export default new LocalizedStrings({
         priceCal: 'Price Calculator',
         service: 'Service',
         number_of_guests: 'Number of guests',
+        customer_approval: 'Customer Approval',
       },
       alert: {
         error_title: 'Error',
@@ -1116,5 +1118,11 @@ export default new LocalizedStrings({
         no_reservations: 'No Reservations',
       },
     },
+    customerApproval: {
+      label: {
+        approve: 'Approve',
+        reject: 'Reject'
+      }
+    }
   },
 })

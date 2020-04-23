@@ -50,6 +50,7 @@ import {
   ChangeBookLocation,
   AboutUs,
   WebView,
+  BookCustomerApproval,
 } from '@containers'
 import RouteNames from '../config/RouteNames'
 import {StackNavConfig} from '../helpers/NavHelper'
@@ -191,6 +192,9 @@ const CustomerStack = createStackNavigator(
     [RouteNames.WEB_VIEW]: {
       screen: WebView,
     },
+    [RouteNames.BOOK_CUSTOMER_APPROVAL]: {
+      screen: BookCustomerApproval
+    }
   },
   {
     ...StackNavConfig,
