@@ -142,7 +142,7 @@ const GET_PROFILE_DATA = gql`
 
 const ProfileSetupScreen = props => {
   const childRef = useRef();
-  const [keys, setkeys] = useState(parseInt(props.keyValuue));
+  const [keys, setkeys] = useState(parseInt(props.keyValue));
   // console.log("props.keyValue", parseInt(props.keyValue));
   // const [keys, setkeys] = useState(2);
   const [ProfileDetails, setProfileDetails] = useState([]);
@@ -362,7 +362,11 @@ const ProfileSetupScreen = props => {
   }
 
   useEffect(() => {
+    if(parseInt(props.keyValue !== 0))
     setkeys(parseInt(props.keyValue))
+    else{
+      setkeys(0);
+    }
   }, [props.keyValue])
 
   //check and set admin user
