@@ -4,7 +4,7 @@
  * @format
  */
 
-import React, {PureComponent} from 'react'
+import React, { PureComponent } from 'react'
 import {
   View,
   TouchableOpacity,
@@ -16,18 +16,18 @@ import {
   BackHandler,
 } from 'react-native'
 import AsyncStorage from '@react-native-community/async-storage'
-import {Text, Icon, Button} from 'native-base'
+import { Text, Icon, Button } from 'native-base'
 import firebase from 'react-native-firebase'
 
 import StarRating from 'react-native-star-rating'
-import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete'
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete'
 import Geolocation from '@react-native-community/geolocation'
 // import Geolocation from 'react-native-geolocation-service'
 import moment from 'moment'
 import axios from 'axios'
 import _ from 'lodash'
-import {CONSTANTS} from '@common'
-import {Spinner, CommonList} from '@components'
+import { CONSTANTS } from '@common'
+import { Spinner, CommonList } from '@components'
 import {
   LocationService,
   LOCATION_EVENT,
@@ -39,19 +39,19 @@ import {
   BookingDetailService,
   BOOKING_DETAIL_EVENT,
 } from '@services'
-import {Languages} from '@translations'
-import {RouteNames, ResetStack, ResetAction} from '@navigation'
-import {Images} from '@images'
-import {Theme} from '@theme'
-import {Filter, SearchLocation} from '@containers'
+import { Languages } from '@translations'
+import { RouteNames, ResetStack, ResetAction } from '@navigation'
+import { Images } from '@images'
+import { Theme } from '@theme'
+import { Filter, SearchLocation } from '@containers'
 import styles from './styles'
-import FavouriteChefService, {FAV_CHEF_LIST_EVENT} from '../../../services/FavouriteChefService'
-import ChefListService, {CHEF_LIST_EVENT} from '../../../services/ChefListService'
-import {AuthContext} from '../../../AuthContext'
+import FavouriteChefService, { FAV_CHEF_LIST_EVENT } from '../../../services/FavouriteChefService'
+import ChefListService, { CHEF_LIST_EVENT } from '../../../services/ChefListService'
+import { AuthContext } from '../../../AuthContext'
 
 const mapApiKey = 'AIzaSyCcjRqgAT1OhVMHTPXwYk2IbR6pYQwFOTI'
 // differnet url for customer and chef => now its janani@neosme.com login 
-const bookingUrl = 'https://dev.rockoly.com/booking-detail?chefBookingHistId=ebc6ac14-c6d7-444d-8a33-d2e646876b70&toRole=CUSTOMER&bookingType='
+const bookingUrl = 'https://dev.rockoly.com/booking-detail?chefBookingHistId=ebc6ac14-c6d7-444d-8a33-d2e646876b70&toRole=CUSTOMER'
 
 class ChefList extends PureComponent {
   constructor(props) {
@@ -81,8 +81,8 @@ class ChefList extends PureComponent {
   }
 
   componentDidMount = async () => {
-    const {navigation} = this.props
-    const {isLoggedIn, getProfile, currentUser, isChef, userRole} = this.context
+    const { navigation } = this.props
+    const { isLoggedIn, getProfile, currentUser, isChef, userRole } = this.context
 
     if (isLoggedIn) {
       const profile = await getProfile()
@@ -123,7 +123,7 @@ class ChefList extends PureComponent {
       .getInitialNotification()
       .then(async notificationOpen => {
         if (notificationOpen) {
-          const {notification} = notificationOpen
+          const { notification } = notificationOpen
           try {
             // get last seen notification
             const lastSeenNotificationId = await AsyncStorage.getItem('notificationId')
@@ -180,6 +180,40 @@ class ChefList extends PureComponent {
           await AsyncStorage.setItem('notificationId', notification.notificationId)
         }
       })
+
+      firebase
+      .links()
+      .getInitialLink()
+      .then(async url => {
+        console.log('chef urllll', url)
+        if (url) {
+            console.log('chefList url', url)
+            const { navigation } = this.props;
+            const profile = await getProfile()
+            const query = url.split('?')[1]
+            if (query.split('=')[0] === 'chefId') {
+                if (userRole === 'CHEF' && currentUser.chefId === query.split('=')[1]) {
+                  navigation.navigate(RouteNames.CHEF_PROFILE_STACK)
+                } else {
+                  Alert.alert('Info', "Sorry you don't have permission to view this screen")
+                }
+            } else if (query.split('=')[0] === 'customerId') {
+                if (userRole === 'CUSTOMER' && currentUser.customerId === query.split('=')[1]) {
+                  navigation.navigate(RouteNames.CHEF_PROFILE_STACK)
+                } else {
+                  console.log('Authorization error')
+                  Alert.alert('Info', "Sorry you don't have permission to view this screen")
+                }
+            } else if (query.split('=')[0] === 'chefBookingHistId') {
+              this.onGetLink(url)
+            }
+        } else {
+          console.log('chefList url is not present')
+        }
+      })
+      .catch(e => {
+        console.log('chefList error ', e)
+      })
   }
 
   componentWillUnmount() {
@@ -193,9 +227,9 @@ class ChefList extends PureComponent {
       this.updateFolloworUnfollow
     )
   }
-  
-  getRoleUrl = () => {
-    const query = bookingUrl.split('?')[1]
+
+  getRoleUrl = (url) => {
+    const query = url.split('?')[1]
     const params = query.split('&')
     for (let i = 0; i < params.length; i++) {
       console.log(params[i].split('=')[0], params[i].split('=')[1])
@@ -205,8 +239,8 @@ class ChefList extends PureComponent {
     }
   }
 
-  getBookingId = () => {
-    const query = bookingUrl.split('?')[1]
+  getBookingId = (url) => {
+    const query = url.split('?')[1]
     const params = query.split('&')
     for (let i = 0; i < params.length; i++) {
       console.log(params[i].split('=')[0], params[i].split('=')[1])
@@ -216,14 +250,15 @@ class ChefList extends PureComponent {
     }
   }
 
-  onGetLink = () => {
-    const {isLoggedIn, userRole, currentUser} = this.context
-    const {navigation} = this.props
+
+  onGetLink = (url) => {
+    const { isLoggedIn, userRole, currentUser } = this.context
+    const { navigation } = this.props
     console.log('isLoggedIn', isLoggedIn)
     if (isLoggedIn === true && userRole !== null && userRole !== undefined) {
-  
-      const linkRole = this.getRoleUrl()
-      const bookingId = this.getBookingId()
+
+      const linkRole = this.getRoleUrl(url)
+      const bookingId = this.getBookingId(url)
       console.log('linkRole', linkRole, bookingId)
       this.setState(
         {
@@ -231,8 +266,9 @@ class ChefList extends PureComponent {
           isFetching: true,
           detailLinkRole: linkRole,
         },
-        () => {
-          BookingDetailService.getBookingDetail(bookingId)
+        async () => {
+          console.log('bookingId', bookingId)
+          await BookingDetailService.getBookingDetail(bookingId)
         }
       )
     } else {
@@ -242,9 +278,10 @@ class ChefList extends PureComponent {
   }
 
   onNavigatetoDetailPage = () => {
-    const {detailLinkRole, bookingHitsoryId, bookingDetail} = this.state
-    const {userRole, currentUser} = this.context
-    const {navigation} = this.props
+    const { detailLinkRole, bookingHitsoryId, bookingDetail } = this.state
+    const { userRole, currentUser } = this.context
+    const { navigation } = this.props
+    if (bookingDetail !== null && bookingDetail !== undefined && bookingDetail !== {}) {
     if (userRole === 'CHEF') {
       if (
         detailLinkRole === 'CHEF' &&
@@ -255,6 +292,15 @@ class ChefList extends PureComponent {
           navigation.navigate(RouteNames.BOOKING_DETAIL_SCREEN, {
             bookingHistId: bookingHitsoryId,
           })
+        } else {
+          Alert.alert('Info', "Sorry you don't have permission to view this screen")
+        }
+      } else {
+        if (bookingDetail.customerProfileByCustomerId.userId === currentUser.userId) {
+            console.log('Switch account alert')
+            this.onSwitchUser()
+        } else {
+          Alert.alert('Info', "Sorry you don't have permission to view this screen")
         }
       }
     } else if (userRole === 'CUSTOMER') {
@@ -267,12 +313,23 @@ class ChefList extends PureComponent {
           navigation.navigate(RouteNames.BOOKING_DETAIL_SCREEN, {
             bookingHistId: bookingHitsoryId,
           })
+        } else {
+          console.log('authorization alert')
+          Alert.alert('Info', "Sorry you don't have permission to view this screen")
+        }
+      } else {
+        if (bookingDetail.chefProfileByChefId.userId === currentUser.userId) {
+            console.log('Switch account alert')
+            this.onSwitchUser()
+        } else {
+          Alert.alert('Info', "Sorry you don't have permission to view this screen")
         }
       }
     }
-  }
+  } 
+}
 
-  setBookingDetail = ({bookingDetail}) => {
+  setBookingDetail = ({ bookingDetail }) => {
     console.log('bookingDetail', bookingDetail)
     if (bookingDetail) {
       this.setState(
@@ -306,8 +363,8 @@ class ChefList extends PureComponent {
   }
 
   onSwitchUser = async () => {
-    const {navigation} = this.props
-    const {isChef, getProfile, updateCurrentUser} = this.context
+    const { navigation } = this.props
+    const { isChef, getProfile, updateCurrentUser } = this.context
     const profile = await getProfile()
 
     this.setState({})
@@ -326,9 +383,9 @@ class ChefList extends PureComponent {
     }
 
     if (email !== '' && switchFrom !== '' && switchTo !== '') {
-      LoginService.gqlSwitchRole({email, switchFrom, switchTo})
+      LoginService.gqlSwitchRole({ email, switchFrom, switchTo })
         .then(async gqlRes => {
-          LoginService.onLogin({role: switchTo, gqlRes, updateCurrentUser, navigation})
+          LoginService.onLogin({ role: switchTo, gqlRes, updateCurrentUser, navigation })
         })
         .catch(e => {
           console.log('debugging e', e)
@@ -341,7 +398,7 @@ class ChefList extends PureComponent {
   }
 
   onAddBackHandler = () => {
-    const {navigation} = this.props
+    const { navigation } = this.props
     this.willFocusSubscription = navigation.addListener('willFocus', () => {
       BackHandler.addEventListener('hardwareBackPress', this.onHandleBackButton)
     })
@@ -394,8 +451,8 @@ class ChefList extends PureComponent {
   }
 
   onGetChefList = () => {
-    const {first, offset} = this.state
-    const {userRole, currentUser, isLoggedIn} = this.context
+    const { first, offset } = this.state
+    const { userRole, currentUser, isLoggedIn } = this.context
     const filter = this.onLocationFilter()
     console.log('debugging filter', filter)
     const filterParams = {
@@ -446,8 +503,8 @@ class ChefList extends PureComponent {
   }
 
   onLoadInitialData = async () => {
-    const {navigation} = this.props
-    const {getProfile, isChef, isLoggedIn} = this.context
+    const { navigation } = this.props
+    const { getProfile, isChef, isLoggedIn } = this.context
     // When customer logged in
     if (isLoggedIn === true && !isChef) {
       const profile = await getProfile()
@@ -463,7 +520,7 @@ class ChefList extends PureComponent {
         const chefData = data
         // Navigation to profile screen
         if (chefData !== null) {
-          navigation.navigate(RouteNames.CHEF_PROFILE_SCREEN, {chefId: chefData})
+          navigation.navigate(RouteNames.CHEF_PROFILE_SCREEN, { chefId: chefData })
           // Displaying Seach location screen when the customer not set their location
         } else if (customerAddress === null || customerAddress === '') {
           this.setState({
@@ -524,13 +581,13 @@ class ChefList extends PureComponent {
   }
 
   onFilterPress = () => {
-    this.setState({showFilter: true, showChefList: false, showSearchLocation: false})
+    this.setState({ showFilter: true, showChefList: false, showSearchLocation: false })
   }
 
   onCardCLick(details) {
-    const {currentUser} = this.context
+    const { currentUser } = this.context
     console.log('details', currentUser)
-    const {navigation} = this.props
+    const { navigation } = this.props
     navigation.navigate(RouteNames.CHEF_PROFILE_SCREEN, {
       chefId: details.chefId,
       customerId: currentUser.customerId,
@@ -538,14 +595,14 @@ class ChefList extends PureComponent {
   }
 
   onFollowPress = (data, type) => {
-    const {isLoggedIn, isChef, currentUser} = this.context
+    const { isLoggedIn, isChef, currentUser } = this.context
     if (isLoggedIn && !isChef && currentUser.customerId) {
       FavouriteChefService.followOrUnfollowChef(data.chefId, currentUser.customerId, type)
     } else {
       Alert.alert(
         Languages.ChefList.alerts.info_title,
         Languages.ChefList.alerts.login,
-        [{text: 'OK'}],
+        [{ text: 'OK' }],
         {
           cancelable: false,
         }
@@ -554,13 +611,13 @@ class ChefList extends PureComponent {
   }
 
   onChangeLocation = (location, latitude, longitude) => {
-    this.setState({location, latitude, longitude, isLoading: false}, () => {
+    this.setState({ location, latitude, longitude, isLoading: false }, () => {
       this.loadData()
     })
   }
 
   onLocationFilter = () => {
-    const {latitude, longitude, location, filterValues} = this.state
+    const { latitude, longitude, location, filterValues } = this.state
     console.log('filterValuesextra', filterValues)
     let locationObj = {}
     let val1 = {}
@@ -612,7 +669,7 @@ class ChefList extends PureComponent {
   }
 
   onClearFilter = () => {
-    this.setState({location: '', latitude: '', longitude: ''}, () => {
+    this.setState({ location: '', latitude: '', longitude: '' }, () => {
       this.loadData()
     })
   }
@@ -661,7 +718,7 @@ class ChefList extends PureComponent {
                   })
                 })
                 .catch(error => {
-                  this.setState({isLoading: false})
+                  this.setState({ isLoading: false })
                   Alert.alert(
                     Languages.ChefList.alerts.info_title,
                     Languages.ChefList.alerts.not_fetch_location
@@ -670,7 +727,7 @@ class ChefList extends PureComponent {
             },
             error =>
               Alert.alert(Languages.ChefList.alerts.info_title, JSON.stringify(error.message)),
-            {enableHighAccuracy: true, timeout: 60000, maximumAge: 1000}
+            { enableHighAccuracy: true, timeout: 60000, maximumAge: 1000 }
           )
         } else {
           Alert.alert(
@@ -714,7 +771,7 @@ class ChefList extends PureComponent {
               })
             })
             .catch(error => {
-              this.setState({isLoading: false})
+              this.setState({ isLoading: false })
               Alert.alert(
                 Languages.ChefList.alerts.info_title,
                 Languages.ChefList.alerts.not_fetch_location
@@ -722,7 +779,7 @@ class ChefList extends PureComponent {
             })
         },
         error => {
-          this.setState({isLoading: false})
+          this.setState({ isLoading: false })
           Alert.alert(Languages.ChefList.alerts.info_title, Languages.ChefList.alerts.userDined)
         }
       )
@@ -731,8 +788,8 @@ class ChefList extends PureComponent {
 
   navigateToNotification = async notification => {
     console.log('navigateToNotification', notification)
-    const {navigation} = this.props
-    const {isLoggedIn, currentUser, isChef} = this.context
+    const { navigation } = this.props
+    const { isLoggedIn, currentUser, isChef } = this.context
     if (
       notification &&
       notification.data &&
@@ -800,20 +857,20 @@ class ChefList extends PureComponent {
         'Info',
         'Hi, you have recieved notification for your chef account. Please click ok to switch to chef and see the notification.',
         [
-          {text: 'OK', onPress: () => this.onSwitchUser()},
+          { text: 'OK', onPress: () => this.onSwitchUser() },
           {
             text: 'Cancel',
             onPress: () => console.log('Cancel Pressed'),
             style: 'cancel',
           },
         ],
-        {cancelable: false}
+        { cancelable: false }
       )
     }
   }
 
   loadNotification = () => {
-    const {isLoggedIn, currentUser, isChef} = this.context
+    const { isLoggedIn, currentUser, isChef } = this.context
 
     if (isLoggedIn) {
       if (isChef) {
@@ -829,7 +886,7 @@ class ChefList extends PureComponent {
   }
 
   onLoadNotificationTotalCount = (type, filter) => {
-    const {isLoggedIn} = this.context
+    const { isLoggedIn } = this.context
 
     if (isLoggedIn) {
       CommonService.getTotalCount(type, filter)
@@ -853,8 +910,8 @@ class ChefList extends PureComponent {
   }
 
   selectLocation = (data, details) => {
-    const {first, offset} = this.state
-    const {userRole, isLoggedIn, currentUser} = this.context
+    const { first, offset } = this.state
+    const { userRole, isLoggedIn, currentUser } = this.context
 
     console.log('debugging location', details)
     const obj = {
@@ -875,11 +932,11 @@ class ChefList extends PureComponent {
           }
         )
       })
-      .catch(error => {})
+      .catch(error => { })
   }
 
   retrieveMore = async () => {
-    const {chefList, first} = this.state
+    const { chefList, first } = this.state
 
     this.setState(
       {
@@ -892,8 +949,8 @@ class ChefList extends PureComponent {
     )
   }
 
-  setList = ({chefList}) => {
-    const {totalCount} = this.state
+  setList = ({ chefList }) => {
+    const { totalCount } = this.state
     this.setState(
       {
         chefList,
@@ -930,7 +987,7 @@ class ChefList extends PureComponent {
     )
   }
 
-  renderRow = ({item: details, index}) => {
+  renderRow = ({ item: details, index }) => {
     let address = 'No Location'
     let state = 'No state'
     let fullName = 'No Name'
@@ -939,7 +996,7 @@ class ChefList extends PureComponent {
     let reviewCount = 0
     let distance
     let units
-    const {isLoggedIn} = this.context
+    const { isLoggedIn } = this.context
     console.log('details', details)
     if (
       details &&
@@ -985,7 +1042,7 @@ class ChefList extends PureComponent {
             style={styles.chefImage}
             source={
               details.chefPicId !== null
-                ? {uri: details.chefPicId}
+                ? { uri: details.chefPicId }
                 : Images.common.defaultChefProfile
             }
           />
@@ -1007,7 +1064,7 @@ class ChefList extends PureComponent {
             <Text style={styles.messageDescription}>
               {`${
                 Languages.ChefList.buttonLabels.distance_statement
-              } ${fullName} ${'can travel up to '} ${distance}${' '}${units} ${'from'} ${address}`}
+                } ${fullName} ${'can travel up to '} ${distance}${' '}${units} ${'from'} ${address}`}
             </Text>
           )}
           {details && details.averageRating !== null ? (
@@ -1030,10 +1087,10 @@ class ChefList extends PureComponent {
               )}
             </View>
           ) : (
-            <Text style={styles.messageDescription}>
-              {Languages.ChefList.buttonLabels.no_reviews}
-            </Text>
-          )}
+              <Text style={styles.messageDescription}>
+                {Languages.ChefList.buttonLabels.no_reviews}
+              </Text>
+            )}
         </View>
         {(isLoggedIn === false || details.isCustomerFollowingYn === false) && (
           <Icon
@@ -1055,7 +1112,7 @@ class ChefList extends PureComponent {
     )
   }
 
-  updateFolloworUnfollow = ({data}) => {
+  updateFolloworUnfollow = ({ data }) => {
     this.loadData()
   }
 
@@ -1089,7 +1146,7 @@ class ChefList extends PureComponent {
     let text = ``
     if (cuisineItems) {
       cuisineItems.map((item, index) => {
-        const temp = _.find(cuisineTypes, {cuisineTypeId: item})
+        const temp = _.find(cuisineTypes, { cuisineTypeId: item })
         if (limit >= count) {
           text += `${temp.cuisineTypeDesc} `
           if (cuisineItems.length !== 1 && limit - 1 !== index) {
@@ -1120,7 +1177,7 @@ class ChefList extends PureComponent {
     if (dishItems) {
       dishItems.map((item, index) => {
         console.log('item', item)
-        const temp = _.find(dishTypes, {dishTypeId: item})
+        const temp = _.find(dishTypes, { dishTypeId: item })
         if (limit >= count) {
           text += `${temp.dishTypeDesc} `
 
@@ -1145,7 +1202,7 @@ class ChefList extends PureComponent {
   }
 
   render() {
-    const {navigation} = this.props
+    const { navigation } = this.props
     const {
       canLoadMore,
       isFetchingMore,
@@ -1281,7 +1338,7 @@ class ChefList extends PureComponent {
                 //   renderLeftButton={()  => <Image source={require('path/custom/left-icon')} />}
                 renderLeftButton={() => (
                   <Icon
-                    style={{fontSize: 22, marginLeft: 15, alignSelf: 'center'}}
+                    style={{ fontSize: 22, marginLeft: 15, alignSelf: 'center' }}
                     type="MaterialCommunityIcons"
                     name="magnify"
                   />
@@ -1290,7 +1347,7 @@ class ChefList extends PureComponent {
                   <Icon
                     type="MaterialCommunityIcons"
                     name="crosshairs-gps"
-                    style={{fontSize: 22, marginRight: 15, alignSelf: 'center'}}
+                    style={{ fontSize: 22, marginRight: 15, alignSelf: 'center' }}
                     onPress={() => this.onLocationPress()}
                   />
                 )}
@@ -1299,7 +1356,7 @@ class ChefList extends PureComponent {
                 onPress={() => this.onFilterPress()}
                 type="MaterialCommunityIcons"
                 name="tune"
-                style={{fontSize: 22, alignSelf: 'center'}}
+                style={{ fontSize: 22, alignSelf: 'center' }}
               />
             </View>
           </View>
@@ -1334,96 +1391,96 @@ class ChefList extends PureComponent {
                 {filterValue.ratingValue !== null && filterValue.ratingValue !== undefined ? (
                   <Button rounded light style={styles.chipItem}>
                     {filterValue.ratingValue === 0 && (
-                      <Text style={{color: Theme.Colors.primary, fontSize: 14}}>New Chef</Text>
+                      <Text style={{ color: Theme.Colors.primary, fontSize: 14 }}>New Chef</Text>
                     )}
                     {filterValue.ratingValue === 3 && (
-                      <View style={{flexDirection: 'row'}}>
+                      <View style={{ flexDirection: 'row' }}>
                         <Text style={styles.locationText}>
                           <Icon
                             name="star"
                             color={Theme.Colors.primary}
                             type="MaterialCommunityIcons"
-                            style={{fontSize: 12, color: Theme.Colors.primary}}
+                            style={{ fontSize: 12, color: Theme.Colors.primary }}
                           />
                           <Icon
                             name="star"
                             color={Theme.Colors.primary}
                             type="MaterialCommunityIcons"
-                            style={{fontSize: 12, color: Theme.Colors.primary}}
+                            style={{ fontSize: 12, color: Theme.Colors.primary }}
                           />
                           <Icon
                             name="star"
                             color={Theme.Colors.primary}
                             type="MaterialCommunityIcons"
-                            style={{fontSize: 12, color: Theme.Colors.primary}}
+                            style={{ fontSize: 12, color: Theme.Colors.primary }}
                           />
-                           {'&above'}
+                          {'&above'}
                         </Text>
                       </View>
                     )}
                     {filterValue.ratingValue === 4 && (
-                      <View style={{flexDirection: 'row'}}>
+                      <View style={{ flexDirection: 'row' }}>
                         <Text style={styles.locationText}>
                           <Icon
                             name="star"
                             color={Theme.Colors.primary}
                             type="MaterialCommunityIcons"
-                            style={{fontSize: 12, color: Theme.Colors.primary}}
+                            style={{ fontSize: 12, color: Theme.Colors.primary }}
                           />
                           <Icon
                             name="star"
                             color={Theme.Colors.primary}
                             type="MaterialCommunityIcons"
-                            style={{fontSize: 12, color: Theme.Colors.primary}}
+                            style={{ fontSize: 12, color: Theme.Colors.primary }}
                           />
                           <Icon
                             name="star"
                             color={Theme.Colors.primary}
                             type="MaterialCommunityIcons"
-                            style={{fontSize: 12, color: Theme.Colors.primary}}
+                            style={{ fontSize: 12, color: Theme.Colors.primary }}
                           />
                           <Icon
                             name="star"
                             color={Theme.Colors.primary}
                             type="MaterialCommunityIcons"
-                            style={{fontSize: 12, color: Theme.Colors.primary}}
+                            style={{ fontSize: 12, color: Theme.Colors.primary }}
                           />
-                           {'&above'}
+                          {'&above'}
                         </Text>
                       </View>
                     )}
                     {filterValue.ratingValue === 5 && (
-                      <View style={{flexDirection: 'row'}}>
+                      <View style={{ flexDirection: 'row' }}>
                         <Text style={styles.locationText}>
                           <Icon
                             name="star"
                             color={Theme.Colors.primary}
                             type="MaterialCommunityIcons"
-                            style={{fontSize: 12, color: Theme.Colors.primary}}
+                            style={{ fontSize: 12, color: Theme.Colors.primary }}
                           />
                           <Icon
                             name="star"
                             color={Theme.Colors.primary}
                             type="MaterialCommunityIcons"
-                            style={{fontSize: 12, color: Theme.Colors.primary}}
+                            style={{ fontSize: 12, color: Theme.Colors.primary }}
                           />
                           <Icon
                             name="star"
                             color={Theme.Colors.primary}
                             type="MaterialCommunityIcons"
-                            style={{fontSize: 12, color: Theme.Colors.primary}}
+                            style={{ fontSize: 12, color: Theme.Colors.primary }}
                           />
                           <Icon
                             name="star"
                             color={Theme.Colors.primary}
                             type="MaterialCommunityIcons"
-                            style={{fontSize: 12, color: Theme.Colors.primary}}
+                            style={{ fontSize: 12, color: Theme.Colors.primary }}
                           />
                           <Icon
                             name="star"
                             color={Theme.Colors.primary}
                             type="MaterialCommunityIcons"
-                            style={{fontSize: 12, color: Theme.Colors.primary}}
+                            style={{ fontSize: 12, color: Theme.Colors.primary }}
                           />
                         </Text>
                       </View>
@@ -1436,9 +1493,9 @@ class ChefList extends PureComponent {
             {filterValue !== {} ? (
               <View style={styles.cusineBody}>
                 {filterValue.cuisineTypes &&
-                filterValue.cuisineItems &&
-                filterValue.cuisineTypes.length > 0 &&
-                filterValue.cuisineItems.length > 0
+                  filterValue.cuisineItems &&
+                  filterValue.cuisineTypes.length > 0 &&
+                  filterValue.cuisineItems.length > 0
                   ? this.onShowCuisineItems(filterValue.cuisineItems, filterValue.cuisineTypes)
                   : null}
               </View>
@@ -1446,48 +1503,48 @@ class ChefList extends PureComponent {
             {filterValue !== {} ? (
               <View style={styles.cusineBody}>
                 {filterValue &&
-                filterValue.dishTypes &&
-                filterValue.dishItems &&
-                filterValue.dishTypes.length > 0 &&
-                filterValue.dishItems.length > 0
+                  filterValue.dishTypes &&
+                  filterValue.dishItems &&
+                  filterValue.dishTypes.length > 0 &&
+                  filterValue.dishItems.length > 0
                   ? this.onShowDishItems(filterValue.dishItems, filterValue.dishTypes)
                   : null}
               </View>
             ) : null}
             {filterValue !== {} &&
-            filterValue.formDateFormat !== 'Invalid date' &&
-            filterValue.formDateFormat !== undefined ? (
-              <View style={styles.cusineBody}>
-                {filterValue.formDateFormat ? (
-                  <Button rounded light style={styles.chipItem}>
-                    <Text style={styles.locationText}>
-                      {filterValue.formDateFormat
-                        ? moment(filterValue.formDateFormat, 'YYYY-MM-DDTHH:mm:SS').format(
+              filterValue.formDateFormat !== 'Invalid date' &&
+              filterValue.formDateFormat !== undefined ? (
+                <View style={styles.cusineBody}>
+                  {filterValue.formDateFormat ? (
+                    <Button rounded light style={styles.chipItem}>
+                      <Text style={styles.locationText}>
+                        {filterValue.formDateFormat
+                          ? moment(filterValue.formDateFormat, 'YYYY-MM-DDTHH:mm:SS').format(
                             'MMMM D, YYYY h:mm A'
                           )
-                        : 'No Date'}
-                    </Text>
-                  </Button>
-                ) : null}
-              </View>
-            ) : null}
+                          : 'No Date'}
+                      </Text>
+                    </Button>
+                  ) : null}
+                </View>
+              ) : null}
             {filterValue !== {} &&
-            filterValue.toDateFormat !== 'Invalid date' &&
-            filterValue.toDateFormat !== undefined ? (
-              <View style={styles.cusineBody}>
-                {filterValue.toDateFormat ? (
-                  <Button rounded light style={styles.chipItem}>
-                    <Text style={styles.locationText}>
-                      {filterValue.toDateFormat
-                        ? moment(filterValue.toDateFormat, 'YYYY-MM-DDTHH:mm:SS').format(
+              filterValue.toDateFormat !== 'Invalid date' &&
+              filterValue.toDateFormat !== undefined ? (
+                <View style={styles.cusineBody}>
+                  {filterValue.toDateFormat ? (
+                    <Button rounded light style={styles.chipItem}>
+                      <Text style={styles.locationText}>
+                        {filterValue.toDateFormat
+                          ? moment(filterValue.toDateFormat, 'YYYY-MM-DDTHH:mm:SS').format(
                             'MMMM D, YYYY h:mm A'
                           )
-                        : 'No Date'}
-                    </Text>
-                  </Button>
-                ) : null}
-              </View>
-            ) : null}
+                          : 'No Date'}
+                      </Text>
+                    </Button>
+                  ) : null}
+                </View>
+              ) : null}
           </View>
           <CommonList
             keyExtractor="chefId"

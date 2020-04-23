@@ -25,6 +25,7 @@ import {ChefProfileService, PROFILE_DETAIL_EVENT, TabBarService,
    CommonService, COMMON_LIST_NAME,
    BookingDetailService,
    BOOKING_DETAIL_EVENT,
+   LoginService
   } from '@services'
 import {RouteNames, ResetStack, ResetAction} from '@navigation'
 import {Languages} from '@translations'
@@ -38,11 +39,14 @@ import {
   displayDateTimeFormat,
 } from '@utils'
 import {AuthContext} from '../../../AuthContext'
+import { CONSTANTS } from '@common'
 import styles from './styles'
 
 
 // differnet url for customer and chef => now its maheshwaran@neosme.com login 
-const bookingUrl = 'https://dev.rockoly.com/booking-detail?chefBookingHistId=e3812163-a3f5-419b-9c8a-67f290b3668e&toRole=CHEF&bookingType='
+// https://dev.rockoly.com/booking-detail?chefBookingHistId=e3812163-a3f5-419b-9c8a-67f290b3668e&toRole=CHEF&bookingType=
+
+const bookingUrl = 'https://dev.rockoly.com/booking-detail?chefBookingHistId=ebc6ac14-c6d7-444d-8a33-d2e646876b70&toRole=CUSTOMER'
 class Home extends Component {
   constructor(props) {
     super(props)
@@ -66,7 +70,7 @@ class Home extends Component {
   }
 
   async componentDidMount() {
-    const {currentUser, isLoggedIn, getProfile, isChef} = this.context
+    const {currentUser, isLoggedIn, getProfile, isChef, userRole} = this.context
     const {navigation} = this.props
     
 
@@ -106,6 +110,42 @@ class Home extends Component {
             // await this.onGetLink()
           }
         )
+
+      await firebase
+      .links()
+      .getInitialLink()
+      .then(async url => {
+        console.log('home urllll', url)
+        if (url) {
+          console.log('home url', url)
+          const { navigation } = this.props;
+          const profile = await getProfile()
+          console.log('profile', profile)
+          const query = url.split('?')[1]
+          if (query.split('=')[0] === 'chefId') {
+              if (userRole === 'CHEF' && currentUser.chefId === query.split('=')[1]) {
+                navigation.navigate(RouteNames.CHEF_PROFILE_STACK)
+              } else {
+                console.log('Authorization error')
+                Alert.alert('Info', "Sorry you don't have permission to view this screen")
+              }
+          } else if (query.split('=')[0] === 'customerId') {
+              if (userRole === 'CUSTOMER' && currentUser.customerId === query.split('=')[1]) {
+                navigation.navigate(RouteNames.CHEF_PROFILE_STACK)
+              } else {
+                console.log('Authorization error')
+                Alert.alert('Info', "Sorry you don't have permission to view this screen")
+              }
+          } else if (query.split('=')[0] === 'chefBookingHistId') {
+            this.onGetLink(url)
+          }
+        } else {
+          console.log('chefList url is not present')
+        }
+      })
+      .catch(e => {
+        console.log('chefList error ', e)
+      })
          // opening notification
         await firebase
         .notifications()
@@ -178,10 +218,6 @@ class Home extends Component {
           console.log('Notification error', e)
         })
       }
-
-  
-
-  
     }
   }
     console.log('currentUserFirebase', this.context)
@@ -342,6 +378,42 @@ class Home extends Component {
     BookingHistoryService.off(BOOKING_HISTORY_LIST_EVENT.BOOKING_VALUE, this.updateInfo)
   }
 
+  onSwitchUser = async () => {
+    console.log('onSwitchUser')
+    const {navigation} = this.props
+    const {isChef, getProfile, updateCurrentUser} = this.context
+    const profile = await getProfile()
+
+    this.setState({})
+
+    let switchTo = ''
+    let email = ''
+    let switchFrom = ''
+    if (isChef) {
+      email = profile.chefEmail
+      switchFrom = CONSTANTS.ROLE.CHEF
+      switchTo = CONSTANTS.ROLE.CUSTOMER
+    } else {
+      email = profile.customerEmail
+      switchFrom = CONSTANTS.ROLE.CUSTOMER
+      switchTo = CONSTANTS.ROLE.CHEF
+    }
+    console.log('email', email, switchFrom, switchTo)
+    if (email !== '' && switchFrom !== '' && switchTo !== '') {
+      LoginService.gqlSwitchRole({email, switchFrom, switchTo})
+        .then(async gqlRes => {
+          LoginService.onLogin({role: switchTo, gqlRes, updateCurrentUser, navigation})
+        })
+        .catch(e => {
+          console.log('debugging e', e)
+          Alert.alert(
+            Languages.customerProfile.alert.could_not_switch_account,
+            Languages.customerProfile.alert.try_again_to_switch
+          )
+        })
+    }
+  }
+
   setList = ({profileFullDetails}) => {
     this.setState({
       isFetching: false,
@@ -411,8 +483,8 @@ class Home extends Component {
       )
   }
 
-  getRoleUrl = () => {
-    const query = bookingUrl.split('?')[1]
+  getRoleUrl = (url) => {
+    const query = url.split('?')[1]
     const params = query.split('&')
     for (let i = 0; i < params.length; i++) {
       if (params[i].split('=')[0] === 'toRole') {
@@ -422,8 +494,8 @@ class Home extends Component {
   }
 
 
-  getBookingId = () => {
-    const query = bookingUrl.split('?')[1]
+  getBookingId = (url) => {
+    const query = url.split('?')[1]
     const params = query.split('&')
     for (let i = 0; i < params.length; i++) {
       if (params[i].split('=')[0] === 'chefBookingHistId') {
@@ -432,14 +504,14 @@ class Home extends Component {
     }
   }
 
-  onGetLink = () => {
+  onGetLink = (url) => {
     const {isLoggedIn, userRole, currentUser} = this.context
     const {navigation} = this.props
     console.log('isLoggedIn', isLoggedIn)
     if (isLoggedIn === true && userRole !== null && userRole !== undefined) {
   
-      const linkRole = this.getRoleUrl()
-      const bookingId = this.getBookingId()
+      const linkRole = this.getRoleUrl(url)
+      const bookingId = this.getBookingId(url)
       console.log('linkRole', linkRole, bookingId)
       this.setState(
         {
@@ -458,34 +530,57 @@ class Home extends Component {
   }
 
   onNavigatetoDetailPage = () => {
-    const {detailLinkRole, bookingHitsoryId, bookingDetail} = this.state
-    const {userRole, currentUser} = this.context
-    const {navigation} = this.props
+    const { detailLinkRole, bookingHitsoryId, bookingDetail } = this.state
+    const { userRole, currentUser } = this.context
+    const { navigation } = this.props
     if (userRole === 'CHEF') {
-      if (
-        detailLinkRole === 'CHEF' &&
-        userRole === 'CHEF' &&
-        bookingDetail
-      ) {
-        if (bookingDetail.chefId === currentUser.chefId) {
-          navigation.navigate(RouteNames.BOOKING_DETAIL_SCREEN, {
-            bookingHistId: bookingHitsoryId,
-          })
+      console.log('detailLinkRole', detailLinkRole)
+        if (
+          detailLinkRole === 'CHEF' &&
+          userRole === 'CHEF' &&
+          bookingDetail
+        ) {
+          if (bookingDetail.chefId === currentUser.chefId) {
+            navigation.navigate(RouteNames.BOOKING_DETAIL_SCREEN, {
+              bookingHistId: bookingHitsoryId,
+            })
+          } else {
+            console.log('Authorization11111')
+            Alert.alert('Info', "Sorry you don't have permission to view this screen")
+          }
+        } else {
+          if (bookingDetail.customerProfileByCustomerId.userId === currentUser.userId) {
+              console.log('Switch account alert')
+              this.onSwitchUser()
+          } else {
+            console.log('Authorization22222')
+            Alert.alert('Info', "Sorry you don't have permission to view this screen")
+          }
         }
-      }
-    } else if (userRole === 'CUSTOMER') {
-      if (
-        detailLinkRole === 'CUSTOMER' &&
-        userRole === 'CUSTOMER' &&
-        bookingDetail
-      ) {
-        if (bookingDetail.customerId === currentUser.customerId) {
-          navigation.navigate(RouteNames.BOOKING_DETAIL_SCREEN, {
-            bookingHistId: bookingHitsoryId,
-          })
+      } else if (userRole === 'CUSTOMER') {
+        if (
+          detailLinkRole === 'CUSTOMER' &&
+          userRole === 'CUSTOMER' &&
+          bookingDetail
+        ) {
+          if (bookingDetail.customerId === currentUser.customerId) {
+            navigation.navigate(RouteNames.BOOKING_DETAIL_SCREEN, {
+              bookingHistId: bookingHitsoryId,
+            })
+          } else {
+            Alert.alert('Info', "Sorry you don't have permission to view this screen")
+          }
+        } else {
+          if (bookingDetail.chefProfileByChefId.userId === currentUser.userId) {
+              console.log('Switch account alert')
+              this.onSwitchUser()
+          } else {
+            Alert.alert('Info', "Sorry you don't have permission to view this screen")
+          }
         }
+      } else {
+        console.log('Error')   
       }
-    }
   }
 
   setBookingDetail = ({bookingDetail}) => {
