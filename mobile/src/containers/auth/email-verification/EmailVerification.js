@@ -199,7 +199,7 @@ class EmailVerification extends PureComponent {
   renderEmail = () => {
     const { email } = this.state
     return (
-      <Label style={{ marginVertical: 10, alignSelf: 'center', fontSize: 18, fontWeight: 'bold' }}>
+      <Label style={{ marginVertical: 10, textAlign: 'center', fontSize: 18, fontWeight: 'bold' }}>
         {email}
       </Label>
     )

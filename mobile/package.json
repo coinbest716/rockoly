@@ -76,6 +76,7 @@
     "react-native-modal-datetime-picker": "^7.5.0",
     "react-native-modalize": "^1.2.3",
     "react-native-multiple-select": "^0.5.3",
+    "react-native-numeric-input": "^1.8.3",
     "react-native-pdf": "^5.1.5",
     "react-native-reanimated": "^1.8.0",
     "react-native-restart": "https://github.com/avishayil/react-native-restart.git",

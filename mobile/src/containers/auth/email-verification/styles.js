@@ -7,8 +7,8 @@ const styles = StyleSheet.create({
   ...Theme.CommonStyle,
   mainView: {
     flexDirection: 'column',
-    marginHorizontal: 20,
-    marginVertical: 20,
+    marginHorizontal: 10,
+    marginVertical: 10,
   },
   centerAlign: {
     alignSelf: 'center',

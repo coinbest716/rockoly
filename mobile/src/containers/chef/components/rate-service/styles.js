@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
   textCon: {
     width: 'auto',
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around', // space-between
   },
   colorGrey: {
     color: '#d3d3d3',
@@ -105,6 +105,7 @@ const styles = StyleSheet.create({
   colorYellow: {
     color: Theme.Colors.primary,
   },
+  numericInputStyle: {justifyContent: 'center', alignItems: 'center', alignSelf: 'center', marginVertical: 5}
 })
 
 export default styles

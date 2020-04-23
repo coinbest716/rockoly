@@ -14,6 +14,7 @@ import {
   Toast,
 } from 'native-base'
 import Slider from '@react-native-community/slider'
+import NumericInput from 'react-native-numeric-input'
 import {View, ScrollView, Alert} from 'react-native'
 import {Languages} from '@translations'
 import {CommonButton, Spinner} from '@components'
@@ -274,7 +275,8 @@ export default class RateService extends Component {
           <Card style={styles.cardStyle}>
             <Label style={styles.label}>Number of Guests </Label>
             <Text style={styles.textStyle}> I can cook for the Minimum</Text>
-            <Slider
+            {/* Hided for numeric input trial */}
+            {/* <Slider
               style={{width: 'auto'}}
               step={1}
               minimumValue={minimumGuest}
@@ -283,14 +285,34 @@ export default class RateService extends Component {
               onValueChange={val => this.setState({minGuestCount: val})}
               maximumTrackTintColor="#000000"
               minimumTrackTintColor={Theme.Colors.primary}
+            /> */}
+               <NumericInput 
+                value={minGuestCount} 
+                onChange={value => this.setState({minGuestCount: value})} 
+                minValue={minimumGuest}
+                maxValue={maximumGuest}
+                initValue={minGuestCount}
+                onLimitReached={(isMax,msg) => Alert.alert("Info", msg)}
+                totalWidth={150} 
+                totalHeight={40} 
+                iconSize={25}
+                step={1}
+                valueType='integer'
+                rounded 
+                textColor={Theme.Colors.primary}
+                iconStyle={{ color: 'white' }} 
+                rightButtonBackgroundColor={Theme.Colors.primary}
+                leftButtonBackgroundColor={Theme.Colors.primary}
+                containerStyle={styles.numericInputStyle}
             />
             <View style={styles.textCon}>
               <Text style={styles.colorGrey}>{minimumGuest}</Text>
-              <Text style={styles.colorYellow}>{minGuestCount}</Text>
+              {/* Hided for numeric input trial  */}
+              {/* <Text style={styles.colorYellow}>{minGuestCount}</Text> */} 
               <Text style={styles.colorGrey}>{maximumGuest} </Text>
             </View>
             <Text style={styles.textStyle}> and Maximum </Text>
-            <Slider
+            {/* <Slider
               style={{width: 'auto'}}
               step={1}
               minimumValue={minGuest}
@@ -299,10 +321,30 @@ export default class RateService extends Component {
               onValueChange={val => this.setState({maxGuestCount: val})}
               maximumTrackTintColor="#000000"
               minimumTrackTintColor={Theme.Colors.primary}
+            /> */}
+               <NumericInput 
+                value={maxGuestCount} 
+                onChange={value => this.setState({maxGuestCount: value})} 
+                minValue={minGuest}
+                maxValue={maxGuest}
+                initValue={maxGuestCount}
+                onLimitReached={(isMax,msg) => Alert.alert("Info Max", msg)}
+                totalWidth={150} 
+                totalHeight={40} 
+                iconSize={25}
+                step={1}
+                valueType='integer'
+                rounded 
+                textColor={Theme.Colors.primary}
+                iconStyle={{ color: 'white' }} 
+                rightButtonBackgroundColor={Theme.Colors.primary}
+                leftButtonBackgroundColor={Theme.Colors.primary}
+                containerStyle={styles.numericInputStyle}
             />
             <View style={styles.textCon}>
               <Text style={styles.colorGrey}>{minGuest}</Text>
-              <Text style={styles.colorYellow}>{maxGuestCount}</Text>
+                {/* Hided for numeric input trial  */}
+              {/* <Text style={styles.colorYellow}>{maxGuestCount}</Text> */}
               <Text style={styles.colorGrey}>{maxGuest} </Text>
             </View>
             <Text style={styles.textStyle}> guests. </Text>

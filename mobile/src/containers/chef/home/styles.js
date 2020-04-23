@@ -137,4 +137,8 @@ export default {
     color: Theme.Colors.error,
     marginVertical: 5,
   },
+  textLinkStyle: {
+    color: Theme.Colors.error,
+    textDecorationLine: 'underline',
+  },
 }
