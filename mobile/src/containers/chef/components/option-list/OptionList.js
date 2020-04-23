@@ -378,13 +378,9 @@ export default class OptionList extends Component {
           {onSaveCallBack && (
             <View style={styles.guestView}>
               <Label style={styles.label}>Shopping Location </Label>
-              <View>
-                <Text style={styles.textStyle}>
-                  We don't charge the customer for the ingredients. Will you be able to pick up the
-                  ingredients for the customer at the store of their choice and provide the customer
-                  with ingredients receipt?
+                 <Text style={styles.textStyle}>
+                  Here at Rockoly we provide food ingredient to Customer at cost with receipts. You are expected to pick up ingredients at Customer store of choice and submit ingredients receipts during the event sign off. You will be provided a food budget ahead of time and compensated fully at the end of the event once the customer signs off. 
                 </Text>
-              </View>
               <ListItem style={{borderBottomWidth: 0}}>
                 <CheckBox
                   checked={agreeChecked}

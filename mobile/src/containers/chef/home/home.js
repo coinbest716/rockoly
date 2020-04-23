@@ -95,6 +95,19 @@ class Home extends Component {
       this.setState({isFetching: false})
     } else {
     if (isLoggedIn === true) {
+        if (
+          profile.hasOwnProperty('defaultStripeUserId') &&
+          profile.defaultStripeUserId &&
+          profile.defaultStripeUserId !== null
+        ) {
+          this.setState({
+            bankAccount: false,
+          })
+        } else {
+          this.setState({
+            bankAccount: true,
+          })
+        }
       if (currentUser !== undefined && currentUser !== null && currentUser !== {}) {
         if (isLoggedIn && isChef && currentUser.chefId) {
           BookingHistoryService.bookingSubsByChef(currentUser.chefId)
@@ -652,6 +665,13 @@ class Home extends Component {
   //     })
   //   }
   // }
+
+  onOpenPayment = () => {
+    const {navigation} = this.props
+    navigation.navigate(RouteNames.CHEF_MANAGE_PAYMENTS)
+  }
+
+
   render() {
     const {
       bankAccount,
@@ -676,9 +696,21 @@ class Home extends Component {
           <ScrollView style={{marginHorizontal: '5%', paddingBottom: '10%'}}>
             <Card style={styles.cardStyle}>
               <Label style={styles.label}>Alerts</Label>
-              <Text style={{color: '#08AB93', fontWeight: 'bold'}}>
-                Your profile status :
-              </Text>
+              {chefStatus.trim() === 'SUBMITTED_FOR_REVIEW'  ||
+              chefStatus.trim() === 'PENDING' ||
+              chefStatus.trim() === 'REJECTED' ?
+                  <Text style={{color: '#08AB93', fontWeight: 'bold'}}>
+                      Profile status :
+                  </Text>
+              :
+              null
+
+              }
+             {bankAccount === false && chefStatus.trim() === 'APPROVED' && (
+                  <View style={{marginVertical: 10}}>
+                    <Text style={{textAlign: 'center'}}>No actions</Text>
+                  </View>
+             )}
               {chefStatus.trim() === 'SUBMITTED_FOR_REVIEW' && (
                 <View style={styles.statusView}>
                   {/* <Button transparent> */}
@@ -686,7 +718,7 @@ class Home extends Component {
                       {Languages.customerProfile.label.submitted_for_review}
                     </Text>
                   {/* </Button> */}
-                  <Text>{Languages.customerProfile.messages.submited_for_review_msg}</Text>
+                  {/* <Text>{Languages.customerProfile.messages.submited_for_review_msg}</Text> */}
                 </View>
               )}
               {chefStatus.trim() === 'PENDING' && (
@@ -697,7 +729,8 @@ class Home extends Component {
                   containerStyle={styles.primaryBtn}
                   onPress={() => this.submitForReview()}
                 />
-                      <Text>{Languages.customerProfile.messages.review_pending_msg}</Text>
+                      {/* <Text>{Languages.customerProfile.messages.review_pending_msg}</Text> */}
+                      <Text style={styles.statusTextColor}>Waiting for approval</Text>
                     </View>
               )}
               {chefStatus.trim() === 'REJECTED' && (
@@ -715,13 +748,13 @@ class Home extends Component {
                   </View>
               )}
 
-              {chefStatus.trim() === 'APPROVED' && (
+              {/* {chefStatus.trim() === 'APPROVED' && (
                           <View style={styles.statusView}>
                             <Text style={styles.statusTextColor}>
                               {Languages.customerProfile.label.profile_verified}
                             </Text>
                           </View>
-              )}
+              )} */}
               {/* {(chefStatus.trim() == 'PENDING' || chefStatus.trim() == 'REJECTED') && (
                 <CommonButton
                   btnText="Submit for Review"
@@ -730,7 +763,7 @@ class Home extends Component {
                   onPress={() => this.submitForReview()}
                 />
               )} */}
-              {isEmailVerified ? (
+              {/* {isEmailVerified ? (
                 <Text style={{color: '#08AB93', fontWeight: 'bold'}}>
                   Email address has been verified
                 </Text>
@@ -747,6 +780,23 @@ class Home extends Component {
                 <Text style={{color: 'red', fontWeight: 'bold'}}>
                   You didn't verify your mobile number
                 </Text>
+              )} */}
+              {bankAccount === true && (
+                <View>
+                    <Text style={{color: Theme.Colors.primary, fontWeight: 'bold', marginTop: 5}}>
+                      Payout preferance:
+                    </Text>
+                    <View style={styles.statusView}>
+                    <Text
+                          style={styles.textLinkStyle}
+                          onPress={() =>
+                            this.onOpenPayment()
+                    }>
+                          Please add payout preferance
+                    </Text>
+                    </View>
+                </View>
+              
               )}
             </Card>
             <Card style={styles.cardStyle}>

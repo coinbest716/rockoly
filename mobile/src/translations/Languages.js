@@ -998,6 +998,12 @@ export default new LocalizedStrings({
         service: 'Service',
         number_of_guests: 'Number of guests',
         customer_approval: 'Customer Approval',
+        terms_and_conditions_label: 'Terms and conditions',
+        terms_and_conditions: 'Terms & conditions',
+        terms_and_conditions_link: 'https://dev.rockoly.com/terms-and-conditions',
+        privacy_policy_label: 'Privacy policy',
+        privacy_policy: 'Privacy policy',
+        privacy_policy_link: 'https://dev.rockoly.com/privacy-policy',
       },
       alert: {
         error_title: 'Error',
