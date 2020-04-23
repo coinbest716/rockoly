@@ -369,6 +369,20 @@ export default function RegisterForm() {
                       />
                     </div>
 
+                    {chefUser &&
+                      <div className="form-group">
+                        <label>Referral</label>
+                        <input
+                          type="email"
+                          className={s.FORM_CONTROL}
+                          placeholder="Enter referred person's email"
+                          name="referrel"
+                          value={referral}
+                          onChange={event => onChangeValue(event.target.value, setReferred)}
+                        />
+                      </div>
+                    }
+
                     {/* <div className="form-group">
                     <label>{s.DOB}</label>
                     <br />
@@ -431,19 +445,7 @@ export default function RegisterForm() {
                       ref={childRef}
                       mobileNumber={mobileNumber}
                     />
-                    {chefUser &&
-                      <div className="form-group">
-                        <label>Referred By:</label>
-                        <input
-                          type="email"
-                          className={s.FORM_CONTROL}
-                          placeholder="Enter referred person's email"
-                          name="referrel"
-                          value={referral}
-                          onChange={event => onChangeValue(event.target.value, setReferred)}
-                        />
-                      </div>
-                    }
+                    
                     {/* <div className="login-keep">
                     <div className="buy-checkbox-btn" chefUser>
                       <div className="item">
@@ -486,11 +488,11 @@ export default function RegisterForm() {
                     </div>
                     {renderLoader()}
                     {console.log("isClicked", isClicked)}
-                    {isClicked &&
-                      <button type="submit" className="btn btn-primary">
+                    {/* {isClicked && */}
+                      <button type="submit"  disabled={!isClicked} className="btn btn-primary">
                         Register
                     </button>
-                    }
+                    {/* } */}
 
                   </form>
                 </div>
