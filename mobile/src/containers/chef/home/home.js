@@ -25,7 +25,8 @@ import {ChefProfileService, PROFILE_DETAIL_EVENT, TabBarService,
    CommonService, COMMON_LIST_NAME,
    BookingDetailService,
    BOOKING_DETAIL_EVENT,
-   LoginService
+   LoginService,
+   ChefBankService, CHEF_BANK
   } from '@services'
 import {RouteNames, ResetStack, ResetAction} from '@navigation'
 import {Languages} from '@translations'
@@ -78,6 +79,7 @@ class Home extends Component {
     ChefProfileService.on(PROFILE_DETAIL_EVENT.GET_CHEF_FULL_PROFILE_DETAIL, this.setList)
     BasicProfileService.on(UPDATE_BASIC_PROFILE_EVENT.UPDATING_DATA, this.updateInfo)
     BookingHistoryService.on(BOOKING_HISTORY_LIST_EVENT.BOOKING_VALUE, this.updateInfo)
+    ChefBankService.on(CHEF_BANK.UPDATING_BANK_DETAILS, this.updatedList)
     NotificationListService.on(
       NOTIFICATION_LIST_EVENT.UPDATING_NOTIFICATION_LIST,
       this.loadNotification()
@@ -112,6 +114,7 @@ class Home extends Component {
         if (isLoggedIn && isChef && currentUser.chefId) {
           BookingHistoryService.bookingSubsByChef(currentUser.chefId)
           BasicProfileService.profileSubscriptionForChef(currentUser.chefId)
+          ChefBankService.chefBankSubs(currentUser.chefId)
         } 
         this.setState(
           {
@@ -389,6 +392,7 @@ class Home extends Component {
       this.updateInfo
     )
     BookingHistoryService.off(BOOKING_HISTORY_LIST_EVENT.BOOKING_VALUE, this.updateInfo)
+    ChefBankService.off(CHEF_BANK.UPDATING_BANK_DETAILS, this.updatedList)
   }
 
   onSwitchUser = async () => {
@@ -494,6 +498,17 @@ class Home extends Component {
           this.fetchData()
         }
       )
+  }
+
+  updatedList = ({data}) => {
+    this.setState(
+      {
+        isFetching: true,
+      },
+      () => {
+        this.fetchData()
+      }
+    )
   }
 
   getRoleUrl = (url) => {
