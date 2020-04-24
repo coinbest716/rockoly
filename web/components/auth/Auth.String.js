@@ -34,6 +34,9 @@ export default {
   SUBMIT_MESSAGE:
     'Please submit the email address associated with your account and we will send you a link to reset password',
   EMAIL_PLACE_HOLDER: 'Enter your email',
+  REFERRAL_EMAIL_PLACE_HOLDER: 'Enter your referral Email Address',
+  REFERRAL: 'referrel',
+  REFERRAL_LABEL: 'Referral Email',
   RESET_PASSWORD: 'Reset Password',
   ENTER_YOUR_OTP: 'Enter your OTP',
   BLOCK_MESSAGE: 'Your account is blocked by admin',
