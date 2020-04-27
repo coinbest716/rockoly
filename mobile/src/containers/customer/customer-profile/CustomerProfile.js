@@ -214,6 +214,11 @@ class CustomerProfile extends Component {
     navigation.navigate(RouteNames.CUSTOMER_PREFERENCE)
   }
 
+  onChefRequest = () => {
+    const {navigation} = this.props
+    navigation.navigate(RouteNames.CHEF_REQUEST)
+  }
+
   onEmailVerification = () => {
     const {navigation} = this.props
     navigation.navigate(RouteNames.REG_EMAIL_VERIFICATION)
@@ -591,7 +596,7 @@ class CustomerProfile extends Component {
 
     if (isChef && profile) {
       return (
-        <View style={styles.userInfo}>
+        <View style={{marginHorizontal: 5}}>
           <Text style={styles.nameStyle}>
             {profile.chefFirstName} {profile.chefLastName}
           </Text>
@@ -855,12 +860,12 @@ class CustomerProfile extends Component {
           label="Your Guidebook"
           onPress={this.onIntroMessage}
         />
-        {/* <CustomListItem
+        <CustomListItem
           iconName="account-edit"
-          label={Languages.customerProfile.options.account}
-          onPress={this.onRate}
+          label="Chef Request "
+          onPress={this.onChefRequest}
           type="MaterialCommunityIcons"
-        /> */}
+        />
         <ListItem itemDivider>
           <Text>Chef Profile</Text>
         </ListItem>

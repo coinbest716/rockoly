@@ -171,12 +171,11 @@ const styles = StyleSheet.create({
     right: 5,
   },
   modalText: {
-    color: 'black',
-    fontSize: 14,
-    marginTop: 20,
-    paddingLeft: 20,
-    position: 'absolute',
-    right: 5,
+    fontSize: 18,
+    alignSelf: 'center',
+  },
+  modalIcon: {
+    alignSelf: 'center',
   },
 })
 

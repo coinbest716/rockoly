@@ -48,6 +48,7 @@ import Availability from './chef/components/availablity/Availability'
 import chefRequestPrice from './chef/chef-request-price/chefRequestPrice'
 import priceCalculation from './chef/priceClaculator/priceCalculator'
 import ChefEditProfile from './chef/chef-edit-profile/ChefEditProfile'
+import ChefRequest from './chef/components/chefRequest/ChefRequest'
 import Home from './chef/home/home'
 // chef
 
@@ -114,6 +115,7 @@ export {
   ForgotPassword,
   Notifications,
   ChefList,
+  ChefRequest,
   SetAvailability,
   CardManagement,
   ChefPaymentHistory,

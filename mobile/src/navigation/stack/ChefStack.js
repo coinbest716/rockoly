@@ -22,6 +22,7 @@ import {
   NotificationSettings,
   AboutUs,
   ContactUs,
+  ChefRequest,
   TermsAndPolicy,
   ChefPaymentHistory,
   ChatDetail,
@@ -190,6 +191,9 @@ const ChefStack = createStackNavigator(
     },
     [RouteNames.CHEF_SETTING_STACK]: {
       screen: ChefProfile,
+    },
+    [RouteNames.CHEF_REQUEST]: {
+      screen: ChefRequest,
     },
   },
   {

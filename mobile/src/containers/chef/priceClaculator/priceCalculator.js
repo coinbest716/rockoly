@@ -569,7 +569,7 @@ export default class priceCalculation extends Component {
       chefPrice,
       guestMin,
       guestCount,
-      complexityValue,
+      complexity,
       additionalServiceData,
       guestMax,
     } = this.state
@@ -611,7 +611,7 @@ export default class priceCalculation extends Component {
         pNoOfGuestsMin: guestMin,
         pNoOfGuestsMax: guestMin >= guestCount ? guestMax : guestCount,
         pChefPricePerHour: chefPrice ? parseInt(chefPrice) : null,
-        pChefComplexity: [complexityValue],
+        pChefComplexity: complexity,
         pChefAdditionalServices: additionalServiceData,
       }
       console.log('params', params)
@@ -1228,25 +1228,50 @@ export default class priceCalculation extends Component {
                   fontWeight: 'bold',
                   marginVertical: 5,
                 }}>
-                Are you sure
+                Chef Base rate
               </Text>
-              <View style={styles.iconText}>
-                <Text style={styles.heading}>Chef Base rate</Text>
+              <View
+                style={{flexDirection: 'row', justifyContent: 'space-evenly', marginVertical: 5}}>
+                <Text style={styles.modalText}>${chefDetail.chefPricePerHour}</Text>
+                <Icon type="MaterialCommunityIcons" name="arrow-right" style={styles.modalIcon} />
                 <Text style={styles.modalText}>${chefPrice}</Text>
               </View>
-              <View style={styles.iconText}>
-                <Text style={styles.heading}>No of guests</Text>
-                <Text style={styles.modalText}>{guestCount}</Text>
-              </View>
-              <View style={styles.iconText}>
-                <Text style={styles.heading}>
-                  {Languages.bookingDetail.labels.extra_services_amount}
-                </Text>
-                <Text style={styles.modalText}>
-                  {newAdditionalTotalPrice
-                    ? `$${parseFloat(newAdditionalTotalPrice).toFixed(2)}`
-                    : `$${0}`}
-                </Text>
+
+              <Text
+                style={{
+                  color: 'black',
+                  textAlign: 'center',
+                  fontSize: 18,
+                  fontWeight: 'bold',
+                  marginVertical: 5,
+                }}>
+                No of guests
+              </Text>
+              <Text style={styles.modalText}>{guestCount}</Text>
+
+              <Text
+                style={{
+                  color: 'black',
+                  textAlign: 'center',
+                  fontSize: 18,
+                  fontWeight: 'bold',
+                  marginVertical: 5,
+                }}>
+                Additional Service
+              </Text>
+              <View>
+                {additionalServices &&
+                  additionalServices.length > 0 &&
+                  additionalServices.map((item, index) => {
+                    console.log('item', item)
+                    return (
+                      <ListItem style={{borderBottomWidth: 0}}>
+                        <Text>
+                          {item.name}:${item.price}
+                        </Text>
+                      </ListItem>
+                    )
+                  })}
               </View>
               <View style={{flexDirection: 'column', marginVertical: 10}}>
                 <View style={styles.btnView}>
