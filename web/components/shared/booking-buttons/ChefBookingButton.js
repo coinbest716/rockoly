@@ -261,7 +261,7 @@ const ChefBookingButton = props => {
                           onClickCompleteEdtit(modalEditVisible, setModalEditVisible, 'edit')
                         }
                         id="cancel-button-styl"
-                        style={{ marginTop: '10px', color: '#fff' }}
+                        style={{ marginTop: '10px', color: '#fff',marginRight: '19px' }}
                       >
                         {S.EDIT}
                       </button>
@@ -279,7 +279,7 @@ const ChefBookingButton = props => {
                     type="button"
                     className="btn btn-primary"
                     onClick={() => onClickFeedback(bookingData)}
-                    style={{ marginTop: '10px' }}
+                    style={{ marginTop: '10px',marginRight: '19px' }}
                     id="buttonTextCompleted"
                   >
                     {S.SUBMIT_FEEDBACK}

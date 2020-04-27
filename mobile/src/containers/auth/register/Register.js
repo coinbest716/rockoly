@@ -27,6 +27,7 @@ class Register extends PureComponent {
       passwordLengthError: false,
       role: '',
       validEmail: true,
+      validReferralEmail: true,
       cca2: 'US',
       callingCode: '1',
       callingCodeWithPlus: '+1',
@@ -63,7 +64,7 @@ class Register extends PureComponent {
         str = email.toLowerCase()
       }
 
-      this.setState({referralEmail: str, validEmail: isEmailValid(str)})
+      this.setState({referralEmail: str, validReferralEmail: str === '' ? true : isEmailValid(str)})
     }
     this.onPasswordEditHandle = password => {
       let passwordLengthError = false
@@ -152,10 +153,21 @@ class Register extends PureComponent {
       role,
       checkedValue,
       referralEmail,
+      validReferralEmail
     } = this.state
 
+    if(referralEmail && role === CONSTANTS.ROLE.CHEF && !validReferralEmail) {
+        Alert.alert(
+          Languages.register.title,
+          Languages.register.reg_alrt_msg.fill_form,
+          [{text: Languages.register.buttonLabels.ok, onPress: () => console.log('OK Pressed')}],
+          {cancelable: false}
+        )
+        return
+    }
+
     if (
-      (role === CONSTANTS.ROLE.CHEF && !referralEmail) ||
+      // (role === CONSTANTS.ROLE.CHEF && !referralEmail) ||
       !firstName ||
       !lastName ||
       !email ||
@@ -581,6 +593,7 @@ class Register extends PureComponent {
       role,
       referralEmail,
       checkedValue,
+      validReferralEmail
     } = this.state
 
     if (showEmailInputOnly) {
@@ -629,6 +642,11 @@ class Register extends PureComponent {
                   placeholder={Languages.register.reg_form_label.email}
                 />
               </Item>
+              {!validEmail ? (
+                <Text style={styles.errorMessage}>
+                  {Languages.register.reg_form_label.inavl_email}
+                </Text>
+              ) : null}
               {role === CONSTANTS.ROLE.CHEF && (
                 <Item>
                   <Icon style={styles.iconColor} name="mail" />
@@ -641,7 +659,7 @@ class Register extends PureComponent {
                   />
                 </Item>
               )}
-              {!validEmail ? (
+                {!validReferralEmail ? (
                 <Text style={styles.errorMessage}>
                   {Languages.register.reg_form_label.inavl_email}
                 </Text>

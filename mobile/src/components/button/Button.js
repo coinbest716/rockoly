@@ -18,6 +18,7 @@ class CommonButton extends PureComponent {
       containerStyle: props.containerStyle,
       textStyle: props.textStyle,
       disabled: props.disabled,
+      danger: props.danger
     }
   }
 
@@ -33,12 +34,12 @@ class CommonButton extends PureComponent {
   }
 
   render() {
-    const {btnText, onPress, containerStyle, textStyle, disabled} = this.state
+    const {btnText, onPress, containerStyle, textStyle, disabled, danger} = this.state
     return (
       <Button
         disabled={disabled}
         block
-        style={[styles.container, containerStyle, !disabled ? styles.enabled : {}]}
+        style={[styles.container, containerStyle, !disabled ? styles.enabled : {}, danger ? styles.disabled : {}]}
         onPress={onPress}>
         <Text style={[styles.text, textStyle]}>{btnText}</Text>
       </Button>
@@ -58,6 +59,9 @@ const styles = StyleSheet.create({
   },
   enabled: {
     backgroundColor: Theme.Colors.primary,
+  },
+  disabled: {
+    backgroundColor: Theme.Colors.error,
   },
   text: {
     color: Theme.Colors.btnTextColor,

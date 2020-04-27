@@ -259,7 +259,7 @@ export const profileSetupChefNestedMenuKeys = [
   },
   {
     key: 'psub4',
-    index: 16,
+    index: 17,
   },
   {
     key: 'psub5Menu1Nes1',

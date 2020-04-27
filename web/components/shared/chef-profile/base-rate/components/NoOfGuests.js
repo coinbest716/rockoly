@@ -83,7 +83,7 @@ const NumberOfGuestes = props => {
                 min="0"
                 max="5"
                 value={minRangevalue}
-                className="slider"
+                className="slidercss"
                 id="myRange"
                 onChange={event => {
                   event.persist();
@@ -97,7 +97,7 @@ const NumberOfGuestes = props => {
                 min="0"
                 max="40"
                 value={maxrangeValue}
-                className="slider"
+                className="slidercss"
                 id="myRange"
                 onChange={event => {
                   event.persist();

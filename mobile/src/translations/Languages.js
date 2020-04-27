@@ -832,6 +832,7 @@ export default new LocalizedStrings({
         allergy: 'Select Allergy',
         dietary: 'Select Dietary Restrictions',
         kitchenEquipment: 'Select Kitchen Equipment',
+        customerApproval: 'Customer Approval',
         request: 'Request Price',
         next: 'Next',
         request_additional_charges: 'Request Additional Charges',
@@ -996,6 +997,13 @@ export default new LocalizedStrings({
         priceCal: 'Price Calculator',
         service: 'Service',
         number_of_guests: 'Number of guests',
+        customer_approval: 'Customer Approval',
+        terms_and_conditions_label: 'Terms and conditions',
+        terms_and_conditions: 'Terms & conditions',
+        terms_and_conditions_link: 'https://dev.rockoly.com/terms-and-conditions',
+        privacy_policy_label: 'Privacy policy',
+        privacy_policy: 'Privacy policy',
+        privacy_policy_link: 'https://dev.rockoly.com/privacy-policy',
       },
       alert: {
         error_title: 'Error',
@@ -1116,5 +1124,11 @@ export default new LocalizedStrings({
         no_reservations: 'No Reservations',
       },
     },
+    customerApproval: {
+      label: {
+        approve: 'Approve',
+        reject: 'Reject'
+      }
+    }
   },
 })

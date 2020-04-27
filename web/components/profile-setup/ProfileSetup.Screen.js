@@ -142,7 +142,7 @@ const GET_PROFILE_DATA = gql`
 
 const ProfileSetupScreen = props => {
   const childRef = useRef();
-  const [keys, setkeys] = useState(parseInt(props.keyValuue));
+  const [keys, setkeys] = useState(parseInt(props.keyValue));
   // console.log("props.keyValue", parseInt(props.keyValue));
   // const [keys, setkeys] = useState(2);
   const [ProfileDetails, setProfileDetails] = useState([]);
@@ -362,7 +362,11 @@ const ProfileSetupScreen = props => {
   }
 
   useEffect(() => {
+    if(parseInt(props.keyValue !== 0))
     setkeys(parseInt(props.keyValue))
+    else{
+      setkeys(0);
+    }
   }, [props.keyValue])
 
   //check and set admin user
@@ -654,7 +658,7 @@ const ProfileSetupScreen = props => {
                 )}
                 {keys == 8 &&
                   <section className="cart-area ptb-60">
-                    <div className="notification">
+                    <div className="notificationProfile">
                       <div className="row">
                         <div className="col-lg-6 col-md-6">
                           <span>
@@ -677,7 +681,7 @@ const ProfileSetupScreen = props => {
                   </section>
                 }
                 {keys == 9 &&
-                  <div className="notification">
+                  <div className="notificationProfile">
                     Under Development
                 </div>
                 }
@@ -690,7 +694,7 @@ const ProfileSetupScreen = props => {
                 }{keys == 11 &&
                   <ChangePassword screen={'profile'} />
                 }{keys == 12 &&
-                  <div className="notification">
+                  <div className="notificationProfile">
                     Under Development
                 </div>
                 }
@@ -851,7 +855,7 @@ const ProfileSetupScreen = props => {
                         )}
                         {keys == 14 &&
                           <section className="cart-area ptb-60">
-                            <div className="notification">
+                            <div className="notificationProfile">
                               <div className="row">
                                 <div className="col-lg-6 col-md-6">
                                   <span>
@@ -873,7 +877,7 @@ const ProfileSetupScreen = props => {
                             </div>
                           </section>
                         }{keys == 15 &&
-                          <div className="notification">
+                          <div className="notificationProfile">
                             Under Development
                         </div>
                         }{keys == 17 &&
@@ -883,7 +887,7 @@ const ProfileSetupScreen = props => {
                           </button>
                           </div>
                         }{keys == 18 &&
-                          <div className="notification">
+                          <div className="notificationProfile">
                             Under Development
                 </div>
                         }

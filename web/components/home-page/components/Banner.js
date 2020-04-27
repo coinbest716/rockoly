@@ -75,6 +75,16 @@ const UPDATE_CHEF_PROFILE_SUBMIT = gql`
   ${updateChefProfileSubmit}
 `;
 
+const requestSubscription = gqlTag.subscription.booking.byChefIdGQLTAG;
+const REQUEST_SUBSCRIPTION = gql`
+  ${requestSubscription}
+`;
+
+// gql for subscription for chef
+const chefProfileSubscription = gqlTag.subscription.chef.ProfileGQLTAG;
+const CHEF_SUBSCRIPTION_TAG = gql`
+  ${chefProfileSubscription}
+`;
 const Banner = props => {
   const [userRole, setUserRole] = useState([]);
   const [display, setDisplay] = useState(false);
@@ -139,6 +149,25 @@ const Banner = props => {
       },
     }
   );
+
+  const { subscriptionData } = useSubscription(REQUEST_SUBSCRIPTION, {
+    variables: { chefId: chefIdValue },
+    onSubscriptionData: res => {
+      if (res) {
+        getChefListByProfile();
+        // triggerHistorySubscription();
+      }
+    },
+  });
+
+  const { chefProfileSubsdata } = useSubscription(CHEF_SUBSCRIPTION_TAG, {
+    variables: { chefId: chefIdValue },
+    onSubscriptionData: res => {
+      if (res.subscriptionData.data.chefProfile) {
+        getChefListByProfile();
+      }
+    },
+  });
 
   useEffect(() => {
     setDisplay(true);
@@ -356,7 +385,7 @@ const Banner = props => {
     if (type == 'time') {
       let bookingFromTime = getTimeOnly(getLocalTime(data.chefBookingFromTime));
       let bookingToTime = getTimeOnly(getLocalTime(data.chefBookingToTime));
-      return bookingFromTime + ' - ' + bookingToTime;
+      return "  " + bookingFromTime + ' - ' + bookingToTime;
     } else {
       return NotificationconvertDateandTime(data.chefBookingFromTime);
     }
@@ -594,7 +623,7 @@ const Banner = props => {
                           >
                             <div
                               className="col-lg-3"
-                              style={{ display: 'flex', flexDirection: 'column' }}
+                              style={{ display: 'flex', flexDirection: 'column',paddingTop: '2%' }}
                             >
                               <img
                                 className="profile-pic"
@@ -631,7 +660,7 @@ const Banner = props => {
                           <div class="request row" id="chef-home-request">
                             <div
                               className="col-lg-3"
-                              style={{ display: 'flex', flexDirection: 'column' }}
+                              style={{ display: 'flex', flexDirection: 'column',paddingTop: '2%' }}
                             >
                               <img
                                 class="profile-pic"
@@ -675,7 +704,7 @@ const Banner = props => {
                           <div class="request row" id="chef-home-request">
                             <div
                               className="col-lg-3"
-                              style={{ display: 'flex', flexDirection: 'column' }}
+                              style={{ display: 'flex', flexDirection: 'column',paddingTop: '2%' }}
                             >
                               <img
                                 class="profile-pic"

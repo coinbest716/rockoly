@@ -189,7 +189,10 @@ class CustomerProfile extends Component {
     return (
       <View style={styles.text}>
         <Text style={{marginHorizontal: 10, textAlign: 'center', marginBottom: 5}}>
-          Welcome to Rockoly. Please click login/register to get started.
+          Welcome to Rockoly. 
+        </Text>
+        <Text style={{marginHorizontal: 10, textAlign: 'center', marginBottom: 5}}>
+        Please click login/register to get started.
         </Text>
         <View style={styles.loginBtnView}>
           <CommonButton
@@ -516,6 +519,27 @@ class CustomerProfile extends Component {
     navigation.navigate(RouteNames.TERMS_AND_POLICY)
   }
 
+  onTermsAndCondition = () => {
+    const {navigation} = this.props
+    const URL = Languages.customerProfile.options.terms_and_conditions_link
+    const title = Languages.customerProfile.options.terms_and_conditions
+
+    if (!URL) {
+      return null
+    }
+    navigation.navigate(RouteNames.WEB_VIEW, {URL, title})
+  }
+
+  onPrivacyPolicy = () => {
+    const {navigation} = this.props
+    const URL = Languages.customerProfile.options.privacy_policy_link
+    const title = Languages.customerProfile.options.privacy_policy
+    if (!URL) {
+      return null
+    }
+    navigation.navigate(RouteNames.WEB_VIEW, {URL, title})
+  }
+
   onProfileSetup = () => {
     const {navigation} = this.props
     navigation.navigate(RouteNames.CHEF_SETUP_PROFILE)
@@ -584,6 +608,11 @@ class CustomerProfile extends Component {
   onInboxpress = () => {
     const {navigation} = this.props
     navigation.navigate(RouteNames.CONVERSATION_LIST)
+  }
+
+  onPressCustomerApproval = () => {
+    const {navigation} = this.props
+    navigation.navigate(RouteNames.BOOK_CUSTOMER_APPROVAL)
   }
 
   userInfoContent = () => {
@@ -1093,11 +1122,29 @@ class CustomerProfile extends Component {
                 label={Languages.customerProfile.options.aboutus}
                 onPress={this.onContactUs}
               />
+              <ListItem itemDivider>
+                <Text>{Languages.customerProfile.options.legal}</Text>
+              </ListItem>
               <CustomListItem
                 type="MaterialCommunityIcons"
                 iconName="file-document"
-                label={Languages.customerProfile.options.legal}
-                onPress={this.onTerms}
+                label={Languages.customerProfile.options.terms_and_conditions_label}
+                onPress={this.onTermsAndCondition}
+              />
+               <CustomListItem
+                type="MaterialCommunityIcons"
+                iconName="file-lock"
+                label={Languages.customerProfile.options.privacy_policy_label}
+                onPress={this.onPrivacyPolicy}
+              />
+              <ListItem itemDivider>
+                <Text>Customer</Text>
+              </ListItem>
+              <CustomListItem
+                iconName="account-edit"
+                label={Languages.customerProfile.options.customer_approval}
+                onPress={this.onPressCustomerApproval}
+                type="MaterialCommunityIcons"
               />
               {/* <CustomListItem
                 type="MaterialCommunityIcons"
@@ -1119,7 +1166,7 @@ class CustomerProfile extends Component {
                 label={Languages.customerProfile.options.logout}
                 onPress={this.logout}
                 type="MaterialCommunityIcons"
-              />
+              /> 
             </View>
           )}
         </ScrollView>

@@ -1707,7 +1707,7 @@ var createMgmtHistGQLTAG = "mutation createCommissionManagementHistory(\n    $co
 /*!*********************************************!*\
   !*** ./common/gql/mutation/custom/index.js ***!
   \*********************************************/
-/*! exports provided: sendEmailGQLTAG */
+/*! exports provided: sendEmailGQLTAG, changeEmailGQLTAG */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1715,8 +1715,33 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _mutation_custom_sendEmail__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./mutation.custom.sendEmail */ "./common/gql/mutation/custom/mutation.custom.sendEmail.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "sendEmailGQLTAG", function() { return _mutation_custom_sendEmail__WEBPACK_IMPORTED_MODULE_0__["sendEmailGQLTAG"]; });
 
+/* harmony import */ var _mutation_custom_changeEmail__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./mutation.custom.changeEmail */ "./common/gql/mutation/custom/mutation.custom.changeEmail.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "changeEmailGQLTAG", function() { return _mutation_custom_changeEmail__WEBPACK_IMPORTED_MODULE_1__["changeEmailGQLTAG"]; });
 
 
+
+
+
+/***/ }),
+
+/***/ "./common/gql/mutation/custom/mutation.custom.changeEmail.js":
+/*!*******************************************************************!*\
+  !*** ./common/gql/mutation/custom/mutation.custom.changeEmail.js ***!
+  \*******************************************************************/
+/*! exports provided: changeEmailGQLTAG */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "changeEmailGQLTAG", function() { return changeEmailGQLTAG; });
+var changeEmailGQLTAG = "mutation updateUserEmail($pEmail:String,$pId:String,$pType:String){\n  updateUserEmail(input:{pEmail:$pEmail,pId:$pId,pType:$pType}){\n    procedureResult{\n      success\n      message\n    }\n  }\n}";
+/*
+{
+  "pEmail": "nivetha@neosme.com",
+  "pId": "5af81ba7-000a-4d14-9dfa-b36d065018f8",
+  "pType": "CHEF"
+}
+*/
 
 /***/ }),
 
@@ -64706,19 +64731,21 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_terms_and_conditions_TermsConditions_Styles_scss__WEBPACK_IMPORTED_MODULE_38___default = /*#__PURE__*/__webpack_require__.n(_components_terms_and_conditions_TermsConditions_Styles_scss__WEBPACK_IMPORTED_MODULE_38__);
 /* harmony import */ var _components_privacy_policy_PrivacyPolicy_Styles_scss__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ../components/privacy-policy/PrivacyPolicy.Styles.scss */ "./components/privacy-policy/PrivacyPolicy.Styles.scss");
 /* harmony import */ var _components_privacy_policy_PrivacyPolicy_Styles_scss__WEBPACK_IMPORTED_MODULE_39___default = /*#__PURE__*/__webpack_require__.n(_components_privacy_policy_PrivacyPolicy_Styles_scss__WEBPACK_IMPORTED_MODULE_39__);
-/* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
-/* harmony import */ var next_app__WEBPACK_IMPORTED_MODULE_41__ = __webpack_require__(/*! next/app */ "./node_modules/next/app.js");
-/* harmony import */ var next_app__WEBPACK_IMPORTED_MODULE_41___default = /*#__PURE__*/__webpack_require__.n(next_app__WEBPACK_IMPORTED_MODULE_41__);
-/* harmony import */ var next_redux_wrapper__WEBPACK_IMPORTED_MODULE_42__ = __webpack_require__(/*! next-redux-wrapper */ "./node_modules/next-redux-wrapper/es6/index.js");
-/* harmony import */ var _store_reducers_index__WEBPACK_IMPORTED_MODULE_43__ = __webpack_require__(/*! ../store/reducers/index */ "./store/reducers/index.js");
-/* harmony import */ var next_seo__WEBPACK_IMPORTED_MODULE_44__ = __webpack_require__(/*! next-seo */ "./node_modules/next-seo/lib/index.js");
-/* harmony import */ var next_seo__WEBPACK_IMPORTED_MODULE_44___default = /*#__PURE__*/__webpack_require__.n(next_seo__WEBPACK_IMPORTED_MODULE_44__);
-/* harmony import */ var _components_shared_go_top_GoTop__WEBPACK_IMPORTED_MODULE_45__ = __webpack_require__(/*! ../components/shared/go-top/GoTop */ "./components/shared/go-top/GoTop.js");
-/* harmony import */ var next_config__WEBPACK_IMPORTED_MODULE_46__ = __webpack_require__(/*! next/config */ "./node_modules/next-server/dist/lib/runtime-config.js");
-/* harmony import */ var next_config__WEBPACK_IMPORTED_MODULE_46___default = /*#__PURE__*/__webpack_require__.n(next_config__WEBPACK_IMPORTED_MODULE_46__);
-/* harmony import */ var _context_appContext__WEBPACK_IMPORTED_MODULE_47__ = __webpack_require__(/*! ../context/appContext */ "./context/appContext.js");
-/* harmony import */ var next_router__WEBPACK_IMPORTED_MODULE_48__ = __webpack_require__(/*! next/router */ "./node_modules/next/dist/client/router.js");
-/* harmony import */ var next_router__WEBPACK_IMPORTED_MODULE_48___default = /*#__PURE__*/__webpack_require__.n(next_router__WEBPACK_IMPORTED_MODULE_48__);
+/* harmony import */ var _components_shared_modal_pricingModal_scss__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ../components/shared/modal/pricingModal.scss */ "./components/shared/modal/pricingModal.scss");
+/* harmony import */ var _components_shared_modal_pricingModal_scss__WEBPACK_IMPORTED_MODULE_40___default = /*#__PURE__*/__webpack_require__.n(_components_shared_modal_pricingModal_scss__WEBPACK_IMPORTED_MODULE_40__);
+/* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_41__ = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
+/* harmony import */ var next_app__WEBPACK_IMPORTED_MODULE_42__ = __webpack_require__(/*! next/app */ "./node_modules/next/app.js");
+/* harmony import */ var next_app__WEBPACK_IMPORTED_MODULE_42___default = /*#__PURE__*/__webpack_require__.n(next_app__WEBPACK_IMPORTED_MODULE_42__);
+/* harmony import */ var next_redux_wrapper__WEBPACK_IMPORTED_MODULE_43__ = __webpack_require__(/*! next-redux-wrapper */ "./node_modules/next-redux-wrapper/es6/index.js");
+/* harmony import */ var _store_reducers_index__WEBPACK_IMPORTED_MODULE_44__ = __webpack_require__(/*! ../store/reducers/index */ "./store/reducers/index.js");
+/* harmony import */ var next_seo__WEBPACK_IMPORTED_MODULE_45__ = __webpack_require__(/*! next-seo */ "./node_modules/next-seo/lib/index.js");
+/* harmony import */ var next_seo__WEBPACK_IMPORTED_MODULE_45___default = /*#__PURE__*/__webpack_require__.n(next_seo__WEBPACK_IMPORTED_MODULE_45__);
+/* harmony import */ var _components_shared_go_top_GoTop__WEBPACK_IMPORTED_MODULE_46__ = __webpack_require__(/*! ../components/shared/go-top/GoTop */ "./components/shared/go-top/GoTop.js");
+/* harmony import */ var next_config__WEBPACK_IMPORTED_MODULE_47__ = __webpack_require__(/*! next/config */ "./node_modules/next-server/dist/lib/runtime-config.js");
+/* harmony import */ var next_config__WEBPACK_IMPORTED_MODULE_47___default = /*#__PURE__*/__webpack_require__.n(next_config__WEBPACK_IMPORTED_MODULE_47__);
+/* harmony import */ var _context_appContext__WEBPACK_IMPORTED_MODULE_48__ = __webpack_require__(/*! ../context/appContext */ "./context/appContext.js");
+/* harmony import */ var next_router__WEBPACK_IMPORTED_MODULE_49__ = __webpack_require__(/*! next/router */ "./node_modules/next/dist/client/router.js");
+/* harmony import */ var next_router__WEBPACK_IMPORTED_MODULE_49___default = /*#__PURE__*/__webpack_require__.n(next_router__WEBPACK_IMPORTED_MODULE_49__);
 
 
 
@@ -64770,12 +64797,13 @@ var __jsx = react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement;
 
 
 
-var _getConfig = next_config__WEBPACK_IMPORTED_MODULE_46___default()(),
+
+var _getConfig = next_config__WEBPACK_IMPORTED_MODULE_47___default()(),
     publicRuntimeConfig = _getConfig.publicRuntimeConfig;
 
 var MAPAPIKEY = publicRuntimeConfig.MAPAPIKEY;
 var mapKey = "https://maps.googleapis.com/maps/api/js?key=".concat(MAPAPIKEY, "&libraries=places");
-/* harmony default export */ __webpack_exports__["default"] = (Object(next_redux_wrapper__WEBPACK_IMPORTED_MODULE_42__["default"])(_store_reducers_index__WEBPACK_IMPORTED_MODULE_43__["initStore"])(
+/* harmony default export */ __webpack_exports__["default"] = (Object(next_redux_wrapper__WEBPACK_IMPORTED_MODULE_43__["default"])(_store_reducers_index__WEBPACK_IMPORTED_MODULE_44__["initStore"])(
 /*#__PURE__*/
 function (_App) {
   Object(_babel_runtime_corejs2_helpers_esm_inherits__WEBPACK_IMPORTED_MODULE_6__["default"])(MyApp, _App);
@@ -64793,7 +64821,7 @@ function (_App) {
           Component = _this$props.Component,
           pageProps = _this$props.pageProps,
           store = _this$props.store;
-      return __jsx(next_app__WEBPACK_IMPORTED_MODULE_41__["Container"], null, __jsx("script", {
+      return __jsx(next_app__WEBPACK_IMPORTED_MODULE_42__["Container"], null, __jsx("script", {
         type: "text/javascript",
         src: mapKey
       }), __jsx("script", {
@@ -64801,7 +64829,7 @@ function (_App) {
         id: "stripe-js",
         src: "https://js.stripe.com/v3/",
         async: true
-      }), __jsx(next_seo__WEBPACK_IMPORTED_MODULE_44__["DefaultSeo"], {
+      }), __jsx(next_seo__WEBPACK_IMPORTED_MODULE_45__["DefaultSeo"], {
         title: "Rockoly",
         description: "Book a Cook",
         openGraph: {
@@ -64810,7 +64838,7 @@ function (_App) {
           url: 'https://nextland-react.envytheme.com/',
           site_name: 'Rockoly - Find your chef'
         }
-      }), __jsx(_context_appContext__WEBPACK_IMPORTED_MODULE_47__["AppProvider"], null, __jsx(Component, pageProps)), __jsx(_components_shared_go_top_GoTop__WEBPACK_IMPORTED_MODULE_45__["default"], {
+      }), __jsx(_context_appContext__WEBPACK_IMPORTED_MODULE_48__["AppProvider"], null, __jsx(Component, pageProps)), __jsx(_components_shared_go_top_GoTop__WEBPACK_IMPORTED_MODULE_46__["default"], {
         scrollStepInPx: "50",
         delayInMs: "16.66"
       }));
@@ -64867,7 +64895,7 @@ function (_App) {
   }]);
 
   return MyApp;
-}(next_app__WEBPACK_IMPORTED_MODULE_41___default.a)));
+}(next_app__WEBPACK_IMPORTED_MODULE_42___default.a)));
 
 /***/ }),
 

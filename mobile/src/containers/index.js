@@ -24,6 +24,8 @@ import BookAllergy from './customer/book-allergy/BookAllergy'
 import ExtraPayment from './customer/extra-payment/ExtraPayment'
 import ChangeBookLocation from './customer/change-book-location/ChangeBookLocation'
 import CustomerContent from './customer/customerContent/customerContent'
+import BookCustomerApproval from './customer/book-customer-approval/BookCustomerApproval'
+import CustomerApproval from './customer/components/customer-approval/CustomerApproval'
 // customer
 
 // chef
@@ -168,4 +170,6 @@ export {
   RegEmailVerification,
   RegMobileVerification,
   WebView,
+  BookCustomerApproval,
+  CustomerApproval,
 }
